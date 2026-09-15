@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="モンスターハンターワールド：アイスボーンをスラッシュアックスで進めるためのMR序盤攻略ページ。装飾品が少ない状態からミラボレアスまでの装備更新を整理。">
   <title>MHW:I スラアクでミラボレアスまで｜MR攻略装備</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Shippori+Mincho+B1:wght@700;800&family=Zen+Maru+Gothic:wght@400;700;900&family=Yuji+Syuku&display=swap" rel="stylesheet">
   <style>
     :root {
       --ink: #20252b;
@@ -132,6 +135,107 @@
       .verdict .mark { justify-self: start; }
     }
   </style>
+  <style>
+    :root {
+      --paper-old: #f3ead3;
+      --panel-old: #f8f1df;
+      --ink-old: #2b2521;
+      --muted-old: #6b6257;
+      --rule-old: #8a8072;
+      --red-old: #b5432f;
+      --gold-old: #8c6a1d;
+      --min-old: "Shippori Mincho B1", "Yu Mincho", serif;
+      --dot-old: "DotGothic16", "Zen Maru Gothic", monospace;
+    }
+    body {
+      background-color: var(--paper-old);
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .2 0 0 0 0 .15 0 0 0 .1 0 0 0 0 .07 0'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
+      color: var(--ink-old);
+      font-family: "Zen Maru Gothic", "Yu Gothic", sans-serif;
+      font-size: 15px;
+    }
+    a { color: var(--red-old); }
+    .wrap { width: min(720px, calc(100% - 28px)); }
+    header {
+      padding: 12px 0 16px;
+      color: var(--ink-old);
+      background: transparent;
+      border-bottom: 3px double var(--ink-old);
+    }
+    nav { margin-bottom: 18px; gap: 7px; }
+    nav a {
+      color: var(--ink-old);
+      padding: 2px 7px;
+      border: 1px solid var(--ink-old);
+      background: var(--panel-old);
+      font-family: var(--dot-old);
+      font-size: 11px;
+    }
+    nav .brand { color: var(--ink-old); margin-right: auto; border: 0; padding-left: 0; background: transparent; font-family: var(--min-old); letter-spacing: .12em; }
+    .eyebrow, .section-kicker { color: var(--red-old); font-family: var(--dot-old); font-size: 11px; }
+    h1, h2, h3 { font-family: var(--min-old); color: var(--ink-old); }
+    h1 { max-width: none; font-size: clamp(36px, 9vw, 56px); letter-spacing: .06em; }
+    .lead { color: var(--muted-old); font-size: 14px; }
+    .hero-status {
+      color: var(--paper-old);
+      background: var(--ink-old);
+      border: 1px solid var(--ink-old);
+      border-radius: 2px;
+      font-family: var(--dot-old);
+      font-size: 11px;
+      box-shadow: 2px 2px 0 var(--red-old);
+    }
+    .hero-status::before { color: #e8c980; }
+    main { padding: 18px 0 42px; }
+    section { margin-top: 28px; }
+    h2 { margin-bottom: 12px; font-size: clamp(25px, 6vw, 34px); letter-spacing: .07em; }
+    h3 { font-size: 18px; }
+    .callout, .card, .skill-box, .optional, .step, .note, table {
+      border: 1.5px solid var(--ink-old);
+      border-radius: 2px;
+      background: var(--panel-old);
+      box-shadow: 3px 3px 0 rgba(43, 37, 33, .16);
+    }
+    .callout { border-left: 6px solid var(--red-old); padding: 16px 18px 8px; }
+    .callout strong, .priority { color: var(--red-old); }
+    .card { padding: 15px; }
+    .card .number { width: 29px; height: 29px; margin-bottom: 10px; border-radius: 2px; background: var(--ink-old); font-family: var(--dot-old); }
+    .tag { border: 1px solid var(--ink-old); border-radius: 2px; background: #d9d9ea; color: var(--ink-old); font-family: var(--dot-old); font-size: 10px; }
+    .tag.red { background: #ebd3c3; color: var(--red-old); }
+    .tag.gold { background: #e8ddb8; color: var(--gold-old); }
+    .tag.green { background: #e5eee4; color: #416044; }
+    table { overflow: hidden; }
+    th, td { padding: 9px 10px; border-bottom: 1px solid var(--rule-old); }
+    th { color: var(--paper-old); background: var(--ink-old); font-family: var(--dot-old); font-size: 11px; }
+    td { font-size: 13px; }
+    .build-list li { padding: 9px 0; border-bottom: 1px dashed var(--rule-old); }
+    .part { color: var(--muted-old); font-family: var(--dot-old); font-size: 10px; }
+    .skill-box { padding: 16px; background: #e5eee4; }
+    .optional { padding: 12px 14px; background: #fff3c4; font-size: 12px; }
+    .step { padding: 15px; }
+    .step-label { color: var(--red-old); font-family: var(--dot-old); font-size: 11px; }
+    .verdict + .verdict { border-top: 1px dotted var(--rule-old); }
+    .verdict .mark { border-radius: 2px; background: #55775d; font-family: var(--dot-old); font-size: 10px; }
+    .verdict .mark.later { color: var(--ink-old); background: #e8ddb8; }
+    .verdict .mark.skip { background: #89939b; }
+    .note { padding: 12px 14px; background: #d9d9ea; color: var(--ink-old); font-size: 12px; }
+    footer { padding: 18px 0 34px; border-top: 3px double var(--ink-old); color: var(--muted-old); font-family: var(--dot-old); font-size: 10px; }
+    .guide-figure {
+      margin: 16px 0 0;
+      padding: 7px;
+      border: 1.5px solid var(--ink-old);
+      background: #fff;
+      box-shadow: 2px 2px 0 rgba(43, 37, 33, .14);
+    }
+    .guide-figure svg { display: block; width: 100%; height: auto; }
+    .guide-figure figcaption { margin-top: 4px; padding-top: 4px; border-top: 1px dotted var(--rule-old); color: var(--muted-old); font-family: var(--dot-old); font-size: 10px; }
+    .guide-line { fill: none; stroke: var(--ink-old); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .guide-dash { fill: none; stroke: var(--red-old); stroke-width: 2; stroke-dasharray: 6 5; stroke-linecap: round; }
+    .guide-node { fill: var(--panel-old); stroke: var(--ink-old); stroke-width: 1.5; }
+    .guide-hot { fill: #ebd3c3; }
+    .guide-text { fill: var(--ink-old); font-family: "Zen Maru Gothic", sans-serif; font-size: 13px; font-weight: 700; }
+    .guide-small { fill: var(--muted-old); font-family: var(--dot-old); font-size: 10px; }
+  </style>
 </head>
 <body>
   <header>
@@ -149,6 +253,25 @@
         <h1>スラアクで<br>ミラボレアスまで</h1>
         <p class="lead">ガーディアン装備から卒業して、装飾品が少ない状態でもMRを進められるようにするための実戦用メモ。</p>
         <div class="hero-status">いまの最優先：MR防具を作って、防御力を上げる</div>
+        <figure class="guide-figure" aria-label="スラッシュアックスの攻略ループ">
+          <svg viewBox="0 0 640 170" role="img">
+            <path class="guide-line" d="M88 86 C145 28 216 28 278 86 S424 144 550 86" />
+            <path class="guide-dash" d="M88 86 C145 144 216 144 278 86 S424 28 550 86" />
+            <circle class="guide-node" cx="88" cy="86" r="38" />
+            <circle class="guide-node" cx="248" cy="86" r="38" />
+            <circle class="guide-node guide-hot" cx="408" cy="86" r="38" />
+            <circle class="guide-node" cx="550" cy="86" r="38" />
+            <text class="guide-text" x="88" y="82" text-anchor="middle">MR防具</text>
+            <text class="guide-small" x="88" y="100" text-anchor="middle">体力を確保</text>
+            <text class="guide-text" x="248" y="82" text-anchor="middle">ゲージ</text>
+            <text class="guide-small" x="248" y="100" text-anchor="middle">斧 → 剣</text>
+            <text class="guide-text" x="408" y="82" text-anchor="middle">高出力</text>
+            <text class="guide-small" x="408" y="100" text-anchor="middle">覚醒を維持</text>
+            <text class="guide-text" x="550" y="82" text-anchor="middle">零距離</text>
+            <text class="guide-small" x="550" y="100" text-anchor="middle">隙だけ置く</text>
+          </svg>
+          <figcaption>攻略の流れ：防御力を上げる → ゲージを整える → 隙に大技。</figcaption>
+        </figure>
       </div>
     </div>
   </header>
