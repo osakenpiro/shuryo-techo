@@ -1,7 +1,8 @@
-﻿# 狩猟手帖
+# 狩猟手帖
 
-MHW:IB 自分用の武器切替帳（スラッシュアックス／弓／片手剣）。単一 HTML。
+MHW:Iを四人でミラボレアスまで進めるための自分用メモ。スラッシュアックスを主役に、弓・チャージアックスの練習、片手剣のパーティー役割、MR攻略装備とイベントの優先順位を整理しています。
 
-https://osakenpiro.github.io/shuryo-techo/
+- トップ：https://osakenpiro.github.io/shuryo-techo/
+- スラアクMR攻略：https://osakenpiro.github.io/shuryo-techo/mr-switchaxe.html
 
-非公式のファン制作物。出典はあるっちの解説動画（字幕引用）。
+非公式のファン制作物。参考動画のリンクを掲載しています。
