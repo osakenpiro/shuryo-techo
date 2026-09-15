@@ -245,6 +245,58 @@
     .print-plate img { display: block; width: 100%; max-height: 260px; object-fit: cover; object-position: center; filter: sepia(.14) saturate(.88); }
     .print-plate figcaption { padding-top: 5px; color: var(--muted-old); font-family: var(--dot-old); font-size: 10px; text-align: center; }
   </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <style>
+    /* Monster Hunter-style skill terminal */
+    .skill-terminal{
+      margin:18px 0 16px;padding:0;
+      border:1px solid #347d7e;background:#062b2f;color:#ebf3df;
+      box-shadow:5px 5px 0 rgba(43,37,33,.25);
+      font-family:"Zen Maru Gothic","Yu Gothic",sans-serif;
+    }
+    .skill-terminal-top{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding:10px 13px;border-bottom:1px solid rgba(129,211,201,.34);
+      background:#032225;color:#74d0c7;font-family:"DotGothic16",monospace;font-size:10px;letter-spacing:.1em;
+    }
+    .skill-terminal-top span{display:inline-flex;align-items:center;gap:7px}
+    .skill-terminal-top .terminal-code{color:#e5c86e}
+    .skill-terminal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:11px}
+    .terminal-skill{border:1px solid rgba(129,211,201,.34);background:rgba(13,65,66,.84);overflow:hidden}
+    .terminal-skill.core{border-color:#d7b955;background:rgba(65,61,35,.58)}
+    .terminal-skill.conditional{border-color:#a86f4e}
+    .terminal-skill summary{
+      display:grid;grid-template-columns:31px minmax(0,1fr) auto;gap:9px;align-items:center;
+      min-height:60px;padding:8px 10px;cursor:pointer;list-style:none;
+    }
+    .terminal-skill summary::-webkit-details-marker{display:none}
+    .skill-emblem{display:grid;place-items:center;width:30px;height:30px;border:1px solid #4aa69e;border-radius:50%;color:#8be0d6;font-size:13px}
+    .terminal-skill.core .skill-emblem{border-color:#d7b955;color:#f0d77d}
+    .terminal-skill.conditional .skill-emblem{border-color:#a86f4e;color:#efbb82}
+    .terminal-skill .skill-name b{display:block;color:#f7f2df;font-size:14px;line-height:1.25}
+    .terminal-skill .skill-name small{display:block;margin-top:2px;color:#75c9c0;font-family:"DotGothic16",monospace;font-size:8px;letter-spacing:.08em;line-height:1.2}
+    .terminal-skill .skill-level{color:#f0d77d;font-family:"DotGothic16",monospace;font-size:11px;white-space:nowrap}
+    .terminal-skill p{margin:0;padding:0 11px 7px 50px;color:rgba(235,243,223,.8);font-size:11px;line-height:1.6}
+    .terminal-skill .skill-state{display:block;padding:0 11px 9px 50px;color:#8bded4;font-family:"DotGothic16",monospace;font-size:8px;letter-spacing:.1em}
+    .terminal-skill.core .skill-state{color:#f0d77d}
+    .terminal-skill.conditional .skill-state{color:#efbb82}
+    .skill-level-track{display:flex;gap:3px;padding:0 11px 10px 50px}
+    .skill-level-track span{display:grid;place-items:center;width:20px;height:16px;border:1px solid rgba(235,243,223,.34);color:rgba(235,243,223,.5);font-family:"DotGothic16",monospace;font-size:8px}
+    .skill-level-track span.on{border-color:#e5c86e;background:#4b482e;color:#f6e7a3}
+    .skill-terminal-source{
+      display:flex;justify-content:space-between;gap:12px;align-items:center;
+      padding:9px 12px;border-top:1px dotted rgba(129,211,201,.36);
+      color:rgba(235,243,223,.64);font-family:"DotGothic16",monospace;font-size:9px;letter-spacing:.06em;
+    }
+    .skill-terminal-source a{color:#e5c86e;text-decoration:none;border-bottom:1px solid rgba(229,200,110,.5)}
+    .skill-terminal-source a:hover{color:#fff4be;border-color:#fff4be}
+    @media(max-width:760px){
+      .skill-terminal-grid{grid-template-columns:1fr}
+      .skill-terminal-source{align-items:flex-start;flex-direction:column;gap:5px}
+    }
+  </style>
+
 </head>
 <body>
   <header>
@@ -307,17 +359,47 @@
     <section id="skills" aria-labelledby="skills-title">
       <p class="section-kicker">SKILL JUDGEMENT</p>
       <h2 id="skills-title">動画で出てくる定番スキルの見方</h2>
+      <div class="skill-terminal" aria-label="動画で確認したスキルロードアウト">
+        <div class="skill-terminal-top"><span><i class="fa-solid fa-list-check" aria-hidden="true"></i> SKILL LOADOUT / VIDEO SAMPLE</span><span class="terminal-code">MHW:I · MR</span></div>
+        <div class="skill-terminal-grid">
+          <details class="terminal-skill recommended" open>
+            <summary><span class="skill-emblem"><i class="fa-solid fa-person-running" aria-hidden="true"></i></span><span class="skill-name"><b>回避距離UP</b><small>EVADE EXTENDER</small></span><span class="skill-level">Lv2</span></summary>
+            <p>回避時の移動距離が長くなる。スラアクの剣モードの移動と位置調整を補う、個人的おすすめの生存スキル。</p>
+            <span class="skill-state">RECOMMEND / SURVIVAL</span>
+            <div class="skill-level-track" aria-label="スキルレベル2"><span class="on">1</span><span class="on">2</span><span>3</span></div>
+          </details>
+          <details class="terminal-skill core" open>
+            <summary><span class="skill-emblem"><i class="fa-solid fa-bolt" aria-hidden="true"></i></span><span class="skill-name"><b>強化持続</b><small>POWER PROLONGER</small></span><span class="skill-level">Lv3</span></summary>
+            <p>Lv3で高出力状態の効果時間が約2倍。零距離解放突きを撃てる時間も増える、実質の火力スキル。</p>
+            <span class="skill-state">CORE / DAMAGE UPTIME</span>
+            <div class="skill-level-track" aria-label="スキルレベル3"><span class="on">1</span><span class="on">2</span><span class="on">3</span></div>
+          </details>
+          <details class="terminal-skill conditional">
+            <summary><span class="skill-emblem"><i class="fa-solid fa-stopwatch" aria-hidden="true"></i></span><span class="skill-name"><b>整備</b><small>TOOL SPECIALIST</small></span><span class="skill-level">Lv3〜5</span></summary>
+            <p>不動・転身の装衣を早く再使用できる。零距離解放突きを回すパンパンゼミでは、実質の火力スキル。</p>
+            <span class="skill-state">ZSD STYLE / CONDITIONAL CORE</span>
+            <div class="skill-level-track" aria-label="スキルレベル5"><span class="on">1</span><span class="on">2</span><span class="on">3</span><span class="on">4</span><span class="on">5</span></div>
+          </details>
+          <details class="terminal-skill conditional">
+            <summary><span class="skill-emblem"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></span><span class="skill-name"><b>耳栓</b><small>EARPLUGS</small></span><span class="skill-level">Lv1</span></summary>
+            <p>零距離解放突き中は耳栓Lv4が付与。耳栓Lv1を足すと合算でLv5になり、咆哮を無効化できる。</p>
+            <span class="skill-state">MATCHUP / ZSD BONUS</span>
+            <div class="skill-level-track" aria-label="スキルレベル1"><span class="on">1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+          </details>
+        </div>
+        <div class="skill-terminal-source"><span><i class="fa-solid fa-circle-check" aria-hidden="true"></i> スクショ確認済み / MHW:Iスラアク用</span><a href="https://www.youtube.com/watch?v=yuFl3NW4wTw" target="_blank" rel="noopener">参照動画を開く ↗</a></div>
+      </div>
       <table>
         <thead><tr><th>スキル</th><th>優先度</th><th>スラアクでの意味</th></tr></thead>
         <tbody>
           <tr><td>体力増強 Lv3</td><td class="priority">最優先</td><td>MRでは実質必須。被弾しても即キャンプ送りになりにくい。</td></tr>
-          <tr><td>強化持続 Lv2〜3</td><td class="priority">最優先</td><td>高出力状態を長く維持できる。スラアクの気持ちよさに直結。</td></tr>
+          <tr><td>強化持続 Lv3</td><td class="priority">実質必須</td><td>高出力状態の効果時間が約2倍。零距離解放突きの回転にも直結する。</td></tr>
           <tr><td>集中 Lv2</td><td class="priority">あると快適</td><td>ゲージ管理が楽になる。ただし、アイスボーンでは必須とまではいえない。</td></tr>
-          <tr><td>回避距離UP Lv1〜2</td><td class="priority">おすすめ</td><td>剣モードの移動・位置調整を補う。まずはLv1〜2で十分。</td></tr>
+          <tr><td>回避距離UP Lv2</td><td class="priority">おすすめ</td><td>剣モードの移動・位置調整を補う。動画ではLv2が個人的おすすめ。</td></tr>
           <tr><td>回避性能</td><td class="priority">好み</td><td>回避の無敵時間を伸ばす。回避主体で戦うなら採用。</td></tr>
           <tr><td>弱点特効 Lv3</td><td class="priority">火力の本命</td><td>傷を付けた弱点を殴る会心構成の中心。装飾品や防具で後から積む。</td></tr>
-          <tr><td>耳栓 Lv1</td><td class="priority">ZSD型なら強い</td><td>零距離属性解放突きには耳栓Lv4が付くため、Lv1を足すと咆哮を無視できる。</td></tr>
-          <tr><td>整備</td><td class="priority">後回し</td><td>転身・不動の装衣を着回すパンパンゼミ向け。MR序盤の必須枠ではない。</td></tr>
+          <tr><td>耳栓 Lv1</td><td class="priority">ZSD型なら有効</td><td>零距離属性解放突きには耳栓Lv4が付くため、Lv1を足すとLv5になり咆哮を無効化できる。</td></tr>
+          <tr><td>整備 Lv3〜5</td><td class="priority">ZSD型なら重要</td><td>転身・不動の装衣を着回すパンパンゼミ向け。一般型なら後回しでよい。</td></tr>
           <tr><td>見切り・超会心</td><td class="priority">装飾品次第</td><td>会心率が確保できてから強い。生存スキルを削ってまで急がない。</td></tr>
         </tbody>
       </table>
