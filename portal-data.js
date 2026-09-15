@@ -10,6 +10,48 @@ window.MH_PORTAL_DATA = {
       tone: "red",
       weapons: ["スラッシュアックス"],
       practice: ["弓", "チャージアックス"],
+      skills: [
+        {
+          id: "evade-distance",
+          name: "回避距離UP",
+          en: "EVADE EXTENDER",
+          level: "Lv2",
+          priority: "recommended",
+          state: "RECOMMEND",
+          icon: "fa-solid fa-person-running",
+          description: "回避時の移動距離が長くなる。剣モードの移動と位置調整を補う、動画の個人的おすすめ。"
+        },
+        {
+          id: "power-prolonger",
+          name: "強化持続",
+          en: "POWER PROLONGER",
+          level: "Lv3",
+          priority: "core",
+          state: "CORE",
+          icon: "fa-solid fa-bolt",
+          description: "Lv3で高出力状態の効果時間が約2倍。零距離解放突きを撃てる時間も増える、実質の火力スキル。"
+        },
+        {
+          id: "tool-specialist",
+          name: "整備",
+          en: "TOOL SPECIALIST",
+          level: "Lv3〜5",
+          priority: "conditional",
+          state: "ZSD型 CORE",
+          icon: "fa-solid fa-stopwatch",
+          description: "不動・転身の装衣を早く再使用できる。零距離解放突きを回すなら、実質の火力スキル。"
+        },
+        {
+          id: "earplugs",
+          name: "耳栓",
+          en: "EARPLUGS",
+          level: "Lv1",
+          priority: "conditional",
+          state: "MATCHUP",
+          icon: "fa-solid fa-volume-high",
+          description: "零距離解放突き中の耳栓Lv4と合算。Lv1を足すと耳栓Lv5になり、咆哮を無効化できる。"
+        }
+      ],
       note: "ガーディアン装備を卒業して、マスターランク攻略用の防具と装飾品を集める区画。",
       href: "hunting-notebook.html",
       action: "狩猟手帖をひらく"
