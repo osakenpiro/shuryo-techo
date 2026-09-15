@@ -6,6 +6,7 @@
 <meta name="description" content="モンスターハンターをタイトルとハンターでつなぐ、みんなの狩猟手帖ポータル。">
 <title>MONSTER HUNTER PORTAL ── 狩猟手帖</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Shippori+Mincho+B1:wght@400;500;600;700&family=Yuji+Syuku&family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
@@ -358,6 +359,41 @@ h1 em:after{content:"";position:absolute;left:0;right:0;bottom:-7px;height:9px;b
   .hero-scroll{left:14px;font-size:8px;gap:7px}
 }
 
+
+/* In-game skill HUD */
+.skill-hud{
+  margin-top:22px;padding:14px 15px;
+  border:1px solid #317d7d;background:#062b2f;color:#eaf2df;
+  box-shadow:4px 4px 0 rgba(43,37,33,.28);
+  font-family:var(--body);
+}
+.skill-hud-head{display:flex;align-items:end;justify-content:space-between;gap:12px;padding-bottom:10px;border-bottom:1px solid rgba(129,211,201,.32)}
+.skill-hud-head strong{display:block;margin-top:2px;font-size:14px;letter-spacing:.05em}
+.skill-hud-kicker,.hud-code{font-family:var(--dot);font-size:9px;letter-spacing:.12em;color:#75d0c6}
+.hud-code{color:#e5c86e}
+.skill-hud-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:11px}
+.skill-chip{border:1px solid rgba(129,211,201,.34);background:rgba(13,65,66,.82);overflow:hidden}
+.skill-chip.core{border-color:#e5c86e;background:rgba(63,63,37,.58)}
+.skill-chip.conditional{border-color:rgba(219,174,102,.68)}
+.skill-chip summary{display:grid;grid-template-columns:27px minmax(0,1fr) auto;gap:8px;align-items:center;min-height:54px;padding:7px 9px;cursor:pointer;list-style:none}
+.skill-chip summary::-webkit-details-marker{display:none}
+.skill-chip .skill-icon{display:grid;place-items:center;width:25px;height:25px;color:#8be0d6;border:1px solid #4aa69e;border-radius:50%;font-size:12px}
+.skill-chip.core .skill-icon{color:#f0d77d;border-color:#c9a93d}
+.skill-chip.conditional .skill-icon{color:#efbb82;border-color:#ae7049}
+.skill-chip .skill-label{min-width:0}
+.skill-chip .skill-label b{display:block;color:#f6f2df;font-size:12px;line-height:1.25}
+.skill-chip .skill-label small{display:block;margin-top:2px;color:#78c8c1;font-family:var(--dot);font-size:8px;letter-spacing:.08em;line-height:1.2}
+.skill-chip summary>strong{color:#f0d77d;font-family:var(--dot);font-size:11px;white-space:nowrap}
+.skill-chip p{margin:0;padding:0 10px 7px 44px;color:rgba(234,242,223,.77);font-size:11px;line-height:1.55}
+.skill-chip .skill-state{display:block;padding:0 10px 8px 44px;color:#8bded4;font-family:var(--dot);font-size:8px;letter-spacing:.1em}
+.skill-chip.core .skill-state{color:#f0d77d}
+.skill-chip.conditional .skill-state{color:#efbb82}
+.skill-hud-foot{margin:11px 0 0;padding-top:9px;border-top:1px dotted rgba(129,211,201,.36);color:rgba(234,242,223,.68);font-size:10px;line-height:1.5}
+.skill-hud-foot i{margin-right:5px;color:#f0d77d}
+@media(max-width:620px){
+  .skill-hud-grid{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body>
@@ -485,8 +521,13 @@ h1 em:after{content:"";position:absolute;left:0;right:0;bottom:-7px;height:9px;b
     const t = data.titles[selectedTitle];
     const weaponTags = (t.weapons || []).map(w => `<span class="tag main">${esc(w)}</span>`).join('');
     const practiceTags = (t.practice || []).map(w => `<span class="tag">練習 · ${esc(w)}</span>`).join('');
+    const skillHud = (t.skills || []).length
+      ? '<section class="skill-hud" aria-label="スキルロードアウト"><div class="skill-hud-head"><div><span class="skill-hud-kicker">SKILL LOADOUT</span><strong>動画の推奨ライン</strong></div><span class="hud-code">MHW:I / MR</span></div><div class="skill-hud-grid">' +
+        t.skills.map(skill => '<details class="skill-chip ' + esc(skill.priority) + '" ' + (skill.priority === 'core' ? 'open' : '') + '><summary><span class="skill-icon"><i class="' + esc(skill.icon) + '" aria-hidden="true"></i></span><span class="skill-label"><b>' + esc(skill.name) + '</b><small>' + esc(skill.en) + '</small></span><strong>' + esc(skill.level) + '</strong></summary><p>' + esc(skill.description) + '</p><span class="skill-state">' + esc(skill.state) + '</span></details>').join('') +
+        '</div><p class="skill-hud-foot"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>強化持続はLv3を軸に。整備と耳栓は零距離解放突き運用との相性で選ぶ。</p></section>'
+      : '';
     const link = t.href ? `<a class="button-link" href="${esc(t.href)}">${esc(t.action || 'ページをひらく')} →</a>` : `<a class="button-link muted" href="#titles">このタイトルのページを準備中</a>`;
-    titleDetail.innerHTML = `<div><p class="detail-kicker">SELECTED TITLE · ${esc(t.short)}</p><h3>${esc(t.name)}</h3><p class="summary">${esc(t.note)}</p><div class="tags">${weaponTags}${practiceTags}</div></div><aside class="detail-side"><dl><dt>PROGRESS</dt><dd>${esc(t.progress)}</dd><dt>NEXT</dt><dd>${esc(t.next)}</dd></dl>${link}</aside>`;
+    titleDetail.innerHTML = `<div><p class="detail-kicker">SELECTED TITLE · ${esc(t.short)}</p><h3>${esc(t.name)}</h3><p class="summary">${esc(t.note)}</p><div class="tags">${weaponTags}${practiceTags}</div>${skillHud}</div><aside class="detail-side"><dl><dt>PROGRESS</dt><dd>${esc(t.progress)}</dd><dt>NEXT</dt><dd>${esc(t.next)}</dd></dl>${link}</aside>`;
   }
   function renderHunterSelect(){
     hunterSelect.innerHTML = data.hunters.map(h => `<option value="${esc(h.id)}" ${h.id === selectedHunter ? 'selected' : ''}>${esc(h.label)} · ${esc(h.name)}</option>`).join('');
