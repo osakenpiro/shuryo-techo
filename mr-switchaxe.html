@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="モンスターハンターワールド：アイスボーンをスラッシュアックスで進めるためのMR序盤攻略ページ。装飾品が少ない状態からミラボレアスまでの装備更新を整理。">
+  <title>MHW:I スラアクでミラボレアスまで｜MR攻略装備</title>
+  <style>
+    :root {
+      --ink: #20252b;
+      --muted: #68727d;
+      --paper: #f5f1e8;
+      --card: rgba(255, 253, 248, .92);
+      --line: #d9d3c7;
+      --red: #a74437;
+      --red-dark: #793026;
+      --blue: #365d78;
+      --gold: #b68b3c;
+      --green: #47725b;
+      --shadow: 0 14px 35px rgba(57, 45, 31, .1);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 10%, rgba(255,255,255,.72), transparent 31rem),
+        linear-gradient(135deg, #eee8dc 0%, var(--paper) 48%, #ebe5da 100%);
+      font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, system-ui, sans-serif;
+      line-height: 1.75;
+    }
+    a { color: var(--red-dark); }
+    .wrap { width: min(1080px, calc(100% - 32px)); margin: 0 auto; }
+    header {
+      padding: 24px 0 58px;
+      color: #fffaf1;
+      background:
+        linear-gradient(125deg, rgba(31, 39, 49, .94), rgba(91, 43, 37, .93)),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 1px, transparent 1px 4px);
+      border-bottom: 5px solid var(--gold);
+    }
+    nav { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin-bottom: 48px; }
+    nav a { color: #f2dfbb; text-decoration: none; font-size: .88rem; }
+    nav .brand { margin-right: auto; color: #fffaf1; font-weight: 800; letter-spacing: .08em; }
+    .eyebrow { margin: 0 0 10px; color: #e8c980; font-size: .8rem; font-weight: 800; letter-spacing: .18em; }
+    h1, h2, h3 { line-height: 1.25; letter-spacing: .02em; }
+    h1 { max-width: 780px; margin: 0 0 18px; font-size: clamp(2rem, 6vw, 4.2rem); font-weight: 900; }
+    .lead { max-width: 760px; margin: 0; color: #eadfd0; font-size: 1.06rem; }
+    .hero-status {
+      display: inline-flex; gap: 9px; align-items: center; margin-top: 26px; padding: 8px 14px;
+      color: #fff8eb; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.26);
+      border-radius: 999px; font-size: .9rem; font-weight: 700;
+    }
+    .hero-status::before { content: "●"; color: #8bd19c; font-size: .75rem; }
+    main { padding: 38px 0 72px; }
+    section { margin-top: 52px; scroll-margin-top: 20px; }
+    section:first-child { margin-top: 0; }
+    .section-kicker { margin: 0 0 8px; color: var(--red); font-size: .78rem; font-weight: 900; letter-spacing: .16em; }
+    h2 { margin: 0 0 18px; font-size: clamp(1.55rem, 3vw, 2.35rem); }
+    h3 { margin: 0 0 10px; font-size: 1.12rem; }
+    p { margin: 0 0 12px; }
+    .callout {
+      padding: 22px 24px; background: var(--card); border: 1px solid var(--line); border-left: 6px solid var(--red);
+      border-radius: 15px; box-shadow: var(--shadow);
+    }
+    .callout strong { color: var(--red-dark); }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .card {
+      padding: 21px; background: var(--card); border: 1px solid var(--line); border-radius: 15px; box-shadow: var(--shadow);
+    }
+    .card .number {
+      display: grid; place-items: center; width: 31px; height: 31px; margin-bottom: 12px;
+      color: #fff; background: var(--red); border-radius: 50%; font-weight: 900;
+    }
+    .card p:last-child { margin-bottom: 0; }
+    .mini { color: var(--muted); font-size: .9rem; }
+    .tag {
+      display: inline-block; margin: 0 5px 6px 0; padding: 2px 9px; border-radius: 999px;
+      color: #fff; background: var(--blue); font-size: .78rem; font-weight: 800;
+    }
+    .tag.red { background: var(--red); }
+    .tag.gold { color: #3a2a13; background: #e8c980; }
+    .tag.green { background: var(--green); }
+    table { width: 100%; border-collapse: collapse; overflow: hidden; background: var(--card); border: 1px solid var(--line); border-radius: 15px; box-shadow: var(--shadow); }
+    th, td { padding: 13px 15px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+    th { color: #fff9ee; background: #303b45; font-size: .87rem; }
+    tr:last-child td { border-bottom: 0; }
+    td:first-child { width: 23%; font-weight: 800; }
+    .priority { white-space: nowrap; color: var(--red-dark); font-weight: 900; }
+    .build {
+      display: grid; grid-template-columns: 1.12fr .88fr; gap: 20px; align-items: start;
+    }
+    .build-list { margin: 0; padding: 0; list-style: none; }
+    .build-list li {
+      display: flex; gap: 13px; align-items: baseline; padding: 12px 0; border-bottom: 1px dashed var(--line);
+    }
+    .build-list li:last-child { border-bottom: 0; }
+    .part { min-width: 42px; color: var(--muted); font-size: .82rem; font-weight: 800; }
+    .armor { font-weight: 900; }
+    .skill-box { padding: 21px; background: #eef3f0; border: 1px solid #c8d9cf; border-radius: 15px; }
+    .skill-box ul { margin: 9px 0 0; padding-left: 1.2em; }
+    .skill-box li { margin: 3px 0; }
+    .optional { margin-top: 14px; padding: 14px 16px; background: #fffaf0; border: 1px solid #ead8ad; border-radius: 11px; font-size: .91rem; }
+    .timeline { position: relative; display: grid; gap: 15px; }
+    .step {
+      display: grid; grid-template-columns: 108px 1fr; gap: 19px; padding: 20px; background: var(--card); border: 1px solid var(--line); border-radius: 15px; box-shadow: var(--shadow);
+    }
+    .step-label { color: var(--red); font-size: .82rem; font-weight: 900; letter-spacing: .08em; }
+    .step h3 { margin-bottom: 5px; }
+    .verdict { display: grid; grid-template-columns: 1fr auto; gap: 15px; align-items: center; }
+    .verdict + .verdict { border-top: 1px solid var(--line); }
+    .verdict .mark { min-width: 76px; text-align: center; padding: 6px 10px; border-radius: 999px; color: #fff; background: var(--green); font-size: .83rem; font-weight: 900; }
+    .verdict .mark.later { color: #3a2a13; background: #e8c980; }
+    .verdict .mark.skip { background: #89939b; }
+    .note {
+      margin-top: 15px; padding: 16px 18px; background: #f1f3f4; border: 1px solid #d5dadd; border-radius: 12px; color: #46515a; font-size: .9rem;
+    }
+    footer { padding: 28px 0 40px; color: #6b6d68; border-top: 1px solid var(--line); font-size: .82rem; }
+    footer ul { margin: 8px 0 0; padding-left: 1.2em; }
+    @media (max-width: 760px) {
+      .wrap { width: min(100% - 22px, 680px); }
+      header { padding-top: 17px; padding-bottom: 38px; }
+      nav { margin-bottom: 34px; gap: 10px; }
+      nav .brand { flex-basis: 100%; }
+      .grid, .build { grid-template-columns: 1fr; }
+      table { display: block; overflow-x: auto; white-space: normal; }
+      th, td { min-width: 150px; }
+      td:first-child { width: auto; }
+      .step { grid-template-columns: 1fr; gap: 5px; }
+      .verdict { grid-template-columns: 1fr; gap: 7px; }
+      .verdict .mark { justify-self: start; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <nav aria-label="ページ内ナビゲーション">
+        <a class="brand" href="index.html">狩猟手帖｜MHW:I</a>
+        <a href="index.html">トップ</a>
+        <a href="#skills">スキル</a>
+        <a href="#build">今作る防具</a>
+        <a href="#route">進行ルート</a>
+        <a href="#events">イベント</a>
+      </nav>
+      <div id="top">
+        <p class="eyebrow">SWITCH AXE / MASTER RANK PROGRESSION</p>
+        <h1>スラアクで<br>ミラボレアスまで</h1>
+        <p class="lead">ガーディアン装備から卒業して、装飾品が少ない状態でもMRを進められるようにするための実戦用メモ。</p>
+        <div class="hero-status">いまの最優先：MR防具を作って、防御力を上げる</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section aria-labelledby="decision-title">
+      <p class="section-kicker">FIRST DECISION</p>
+      <h2 id="decision-title">まずはこれだけやればいい</h2>
+      <div class="callout">
+        <p><strong>イベント周回より先に、ガーディアン装備をMR防具へ更新。</strong></p>
+        <p>MR序盤は防具の防御力差が大きい。動画に出てくる終盤テンプレをいきなり再現する必要はない。α防具でスキルを自前に持たせ、スラアクの操作感を作るのが先。</p>
+      </div>
+      <div class="grid" style="margin-top:16px">
+        <article class="card"><div class="number">1</div><h3>防具を作る</h3><p>下のMR序盤セットを、作れる部位から作成。作ったら鎧玉で防御力を上げる。</p></article>
+        <article class="card"><div class="number">2</div><h3>武器もMR派生へ</h3><p>鉱石派生の<strong>クロムデスマキナⅠ</strong>、またはドスジャグラス派生をつなぎにする。</p></article>
+        <article class="card"><div class="number">3</div><h3>ストーリーを進める</h3><p>装飾品集めは後回し。MR防具とMR武器で、まずアン・イシュワルダまで到達。</p></article>
+      </div>
+    </section>
+
+    <section id="skills" aria-labelledby="skills-title">
+      <p class="section-kicker">SKILL JUDGEMENT</p>
+      <h2 id="skills-title">動画で出てくる定番スキルの見方</h2>
+      <table>
+        <thead><tr><th>スキル</th><th>優先度</th><th>スラアクでの意味</th></tr></thead>
+        <tbody>
+          <tr><td>体力増強 Lv3</td><td class="priority">最優先</td><td>MRでは実質必須。被弾しても即キャンプ送りになりにくい。</td></tr>
+          <tr><td>強化持続 Lv2〜3</td><td class="priority">最優先</td><td>高出力状態を長く維持できる。スラアクの気持ちよさに直結。</td></tr>
+          <tr><td>集中 Lv2</td><td class="priority">あると快適</td><td>ゲージ管理が楽になる。ただし、アイスボーンでは必須とまではいえない。</td></tr>
+          <tr><td>回避距離UP Lv1〜2</td><td class="priority">おすすめ</td><td>剣モードの移動・位置調整を補う。まずはLv1〜2で十分。</td></tr>
+          <tr><td>回避性能</td><td class="priority">好み</td><td>回避の無敵時間を伸ばす。回避主体で戦うなら採用。</td></tr>
+          <tr><td>弱点特効 Lv3</td><td class="priority">火力の本命</td><td>傷を付けた弱点を殴る会心構成の中心。装飾品や防具で後から積む。</td></tr>
+          <tr><td>耳栓 Lv1</td><td class="priority">ZSD型なら強い</td><td>零距離属性解放突きには耳栓Lv4が付くため、Lv1を足すと咆哮を無視できる。</td></tr>
+          <tr><td>整備</td><td class="priority">後回し</td><td>転身・不動の装衣を着回すパンパンゼミ向け。MR序盤の必須枠ではない。</td></tr>
+          <tr><td>見切り・超会心</td><td class="priority">装飾品次第</td><td>会心率が確保できてから強い。生存スキルを削ってまで急がない。</td></tr>
+        </tbody>
+      </table>
+      <div class="note"><strong>世代違いに注意：</strong>「高速変形」はライズ／サンブレイクやワイルズのスキル。MHW:Iには存在しない。MHW:Iでは「強化持続」「集中」「回避距離」「耳栓」などを見る。</div>
+    </section>
+
+    <section id="build" aria-labelledby="build-title">
+      <p class="section-kicker">MAKE THIS NOW</p>
+      <h2 id="build-title">MR序盤：装飾品なしでも使える防具</h2>
+      <div class="build">
+        <div class="card">
+          <h3>作成する部位</h3>
+          <ul class="build-list">
+            <li><span class="part">頭</span><span class="armor">EXジャグラスヘルムα</span><span class="mini">攻撃2・早食い2</span></li>
+            <li><span class="part">胴</span><span class="armor">EXボーンメイルα</span><span class="mini">攻撃2・体力増強1</span></li>
+            <li><span class="part">腕</span><span class="armor">EXケストガードα</span><span class="mini">集中2</span></li>
+            <li><span class="part">腰</span><span class="armor">EXブランコイルα</span><span class="mini">体力増強2・耳栓2</span></li>
+            <li><span class="part">脚</span><span class="armor">EXブラングリーヴβ</span><span class="mini">耳栓2・4スロ</span></li>
+            <li><span class="part">護石</span><span class="armor">昂揚の護石Ⅱ</span><span class="mini">強化持続2</span></li>
+          </ul>
+        </div>
+        <div class="skill-box">
+          <h3>装飾品なしの基本値</h3>
+          <p><span class="tag red">体力増強3</span><span class="tag red">攻撃4</span><span class="tag">集中2</span><span class="tag">強化持続2</span><span class="tag gold">耳栓4</span><span class="tag green">早食い2</span></p>
+          <p class="mini">攻撃珠があれば攻撃5。装飾品がなくても、MR攻略に必要な生存力とスラアクの操作感が成立する。</p>
+          <div class="optional"><strong>持っていれば追加：</strong><br>昂揚珠 → 強化持続3 ／ 跳躍珠 → 回避距離UP ／ 耐絶珠 → 気絶耐性 ／ 痛撃珠 → 弱点特効</div>
+        </div>
+      </div>
+      <div class="callout" style="margin-top:16px">
+        <p><strong>防具は作っただけで終わりではなく、必ず強化。</strong></p>
+        <p>MR序盤の防具は初期防御力のままだとすぐ苦しくなる。手持ちの鎧玉を使って、現時点で上げられるところまで上げる。</p>
+      </div>
+    </section>
+
+    <section id="route" aria-labelledby="route-title">
+      <p class="section-kicker">PROGRESSION ROUTE</p>
+      <h2 id="route-title">ミラボレアスまでの更新ルート</h2>
+      <div class="timeline">
+        <article class="step"><div class="step-label">NOW<br>MR1〜3</div><div><h3>MR序盤セットで進める</h3><p>上記のジャグラス／ボーン／ケスト／ブランを作る。装飾品周回はしない。クラッチクローで傷付け・ぶっ飛ばしにも慣れる。</p></div></article>
+        <article class="step"><div class="step-label">NEXT<br>中盤</div><div><h3>強化持続3・集中3へ</h3><p>素材が揃ったら、EXディノ系を中心にした中盤装備へ。目標は<strong>強化持続3・体力増強3・集中2〜3</strong>。匠や整備は武器と立ち回りに合わせて足す。</p></div></article>
+        <article class="step"><div class="step-label">CLEAR<br>MR24以降</div><div><h3>導きの地と装飾品</h3><p>ストーリークリア後は導きの地でカスタム強化素材を集める。装飾品は「鳴神上狼、荒事を成す」が解放されたら周回候補。</p></div></article>
+        <article class="step"><div class="step-label">FINAL<br>ミラ前</div><div><h3>対ミラ装備を別に作る</h3><p>整備、回避性能、破壊王、火耐性などを入れた対策装備へ。普段の汎用スラアク装備と、ミラ用パンパンゼミ装備は分けて考える。</p></div></article>
+      </div>
+    </section>
+
+    <section id="events" aria-labelledby="events-title">
+      <p class="section-kicker">EVENT QUESTS</p>
+      <h2 id="events-title">イベントはこの判断でいい</h2>
+      <div class="card">
+        <div class="verdict"><div><h3>鳴神上狼、荒事を成す</h3><p class="mini">歴戦ジンオウガ。MR装飾品集めの本命候補。MR24以降に解放されたら回す。</p></div><span class="mark later">後で周回</span></div>
+        <div class="verdict"><div><h3>別れと、また会う日まで</h3><p class="mini">ジンオウガ。蒸気機関の燃料集め用。装飾品ではなく、鎧玉・アイテム・錬金チケット目的。</p></div><span class="mark later">必要時</span></div>
+        <div class="verdict"><div><h3>MRマムタロト「終わりなき黄金時代」</h3><p class="mini">ストーリークリア後。皇金武器を作りたい時にやる。弓・片手剣・属性チャアクなどでは特に候補。</p></div><span class="mark later">武器次第</span></div>
+        <div class="verdict"><div><h3>ムフェト・ジーヴァ</h3><p class="mini">みんなで遊べる期間に、覚醒武器を必要分だけ。スラアクの覚醒武器も強いが、ミラ装備のために無限周回する必要はない。</p></div><span class="mark">みんなで</span></div>
+        <div class="verdict"><div><h3>上位マムタロト</h3><p class="mini">今のMR攻略には必須ではない。鑑定武器集めやコンプリート目的でなければスルー。</p></div><span class="mark skip">スルー</span></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="summary-title">
+      <p class="section-kicker">ONE-LINE SUMMARY</p>
+      <h2 id="summary-title">今日の行動メモ</h2>
+      <div class="callout">
+        <p><strong>EXジャグラスヘルムα → EXボーンメイルα → EXケストガードα → EXブラン腰α・脚β → 昂揚の護石Ⅱ。</strong></p>
+        <p>防御力を上げ、MR武器を作り、スラアクでストーリーを進める。今はこれで十分。装飾品はあとから狩りの副産物として増えていく。</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p>このページは「狩猟手帖」のMHW:Iスラアク攻略補遺。ゲーム内の進行度や所持素材により、作れる部位から入れ替える。</p>
+      <ul>
+        <li><a href="https://gamewith.jp/mhw/175657" target="_blank" rel="noopener">ゲームウィズ：スラアクのストーリー攻略装備</a></li>
+        <li><a href="https://game8.jp/mhw/278448" target="_blank" rel="noopener">ゲームエイト：スラアクで優先したいスキル</a></li>
+        <li><a href="https://altema.jp/mhw/sakuseibogu" target="_blank" rel="noopener">アルテマ：進行度別・装飾品が少ない人向け防具</a></li>
+        <li><a href="https://game.capcom.com/world/uk/schedule-master.html" target="_blank" rel="noopener">カプコン公式：MRイベントクエスト</a></li>
+      </ul>
+    </div>
+  </footer>
+</body>
+</html>
