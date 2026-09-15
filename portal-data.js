@@ -1,4 +1,12 @@
 window.MH_PORTAL_DATA = {
+  assetLedger: [
+    { id: "mhwib-hero", path: "assets/art/mhwib-hero.svg", kind: "hero", alt: "雪煙の凍った狩場と遠い調査拠点を描いたオリジナル背景", focalPoint: "70% center", bytes: 2715, hash: "git:fc7766fcff818d48229239a6679167f582c4c951", rightsStatus: "ORIGINAL_CODE_NATIVE_ART", source: "Original SVG authored for shuryo-techo" },
+    { id: "wilds-hero", path: "assets/art/wilds-hero.svg", kind: "hero", alt: "風が走る広い荒野と地平線を描いたオリジナル背景", focalPoint: "70% center", bytes: 2293, hash: "git:1f23773f23d34f39542c63bbf3c692756a0282ea", rightsStatus: "ORIGINAL_CODE_NATIVE_ART", source: "Original SVG authored for shuryo-techo" },
+    { id: "rise-hero", path: "assets/art/rise-hero.svg", kind: "hero", alt: "月明かりと灯籠の里を描いたオリジナル背景", focalPoint: "70% center", bytes: 2372, hash: "git:7b77fd9b8dbfde64ca59fc003c6d263dc034c835", rightsStatus: "ORIGINAL_CODE_NATIVE_ART", source: "Original SVG authored for shuryo-techo" },
+    { id: "mhwib-package", path: "assets/art/mhwib-package.svg", kind: "package", alt: "雪原と調査拠点を描いたMHW:I用オリジナルパッケージアート", focalPoint: "50% center", bytes: 1483, hash: "git:59ea3455bd36374841c6de0fa51001e74f44d66c", rightsStatus: "ORIGINAL_CODE_NATIVE_ART", source: "Original SVG authored for shuryo-techo" },
+    { id: "wilds-package", path: "assets/art/wilds-package.svg", kind: "package", alt: "風の荒野と地平線を描いたWilds用オリジナルパッケージアート", focalPoint: "50% center", bytes: 1535, hash: "git:dfe9faa46d644134cf5fdd1b5cdfbb2c1ffa8770", rightsStatus: "ORIGINAL_CODE_NATIVE_ART", source: "Original SVG authored for shuryo-techo" },
+    { id: "rise-package", path: "assets/art/rise-package.svg", kind: "package", alt: "月と灯籠の里を描いたRise用オリジナルパッケージアート", focalPoint: "50% center", bytes: 1705, hash: "git:fbb595ae02996879801b31e8becd0e3048c6b09f", rightsStatus: "ORIGINAL_CODE_NATIVE_ART", source: "Original SVG authored for shuryo-techo" }
+  ],
   titles: {
     mhwib: {
       short: "MHW:I",
@@ -8,6 +16,8 @@ window.MH_PORTAL_DATA = {
       progress: "MR攻略中 / 目標：ミラボレアス",
       next: "IBクリア → Wilds",
       tone: "red",
+      mark: "ICE",
+      art: { hero: "mhwib-hero", package: "mhwib-package" },
       weapons: ["スラッシュアックス"],
       practice: ["弓", "チャージアックス"],
       skills: [
@@ -64,11 +74,13 @@ window.MH_PORTAL_DATA = {
       progress: "IBクリア後に移動",
       next: "ガンランス / ハンマーへ帰還",
       tone: "green",
+      mark: "WIND",
+      art: { hero: "wilds-hero", package: "wilds-package" },
       weapons: ["ガンランス", "ハンマー"],
       practice: [],
       note: "ワイルズでの持ち武器へ戻るための、次の表紙。入口だけ先に作っておく。",
-      href: "#titles",
-      action: "次の狩場を確認"
+      href: "",
+      action: "入口データを確認"
     },
     rise: {
       short: "RISE",
@@ -78,6 +90,8 @@ window.MH_PORTAL_DATA = {
       progress: "プレイ済み / 武器の原点",
       next: "過去の持ち武器を確認",
       tone: "indigo",
+      mark: "NIGHT",
+      art: { hero: "rise-hero", package: "rise-package" },
       weapons: ["双剣", "太刀"],
       practice: [],
       note: "いまの狩猟線へつながる前の記録。双剣と太刀を使っていた時期。",
