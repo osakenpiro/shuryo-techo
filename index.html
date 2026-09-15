@@ -604,8 +604,8 @@ h1 em:after{content:"";position:absolute;left:0;right:0;bottom:-7px;height:9px;b
   will-change:transform;
 }
 @keyframes mh-mist-drift{
-  0%{opacity:.34;transform:translate3d(-1.5%,1%,0) scale(1.02)}
-  100%{opacity:.78;transform:translate3d(2%,-1.5%,0) scale(1.08)}
+  0%{opacity:.34;transform:translate3d(calc(var(--hero-scroll) * 24px - 1.5%),calc(var(--hero-scroll) * -34px + 1%),0) scale(1.02)}
+  100%{opacity:.78;transform:translate3d(calc(var(--hero-scroll) * 24px + 2%),calc(var(--hero-scroll) * -34px - 1.5%),0) scale(1.08)}
 }
 @keyframes mh-particles-drift{
   from{background-position:0 0,0 0,0 0}
