@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="night" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#090b2d"/><stop offset=".55" stop-color="#28286d"/><stop offset="1" stop-color="#a1433a"/></linearGradient>
+    <linearGradient id="mountain" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#4d4c96"/><stop offset="1" stop-color="#131537"/></linearGradient>
+    <radialGradient id="moon"><stop stop-color="#ffe9b0"/><stop offset=".62" stop-color="#e7b86c" stop-opacity=".82"/><stop offset="1" stop-color="#e7b86c" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#night)"/>
+  <circle cx="1198" cy="224" r="220" fill="url(#moon)" opacity=".78"/>
+  <circle cx="1198" cy="224" r="72" fill="#f8d994" opacity=".92"/>
+  <path d="M0 510 218 353l145 90 198-210 186 201 210-154 207 151 152-113 284 192v390H0Z" fill="#111333"/>
+  <path d="m0 573 211-118 147 65 196-164 191 172 203-117 226 124 157-94 269 154v305H0Z" fill="url(#mountain)"/>
+  <g fill="none" stroke="#f5cf82" stroke-linecap="round">
+    <path d="M101 220c152 79 273 76 424 10 151-67 265-57 409 12 164 79 331 68 552-42" stroke-width="5" opacity=".45"/>
+    <path d="M147 274c146 71 275 66 419 3 146-64 276-54 419 17 167 83 357 59 536-34" stroke-width="2" opacity=".68"/>
+  </g>
+  <g fill="#cb5142" opacity=".86">
+    <path d="M385 551h20v144h-20Zm-26 0h71v18h-71Z"/>
+    <path d="M455 583h16v108h-16Zm-17 0h50v14h-50Z"/>
+  </g>
+  <g fill="#271b31" stroke="#101021" stroke-linejoin="round">
+    <path d="M1032 710 1063 578l37 6 37 126-28 7-15-80-24 0-6 76Z"/>
+    <circle cx="1083" cy="546" r="23"/>
+    <path d="m1059 576 70-24 43 86-35 19-31-58-16 53-37-15Z"/>
+    <path d="m1120 562 101-115 16 16-81 130Z"/>
+    <path d="m1219 440 72-10-25 37-62 3Z"/>
+    <path d="m1057 722-48 78-17-11 35-87Z"/>
+    <path d="m1118 718 46 84-19 8-60-75Z"/>
+  </g>
+  <g>
+    <path d="M124 701h98l26 17H98Z" fill="#170f25"/>
+    <path d="M145 701v-97h53v97" fill="#241734" stroke="#e5a85a" stroke-width="4"/>
+    <path d="M132 604h80l-40-34Z" fill="#c44e45" stroke="#e5a85a" stroke-width="3"/>
+    <circle cx="171" cy="657" r="10" fill="#ffd67b"/>
+    <path d="M139 745v-84M187 745v-84M211 745v-75" stroke="#d66b52" stroke-width="4"/>
+  </g>
+  <path d="M0 808c230-36 460 20 708-26 267-50 477-15 892 25v93H0Z" fill="#090b1e" opacity=".82"/>
+</svg>
