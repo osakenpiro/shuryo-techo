@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 900">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0a1b20"/><stop offset=".6" stop-color="#2a6467"/><stop offset="1" stop-color="#bd7550"/></linearGradient>
+    <linearGradient id="snow" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e7f3e9"/><stop offset="1" stop-color="#78b9bd"/></linearGradient>
+  </defs>
+  <rect width="640" height="900" fill="url(#bg)"/>
+  <path d="M0 380 138 245l101 90 141-176 139 150 121-95v686H0Z" fill="#09262d" opacity=".82"/>
+  <path d="m0 470 126-96 94 57 150-121 142 116 128-101v575H0Z" fill="url(#snow)" opacity=".82"/>
+  <path d="M0 646c147-45 243 32 354-23 102-52 173-12 286 13v264H0Z" fill="#071518" opacity=".88"/>
+  <g fill="none" stroke="#d9f0e8" stroke-opacity=".45" stroke-width="3"><path d="M-40 165c175 63 287 18 442 57 121 30 184 23 292-25"/><path d="M-20 205c178 61 295 12 451 51 117 30 180 19 252-17"/></g>
+  <g fill="#080f12"><path d="m390 693 20-83 27 4 26 82-22 5-8-46-15 1-5 42Z"/><circle cx="425" cy="590" r="17"/><path d="m406 615 48-17 36 58-24 14-25-39-11 38-26-9Z"/><path d="m449 610 77-69 10 13-61 79Z"/><path d="m526 536 48 8-20 21-38-6Z"/></g>
+  <circle cx="111" cy="735" r="15" fill="#f5c86b"/><circle cx="151" cy="727" r="9" fill="#ef9d53"/>
+  <rect x="18" y="18" width="604" height="864" fill="none" stroke="#f1d28a" stroke-opacity=".68" stroke-width="3"/>
+  <path d="M28 755h584v127H28Z" fill="#061012" opacity=".55"/>
+</svg>
