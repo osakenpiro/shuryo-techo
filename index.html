@@ -630,7 +630,7 @@ h1 em:after{content:"";position:absolute;left:0;right:0;bottom:-7px;height:9px;b
       const packageAsset = getAsset(t.art?.package);
       return `
       <button class="title-card ${id === selectedTitle ? 'selected' : ''}" data-tone="${esc(t.tone)}" data-id="${esc(id)}" aria-pressed="${id === selectedTitle}" aria-label="${esc(t.name)} · ${esc(t.subtitle)}" type="button">
-        <img class="package-art" src="${esc(assetPath(packageAsset))}" alt="" aria-hidden="true" loading="eager">
+        <img class="package-art" alt="" aria-hidden="true" loading="eager">
         <span class="card-index">PACKAGE ${String(i + 1).padStart(2,'0')} · ${esc(t.short)}</span>
         <span class="card-mark" aria-hidden="true">${esc(t.mark || t.short)}</span>
         <h3>${esc(t.name)}</h3><span class="jp">${esc(t.subtitle)}</span>
@@ -640,11 +640,13 @@ h1 em:after{content:"";position:absolute;left:0;right:0;bottom:-7px;height:9px;b
     titleGrid.querySelectorAll('.title-card').forEach(card => {
       const packageAsset = getAsset(data.titles[card.dataset.id]?.art?.package);
       const art = card.querySelector('.package-art');
-      if (!assetPath(packageAsset)) art.classList.add('broken');
+      const packageUrl = assetPath(packageAsset);
       art.addEventListener('error', () => {
         art.classList.add('broken');
         art.removeAttribute('src');
       });
+      if (packageUrl) art.src = packageUrl;
+      else art.classList.add('broken');
       card.addEventListener('click', () => {
         selectedTitle = card.dataset.id;
         syncUrl();
