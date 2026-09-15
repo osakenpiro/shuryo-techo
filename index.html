@@ -608,7 +608,7 @@ h1 em:after{content:"";position:absolute;left:0;right:0;bottom:-7px;height:9px;b
     hero.classList.remove('art-fallback');
     if (url) {
       const probe = document.createElement('img');
-      probe.onload = () => hero.style.setProperty('--hero-art', \`url("\${url}")\`);
+      probe.onload = () => hero.style.setProperty('--hero-art', `url("${url}")`);
       probe.onerror = () => {
         hero.style.setProperty('--hero-art', 'none');
         hero.classList.add('art-fallback');
@@ -618,24 +618,24 @@ h1 em:after{content:"";position:absolute;left:0;right:0;bottom:-7px;height:9px;b
       hero.style.setProperty('--hero-art', 'none');
       hero.classList.add('art-fallback');
     }
-    hero.setAttribute('aria-label', \`${t.name}の狩場。\${heroAsset.alt || 'オリジナル背景'}\`);
+    hero.setAttribute('aria-label', `${t.name}の狩場。${heroAsset.alt || 'オリジナル背景'}`);
     if (heroReadoutMark) heroReadoutMark.textContent = t.mark || t.short;
-    if (heroReadoutText) heroReadoutText.textContent = \`SELECTED · ${t.short} / ${t.status}\`;
+    if (heroReadoutText) heroReadoutText.textContent = `SELECTED · ${t.short} / ${t.status}`;
     if (heroNoteText) heroNoteText.textContent = t.short === 'MHW:I'
       ? 'MHW:Iをスラッシュアックスで攻略中。IBをクリアしたら、次はWildsへ行く。'
-      : \`${t.short}：${t.progress}。${t.next}。\`;
+      : `${t.short}：${t.progress}。${t.next}。`;
   }
   function renderTitleCards(){
     titleGrid.innerHTML = Object.entries(data.titles).map(([id, t], i) => {
       const packageAsset = getAsset(t.art?.package);
-      return \`
+      return `
       <button class="title-card ${id === selectedTitle ? 'selected' : ''}" data-tone="${esc(t.tone)}" data-id="${esc(id)}" aria-pressed="${id === selectedTitle}" aria-label="${esc(t.name)} · ${esc(t.subtitle)}" type="button">
         <img class="package-art" src="${esc(assetPath(packageAsset))}" alt="" aria-hidden="true" loading="eager">
         <span class="card-index">PACKAGE ${String(i + 1).padStart(2,'0')} · ${esc(t.short)}</span>
         <span class="card-mark" aria-hidden="true">${esc(t.mark || t.short)}</span>
         <h3>${esc(t.name)}</h3><span class="jp">${esc(t.subtitle)}</span>
         <span class="status">${esc(t.status)}</span><span class="card-state">${id === selectedTitle ? 'SELECTED' : 'OPEN TITLE'}</span><span class="arrow" aria-hidden="true">↗</span>
-      </button>\`;
+      </button>`;
     }).join('');
     titleGrid.querySelectorAll('.title-card').forEach(card => {
       const packageAsset = getAsset(data.titles[card.dataset.id]?.art?.package);
