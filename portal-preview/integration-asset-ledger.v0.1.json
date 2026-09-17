@@ -1,0 +1,39 @@
+{
+  "schema": "mh-portal-asset-ledger-v0.1",
+  "orchestrator": "MH-PORTAL-ORCH-20260918-01",
+  "branch": "ses-o/mh-portal-integration-20260918",
+  "rules": {
+    "fakeOfficial": "FORBIDDEN",
+    "unverifiedRetailHotlink": "FORBIDDEN",
+    "officialReference": "AUDIT_REFERENCE_ONLY_UNLESS_PUBLICATION_CLEARED",
+    "unknownOfficialAsset": "ASSET_PENDING_NOT_AI_SUBSTITUTE"
+  },
+  "packages": [
+    {"id":"world-package","title":"Monster Hunter: World","region":"JP","edition":"launch physical edition reference target","status":"ASSET_PENDING","publicationState":"NOT_CLEARED"},
+    {"id":"iceborne-package","title":"Monster Hunter World: Iceborne","region":"JP","edition":"Master Edition/equivalent reference target","status":"ASSET_PENDING","publicationState":"NOT_CLEARED"},
+    {"id":"rise-package","title":"Monster Hunter Rise","region":"JP","edition":"launch physical edition reference target","status":"ASSET_PENDING","publicationState":"NOT_CLEARED"},
+    {"id":"sunbreak-package","title":"Monster Hunter Rise: Sunbreak","region":"JP","edition":"set/edition to be fixed before publication","status":"ASSET_PENDING","publicationState":"NOT_CLEARED"},
+    {"id":"wilds-package","title":"Monster Hunter Wilds","region":"JP","edition":"physical edition reference target","status":"ASSET_PENDING","publicationState":"NOT_CLEARED"},
+    {"id":"ascendance-package","title":"Monster Hunter Wilds: Ascendance","region":"JP","edition":"no confirmed physical package assumed","status":"ASSET_PENDING","publicationState":"DO_NOT_INVENT_PACKAGE"}
+  ],
+  "weaponIcons": {
+    "family": "A_BOLD_CONTOUR",
+    "humanDecision": "SELECTED_DIRECTION_ONLY",
+    "provenance": "ORIGINAL_NON_TRACED",
+    "status": "STRUCTURAL_PROTOTYPE",
+    "types": ["great-sword","long-sword","sword-and-shield","dual-blades","hammer","hunting-horn","lance","gunlance","switch-axe","charge-blade","insect-glaive","light-bowgun","heavy-bowgun","bow"],
+    "current": "switch-axe",
+    "notebookConnected": ["bow","great-sword"]
+  },
+  "futureMedia": [
+    {"id":"main-trailer","status":"OFFICIAL_SOURCE_SLOT_PENDING"},
+    {"id":"field-media","status":"OFFICIAL_SOURCE_SLOT_PENDING"},
+    {"id":"monster-media","status":"OFFICIAL_SOURCE_SLOT_PENDING"},
+    {"id":"weapon-action-media","status":"OFFICIAL_SOURCE_SLOT_PENDING"}
+  ],
+  "personalData": {
+    "hr": "UNRECORDED",
+    "totalHunts": "UNRECORDED",
+    "rule": "NEVER_COPY_DECORATIVE_GOLDEN_NUMBERS_AS_REAL_DATA"
+  }
+}
