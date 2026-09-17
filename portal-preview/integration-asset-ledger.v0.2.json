@@ -1,0 +1,99 @@
+{
+  "version": "0.2",
+  "orchestrator": "SES-O",
+  "branch": "ses-o/mh-portal-integration-20260918",
+  "integrationCommit": "dad139e886f97166faf629a47d6e9dcf4826ff86",
+  "publicationState": "REVIEW_ONLY_NOT_MAIN",
+  "assets": [
+    {
+      "id": "hero-world-plate-v02",
+      "kind": "world_plate",
+      "owner": "ORIGINAL",
+      "rightsStatus": "ORIGINAL_CODE_NATIVE_ART",
+      "publicationState": "OK_FOR_PREVIEW",
+      "notes": "Inline SVG mountain/hunter-silhouette reconstruction; no official package/UI/text baked in."
+    },
+    {
+      "id": "future-horizon-plate-v02",
+      "kind": "world_plate",
+      "owner": "ORIGINAL",
+      "rightsStatus": "ORIGINAL_CODE_NATIVE_ART",
+      "publicationState": "OK_FOR_PREVIEW",
+      "notes": "Inline SVG horizon continuity plate."
+    },
+    {
+      "id": "package-world",
+      "kind": "package_face",
+      "owner": "CAPCOM_REFERENCE",
+      "region": "JP",
+      "publicationState": "ASSET_PENDING",
+      "notes": "Prototype face only; not official package art."
+    },
+    {
+      "id": "package-iceborne",
+      "kind": "package_face",
+      "owner": "CAPCOM_REFERENCE",
+      "region": "JP",
+      "publicationState": "ASSET_PENDING",
+      "notes": "Prototype face only; CURRENT state is structural."
+    },
+    {
+      "id": "package-rise",
+      "kind": "package_face",
+      "owner": "CAPCOM_REFERENCE",
+      "region": "JP",
+      "publicationState": "ASSET_PENDING"
+    },
+    {
+      "id": "package-sunbreak",
+      "kind": "package_face",
+      "owner": "CAPCOM_REFERENCE",
+      "region": "JP",
+      "publicationState": "ASSET_PENDING"
+    },
+    {
+      "id": "package-wilds",
+      "kind": "package_face",
+      "owner": "CAPCOM_REFERENCE",
+      "region": "JP",
+      "publicationState": "ASSET_PENDING",
+      "notes": "Largest NEXT case retained from Golden hierarchy."
+    },
+    {
+      "id": "ascendance-object",
+      "kind": "horizon_object",
+      "owner": "ORIGINAL_STRUCTURE",
+      "publicationState": "NO_INVENTED_PACKAGE",
+      "notes": "No fictional retail package; horizon plate only."
+    },
+    {
+      "id": "weapon-icons-a14-v02",
+      "kind": "weapon_icon_family",
+      "owner": "ORIGINAL",
+      "rightsStatus": "ORIGINAL_NON_TRACED",
+      "publicationState": "HUMAN_DIRECTION_SELECTED_EXECUTION_PENDING",
+      "notes": "A/BOLD-CONTOUR family; all 14 structural silhouettes."
+    },
+    {
+      "id": "hunting-log-values",
+      "kind": "data",
+      "owner": "USER_DATA",
+      "publicationState": "UNKNOWN_VALUES_SHOWN_AS_UNRECORDED",
+      "notes": "No Golden decorative HR/count values promoted."
+    },
+    {
+      "id": "future-media",
+      "kind": "official_media_slots",
+      "owner": "CAPCOM_REFERENCE",
+      "publicationState": "ASSET_PENDING",
+      "notes": "No trailer imagery rehosted in v0.2."
+    },
+    {
+      "id": "archive-2nd-memory",
+      "kind": "memory_objects",
+      "owner": "ORIGINAL",
+      "publicationState": "OK_FOR_PREVIEW",
+      "notes": "Generic handheld/ticket/old-case silhouettes; no copied package art."
+    }
+  ]
+}
