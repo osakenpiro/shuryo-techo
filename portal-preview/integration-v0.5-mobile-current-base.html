@@ -460,8 +460,8 @@ body{background:#050606}
       radial-gradient(circle at 72% 24%,rgba(246,216,166,.85) 0 3%,rgba(191,144,83,.32) 14%,transparent 34%),
       linear-gradient(155deg,#21343a 0 38%,#66726f 39% 45%,#23383a 46% 63%,#101a1d 64%);
     box-shadow:0 18px 34px #000c,inset 0 0 0 4px #0b0c0a;
-    opacity:var(--horizon-reveal);
-    transform:translate3d(0,38px,0) scale(calc(.92 + var(--horizon-reveal) * .08));
+    opacity:0;
+    transform:translate3d(0,38px,0) scale(.92);
     pointer-events:none;
   }
   .mobile-horizon-window:before{
@@ -538,6 +538,10 @@ body{background:#050606}
   }
 
   /* CH3 — base recedes; outside light takes the same stage into SES-C */
+  .workshop[data-mobile-stage="3"] .mobile-horizon-window{
+    opacity:1;
+    transform:translate3d(0,0,0) scale(1);
+  }
   .workshop[data-mobile-stage="3"] .rack-wall{
     opacity:.06;
     transform:translate3d(0,-84px,0) scale(.8);
@@ -557,10 +561,9 @@ body{background:#050606}
     pointer-events:none;
   }
 
-  .ab-outside-light{
-    opacity:calc(.42 + var(--horizon-reveal) * .58);
-    filter:blur(calc(1px + var(--horizon-reveal) * 2px));
-  }
+  .ab-outside-light{opacity:.42;filter:blur(1px)}
+  .workshop[data-mobile-stage="3"] ~ *{}
+  .workshop[data-mobile-stage="3"] .ab-outside-light{opacity:1;filter:blur(3px)}
 }
 @media(max-width:680px) and (prefers-reduced-motion:reduce){
   .rack-wall,.hunting-plaque,.desk,.books-stack,.tier-sheet,.mobile-horizon-window,
