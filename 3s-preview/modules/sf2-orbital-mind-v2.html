@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<title>#SF-2 Orbital Mind v2</title>
+<style>
+:root{--bg:#04070b;--ink:#eef5f7;--muted:#7f909b;--cyan:#9cefff;--blue:#7fa9ff;--violet:#b178f3;--gold:#dcbf7c;--edge:rgba(174,222,238,.16)}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif}
+body{background:radial-gradient(circle at 50% 0,#0c1a27 0,#06090e 48%,#030507 100%)}
+main{max-width:1280px;margin:auto;padding:28px 18px 80px}.eyebrow{font:10px ui-monospace,Consolas,monospace;letter-spacing:.17em;color:var(--muted)}h1{font-family:"Yu Mincho","Hiragino Mincho ProN",serif;font-weight:400;font-size:clamp(34px,5vw,60px);line-height:1.12;margin:8px 0 10px}.lede{max-width:860px;color:#aab8c0;line-height:1.75}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:28px}.card{border:1px solid var(--edge);border-radius:24px;background:linear-gradient(180deg,#08111a,#071019);overflow:hidden;box-shadow:0 26px 90px rgba(0,0,0,.32)}.card.pick{border-color:rgba(220,191,124,.42);box-shadow:0 0 0 1px rgba(220,191,124,.08),0 32px 100px rgba(0,0,0,.38)}
+.head{padding:16px 17px 11px}.head b{font-size:15px}.head span{display:block;color:var(--muted);font-size:11px;margin-top:4px}.badge{display:inline-block!important;width:max-content;border:1px solid rgba(220,191,124,.32);border-radius:999px;padding:5px 8px;margin-top:8px!important;font:9px ui-monospace,Consolas,monospace;letter-spacing:.12em;color:#dec998}
+.stage{height:450px;display:grid;place-items:center;position:relative;background:radial-gradient(circle at 50% 48%,rgba(102,199,239,.07),transparent 46%),linear-gradient(180deg,#08121b,#061018);overflow:hidden}.stage:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0 3px,rgba(255,255,255,.011) 3px 4px);pointer-events:none}
+svg{width:97%;height:97%;overflow:visible}.brain{fill:rgba(87,165,206,.028);stroke:rgba(171,232,250,.36);stroke-width:1.65}.inner{fill:none;stroke:rgba(150,220,242,.17);stroke-width:1.05}.inner.hot{stroke:rgba(156,238,255,.46)}.cleft{fill:none;stroke:rgba(190,236,250,.18);stroke-width:1.15}.orbit{fill:none;stroke:rgba(199,224,245,.10);stroke-width:1}.orbit.front{stroke:rgba(156,230,251,.24)}.orbit.gold{stroke:rgba(220,191,124,.16)}.node{fill:#09141d;stroke:rgba(175,232,250,.30);stroke-width:1.1}.node.on{fill:var(--cyan);stroke:var(--cyan);filter:drop-shadow(0 0 7px rgba(156,239,255,.85))}.sat{fill:#08121a;stroke:rgba(215,235,244,.26);stroke-width:1}.core{fill:url(#core);filter:drop-shadow(0 0 22px rgba(143,222,252,.36))}.probe{fill:#f8fcff;stroke:var(--cyan);stroke-width:1.2;filter:drop-shadow(0 0 7px rgba(156,239,255,.92))}
+.note{padding:13px 17px 17px;border-top:1px solid rgba(255,255,255,.06);font-size:11px;line-height:1.65;color:#a7b4bc}.note strong{color:#ecf2f4}
+.summary{margin-top:26px;border:1px solid var(--edge);border-radius:18px;background:#091119;padding:18px}.summary h2{font-size:18px;margin:0 0 10px}.summary p{margin:0;color:#aab8c0;line-height:1.75}
+@media(max-width:980px){.grid{grid-template-columns:1fr}.card{max-width:660px;margin:auto}.stage{height:390px}}
+</style></head><body><main>
+<p class="eyebrow">#SF-2 / ORBITAL MIND / CHILD SES REFINEMENT v2</p>
+<h1>脳の輪郭を保ったまま、<br>ひとつの世界として奥行きを持たせる。</h1>
+<p class="lede">Orbital Mindの魅力を残し、線の階層・軌道の前後・中心核・ノードの意味を整理。原子記号の既視感ではなく「自己という世界の構造」に寄せる。</p>
+<section class="grid">
+
+<article class="card">
+<div class="head"><b>OM-1 · Deep Cortex Orbit</b><span>脳読みを補強</span></div>
+<div class="stage"><svg viewBox="0 0 360 360">
+<defs><radialGradient id="core"><stop offset="0" stop-color="#fff"/><stop offset=".30" stop-color="#a5eaff"/><stop offset=".62" stop-color="#829fff"/><stop offset="1" stop-color="#ac70ec"/></radialGradient></defs>
+<ellipse class="orbit" cx="180" cy="185" rx="158" ry="58" transform="rotate(0 180 185)"/><ellipse class="orbit gold" cx="180" cy="185" rx="151" ry="64" transform="rotate(61 180 185)"/><ellipse class="orbit front" cx="180" cy="185" rx="151" ry="64" transform="rotate(119 180 185)"/>
+<path class="brain" d="M180 76c-29-25-69-18-88 9-30-1-50 22-46 49-25 17-29 51-11 73-12 29 3 60 31 71 8 29 37 45 64 35 19 18 40 20 50 6 10 14 31 12 50-6 27 10 56-6 64-35 28-11 43-42 31-71 18-22 14-56-11-73 4-27-16-50-46-49-19-27-59-34-88-9Z"/>
+<path class="cleft" d="M180 78c-11 30 3 49-4 74-7 25 8 43 2 69-5 24 5 46 2 94"/>
+<path class="inner hot" d="M93 137c25-27 59-29 84-14 12 7 22 7 34 0 27-16 61-3 74 24 13 28 2 58-23 74-26 15-58 9-81 18-34 14-70 3-86-23-16-25-9-52-2-79Z"/>
+<path class="inner" d="M116 154c18-17 42-19 60-8 10 6 18 5 28 0 19-11 43-2 52 16 9 19 2 41-16 51-18 11-41 6-57 13-24 10-50 2-61-16-11-18-7-37-6-56Z"/>
+<circle class="core" cx="180" cy="185" r="16"/><circle class="node on" cx="115" cy="144" r="4"/><circle class="node" cx="249" cy="133" r="4"/><circle class="node" cx="244" cy="253" r="4"/><circle class="sat" cx="286" cy="215" r="4"/><circle class="probe" cx="115" cy="144" r="6"/>
+</svg></div>
+<div class="note"><strong>脳らしさを一段戻したOrbital Mind。</strong> 軌道は構造として残すが、主役は脳/自己。</div>
+</article>
+
+<article class="card pick">
+<div class="head"><b>OM-2 · Living Orbit</b><span>多義性と高級感を均衡</span><span class="badge">CHILD RECOMMENDATION</span></div>
+<div class="stage"><svg viewBox="0 0 360 360">
+<defs><radialGradient id="core2"><stop offset="0" stop-color="#fff"/><stop offset=".26" stop-color="#c4f6ff"/><stop offset=".50" stop-color="#7fd3ff"/><stop offset=".73" stop-color="#789aff"/><stop offset="1" stop-color="#ae6fe9"/></radialGradient></defs>
+<ellipse class="orbit" cx="180" cy="184" rx="164" ry="56" transform="rotate(8 180 184)"/><ellipse class="orbit gold" cx="180" cy="184" rx="151" ry="66" transform="rotate(64 180 184)"/><ellipse class="orbit front" cx="180" cy="184" rx="151" ry="66" transform="rotate(121 180 184)"/>
+<path class="brain" d="M180 78c-28-24-67-17-86 8-29-2-50 20-47 47-25 16-31 49-15 71-14 27-2 58 25 72 5 30 33 50 61 42 18 18 44 20 62 3 18 17 44 15 62-3 28 8 56-12 61-42 27-14 39-45 25-72 16-22 10-55-15-71 3-27-18-49-47-47-19-25-58-32-86-8Z"/>
+<path class="cleft" d="M180 81c-10 25 1 44-4 65-7 26 8 45 2 69-6 24 6 47 2 102"/>
+<path class="inner hot" d="M87 139c23-27 55-31 80-17 14 8 24 7 36 0 28-16 63-2 76 25 14 29 3 61-23 76-28 17-63 9-86 19-35 14-74 3-90-25-16-26-8-53 7-78Z"/>
+<path class="inner" d="M106 152c17-19 41-22 60-11 12 7 21 6 31 0 21-12 48-2 58 19 10 22 2 46-18 57-21 13-47 7-65 15-26 11-56 2-68-19-12-20-6-41 2-61Z"/>
+<path class="inner" d="M128 167c11-11 27-14 40-7 10 5 17 5 25 0 14-8 32-1 39 13 7 14 1 31-12 38-14 8-31 4-43 10-18 7-38 1-46-13-8-14-5-27-3-41Z"/>
+<circle cx="180" cy="184" r="17" fill="url(#core2)" filter="drop-shadow(0 0 25px rgba(142,225,255,.42))"/>
+<circle class="node on" cx="105" cy="144" r="4"/><circle class="node" cx="258" cy="140" r="4"/><circle class="node" cx="126" cy="246" r="4"/><circle class="node" cx="238" cy="251" r="4"/><circle class="sat" cx="291" cy="210" r="4"/><circle class="sat" cx="86" cy="286" r="3.5"/><circle class="probe" cx="105" cy="144" r="6"/>
+</svg></div>
+<div class="note"><strong>Orbital Mindの魅力を最も保つ。</strong> 脳・地図・惑星・原子のどれにも寄り切らず、「自己という世界」の記号としてまとまる。</div>
+</article>
+
+<article class="card">
+<div class="head"><b>OM-3 · Celestial Cortex</b><span>奥行き・空間性を強化</span></div>
+<div class="stage"><svg viewBox="0 0 360 360">
+<defs><radialGradient id="core3"><stop offset="0" stop-color="#fff"/><stop offset=".28" stop-color="#bdf5ff"/><stop offset=".56" stop-color="#82bdff"/><stop offset=".82" stop-color="#8d8cff"/><stop offset="1" stop-color="#b26fe7"/></radialGradient></defs>
+<ellipse class="orbit" cx="180" cy="184" rx="166" ry="51" transform="rotate(-7 180 184)"/><ellipse class="orbit gold" cx="180" cy="184" rx="151" ry="70" transform="rotate(55 180 184)"/><ellipse class="orbit front" cx="180" cy="184" rx="151" ry="70" transform="rotate(126 180 184)"/>
+<path class="brain" d="M180 79c-27-23-66-17-85 8-28-2-49 19-47 46-24 16-31 47-16 69-13 27-1 57 25 71 5 30 32 50 60 42 18 19 45 21 63 4 18 17 45 15 63-4 28 8 55-12 60-42 26-14 38-44 25-71 15-22 8-53-16-69 2-27-19-48-47-46-19-25-58-31-85-8Z"/>
+<path class="cleft" d="M180 82c-9 24 2 42-4 63-6 25 8 44 2 68-6 23 5 45 2 100"/>
+<path class="inner hot" d="M90 141c23-25 53-29 77-15 13 7 23 7 35 0 27-15 60-1 73 24 13 28 3 58-22 73-27 16-60 9-82 18-33 14-70 3-86-23-15-25-8-51 5-77Z"/>
+<path class="inner" d="M113 158c16-16 38-19 55-9 11 6 19 6 29 0 19-11 43-1 52 18 10 20 2 42-16 52-19 12-43 6-59 13-24 10-51 2-62-17-11-18-6-37 1-57Z"/>
+<circle cx="180" cy="184" r="18" fill="url(#core3)" filter="drop-shadow(0 0 28px rgba(143,225,255,.45))"/>
+<circle class="node on" cx="108" cy="148" r="4"/><circle class="node" cx="258" cy="139" r="4"/><circle class="node" cx="123" cy="246" r="4"/><circle class="node" cx="240" cy="249" r="4"/><circle class="sat" cx="306" cy="178" r="4"/><circle class="sat" cx="72" cy="286" r="3.5"/><circle class="probe" cx="108" cy="148" r="6"/>
+</svg></div>
+<div class="note"><strong>最も宇宙的。</strong> リッチだが、惑星側へ寄りすぎる可能性があるため統合時は要注意。</div>
+</article>
+
+</section>
+<section class="summary"><h2>#SF-2 RETURN candidate</h2><p><strong>OM-2 · Living Orbit</strong> を推奨。Human選択のOrbital Mindの魅力を保ちつつ、線の前後・核・ノード・半球感を整理して、より高級な象徴へ寄せられている。</p></section>
+</main></body></html>
