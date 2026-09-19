@@ -22,7 +22,7 @@ ok("official_sources_only",ledger.items.every(x=>{try{return allowedHosts.has(ne
 ok("no_cdn_hotlinks",ledger.items.every(x=>!/(cdn|akamai|cloudfront|imgur)/i.test(x.officialSource)));
 ok("no_download_rehost_media",ledger.items.filter(x=>x.kind==="media").every(x=>/DO_NOT_DOWNLOAD_REHOST/.test(x.strategy)));
 ok("ascendance_package_pending",ledger.items.find(x=>x.id==="asset.package.ascendance")?.publicationState==="ASSET_PENDING");
-ok("ascendance_keyvisual_pending",ledger.items.find(x=>x.id==="asset.keyVisual.ascendance")?.publicationState==="ASSET_PENDING");
+ok("ascendance_keyvisual_reference",ledger.items.find(x=>x.id==="asset.keyVisual.ascendance")?.publicationState==="REFERENCE_ONLY");
 ok("wilds_media_embed_candidate",ledger.items.find(x=>x.id==="asset.media.wilds.primary")?.publicationState==="EMBED_CANDIDATE");
 ok("asc_media_embed_candidate",ledger.items.find(x=>x.id==="asset.media.ascendance.primary")?.publicationState==="EMBED_CANDIDATE");
 ok("image_reuse_not_claimed",ledger.items.filter(x=>x.kind!=="media").every(x=>x.rightsStatus.includes("REUSE_NOT_CLEARED")));
