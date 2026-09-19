@@ -1366,11 +1366,12 @@ scheduleMobileWorkbench();
   addEventListener('resize',schedule,{passive:true});
   addEventListener('hashchange',() => {
     renderHashLocation();
-    setTimeout(schedule,120);
+    setTimeout(renderHashLocation,220);
   });
   addEventListener('load',() => {
     renderHashLocation();
-    setTimeout(schedule,180);
+    if (location.hash) setTimeout(renderHashLocation,260);
+    else setTimeout(schedule,180);
   },{once:true});
   renderHashLocation();
 })();
