@@ -16,7 +16,7 @@ Disposition summary:
 - Package ASCENDANCE: ASSET_PENDING
 - Hero ICEBORNE/WILDS: REFERENCE_ONLY
 - Wilds key visual: REFERENCE_ONLY
-- Ascendance key visual: ASSET_PENDING
+- Ascendance key visual: REFERENCE_ONLY (exact official press-release image located)
 - Wilds primary trailer: EMBED_CANDIDATE
 - Ascendance primary trailer: EMBED_CANDIDATE
 
@@ -64,7 +64,7 @@ Do not let Asset Desk choose package composition.
 
 ### SES-C
 Use official trailer candidates as media sources.
-Ascendance key visual remains unresolved; Golden composition still wins.
+Exact official Ascendance key visual reference is now known, but reuse/publication remains uncleared; Golden composition still wins.
 
 ### SES-E
 Stable asset IDs already match this ledger 1:1.
