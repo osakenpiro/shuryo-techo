@@ -1321,14 +1321,9 @@ scheduleMobileWorkbench();
     .filter(x => x.el);
 
   let tick = false;
-  function renderLocation() {
-    tick = false;
-    const probe = scrollY + Math.min(innerHeight * .34, 260);
-    let current = locations[0]?.id || 'home';
-    for (const loc of locations) {
-      const top = loc.el.getBoundingClientRect().top + scrollY;
-      if (top <= probe) current = loc.id;
-    }
+  const validLocations = new Set(locations.map(x => x.id));
+
+  function paintLocation(current) {
     shell.dataset.location = current;
     for (const node of document.querySelectorAll('.route-node[data-location-id]')) {
       const active = node.dataset.locationId === current;
@@ -1342,16 +1337,42 @@ scheduleMobileWorkbench();
       });
     }
   }
+
+  function renderLocation() {
+    tick = false;
+    const probe = scrollY + Math.min(innerHeight * .34, 260);
+    let current = locations[0]?.id || 'home';
+    for (const loc of locations) {
+      const top = loc.el.getBoundingClientRect().top + scrollY;
+      if (top <= probe) current = loc.id;
+    }
+    paintLocation(current);
+  }
+
+  function renderHashLocation() {
+    const id = decodeURIComponent(location.hash.replace(/^#/,''));
+    if (validLocations.has(id)) paintLocation(id);
+    else renderLocation();
+  }
+
   function schedule() {
     if (!tick) {
       tick = true;
       requestAnimationFrame(renderLocation);
     }
   }
+
   addEventListener('scroll',schedule,{passive:true});
   addEventListener('resize',schedule,{passive:true});
-  addEventListener('hashchange',schedule,{passive:true});
-  renderLocation();
+  addEventListener('hashchange',() => {
+    renderHashLocation();
+    setTimeout(schedule,120);
+  });
+  addEventListener('load',() => {
+    renderHashLocation();
+    setTimeout(schedule,180);
+  },{once:true});
+  renderHashLocation();
 })();
 </script>
 </body></html>
