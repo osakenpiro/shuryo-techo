@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>3S Scan Capsule Lab — #366</title>
+<style>
+:root{--bg:#06090e;--ink:#eef4f7;--muted:#8596a1;--cyan:#9deeff;--gold:#d8b675;--edge:rgba(175,220,237,.16)}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif}
+body{background:radial-gradient(circle at 50% 0,#0b1723 0,#06090e 45%,#040608 100%)}
+main{max-width:1240px;margin:auto;padding:28px 18px 80px}.eyebrow{font:10px ui-monospace,Consolas,monospace;letter-spacing:.16em;color:var(--muted)}h1{font-family:"Yu Mincho","Hiragino Mincho ProN",serif;font-weight:400;font-size:clamp(34px,5vw,58px);line-height:1.15;margin:8px 0 10px}.lede{max-width:840px;line-height:1.7;color:#aab7bf}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:30px}.card{border:1px solid var(--edge);border-radius:22px;background:#081019;padding:13px;box-shadow:0 22px 70px rgba(0,0,0,.28)}.card.pick{border-color:rgba(216,182,117,.40);box-shadow:0 0 0 1px rgba(216,182,117,.10),0 25px 80px rgba(0,0,0,.34)}.label{padding:2px 4px 11px}.label b{font-size:15px}.label span{display:block;color:var(--muted);font-size:11px;margin-top:4px}.badge{display:inline-block;margin-top:8px;border:1px solid rgba(216,182,117,.32);border-radius:999px;padding:5px 8px;font:9px ui-monospace,Consolas,monospace;letter-spacing:.12em;color:#dcc699}
+.demo{height:500px;display:grid;place-items:center;border-radius:15px;background:radial-gradient(circle at 50% 35%,rgba(93,192,232,.06),transparent 40%),#060c12;overflow:hidden}.phone{width:320px;max-width:92%;position:relative}.capsule{position:relative;background:#09121a;border:1px solid rgba(177,221,238,.22);box-shadow:0 24px 65px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.025);padding:13px}.arch{border-radius:44px 44px 18px 18px/28px 28px 18px 18px}.instrument{border-radius:22px;clip-path:polygon(0 12%,4% 12%,4% 4%,11% 4%,11% 0,89% 0,89% 4%,96% 4%,96% 12%,100% 12%,100% 88%,96% 88%,96% 96%,89% 96%,89% 100%,11% 100%,11% 96%,4% 96%,4% 88%,0 88%)}.vessel{border-radius:36px 36px 46px 46px/24px 24px 60px 60px;padding-bottom:24px}
+.head{display:flex;justify-content:space-between;font:8px ui-monospace,Consolas,monospace;color:#7d8f9a;letter-spacing:.12em;padding:0 5px 8px}.head b{color:#a6eefe}
+.map{height:145px;border:1px solid rgba(175,220,237,.11);border-radius:24px;background:radial-gradient(circle at 50% 50%,rgba(100,195,232,.07),transparent 48%),#071019;display:grid;place-items:center;position:relative;overflow:hidden}.map:before{content:"";width:155px;height:104px;border-radius:48% 52% 47% 53%/52% 46% 54% 48%;border:1px solid rgba(160,228,249,.28);box-shadow:inset 0 0 25px rgba(127,216,246,.04)}.map:after{content:"";position:absolute;width:126px;height:74px;border:1px solid rgba(160,228,249,.18);border-radius:48%;transform:rotate(-13deg);box-shadow:0 0 0 14px rgba(160,228,249,.01),0 0 0 28px rgba(160,228,249,.008)}
+.rail{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:9px 4px}.r{height:34px;border:1px solid rgba(174,220,237,.12);border-radius:7px;background:#08111a}.r.on{background:radial-gradient(circle,rgba(157,238,255,.44),rgba(69,113,201,.08) 45%,#08111a)}
+.q{border-top:1px solid rgba(255,255,255,.07);padding:14px 5px 5px}.k{font:8px ui-monospace,Consolas,monospace;letter-spacing:.18em;color:var(--cyan)}.qt{font-size:18px;line-height:1.45;margin:7px 0 12px}.input{height:44px;border:1px solid rgba(179,220,236,.17);border-radius:10px;background:#0b151e}.button{margin-top:10px;height:42px;border-radius:999px;background:var(--cyan)}
+.instrument .map{border-radius:8px}.instrument .input{border-radius:6px}.instrument .button{border-radius:7px}.instrument:before,.instrument:after{content:"";position:absolute;top:74px;width:10px;height:88px;background:#071019;border:1px solid rgba(174,220,237,.16);z-index:3}.instrument:before{left:-4px}.instrument:after{right:-4px}
+.vessel .map{border-radius:28px 28px 18px 18px}.vessel .rail{padding-top:13px}.vessel .q{border-top:0;background:linear-gradient(180deg,rgba(157,238,255,.025),transparent);border-radius:0 0 34px 34px;padding-bottom:8px}.vessel:after{content:"";position:absolute;left:50%;bottom:7px;width:80px;height:2px;transform:translateX(-50%);background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:.5}
+.legend{padding:12px 4px 4px;color:#a7b4bc;font-size:11px;line-height:1.6}.legend strong{color:#e8eef1}
+.rules{margin-top:26px;border:1px solid var(--edge);border-radius:18px;background:#091119;padding:18px}.rules h2{font-size:18px;margin:0 0 10px}.rules p{margin:0;color:#aab7bf;line-height:1.7}
+@media(max-width:980px){.grid{grid-template-columns:1fr}.card{max-width:620px;margin:auto}.demo{height:460px}}
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow">3S / CHILD SES #366 / SCAN CAPSULE LAB</p>
+<h1>質問カードではなく、<br>Self Fieldを読むための装置にする。</h1>
+<p class="lede">背景を透かして鑑賞するモーダルをやめ、Map・Receptor・Questionを一つの3S固有Instrumentとしてまとめる。形状差だけを独立比較。</p>
+<section class="grid">
+
+<article class="card">
+<div class="label"><b>A · Gate Arch</b><span>世界観との接続を優先</span></div>
+<div class="demo"><div class="phone"><div class="capsule arch"><div class="head"><b>LIVE SCAN</b><span>PROBE 02</span></div><div class="map"></div><div class="rail"><div class="r on"></div><div class="r"></div><div class="r"></div><div class="r"></div></div><div class="q"><div class="k">QUESTION 02</div><div class="qt">その時間は、どっちに近い？</div><div class="input"></div><div class="button"></div></div></div></div></div>
+<div class="legend"><strong>最も自然。</strong> Gateのアーチを上端にオマージュ。読みやすいが、まだ「少し変わったカード」に留まる危険。</div>
+</article>
+
+<article class="card pick">
+<div class="label"><b>B · Instrument Frame</b><span>装置性・固有シルエットを優先</span><span class="badge">CHILD RECOMMENDATION</span></div>
+<div class="demo"><div class="phone"><div class="capsule instrument"><div class="head"><b>3S SCAN INSTRUMENT</b><span>SIGNAL 01</span></div><div class="map"></div><div class="rail"><div class="r on"></div><div class="r"></div><div class="r"></div><div class="r"></div></div><div class="q"><div class="k">QUESTION 02</div><div class="qt">その時間は、どっちに近い？</div><div class="input"></div><div class="button"></div></div></div></div></div>
+<div class="legend"><strong>3S固有UIとして最も強い。</strong> 左右の観測フレームと角の切り欠きが「読む装置」を作る。内部は直線的で、Self Fieldの有機性との対比も出る。</div>
+</article>
+
+<article class="card">
+<div class="label"><b>C · Status Vessel</b><span>Signalが溜まる器として表現</span></div>
+<div class="demo"><div class="phone"><div class="capsule vessel"><div class="head"><b>STATUS VESSEL</b><span>FORMING</span></div><div class="map"></div><div class="rail"><div class="r on"></div><div class="r on"></div><div class="r"></div><div class="r"></div></div><div class="q"><div class="k">QUESTION 03</div><div class="qt">いま、育てたいものは？</div><div class="input"></div><div class="button"></div></div></div></div></div>
+<div class="legend"><strong>意味論は面白い。</strong> 下へSignalが溜まる器の感じ。ただしフォームとしての重心が強く、P1では少し儀式性が過剰。</div>
+</article>
+
+</section>
+<section class="rules"><h2>Child recommendation</h2><p><strong>B · Instrument Frame</strong> をRETURN候補にする。背景とは視覚的に切れ、Scanを行う「操作装置」として最も認識しやすい。Self Field側は有機的、Capsule側は精密なInstrumentという役割分離も明快。</p></section>
+</main>
+</body>
+</html>
