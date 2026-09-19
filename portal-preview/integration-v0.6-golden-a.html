@@ -775,47 +775,23 @@ body{background:#050606}
       drop-shadow(0 0 13px rgba(205,240,246,.42))
       drop-shadow(8px 15px 10px #000d);
   }
-  .ib.current:after{
-    content:"CURRENT";
-    position:absolute;
-    z-index:8;
-    left:28px;
-    bottom:15px;
-    padding:5px 9px;
-    border:1px solid #a8c8c9;
-    background:#102024df;
-    color:#e0f5f5;
-    font:6px var(--sans);
-    letter-spacing:.18em;
-    box-shadow:0 5px 12px #000b,0 0 12px rgba(202,239,241,.22);
+  .ib .state{
+    background:#d9edf0;
+    color:#101719;
+    border-color:#d9edf0;
+    box-shadow:0 0 16px rgba(201,240,242,.52),0 5px 12px #000b;
   }
-  .wilds.next:after{
-    content:"NEXT";
-    position:absolute;
-    z-index:8;
-    left:37px;
-    bottom:17px;
-    padding:6px 12px;
-    border:1px solid #b98d4c;
+  .wilds .state{
     background:#2a1c0ee8;
     color:#f2d99c;
-    font:7px var(--sans);
-    letter-spacing:.2em;
+    border-color:#b98d4c;
     box-shadow:0 5px 12px #000a;
   }
-  .asc.horizon:after{
-    content:"NEXT HORIZON";
-    position:absolute;
-    z-index:8;
-    left:26px;
-    bottom:14px;
-    padding:5px 9px;
-    border:1px solid #667c91;
+  .asc .state{
     background:#111a23e8;
     color:#c7d5df;
-    font:5.5px var(--sans);
-    letter-spacing:.15em;
-    white-space:nowrap;
+    border-color:#667c91;
+    box-shadow:0 5px 12px #000a;
   }
 
   /* A -> B is one construction */
@@ -873,9 +849,9 @@ body{background:#050606}
   }
   .package-ridge::-webkit-scrollbar{display:none}
   .package-ridge .shelfboard{
-    position:fixed;
+    position:absolute;
     left:0;right:0;
-    bottom:126px;
+    bottom:0;
     height:40px;
     pointer-events:none;
   }
