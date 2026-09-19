@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MH PORTAL — STRUCTURE BLUEPRINT / v0.7 REVIEW PROJECTION</title>
+<style>
+:root{
+  --bg:#0d1115;
+  --panel:#121820;
+  --panel2:#18212b;
+  --line:#657484;
+  --line2:#3a4755;
+  --text:#e8edf2;
+  --muted:#96a2ad;
+  --accent:#d6ad62;
+  --accent2:#8fb9c6;
+  --lock:#91a08c;
+  --danger:#cf8a71;
+  --sans:Inter,"Yu Gothic",Meiryo,sans-serif;
+  --mono:"Cascadia Mono","SFMono-Regular",Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans)}
+body{padding:24px}
+header{
+  max-width:1480px;margin:0 auto 18px;
+  display:flex;gap:18px;align-items:flex-start;justify-content:space-between
+}
+.kicker{font:12px var(--mono);letter-spacing:.14em;color:var(--accent)}
+h1{margin:6px 0 8px;font-size:28px;line-height:1.2}
+header p{margin:0;max-width:840px;color:var(--muted);font-size:14px;line-height:1.7}
+.badge{
+  border:1px solid var(--accent);
+  color:var(--accent);
+  padding:8px 10px;
+  font:11px var(--mono);
+  white-space:nowrap
+}
+.review-grid{
+  max-width:1480px;margin:auto;
+  display:grid;
+  grid-template-columns:320px 1fr;
+  gap:18px
+}
+.review-card,.panel{
+  background:var(--panel);
+  border:1px solid var(--line2)
+}
+.review-card{
+  position:sticky;top:18px;align-self:start;padding:18px
+}
+.review-card h2,.panel h2{font-size:16px;margin:0 0 12px}
+.review-card .yes,.review-card .no{padding:12px;border-left:3px solid var(--accent);background:#0f151b;margin-top:12px}
+.review-card .no{border-left-color:var(--danger)}
+.review-card b{display:block;font-size:12px;margin-bottom:7px}
+.review-card ol,.review-card ul{margin:0;padding-left:20px;color:#d7dde3;font-size:13px;line-height:1.75}
+.review-card .no ul{color:var(--muted)}
+.response{
+  margin-top:14px;padding-top:12px;border-top:1px solid var(--line2);
+  font:12px/1.7 var(--mono);color:var(--muted)
+}
+.main{display:grid;gap:18px}
+.panel{padding:16px}
+.panel-head{
+  display:flex;justify-content:space-between;gap:12px;align-items:end;margin-bottom:12px
+}
+.panel-head p{margin:0;color:var(--muted);font:11px var(--mono)}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin:4px 0 14px}
+.legend span{font:10px var(--mono);color:var(--muted)}
+.dot{display:inline-block;width:9px;height:9px;margin-right:5px;border:1px solid var(--line)}
+.dot.zone{background:var(--panel2)}
+.dot.seam{background:var(--accent);border-color:var(--accent)}
+.dot.lock{background:var(--lock);border-color:var(--lock)}
+.blueprint-wrap{
+  display:grid;grid-template-columns:42px minmax(0,1fr) 220px;gap:12px
+}
+.ruler{
+  position:relative;height:820px;border-right:1px solid var(--line2)
+}
+.tick{
+  position:absolute;right:7px;transform:translateY(-50%);
+  font:9px var(--mono);color:#73808c
+}
+.tick:after{
+  content:"";position:absolute;left:calc(100% + 6px);top:50%;
+  width:8px;height:1px;background:var(--line2)
+}
+.diagram{
+  position:relative;height:820px;background:#0a0f14;border:1px solid #28333e;overflow:hidden
+}
+.zone-box,.seam-box{
+  position:absolute;left:8%;right:8%;
+  border:1px solid var(--line);
+  background:rgba(24,33,43,.9)
+}
+.zone-box .label{
+  position:absolute;left:12px;top:10px;
+  font:700 12px var(--mono);letter-spacing:.05em
+}
+.zone-box .meta{
+  position:absolute;right:12px;top:10px;
+  font:10px var(--mono);color:var(--muted)
+}
+.zone-box .inner{
+  position:absolute;left:12px;right:12px;top:38px;bottom:12px;
+  display:grid;gap:8px
+}
+.sub{
+  border:1px dashed #51606f;
+  background:#111820;
+  display:flex;align-items:center;justify-content:center;
+  color:#9eabb7;font:10px var(--mono);text-align:center;padding:6px
+}
+.locked{
+  border-color:var(--lock)!important;
+  box-shadow:inset 0 0 0 1px rgba(145,160,140,.14)
+}
+.locked .meta{color:var(--lock)}
+.seam-box{
+  left:22%;right:22%;
+  border-color:var(--accent);
+  background:rgba(214,173,98,.12);
+  z-index:8
+}
+.seam-box .label{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  font:700 10px var(--mono);color:var(--accent);white-space:nowrap
+}
+.spine{
+  position:absolute;left:4%;top:2%;bottom:2%;width:2px;background:#344250
+}
+.spine:before,.spine:after{
+  content:"";position:absolute;left:50%;transform:translateX(-50%);
+  width:7px;height:7px;border-radius:50%;background:var(--accent2)
+}
+.spine:before{top:0}.spine:after{bottom:0}
+.viewport-line{
+  position:absolute;left:0;right:0;border-top:1px dashed #26313b;
+  pointer-events:none
+}
+.note-col{height:820px;position:relative}
+.note{
+  position:absolute;left:0;right:0;padding:10px 12px;
+  border:1px solid var(--line2);background:#0f151b;
+  color:#c4ccd4;font-size:11px;line-height:1.55
+}
+.note b{display:block;font:10px var(--mono);color:var(--accent);margin-bottom:4px}
+.metric-table{
+  margin-top:14px;border-top:1px solid var(--line2);padding-top:12px;
+  display:grid;grid-template-columns:1fr 70px 70px;gap:7px;
+  font:11px var(--mono)
+}
+.metric-table div:nth-child(3n+2),.metric-table div:nth-child(3n+3){text-align:right;color:var(--muted)}
+.metric-table .head{color:var(--muted)}
+.mobile-layout{
+  display:grid;grid-template-columns:300px 1fr;gap:16px
+}
+.phone{
+  height:700px;border:1px solid var(--line);background:#0a0f14;position:relative;overflow:hidden
+}
+.phone:before{
+  content:"MOBILE STRUCTURE";position:absolute;top:8px;left:10px;
+  font:9px var(--mono);color:var(--muted);z-index:20
+}
+.phone .zone-box{left:8%;right:8%}
+.phone .seam-box{left:20%;right:20%}
+.current-stages{
+  position:absolute;left:12px;right:12px;top:40px;bottom:12px;
+  display:grid;grid-template-rows:repeat(4,1fr);gap:5px
+}
+.current-stages div{
+  border:1px dashed #596675;display:flex;align-items:center;justify-content:center;
+  color:#aeb8c2;font:9px var(--mono)
+}
+.mobile-notes{
+  display:grid;align-content:start;gap:10px
+}
+.mobile-notes .note{position:static}
+.callout{
+  padding:12px;border:1px solid var(--accent);
+  background:rgba(214,173,98,.07);
+  font-size:12px;line-height:1.7
+}
+.callout b{color:var(--accent)}
+footer{
+  max-width:1480px;margin:18px auto 0;color:#6e7a85;
+  font:10px var(--mono);text-align:center
+}
+@media(max-width:1000px){
+  body{padding:14px}
+  .review-grid{grid-template-columns:1fr}
+  .review-card{position:static}
+  .blueprint-wrap{grid-template-columns:34px minmax(0,1fr)}
+  .note-col{display:none}
+  .mobile-layout{grid-template-columns:1fr}
+  .phone{max-width:420px;width:100%;margin:auto}
+}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="kicker">MH PORTAL / REVIEW PROJECTION</div>
+    <h1>STRUCTURE BLUEPRINT — 骨だけを見る</h1>
+    <p>これは製品UIではありません。v0.7の実測寸法を縮尺化した「構成・比率・継ぎ目」だけの検収図です。SVG・背景画・武器アイコン・本の質感・Package face・Future/MEMORY完成画は意図的に除外しています。</p>
+  </div>
+  <div class="badge">NOT PRODUCT UI / v0.7</div>
+</header>
+
+<div class="review-grid">
+  <aside class="review-card">
+    <h2>今回見るのは3つだけ</h2>
+    <div class="yes">
+      <b>LOOK</b>
+      <ol>
+        <li>ゾーンの<strong>順番</strong>は自然か</li>
+        <li>各ゾーンの<strong>大きさ・滞在時間</strong>は妥当か</li>
+        <li>B→C / C→MEMORY の<strong>継ぎ目</strong>はこの位置でよいか</li>
+      </ol>
+    </div>
+    <div class="no">
+      <b>DON'T LOOK</b>
+      <ul>
+        <li>Hero / Package の絵</li>
+        <li>武器SVG・本・素材感</li>
+        <li>Futureの最終画</li>
+        <li>90+歴史館の最終画</li>
+      </ul>
+    </div>
+    <div class="response">
+      返し方：<br>
+      「順番 KEEP / 比率 IMPROVE / B→C KILL」みたいに、骨格だけ部分判定でOK。
+    </div>
+  </aside>
+
+  <main class="main">
+    <section class="panel">
+      <div class="panel-head">
+        <div><h2>Desktop — 現行v0.7の縮尺</h2></div>
+        <p>measured: 1440-class viewport / page body ≈ 3151px</p>
+      </div>
+      <div class="legend">
+        <span><i class="dot zone"></i>ZONE</span>
+        <span><i class="dot seam"></i>SEAM UNDER REVIEW</span>
+        <span><i class="dot lock"></i>CRAFT LOCKED / OUT OF SCOPE</span>
+      </div>
+
+      <div class="blueprint-wrap">
+        <div class="ruler">
+          <div class="tick" style="top:2%">0%</div>
+          <div class="tick" style="top:25%">25%</div>
+          <div class="tick" style="top:50%">50%</div>
+          <div class="tick" style="top:75%">75%</div>
+          <div class="tick" style="top:98%">100%</div>
+        </div>
+
+        <div class="diagram">
+          <div class="spine"></div>
+          <div class="viewport-line" style="top:28%"></div>
+          <div class="viewport-line" style="top:56%"></div>
+          <div class="viewport-line" style="top:84%"></div>
+
+          <div class="zone-box locked" style="top:0%;height:26%">
+            <div class="label">A — HERO / PACKAGE</div>
+            <div class="meta">≈820px / craft OUT</div>
+            <div class="inner" style="grid-template-columns:32% 68%">
+              <div class="sub">HERO<br>copy / world</div>
+              <div class="sub">PACKAGE SHELF<br>final craft separate</div>
+            </div>
+          </div>
+
+          <div class="zone-box locked" style="top:24.3%;height:27.7%">
+            <div class="label">B — CURRENT BASE</div>
+            <div class="meta">≈874px / craft KEEP</div>
+            <div class="inner" style="grid-template-columns:58% 42%;grid-template-rows:48% 52%">
+              <div class="sub">14 WEAPON RACK</div>
+              <div class="sub">HUNTING LOG</div>
+              <div class="sub" style="grid-column:1/3">NOTEBOOKS / TIER / DESK</div>
+            </div>
+          </div>
+
+          <div class="seam-box" style="top:49.1%;height:6.7%">
+            <div class="label">B → C / EXPEDITION GATE</div>
+          </div>
+
+          <div class="zone-box" style="top:54%;height:24.1%">
+            <div class="label">C — FUTURE / HORIZON</div>
+            <div class="meta">≈760px / craft OPEN</div>
+            <div class="inner" style="grid-template-columns:34% 66%">
+              <div class="sub">FUTURE COPY<br>/ context</div>
+              <div class="sub">EXPEDITION WINDOW<br>/ dossiers</div>
+            </div>
+          </div>
+
+          <div class="seam-box" style="top:75%;height:5.6%">
+            <div class="label">C → MEMORY / RECORD SHELF</div>
+          </div>
+
+          <div class="zone-box locked" style="top:78.8%;height:21.2%">
+            <div class="label">MEMORY — 90+ PAST ROOM</div>
+            <div class="meta">≈669px / craft LOCKED</div>
+            <div class="inner">
+              <div class="sub">APPROVED MEMORY ROOM DESTINATION<br>integrate existing 90+ visual here</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="note-col">
+          <div class="note" style="top:4%">
+            <b>A / B</b>
+            A→Bは今回の主検収対象ではない。A craftは別回、B craftは既存KEEP。
+          </div>
+          <div class="note" style="top:46%">
+            <b>SEAM 1</b>
+            CURRENTが「別ページ終了」せず、遠征へ出る位置としてここでよいか。
+          </div>
+          <div class="note" style="top:69%">
+            <b>FUTURE WEIGHT</b>
+            全体の約1/4。NEXTを主役にする滞在量として妥当か。
+          </div>
+          <div class="note" style="top:83%">
+            <b>SEAM 2</b>
+            遠征→記録→MEMORYという順序が自然か。ここで過去へ戻るのは唐突か。
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-table">
+        <div class="head">ZONE</div><div class="head">HEIGHT</div><div class="head">WEIGHT</div>
+        <div>Hero / Package</div><div>820px</div><div>26%</div>
+        <div>CURRENT</div><div>874px</div><div>28%</div>
+        <div>FUTURE</div><div>760px</div><div>24%</div>
+        <div>MEMORY</div><div>669px</div><div>21%</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div><h2>Mobile — 現行mobile breakpointの縮尺</h2></div>
+        <p>measured mobile layout / total body ≈ 3889px</p>
+      </div>
+
+      <div class="mobile-layout">
+        <div class="phone">
+          <div class="zone-box locked" style="top:0%;height:25.5%">
+            <div class="label">A / HERO + PACKAGE</div>
+            <div class="meta">25%</div>
+          </div>
+
+          <div class="zone-box locked" style="top:24.5%;height:34.7%">
+            <div class="label">B / CURRENT</div>
+            <div class="meta">35% / longest</div>
+            <div class="current-stages">
+              <div>1 WEAPON RACK</div>
+              <div>2 NOTEBOOKS</div>
+              <div>3 LOG / TIER</div>
+              <div>4 HORIZON EXIT</div>
+            </div>
+          </div>
+
+          <div class="seam-box" style="top:58.1%;height:4%">
+            <div class="label">B→C</div>
+          </div>
+
+          <div class="zone-box" style="top:61.3%;height:23.5%">
+            <div class="label">C / FUTURE</div>
+            <div class="meta">24%</div>
+          </div>
+
+          <div class="seam-box" style="top:83.6%;height:3.7%">
+            <div class="label">C→MEM</div>
+          </div>
+
+          <div class="zone-box locked" style="top:86.2%;height:13.8%">
+            <div class="label">MEMORY</div>
+            <div class="meta">14%</div>
+          </div>
+        </div>
+
+        <div class="mobile-notes">
+          <div class="callout">
+            <b>Mobileで一番見る価値がある点</b><br>
+            CURRENTが全体の約35%で最長。stickyで1つの舞台を4状態に使う設計だが、<strong>骨格としてまだ長いか／ちょうどいいか</strong>をここで判断できる。
+          </div>
+          <div class="note">
+            <b>QUESTION A</b>
+            Hero 25% → CURRENT 35% → FUTURE 24% → MEMORY 14% の重みは、体験の優先順位として合ってる？
+          </div>
+          <div class="note">
+            <b>QUESTION B</b>
+            MobileでもB→C→MEMORYの順番はそのままでいい？ MEMORYをもっと早く／大きく置くべき？
+          </div>
+          <div class="note">
+            <b>QUESTION C</b>
+            CURRENT内部の4状態は4つ必要？ LOG/TIERをNOTEBOOKへ統合して3段階にした方が骨格は締まる？
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<footer>
+REVIEW PROJECTION ONLY — does not supersede product artifact / no SVG / no craft evaluation / main untouched
+</footer>
+</body>
+</html>
