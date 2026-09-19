@@ -144,16 +144,16 @@
       "id": "asset.keyVisual.ascendance",
       "kind": "keyVisual",
       "consumer": "SES-C",
-      "officialSource": "https://www.capcom.co.jp/ir/news/html/260608b.html",
-      "alternateOfficialSource": "https://captown.capcom.com/en/theaters/monsterhunter/56",
+      "officialSource": "https://www.capcom.co.jp/ir/news/html/images/260608c.png",
+      "alternateOfficialSource": "https://www.capcom.co.jp/ir/english/news/html/e260608b.html",
       "sourceOwner": "CAPCOM",
-      "sourceType": "OFFICIAL_PRESS_AND_THEATER_REFERENCE",
-      "candidateRole": "FUTURE_VISUAL_REFERENCE",
+      "sourceType": "OFFICIAL_PRESS_RELEASE_KEY_VISUAL",
+      "candidateRole": "EXACT_OFFICIAL_KEY_VISUAL_REFERENCE",
       "editionRegion": "ASCENDANCE_2027",
       "rightsStatus": "OFFICIAL_SOURCE_REUSE_NOT_CLEARED",
-      "strategy": "KEEP_ASSET_PENDING_UNTIL_EXACT_GOLDEN_COMPATIBLE_KEY_VISUAL_IS_SELECTED",
-      "publicationState": "ASSET_PENDING",
-      "notes": "Official imagery exists, but exact key-visual binding is intentionally unresolved."
+      "strategy": "REFERENCE_ONLY_DO_NOT_REHOST_UNTIL_USE_POSTURE_IS_RESOLVED",
+      "publicationState": "REFERENCE_ONLY",
+      "notes": "Exact official key visual located in Capcom IR press release. Reference is verified; reuse/publication remains uncleared."
     },
     {
       "id": "asset.media.wilds.primary",
