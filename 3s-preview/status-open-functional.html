@@ -31,6 +31,23 @@ h1,h2{font-family:"Yu Mincho","Hiragino Mincho ProN",serif;font-weight:400;line-
 input,textarea{width:100%;border:1px solid var(--edge);border-radius:14px;background:#0d151e;color:var(--ink);padding:14px;font:16px/1.6 inherit;outline:none}textarea{min-height:110px;resize:vertical}input:focus,textarea:focus{border-color:rgba(168,243,255,.65)}
 .choices{display:grid;gap:10px}.choice{width:100%;text-align:left;border:1px solid var(--edge);border-radius:14px;background:#0d151e;color:var(--ink);padding:14px;font-size:15px;cursor:pointer}.choice:hover{border-color:rgba(168,243,255,.55)}
 .scan{margin-bottom:18px;border:1px solid var(--edge);border-radius:18px;padding:14px;background:rgba(7,13,19,.72);position:relative;overflow:hidden}
+.selfviz{height:96px;position:relative;display:grid;place-items:center;margin:2px 0 10px}
+.self-field{position:relative;width:74px;height:82px;border-radius:48% 48% 42% 42%;border:1px solid rgba(168,243,255,.2);background:radial-gradient(circle at 50% 42%,rgba(126,219,255,.11),rgba(63,106,165,.025) 48%,transparent 68%);box-shadow:inset 0 0 28px rgba(124,220,255,.05),0 0 24px rgba(124,220,255,.04);transition:.35s ease}
+.self-field:before{content:"";position:absolute;left:50%;top:50%;width:18px;height:28px;transform:translate(-50%,-50%);clip-path:polygon(50% 0,90% 28%,75% 80%,50% 100%,18% 76%,8% 28%);background:linear-gradient(145deg,rgba(215,250,255,.92),rgba(89,143,237,.55) 52%,rgba(171,104,234,.48));filter:drop-shadow(0 0 10px rgba(158,232,255,.2));opacity:.38;transition:.35s ease}
+.self-field:after{content:"SELF FIELD";position:absolute;left:50%;bottom:-16px;transform:translateX(-50%);white-space:nowrap;font:7px ui-monospace,Consolas,monospace;letter-spacing:.13em;color:#627681}
+.self-node{position:absolute;width:5px;height:5px;border-radius:50%;border:1px solid rgba(174,236,255,.26);background:#0a131b;transition:.35s ease}.sn1{left:16px;top:22px}.sn2{right:15px;top:27px}.sn3{left:20px;bottom:20px}.sn4{right:19px;bottom:17px}
+.scan[data-level="1"] .sn1,.scan[data-level="2"] .sn1,.scan[data-level="3"] .sn1,.scan[data-level="4"] .sn1,
+.scan[data-level="2"] .sn2,.scan[data-level="3"] .sn2,.scan[data-level="4"] .sn2,
+.scan[data-level="3"] .sn3,.scan[data-level="4"] .sn3,
+.scan[data-level="4"] .sn4{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 10px rgba(168,243,255,.72)}
+.scan[data-level="1"] .self-field:before,.scan[data-level="2"] .self-field:before,.scan[data-level="3"] .self-field:before,.scan[data-level="4"] .self-field:before{opacity:.58}
+.scan[data-level="3"] .self-field:before,.scan[data-level="4"] .self-field:before{opacity:.92;filter:drop-shadow(0 0 16px rgba(158,232,255,.42))}
+.probe-line{position:absolute;left:7%;right:calc(50% + 42px);top:44px;height:1px;background:linear-gradient(90deg,transparent,rgba(168,243,255,.18),var(--cyan));overflow:visible}
+.probe-line:after{content:"";position:absolute;right:-2px;top:-3px;width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px rgba(168,243,255,.8);animation:probe 1.8s ease-in-out infinite}
+.signal-drop{position:absolute;left:50%;top:69px;width:1px;height:22px;background:linear-gradient(var(--cyan),transparent);opacity:.28}.signal-drop:after{content:"";position:absolute;left:-18px;top:19px;width:36px;height:1px;background:linear-gradient(90deg,transparent,rgba(168,243,255,.32),transparent)}
+.scan[data-level="1"] .signal-drop,.scan[data-level="2"] .signal-drop,.scan[data-level="3"] .signal-drop,.scan[data-level="4"] .signal-drop{opacity:.68}
+@keyframes probe{0%,100%{transform:translateX(-22px);opacity:.15}50%{transform:translateX(0);opacity:1}}
+.scene.active .self-field{animation:selfpulse 2.4s ease-in-out infinite}@keyframes selfpulse{50%{box-shadow:inset 0 0 36px rgba(124,220,255,.08),0 0 34px rgba(124,220,255,.08)}}
 .scan:after{content:"";position:absolute;left:0;right:0;height:2px;top:-2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);box-shadow:0 0 20px var(--cyan);animation:sweep 2.2s ease-in-out infinite}@keyframes sweep{50%,100%{top:102%}}
 .scanhead{display:flex;justify-content:space-between;font:9px ui-monospace,Consolas,monospace;color:var(--muted);letter-spacing:.13em;margin-bottom:8px}
 .frags{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.frag{height:52px;border:1px solid var(--edge);border-radius:10px;background:linear-gradient(145deg,rgba(155,220,244,.03),rgba(255,255,255,.01));position:relative}.frag.on{background:radial-gradient(circle at 50% 45%,rgba(171,242,255,.6),rgba(77,127,230,.18) 35%,rgba(0,0,0,.05));box-shadow:0 0 24px rgba(132,220,255,.14)}.frag.on:after{content:"";position:absolute;inset:14px 18px;clip-path:polygon(50% 0,88% 30%,75% 80%,50% 100%,20% 78%,10% 30%);background:linear-gradient(145deg,#d6fbff,#73a9ff 50%,#b36cff)}
@@ -57,12 +74,12 @@ input,textarea{width:100%;border:1px solid var(--edge);border-radius:14px;backgr
 </section>
 
 <section class="scene" data-scene="q1">
-<div class="scan"><div class="scanhead"><span>LIVE SCAN</span><span>LOCAL</span></div><div class="frags"><div class="frag"></div><div class="frag"></div><div class="frag"></div><div class="frag"></div></div></div>
+<div class="scan" data-level="0"><div class="scanhead"><span>LIVE SCAN · LANGUAGE</span><span>PROBE</span></div><div class="selfviz"><div class="probe-line"></div><div class="self-field"><i class="self-node sn1"></i><i class="self-node sn2"></i><i class="self-node sn3"></i><i class="self-node sn4"></i></div><div class="signal-drop"></div></div><div class="frags"><div class="frag"></div><div class="frag"></div><div class="frag"></div><div class="frag"></div></div></div>
 <div class="card"><p class="kicker">QUESTION 01</p><div class="q">最近、気づいたら時間が消えていたのは？</div><textarea id="a1" placeholder="ひとことでも"></textarea><div class="actions"><button class="btn primary wide" id="next1">SIGNAL</button></div></div>
 </section>
 
 <section class="scene" data-scene="q2">
-<div class="scan"><div class="scanhead"><span>LIVE SCAN</span><span>1 SIGNAL</span></div><div class="frags"><div class="frag on"></div><div class="frag"></div><div class="frag"></div><div class="frag"></div></div></div>
+<div class="scan" data-level="1"><div class="scanhead"><span>LIVE SCAN · LANGUAGE</span><span>1 SIGNAL</span></div><div class="selfviz"><div class="probe-line"></div><div class="self-field"><i class="self-node sn1"></i><i class="self-node sn2"></i><i class="self-node sn3"></i><i class="self-node sn4"></i></div><div class="signal-drop"></div></div><div class="frags"><div class="frag on"></div><div class="frag"></div><div class="frag"></div><div class="frag"></div></div></div>
 <div class="card"><p class="kicker">QUESTION 02</p><div class="q">その時間は、どっちに近い？</div><div class="choices">
 <button class="choice" data-style="ひとりで深く潜る">ひとりで深く潜る</button>
 <button class="choice" data-style="誰かと熱中する">誰かと熱中する</button>
@@ -71,12 +88,12 @@ input,textarea{width:100%;border:1px solid var(--edge);border-radius:14px;backgr
 </section>
 
 <section class="scene" data-scene="q3">
-<div class="scan"><div class="scanhead"><span>LIVE SCAN</span><span>2 SIGNALS</span></div><div class="frags"><div class="frag on"></div><div class="frag on"></div><div class="frag"></div><div class="frag"></div></div></div>
+<div class="scan" data-level="2"><div class="scanhead"><span>LIVE SCAN · LANGUAGE</span><span>2 SIGNALS</span></div><div class="selfviz"><div class="probe-line"></div><div class="self-field"><i class="self-node sn1"></i><i class="self-node sn2"></i><i class="self-node sn3"></i><i class="self-node sn4"></i></div><div class="signal-drop"></div></div><div class="frags"><div class="frag on"></div><div class="frag on"></div><div class="frag"></div><div class="frag"></div></div></div>
 <div class="card"><p class="kicker">QUESTION 03</p><div class="q">いま、育てたいものは？</div><input id="a3" placeholder="創作、仕事、体力、関係…"><div class="actions"><button class="btn primary wide" id="next3">MATERIALIZE</button></div></div>
 </section>
 
 <section class="scene" data-scene="q4">
-<div class="scan"><div class="scanhead"><span>LIVE SCAN</span><span>STATUS BORN</span></div><div class="frags"><div class="frag on"></div><div class="frag on"></div><div class="frag on"></div><div class="frag"></div></div></div>
+<div class="scan" data-level="3"><div class="scanhead"><span>LIVE SCAN · LANGUAGE</span><span>STATUS FORMING</span></div><div class="selfviz"><div class="probe-line"></div><div class="self-field"><i class="self-node sn1"></i><i class="self-node sn2"></i><i class="self-node sn3"></i><i class="self-node sn4"></i></div><div class="signal-drop"></div></div><div class="frags"><div class="frag on"></div><div class="frag on"></div><div class="frag on"></div><div class="frag"></div></div></div>
 <div class="card"><p class="kicker">QUESTION 04</p><div class="q">今日のエネルギーは？</div><div class="choices">
 <button class="choice" data-energy="ひかえめ">ひかえめ</button>
 <button class="choice" data-energy="ふつう">ふつう</button>
