@@ -1160,43 +1160,40 @@ body{background:#050606}
 }
 
 
-/* ===== v0.9 APPROVED MEMORY VISUAL MOUNT =====
-   Review/integration only. External ShipStatic source is temporary and not production authority. */
-.memory-room-approved{
+/* ===== v0.9.1 APPROVED MEMORY REFERENCE SLOT =====
+   Source is live/approved but exact repository integration is not recovered. */
+.memory-room-reference{
   position:relative;
-  height:auto !important;
-  aspect-ratio:1672/941;
   max-width:1320px;
+  min-height:380px;
   margin:28px auto 0;
-  background:#050505;
-  overflow:hidden;
+  display:grid;
+  place-items:center;
   border:1px solid #705237;
-  box-shadow:0 18px 30px #000b,inset 0 0 0 7px #0d0906,inset 0 0 0 9px #765133;
+  background:
+    linear-gradient(180deg,rgba(37,23,14,.96),rgba(14,9,6,.98)),
+    repeating-linear-gradient(90deg,#2d1c12 0 14%,#100b08 14% 15.2%);
+  box-shadow:inset 0 0 0 7px #0d0906,inset 0 0 0 9px #765133,0 18px 30px #000b;
 }
-.memory-room-approved:before,
-.memory-room-approved:after{display:none!important}
-.memory-room-approved a{display:block;width:100%;height:100%;position:relative}
-.memory-room-approved img{
-  display:block;width:100%;height:100%;object-fit:cover;
-  filter:none;
+.memory-room-reference a{
+  display:block;
+  max-width:620px;
+  padding:24px 30px;
+  text-align:center;
+  border:1px solid #80613d;
+  background:#100c09e8;
+  color:#e5d1aa;
+  text-decoration:none;
+  box-shadow:0 10px 22px #000b,inset 0 0 0 2px #2d1d12;
 }
-.memory-source-badge{
-  position:absolute;right:14px;top:14px;z-index:5;
-  padding:7px 10px;
-  border:1px solid #8c744c;
-  background:#090b0bd9;
-  color:#d8c28f;
-  font:6px var(--sans);
-  letter-spacing:.13em;
-  pointer-events:none;
-}
-.memory-source-note{
-  max-width:1320px;margin:8px auto 0;
-  color:#8e826c;font:7px/1.6 var(--sans);letter-spacing:.08em;
-}
+.memory-room-reference a small{display:block;font:7px var(--sans);letter-spacing:.18em;color:#b49e77}
+.memory-room-reference a b{display:block;margin-top:8px;font:500 28px var(--serif)}
+.memory-room-reference a span{display:block;margin-top:9px;font:10px/1.7 var(--serif);color:#aa987a}
+.memory-source-note{max-width:1320px;margin:8px auto 0;color:#8e826c;font:7px/1.6 var(--sans);letter-spacing:.08em}
 @media(max-width:680px){
-  .memory-room-approved{height:auto!important;aspect-ratio:1672/941;margin-top:18px}
-  .memory-source-badge{font-size:5px;right:8px;top:8px}
+  .memory-room-reference{min-height:280px;margin-top:18px}
+  .memory-room-reference a{width:82%;padding:18px 16px}
+  .memory-room-reference a b{font-size:22px}
 }
 
 </style>
@@ -1383,17 +1380,15 @@ body{background:#050606}
     <div class="structure-scope">STRUCTURE REVIEW / C → MEMORY THRESHOLD</div>
   </div>
 <section id="memory" class="archive"><h2>ハンターズ・アーカイブ</h2><div class="sub">PAST = MEMORY / NOT A DATABASE</div>
-  <div class="memory-room-slot memory-room-approved" aria-label="90+承認済み狩猟歴史館 visual">
+  <div class="memory-room-slot memory-room-reference" aria-label="90+承認済み狩猟歴史館の参照先">
     <a href="https://bright-loop-tzd3aj5.shipstatic.com" target="_blank" rel="noopener">
-      <img src="https://bright-loop-tzd3aj5.shipstatic.com/archive.jpg?_ship=tzd3aj5"
-           width="1672" height="941"
-           alt="90+評価を受けた狩猟歴史館の承認済みビジュアル"
-           loading="lazy">
-      <div class="memory-source-badge">90+ HUMAN-APPROVED VISUAL / TEMP EXTERNAL SOURCE</div>
+      <small>90+ HUMAN-APPROVED VISUAL / SOURCE RECOVERY</small>
+      <b>狩猟歴史館の承認版を見る ↗</b>
+      <span>公開済み承認版は生存。元HTML/CSSの完全回収は未完了。<br>このsandboxでは弱く描き直さず、参照先としてLOCKする。</span>
     </a>
   </div>
-  <div class="memory-source-note">SOURCE RECOVERY MODE — visual is preserved from the existing approved preview. Repository HTML remains unrecovered; this external mount is review/integration-only and must not be treated as production packaging.</div><div class="archive-room"><div class="drawer"><h3>手のひらの狩場。</h3><p>2nd世代の記憶は、攻略表ではなく「持っていたもの」「見ていた画面」「狩りに行く前の空気」で戻す。</p><div class="memory-objects"><div class="ticket"></div><div class="handheld"></div><div class="oldcase"></div></div></div><div class="drawer"><h3>狩りの歩み。</h3><div class="timeline"><div><strong>2nd</strong><span>携帯機の狩りの記憶</span></div><div><strong>World</strong><span>世界へつながった狩り</span></div><div><strong>Rise</strong><span>双剣・太刀の時期</span></div><div><strong>IB</strong><span>現在：スラアク</span></div><div><strong>Wilds</strong><span>次の狩場</span></div></div></div><div class="drawer"><h3>残すのは、記憶の手触り。</h3><p>全部を埋めない。空白もアーカイブの一部にする。公式素材が未整理なら、偽物で穴を埋めない。</p></div></div></section>
-<footer class="footer">SES-O INTEGRATION v0.9 — B/C/D/E/N + APPROVED MEMORY VISUAL / A UNRESOLVED / MAIN NOT PROMOTED</footer>
+  <div class="memory-source-note">PARTIAL_SOURCE_RECOVERED — public preview + archive.jpg + labels/links recovered. Exact source HTML / fixed-coordinate geometry remains open.</div><div class="archive-room"><div class="drawer"><h3>手のひらの狩場。</h3><p>2nd世代の記憶は、攻略表ではなく「持っていたもの」「見ていた画面」「狩りに行く前の空気」で戻す。</p><div class="memory-objects"><div class="ticket"></div><div class="handheld"></div><div class="oldcase"></div></div></div><div class="drawer"><h3>狩りの歩み。</h3><div class="timeline"><div><strong>2nd</strong><span>携帯機の狩りの記憶</span></div><div><strong>World</strong><span>世界へつながった狩り</span></div><div><strong>Rise</strong><span>双剣・太刀の時期</span></div><div><strong>IB</strong><span>現在：スラアク</span></div><div><strong>Wilds</strong><span>次の狩場</span></div></div></div><div class="drawer"><h3>残すのは、記憶の手触り。</h3><p>全部を埋めない。空白もアーカイブの一部にする。公式素材が未整理なら、偽物で穴を埋めない。</p></div></div></section>
+<footer class="footer">SES-O INTEGRATION v0.9.1 — B/C/D/E/N + APPROVED MEMORY REFERENCE / A UNRESOLVED / MAIN NOT PROMOTED</footer>
 <script>
 const status=document.getElementById('weaponStatus');document.querySelectorAll('.weapon').forEach(w=>w.addEventListener('click',()=>{document.querySelectorAll('.weapon').forEach(x=>x.classList.remove('selected'));w.classList.add('selected');status.textContent='SELECTED WEAPON — '+w.dataset.name;}));
 document.querySelectorAll('.case').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('.case').forEach(x=>x.style.filter='');c.style.filter='drop-shadow(0 0 18px #d4b06399) drop-shadow(9px 18px 12px #000d)';const bridge=document.getElementById('bridgeState');if(bridge){const t=c.dataset.title||'TITLE';bridge.textContent=t==='ICEBORNE'?'ICEBORNE → CURRENT LOADOUT → SWITCH AXE':t+' → TITLE CONTEXT → WORKBENCH';}}));
