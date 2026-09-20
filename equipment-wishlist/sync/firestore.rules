@@ -1,0 +1,53 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.firebase.sign_in_provider != 'anonymous';
+    }
+    function memberPath(room) {
+      return /databases/$(database)/documents/mhRooms/$(room)/members/$(request.auth.uid);
+    }
+    function member(room) {
+      return signedIn() && exists(memberPath(room))
+        && get(memberPath(room)).data.active == true
+        && get(memberPath(room)).data.hunterId in ['osakenpiro','keuita','serket','zushi'];
+    }
+    function owner(room, hunter) {
+      return member(room) && get(memberPath(room)).data.hunterId == hunter;
+    }
+    function validEnvelope() {
+      let d=request.resource.data;
+      return d.keys().hasOnly(['schema','revision','content','updatedBy','updatedAt'])
+        && d.keys().hasAll(['schema','revision','content','updatedBy','updatedAt'])
+        && d.schema == 1 && d.revision is int && d.revision > 0
+        && d.content is string && d.content.size() <= 180000
+        && d.updatedBy == request.auth.uid && d.updatedAt == request.time;
+    }
+    match /mhRooms/{room} {
+      allow get: if member(room);
+      allow list, write: if false;
+      match /members/{uid} {
+        allow get: if signedIn() && request.auth.uid == uid;
+        allow list, write: if false;
+      }
+      match /hunters/{hunter} {
+        allow get, list: if member(room);
+        allow create: if owner(room,hunter) && validEnvelope() && request.resource.data.revision == 1;
+        allow update: if owner(room,hunter) && validEnvelope()
+          && request.resource.data.revision == resource.data.revision + 1;
+        allow delete: if false;
+      }
+      match /plans/today {
+        allow get: if member(room);
+        allow create: if member(room) && validEnvelope() && request.resource.data.revision == 1;
+        allow update: if member(room) && validEnvelope()
+          && request.resource.data.revision == resource.data.revision + 1;
+        allow delete: if false;
+      }
+    }
+    // Full rules for a DEDICATED project; do not overwrite an unrelated project's rules.
+    match /{document=**} { allow read, write: if false; }
+  }
+}
