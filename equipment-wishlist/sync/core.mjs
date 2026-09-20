@@ -64,13 +64,25 @@ export function revisionNext(current, expectedRevision) {
   if(revision!==expectedRevision)throw new ConflictError();
   return revision+1;
 }
-// Used by the actual browser and emulator tests, not a separate mock algorithm.
+// The same implementation runs in the browser and emulator tests.
 export async function saveRevision(api, db, ref, expectedRevision, payload, uid) {
   const content=encode(payload);
-  return api.runTransaction(db,async tx=>{
-    const snap=await tx.get(ref);const old=snap.exists()?snap.data():null;
-    const revision=revisionNext(old,expectedRevision);
-    tx.set(ref,{schema:1,revision,content,updatedBy:uid,updatedAt:api.serverTimestamp()});
-    return revision;
-  });
+  try {
+    return await api.runTransaction(db,async tx=>{
+      const snap=await tx.get(ref);const old=snap.exists()?snap.data():null;
+      const revision=revisionNext(old,expectedRevision);
+      tx.set(ref,{schema:1,revision,content,updatedBy:uid,updatedAt:api.serverTimestamp()});
+      return revision;
+    });
+  } catch(error) {
+    if(error instanceof ConflictError)throw error;
+    // A competing commit can trip the revision rule before the SDK retries.
+    // Perform a fresh AUTHORIZED server read to classify it; never retry the write.
+    // Losing read permission or going offline preserves the original error.
+    let latest;
+    try { latest=await api.getDocFromServer(ref); } catch { throw error; }
+    if(latest.exists() && Number.isSafeInteger(latest.data().revision)
+        && latest.data().revision!==expectedRevision)throw new ConflictError();
+    throw error;
+  }
 }
