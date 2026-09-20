@@ -1,0 +1,78 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-09-20",
+  "creator": "OpenAI imagegen for Hunting Dictionary",
+  "method": "New AI-generated illustrations. Not screenshots, official artwork, vector rasterizations, or copies of third-party plates.",
+  "referenceObserved": "https://www.play-asia.com/sketches-travelers-journal-monster-hunter-world-editors-log/13/70cbwt",
+  "referenceUse": "Visual observation of pencil/material craft; no source image distributed or used as an edit input.",
+  "rightsBoundary": "Unofficial fan reference. Monster Hunter names and underlying game belong to CAPCOM. No claim to official asset rights, exclusive copyright, or trademark ownership.",
+  "humanTaste": "Not independently accepted by the user.",
+  "plates": [
+    {
+      "file": "clutch-stagger.png",
+      "title": "隙を見つけて、しがみつく",
+      "alt": "左は唾液を垂らしてよろける飛竜、右はその隙に肩へクラッチしたハンターを描く解説イラスト。",
+      "labels": [
+        "よろけを確認",
+        "クラッチで隙を延長"
+      ],
+      "note": "姿勢と動作の関係を描いた解説画。疲労との見分けは出典の実画面へ。秒数の図ではありません。",
+      "sources": [
+        "clutch"
+      ],
+      "id": "clutch",
+      "sha256": "bed4559f839de8a7d437b32bb69b41178756d7e47fb9ff38f2ae2e1116b07649",
+      "bytes": 3072587
+    },
+    {
+      "file": "flash-resistance.png",
+      "title": "同じ閃光でも、同じ結果とは限らない",
+      "alt": "閃光で地上へ落ちた飛竜と、続けて閃光を当てても飛行を続ける飛竜を並べた解説イラスト。",
+      "labels": [
+        "落下したあと",
+        "連発しても落ちない"
+      ],
+      "note": "MRで閃光が有効な相手の概念図。回数・回復時間・例外は一律ではありません。",
+      "sources": [
+        "t_flash"
+      ],
+      "id": "flash",
+      "sha256": "67befb3dc467fd87019d6d595cf47767ea34a96642c202c00c13370bc5605726",
+      "bytes": 3043301
+    },
+    {
+      "file": "mantle-unlocks.png",
+      "title": "まず受け取る。それから強化する。",
+      "alt": "左に未所持の装衣を受け取るための依頼票と装衣、右に同じ装衣と強化を示す裁縫道具。通常版の入手と改の強化を分けた解説画。",
+      "labels": [
+        "World｜通常版の入手",
+        "Iceborne｜改への強化"
+      ],
+      "note": "装衣の見た目・依頼票は説明用の創作。実際の装衣やゲーム画面の再現ではありません。",
+      "sources": [
+        "g_base",
+        "g_plus"
+      ],
+      "id": "mantles",
+      "sha256": "98edeb7030920a39381cd45e7f58f6460617d29aa344a7f40fc81a99230f4b10",
+      "bytes": 2985340
+    },
+    {
+      "file": "botany-expansion.png",
+      "title": "育てる枠と、収穫する箱は別。",
+      "alt": "植生の四つの栽培容器を上段に、収穫物を受け取る木箱と肥料袋を下段に描いた解説イラスト。栽培枠・収穫BOX・肥料を区別する。",
+      "labels": [
+        "栽培枠｜同時に育てる数",
+        "収穫BOX・肥料｜保管と育成"
+      ],
+      "note": "施設そのものの再現ではなく、種類・栽培枠・収穫BOX・肥料の違いを描いた解説画。",
+      "sources": [
+        "g_botany_steps",
+        "g_botany_all"
+      ],
+      "id": "botany",
+      "sha256": "a92fff3ea938fecb4d0beff975f98fbe314ad565a5390e9a631406242061192f",
+      "bytes": 3317084
+    }
+  ]
+}

@@ -1,0 +1,560 @@
+{
+  "version": "1.0.0",
+  "date": "2026-09-20",
+  "method": "All 37 guide routes reviewed against linked quest/data and guide sources; cross-source reconciliation. The previous 72 entries received a wording/scope pass, not a new full source audit.",
+  "gameClientReproduction": false,
+  "rankBoundary": "Ranks in quest metadata are participation minimums. Prerequisites and NPC interaction remain required. Older plus-summary MR13/cleanser MR6 observations were not substituted for individual quest data.",
+  "changes": [
+    "Temporal: explicit HR16 route and final Huntsman report instead of smithy.",
+    "Impact: HR15 for the acquisition quest, separate from threat-one investigations.",
+    "Iceproof: correct Anjanath assignment then Paolumu materials; replaced mismatched iceproof source table.",
+    "Waterproof: explicit high-rank Pukei-Pukei prerequisite.",
+    "Mixed World/base and Iceborne/plus routes remain searchable in both edition filters.",
+    "Botany: four distinct branches with linked prerequisites and return paths.",
+    "All R1 cleanser/health/vitality corrections preserved.",
+    "Ruiner Nergigante Japanese wording corrected."
+  ],
+  "uncertainties": [
+    "Vitality base source heading says Rathalos quest; paragraph says find First Wyverian during exploration. Retained explicit R1 exploration wording; game-client resolution remains untested.",
+    "Event availability must be checked in game; no historical schedule presented as current.",
+    "Legacy broad base/plus guides contain discrepancies; specific quest and delivery records were preferred.",
+    "Flash source robots restriction prevented fresh retrieval; existing cautious wording retained without numerical timing claims."
+  ],
+  "guides": [
+    {
+      "id": "money-route",
+      "scope": "World / IB",
+      "review": "source-compared",
+      "sources": [
+        "https://gamewith.jp/mhw/86420",
+        "https://mhworld.kiranico.com/en/quests/n4qm9/adeus-ao-zinogre"
+      ],
+      "prerequisiteLinkTargets": [
+        "money-dododo",
+        "money-coal"
+      ]
+    },
+    {
+      "id": "money-dododo",
+      "scope": "上位★6イベント／HR13以上",
+      "review": "source-compared",
+      "sources": [
+        "https://mhworld.kiranico.com/en/quests/rGDa9/triple-threat-throwdown",
+        "https://gamewith.jp/mhw/86420"
+      ],
+      "prerequisiteLinkTargets": [
+        "mantle-bandit",
+        "money-route"
+      ]
+    },
+    {
+      "id": "money-coal",
+      "scope": "M★6イベント／MR24以上",
+      "review": "source-compared",
+      "sources": [
+        "https://mhworld.kiranico.com/en/quests/n4qm9/adeus-ao-zinogre",
+        "https://gamewith.jp/mhw/232788"
+      ],
+      "prerequisiteLinkTargets": [
+        "deco-zinogre",
+        "money-route"
+      ]
+    },
+    {
+      "id": "decorations-route",
+      "scope": "World / IB／ランク別の入口",
+      "review": "source-compared",
+      "sources": [
+        "https://mhworld.kiranico.com/en/quests/rGDa9/triple-threat-throwdown",
+        "https://mhworld.kiranico.com/en/quests/6WkOJ/the-names-lavasioth",
+        "https://mhworld.kiranico.com/en/quests/reRa2/flora-frostbite",
+        "https://mhworld.kiranico.com/en/quests/n9ZDN/the-wrath-of-thunder-descends",
+        "https://mhworld.kiranico.com/en/quests/6YXvB/day-of-ruin"
+      ],
+      "prerequisiteLinkTargets": [
+        "deco-flora",
+        "deco-zinogre",
+        "deco-teostra",
+        "deco-lavasioth",
+        "deco-jagras"
+      ]
+    },
+    {
+      "id": "deco-flora",
+      "scope": "M★1イベント／MR3以上",
+      "review": "source-compared",
+      "sources": [
+        "https://mhworld.kiranico.com/en/quests/reRa2/flora-frostbite"
+      ],
+      "prerequisiteLinkTargets": [
+        "decorations-route",
+        "deco-zinogre"
+      ]
+    },
+    {
+      "id": "deco-zinogre",
+      "scope": "M★6イベント／MR24以上",
+      "review": "source-compared",
+      "sources": [
+        "https://mhworld.kiranico.com/en/quests/n9ZDN/the-wrath-of-thunder-descends"
+      ],
+      "prerequisiteLinkTargets": [
+        "deco-teostra",
+        "money-coal",
+        "decorations-route"
+      ]
+    },
+    {
+      "id": "deco-teostra",
+      "scope": "M★6イベント／MR100以上",
+      "review": "source-compared",
+      "sources": [
+        "https://mhworld.kiranico.com/en/quests/6YXvB/day-of-ruin",
+        "https://mhw.fuguai-online.com/2024/02/08/metujitu-5waku/"
+      ],
+      "prerequisiteLinkTargets": [
+        "deco-zinogre",
+        "mantle-fireproof",
+        "decorations-route"
+      ]
+    },
+    {
+      "id": "deco-lavasioth",
+      "scope": "上位★9イベント／HR50以上",
+      "review": "source-compared",
+      "sources": [
+        "https://mhworld.kiranico.com/en/quests/6WkOJ/the-names-lavasioth"
+      ],
+      "prerequisiteLinkTargets": [
+        "deco-jagras",
+        "decorations-route"
+      ]
+    },
+    {
+      "id": "deco-jagras",
+      "scope": "上位★9イベント／HR50以上",
+      "review": "source-compared",
+      "sources": [
+        "https://mhworld.kiranico.com/en/quests/6Px9m/the-greatest-jagras"
+      ],
+      "prerequisiteLinkTargets": [
+        "deco-lavasioth",
+        "decorations-route"
+      ]
+    },
+    {
+      "id": "botany-route",
+      "scope": "World / IB",
+      "review": "source-compared",
+      "sources": [
+        "https://game8.jp/mhw/199625",
+        "https://blog.rebosoku.com/archives/mhw_vegetation.html",
+        "https://game8.jp/mhw/183976"
+      ],
+      "prerequisiteLinkTargets": [
+        "botany-kinds",
+        "botany-slots",
+        "botany-box",
+        "botany-mr-box",
+        "botany-fertilizer",
+        "botany-soft-soil",
+        "botany-fourth"
+      ]
+    },
+    {
+      "id": "botany-kinds",
+      "scope": "World／種類の追加",
+      "review": "source-compared",
+      "sources": [
+        "https://mhw.fuguai-online.com/2018/02/02/sai-bai-jo/",
+        "https://blog.rebosoku.com/archives/mhw_vegetation.html"
+      ],
+      "prerequisiteLinkTargets": [
+        "botany-slots",
+        "botany-fertilizer",
+        "botany-route"
+      ]
+    },
+    {
+      "id": "botany-slots",
+      "scope": "World／2枠目HR8、3枠目HR13以上",
+      "review": "source-compared",
+      "sources": [
+        "https://mhw.fuguai-online.com/2018/02/02/sai-bai-jo/",
+        "https://game8.jp/mhw/205195"
+      ],
+      "prerequisiteLinkTargets": [
+        "botany-fourth",
+        "botany-route"
+      ]
+    },
+    {
+      "id": "botany-box",
+      "scope": "World／収穫BOX",
+      "review": "source-compared",
+      "sources": [
+        "https://blog.rebosoku.com/archives/mhw_vegetation.html",
+        "https://game8.jp/mhw/183976"
+      ],
+      "prerequisiteLinkTargets": [
+        "botany-mr-box",
+        "botany-fourth",
+        "botany-route"
+      ]
+    },
+    {
+      "id": "botany-mr-box",
+      "scope": "IB／40枠目MR3、50枠目MR4以上",
+      "review": "source-compared",
+      "sources": [
+        "https://game8.jp/mhw/290135",
+        "https://game8.jp/mhw/290170"
+      ],
+      "prerequisiteLinkTargets": [
+        "botany-box",
+        "botany-fourth",
+        "botany-route"
+      ]
+    },
+    {
+      "id": "botany-fourth",
+      "scope": "IB／M★3フリー・MR10以上",
+      "review": "source-compared",
+      "sources": [
+        "https://game8.jp/mhw/290198",
+        "https://game8.jp/mhw/183976"
+      ],
+      "prerequisiteLinkTargets": [
+        "botany-kinds",
+        "botany-slots",
+        "botany-box",
+        "botany-fertilizer",
+        "botany-soft-soil",
+        "botany-mr-box",
+        "botany-route"
+      ]
+    },
+    {
+      "id": "botany-fertilizer",
+      "scope": "World／肥料の追加",
+      "review": "source-compared",
+      "sources": [
+        "https://blog.rebosoku.com/archives/mhw_vegetation.html",
+        "https://mhw.fuguai-online.com/2018/02/02/sai-bai-jo/",
+        "https://mhwg.org/data/4225.html"
+      ],
+      "prerequisiteLinkTargets": [
+        "botany-soft-soil",
+        "botany-fourth",
+        "botany-route"
+      ]
+    },
+    {
+      "id": "botany-soft-soil",
+      "scope": "World／肥料延長",
+      "review": "source-compared",
+      "sources": [
+        "https://mhwg.org/ida/229645.html",
+        "https://blog.rebosoku.com/archives/mhw_vegetation.html",
+        "https://mhw.fuguai-online.com/2018/02/02/sai-bai-jo/"
+      ],
+      "prerequisiteLinkTargets": [
+        "botany-fertilizer",
+        "botany-fourth",
+        "botany-route"
+      ]
+    },
+    {
+      "id": "mantles-route",
+      "scope": "World / IB／16種＋配信終了1種",
+      "review": "source-compared",
+      "sources": [
+        "https://a-to-monhan.com/2018/01/31/mhw-soui-entou/",
+        "https://xn--zck9awe6d820vk6qg9be46k.com/monsterhunter-world-iceborne/81806/"
+      ],
+      "prerequisiteLinkTargets": [
+        "mantle-rocksteady",
+        "mantle-temporal",
+        "mantle-bandit",
+        "mantle-evasion",
+        "mantle-glider",
+        "mantle-challenger",
+        "mantle-fireproof",
+        "mantle-thunderproof",
+        "mantle-iceproof",
+        "mantle-waterproof",
+        "mantle-ghillie",
+        "mantle-vitality",
+        "mantle-impact",
+        "mantle-apothecary",
+        "mantle-immunity",
+        "mantle-dragonproof",
+        "booster-health",
+        "booster-cleanser"
+      ]
+    },
+    {
+      "id": "mantle-rocksteady",
+      "scope": "初入手HR50以上／改MR17以上",
+      "review": "source-compared",
+      "sources": [
+        "https://umaroidblog.com/mhw_hudou",
+        "https://game8.jp/mhw/290225"
+      ],
+      "prerequisiteLinkTargets": [
+        "mantle-iceproof",
+        "mantle-thunderproof",
+        "rocksteady-multihit",
+        "mantles-route"
+      ]
+    },
+    {
+      "id": "mantle-temporal",
+      "scope": "初入手は上位特別任務／改MR150以上",
+      "review": "source-compared",
+      "sources": [
+        "https://game8.jp/mhw/221037",
+        "https://game8.jp/mhw/291293"
+      ],
+      "prerequisiteLinkTargets": [
+        "mantles-route",
+        "mantle-thunderproof"
+      ]
+    },
+    {
+      "id": "mantle-bandit",
+      "scope": "初入手★5／改MR12以上",
+      "review": "source-compared",
+      "sources": [
+        "https://a-to-monhan.com/2018/01/31/mhw-soui-entou/",
+        "https://game8.jp/mhw/290201"
+      ],
+      "prerequisiteLinkTargets": [
+        "mantle-glider",
+        "mantle-challenger",
+        "mantle-fireproof",
+        "money-dododo",
+        "mantles-route"
+      ]
+    },
+    {
+      "id": "mantle-evasion",
+      "scope": "初入手HR30以上・危険度2を7種類／改MR12以上",
+      "review": "source-compared",
+      "sources": [
+        "https://game8.jp/mhw/202100",
+        "https://game8.jp/mhw/290200"
+      ],
+      "prerequisiteLinkTargets": [
+        "mantle-glider",
+        "mantle-challenger",
+        "mantle-fireproof",
+        "mantles-route"
+      ]
+    },
+    {
+      "id": "mantle-glider",
+      "scope": "初入手は陸珊瑚探索／改MR11以上",
+      "review": "source-compared",
+      "sources": [
+        "https://a-to-monhan.com/2018/01/31/mhw-soui-entou/",
+        "https://game8.jp/mhw/290185"
+      ],
+      "prerequisiteLinkTargets": [
+        "mantle-evasion",
+        "mantle-bandit",
+        "mantles-route"
+      ]
+    },
+    {
+      "id": "mantle-challenger",
+      "scope": "初入手★7／改MR11以上",
+      "review": "source-compared",
+      "sources": [
+        "https://a-to-monhan.com/2018/01/31/mhw-soui-entou/",
+        "https://game8.jp/mhw/290194"
+      ],
+      "prerequisiteLinkTargets": [
+        "mantle-evasion",
+        "mantle-bandit",
+        "mantles-route"
+      ]
+    },
+    {
+      "id": "mantle-fireproof",
+      "scope": "初入手★7／改MR11以上",
+      "review": "source-compared",
+      "sources": [
+        "https://a-to-monhan.com/2018/01/31/mhw-soui-entou/",
+        "https://game8.jp/mhw/290199"
+      ],
+      "prerequisiteLinkTargets": [
+        "mantle-evasion",
+        "mantle-bandit",
+        "deco-teostra",
+        "mantles-route"
+      ]
+    },
+    {
+      "id": "mantle-thunderproof",
+      "scope": "World捕獲依頼／改MR14以上",
+      "review": "source-compared",
+      "sources": [
+        "https://a-to-monhan.com/2018/01/31/mhw-soui-entou/",
+        "https://game8.jp/mhw/290224"
+      ],
+      "prerequisiteLinkTargets": [
+        "mantle-rocksteady",
+        "capture",
+        "mantles-route"
+      ]
+    },
+    {
+      "id": "mantle-iceproof",
+      "scope": "World納品依頼／改MR16以上",
+      "review": "source-compared",
+      "sources": [
+        "https://mhwg.org/ida/228492.html",
+        "https://gamewith.jp/mhw/article/show/92230",
+        "https://game8.jp/mhw/290214"
+      ],
+      "prerequisiteLinkTargets": [
+        "mantle-rocksteady",
+        "mantle-waterproof",
+        "mantles-route"
+      ]
+    },
+    {
+      "id": "mantle-waterproof",
+      "scope": "初入手は上位／改MR6以上",
+      "review": "source-compared",
+      "sources": [
+        "https://bassy-mh.info/mhw-sougu.html",
+        "https://game8.jp/mhw/290171",
+        "https://mhwg.org/data/4225.html",
+        "https://gamewith.jp/mhw/article/show/92230"
+      ],
+      "prerequisiteLinkTargets": [
+        "booster-cleanser",
+        "booster-health",
+        "mantle-iceproof",
+        "mantles-route"
+      ]
+    },
+    {
+      "id": "mantle-ghillie",
+      "scope": "初入手は任務★3／改MR2以上",
+      "review": "source-compared",
+      "sources": [
+        "https://game8.jp/mhw/199625",
+        "https://xn--zck9awe6d820vk6qg9be46k.com/monsterhunter-world-iceborne/81806/"
+      ],
+      "prerequisiteLinkTargets": [
+        "capture",
+        "mantles-route"
+      ]
+    },
+    {
+      "id": "mantle-vitality",
+      "scope": "初入手★5進行中／改M★1・MR4以上",
+      "review": "source-compared",
+      "sources": [
+        "https://game8.jp/mhw/198708"
+      ],
+      "prerequisiteLinkTargets": [
+        "mantle-ghillie",
+        "mantles-route"
+      ]
+    },
+    {
+      "id": "mantle-impact",
+      "scope": "通常版クエストHR15以上・危険度1を5種類／改MR125以上",
+      "review": "source-compared",
+      "sources": [
+        "https://game8.jp/mhw/202290",
+        "https://game8.jp/mhw/291294",
+        "https://mhworld.kiranico.com/ja/quests/naM1n/dorotsuchi-to-hone-tsuchi-no-gekitotsu-kassen"
+      ],
+      "prerequisiteLinkTargets": [
+        "mantles-route"
+      ]
+    },
+    {
+      "id": "mantle-apothecary",
+      "scope": "World研究条件／改M★5・MR21以上",
+      "review": "source-compared",
+      "sources": [
+        "https://game8.jp/mhw/205170",
+        "https://game8.jp/mhw/292809"
+      ],
+      "prerequisiteLinkTargets": [
+        "mantle-immunity",
+        "mantle-dragonproof",
+        "mantles-route"
+      ]
+    },
+    {
+      "id": "mantle-immunity",
+      "scope": "World研究条件／改M★5・MR19以上",
+      "review": "source-compared",
+      "sources": [
+        "https://game8.jp/mhw/205168",
+        "https://gamewith.jp/mhw/92102",
+        "https://game8.jp/mhw/291289"
+      ],
+      "prerequisiteLinkTargets": [
+        "mantle-apothecary",
+        "mantles-route"
+      ]
+    },
+    {
+      "id": "mantle-dragonproof",
+      "scope": "上位特別任務／改M★5任務後",
+      "review": "source-compared",
+      "sources": [
+        "https://game8.jp/mhw/209012"
+      ],
+      "prerequisiteLinkTargets": [
+        "mantles-route"
+      ]
+    },
+    {
+      "id": "mantle-assassin",
+      "scope": "公式配信終了：2021年12月3日9時（日本時間）",
+      "review": "source-compared",
+      "sources": [
+        "https://mhw.fuguai-online.com/2021/11/06/ice-corabo-owari/"
+      ],
+      "prerequisiteLinkTargets": [
+        "mantles-route"
+      ]
+    },
+    {
+      "id": "booster-health",
+      "scope": "煙筒／通常版は任務★4・改はM★2・MR6以上",
+      "review": "source-compared",
+      "sources": [
+        "https://mhwg.org/ida/667.html",
+        "https://game8.jp/mhw/290164"
+      ],
+      "prerequisiteLinkTargets": [
+        "mantle-waterproof",
+        "mantles-route"
+      ]
+    },
+    {
+      "id": "booster-cleanser",
+      "scope": "煙筒／改M★2・MR4以上",
+      "review": "source-compared",
+      "sources": [
+        "https://mhwg.org/ida/228517.html",
+        "https://game8.jp/mhw/290154"
+      ],
+      "prerequisiteLinkTargets": [
+        "booster-health",
+        "mantle-waterproof",
+        "mantles-route"
+      ]
+    }
+  ]
+}
