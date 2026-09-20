@@ -3,3 +3,5 @@ node_modules/
 *.private.json
 *service-account*.json
 .firebase/
+test-results/
+playwright-report/

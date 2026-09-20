@@ -17,6 +17,8 @@ jobs:
         working-directory: equipment-wishlist/sync
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -29,5 +31,16 @@ jobs:
       - run: npm run test:rules
         env:
           CI: 'true'
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:ui
+      - name: Verification screenshots and lockfile
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mh-wishlist-shared-verification
+          path: |
+            equipment-wishlist/sync/test-results/
+            equipment-wishlist/sync/package-lock.json
+          retention-days: 7
       - name: No production credentials or deployment
-        run: echo 'Demo emulator tests only. No production Firebase project configured or changed.'
+        run: echo 'Demo emulator and isolated browser tests only. No production Firebase project configured or changed.'
