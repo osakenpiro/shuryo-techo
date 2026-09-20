@@ -67,7 +67,8 @@
     $('#stock-summary').innerHTML=summaries.length?summaries.map(d=>`<div class="stock-line"><strong>${esc(d.name)} <small>／ ${esc(d.h.name)}</small></strong>必要計 ${fmt(d.need)} ／ 所持 ${fmt(d.have)} ／ <span class="${d.lack>0?'lack':''}">${d.lack===null?'不足は未確認':d.lack===0?'揃っています':'あと '+fmt(d.lack)}</span></div>`).join(''):'<p class="dialog-note">素材が決まった依頼を追加すると、ここに集まります。</p>';
   }
   function related(g){return g.refs.map(ref=>{const h=getH(ref.hunterId),r=h&&getR(h,ref.requestId);return r?item(r).name:'';}).filter((x,n,a)=>x&&a.indexOf(x)===n).join(' ／ ');}
-  function inPlan(g){return state.plan.some(p=>p.title===g.title&&!p.done);}
+  function planScope(refs){return [...new Set(refs.map(r=>r.hunterId))].sort().join('\u0000');}
+  function inPlan(g){return state.plan.some(p=>p.title===g.title&&!p.done&&g.refs.every(r=>p.refs.some(x=>x.hunterId===r.hunterId&&x.requestId===r.requestId)));}
   function render(){
     const focused=document.activeElement, parent=focused?.closest?.('.request');let restore=null;
     if(parent){const a=['action','stock','edit'].find(k=>focused.dataset[k]!==undefined);if(a)restore={h:parent.dataset.h,r:parent.dataset.r,a,v:focused.dataset[a]};}
@@ -89,7 +90,7 @@
   function visiblePlan(){return state.plan.filter(p=>state.selected==='all'||!p.refs.length||p.refs.some(r=>r.hunterId===state.selected));}
   function renderPlan(){const p=visiblePlan();$('#route-list').innerHTML=p.length?p.map((s,n)=>`<div class="route-stop ${s.done?'is-done':''}"><button class="route-num" data-stop="${esc(s.id)}" data-plan="done" aria-label="${esc(s.title)}を${s.done?'未実施に戻す':'済みにする'}">${s.done?'✓':String(n+1).padStart(2,'0')}</button><div><p class="route-title">${esc(s.title)}</p><p class="route-detail">${esc(s.note)}</p><div class="route-tools"><button data-stop="${esc(s.id)}" data-plan="up" aria-label="${esc(s.title)}を上へ" ${n===0?'disabled':''}>↑</button><button data-stop="${esc(s.id)}" data-plan="down" aria-label="${esc(s.title)}を下へ" ${n===p.length-1?'disabled':''}>↓</button><button data-stop="${esc(s.id)}" data-plan="remove" aria-label="${esc(s.title)}を予定から外す">外す</button></div></div></div>`).join(''):'<p class="route-empty">まず一狩り。<br>上の候補を入れて、順番を決めよう。</p>';
     $('#mobile-count').textContent=p.filter(x=>!x.done).length;}
-  function addGroup(g){if(!g)return;const old=state.plan.find(p=>p.title===g.title&&!p.done);if(old){old.note=g.lines.join('\n');old.refs=clone(g.refs);}else state.plan.push({id:uid(),title:g.title,note:g.lines.join('\n'),refs:clone(g.refs),done:false});changed();toast(old?'段取りの素材メモを更新しました。':'今日の段取りに入れました。');}
+  function addGroup(g){if(!g)return;const old=state.plan.find(p=>p.title===g.title&&!p.done&&planScope(p.refs)===planScope(g.refs));if(old){old.note=g.lines.join('\n');old.refs=clone(g.refs);}else state.plan.push({id:uid(),title:g.title,note:g.lines.join('\n'),refs:clone(g.refs),done:false});changed();toast(old?'段取りの素材メモを更新しました。':'今日の段取りに入れました。');}
   function openModal(title,html){$('#modal-title').textContent=title;$('#modal-body').innerHTML=html;if(!$('#modal').open)$('#modal').showModal();}
   function closeModal(){$('#modal').close();}
   $('#close-modal').onclick=closeModal;
