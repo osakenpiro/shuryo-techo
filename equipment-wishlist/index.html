@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#262923"><meta name="description" content="作りたい装備を書き留めて、次の狩りを決める。仲間と使うMHW:Iの装備づくりの依頼帳。">
+<title>装備づくりの依頼帳｜MHW:I 狩猟手帖</title>
+<link rel="stylesheet" href="style.css?v=010"><script defer src="data.js?v=010"></script><script defer src="app.js?v=010"></script>
+</head>
+<body data-mobile-view="requests">
+<a class="skip" href="#requests">依頼へ移動</a>
+<header class="topbar"><a class="brand" href="../">狩猟手帖 <span>／ MHW : ICEBORNE</span></a><nav aria-label="関連ページ"><a href="../hunting-notebook.html">狩猟記録</a><a href="../fatalis-roadmap/">黒龍への道</a><button id="share" class="top-button">仲間に渡す ↗</button></nav></header>
+<main class="desk">
+  <section class="masthead"><div><p class="eyebrow">THE HUNTER'S REQUEST BOOK</p><h1>装備づくりの依頼帳</h1><p class="handwritten subtitle">さて、次は何を狩ろう。</p></div><div class="book-mark" aria-hidden="true"><span>狩</span><small>WISH & HUNT</small></div></section>
+  <div class="hunter-bar"><div id="hunters" class="hunter-tabs" aria-label="ハンターを選ぶ"></div><button id="add-hunter" class="quiet-light">＋ 仲間の帳面</button></div>
+  <div class="mobile-switch" aria-label="帳面のページ"><button data-mobile="requests" aria-pressed="true">依頼を見る</button><button data-mobile="plan" aria-pressed="false">今日の段取り</button></div>
+  <div class="workspace">
+    <section class="ledger paper" id="requests" aria-labelledby="ledger-title">
+      <div class="ledger-head"><div><p class="folio">REQUESTS <span id="request-count"></span></p><h2 id="ledger-title">作りたいもの</h2></div><button id="new-request" class="ink-button">＋ 依頼を書く</button></div>
+      <div class="filters"><div class="filter-tabs" id="filters" aria-label="種類で絞り込む"></div><label class="done-filter"><input id="show-done" type="checkbox">できたもの</label></div>
+      <label class="search"><span>探す</span><input id="search" type="search" placeholder="装備・素材・モンスター" aria-label="装備・素材・モンスターを検索"></label>
+      <div id="request-list"></div>
+      <div class="ledger-foot"><span>書き足しながら、揃えていこう。</span><span id="save-state" role="status">この端末に保存</span></div>
+    </section>
+    <aside class="planning" id="planning" aria-label="次の狩りと今日の段取り">
+      <section class="next-note paper"><p class="folio">NEXT HUNT <span>次の候補</span></p><div id="next-hunt"></div></section>
+      <section class="route-note paper"><div class="route-heading"><div><p class="folio">TODAY'S ROUTE</p><h2>今日の段取り</h2></div><span class="date-stamp" id="date-stamp"></span></div><div id="route-list"></div><button id="add-stop" class="text-button">＋ 寄り道をメモ</button><div class="route-actions"><button id="copy-route" class="text-button">段取りをコピー</button><button id="clear-done" class="text-button">済んだ分を片づける</button></div><p class="tiny">順番は ↑ ↓ で変更。狩りの終了と装備の完成は別々に記録。</p></section>
+      <details class="other-hunts paper"><summary>ほかの行き先を見て決める <span id="hunt-count"></span></summary><div id="other-hunts"></div><p class="tiny">優先度 → 確認済みの不足 → 関係する依頼の多さで候補を並べます。クエスト解放・腕前・所要時間は自動判定しません。</p></details>
+      <details class="supplies paper"><summary>素材のまとめ帳</summary><div id="stock-summary"></div><p class="tiny">同じ人の素材は共通在庫。未完成の依頼ぶんを合算してから不足を計算。人どうしの在庫は合算しません。</p></details>
+      <p class="handwritten margin-note">誰かの「欲しい」が、<br>みんなの次の狩りになる。</p>
+    </aside>
+  </div>
+  <footer class="page-footer"><div><button id="references" class="quiet-light">参考動画・記録の根拠</button><button id="import-button" class="quiet-light">帳面を受け取る</button><button id="export-all" class="quiet-light">全員分をバックアップ</button></div><p>独立先行版 v0.1 · MHW:I 専用の非公式ファンツール<br>保存はこのブラウザ内。共有は写しの受け渡しで、リアルタイム同期ではありません。</p></footer>
+</main>
+<a class="mobile-route" href="#planning">今日の段取り <span id="mobile-count">0</span> ↓</a>
+<dialog id="modal" aria-labelledby="modal-title"><div class="modal-top"><h2 id="modal-title"></h2><button id="close-modal" aria-label="閉じる">×</button></div><div id="modal-body"></div></dialog>
+<input type="file" id="import-file" accept="application/json,.json" hidden>
+<div id="toast" role="status" aria-live="polite"></div>
+<noscript><p class="noscript">依頼帳を使うにはJavaScriptを有効にしてください。</p></noscript>
+</body></html>
