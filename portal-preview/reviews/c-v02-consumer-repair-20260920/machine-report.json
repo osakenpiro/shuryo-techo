@@ -1,0 +1,41 @@
+{
+  "signal": "GO / C_CONSUMER_BINDING_REPAIRED / GOLDEN_PARITY_OPEN",
+  "source_c_v02": "799b0699f3a3ed6200515700551679715b1fa210",
+  "consumer_base_head": "2772bd6e876142b3aaf405878800d5e70219848c",
+  "root_cause": "v0.10 copied C v0.2 FUTURE markup but omitted its .asc-* stylesheet block",
+  "machine": {
+    "future_unique": true,
+    "asc_stage_css_restored": true,
+    "desktop_client_scroll": "1672/1672",
+    "desktop_stage_display": "grid",
+    "desktop_main_media": "795.9x420",
+    "routes": 4,
+    "secondary_media": 3,
+    "mobile_stage_display": "block",
+    "mobile_main_media": "362x235",
+    "mobile_shell_scroll_width": "429px known pre-existing B/N shell overflow; hash navigation may set horizontal scrollX"
+  },
+  "support_metrics": {
+    "broken_v010": {
+      "entropy": 3.568,
+      "edgeMean": 1.29,
+      "edge_gt_32_pct": 0.7
+    },
+    "repaired_v0101": {
+      "entropy": 5.397,
+      "edgeMean": 3.86,
+      "edge_gt_32_pct": 4.9
+    },
+    "note": "support evidence only; not a taste score"
+  },
+  "visual_verdict": {
+    "source_fidelity": "PASS — repaired integration matches C v0.2 visual class/layout",
+    "golden_parity": "OPEN / BELOW GOLDEN — official stream failures and abstract scenic panels remain materially less image-rich than Golden",
+    "new_c_source_fix_request": false
+  },
+  "hashes": {
+    "artifact": "36a73b7f9e3c46484e78eddf7ea56319efd0d5998b724029e9abdbd63523a1ab",
+    "before": "7159975745272620215cd1dd4348a89daaf5d5d85fbba36ad45ef2cbf8b841fc",
+    "after": "1c2866d2785376dffd48538267dc3c41987d6298f5774b89c61c533a3ba4cbca"
+  }
+}
