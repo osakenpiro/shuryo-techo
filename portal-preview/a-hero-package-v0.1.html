@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MONSTER HUNTER PORTAL — SES-N Global Shell v0.1</title>
+<title>MONSTER HUNTER PORTAL — SES-A Hero / Package v0.1</title>
 <style>
 :root{--night:#06090a;--ink:#f0e8d7;--muted:#a99d83;--gold:#c59a54;--wood1:#1a0e08;--paper:#d4c39e;--serif:"Yu Mincho","Hiragino Mincho ProN",Georgia,serif;--sans:"Yu Gothic",Meiryo,sans-serif}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#050707;color:var(--ink);font-family:var(--sans);overflow-x:hidden}
@@ -1196,7 +1196,25 @@ body{background:#050606}
   .memory-room-reference a b{font-size:22px}
 }
 
-
+</style>
+<link rel="stylesheet" href="a-hero-package-v0.1.css">\n</head>
+<body>
+<header class="guild-route-shell" data-shell-version="0.1" data-location="home">
+  <a class="guild-route-brand" href="#home" data-route-id="route.home" aria-label="Monster Hunter Portal 入口へ">
+    <span class="route-crest" aria-hidden="true"></span>
+    <span class="route-brand-copy"><b>HUNTER BASE</b><small>MONSTER HUNTER PORTAL</small></span>
+  </a>
+  <nav class="route-rail" aria-label="狩猟基地の主要区画">
+    <a class="route-node" href="#home" data-route-id="route.home" data-location-id="home"><i aria-hidden="true"></i><span>BASE</span><b>入口</b></a>
+    <a class="route-node" href="#packages" data-route-id="route.packages" data-location-id="packages"><i aria-hidden="true"></i><span>TITLES</span><b>作品棚</b></a>
+    <a class="route-node" href="#current" data-route-id="route.current" data-location-id="current"><i aria-hidden="true"></i><span>CURRENT</span><b>現在の狩り</b></a>
+    <a class="route-node" href="#future" data-route-id="route.future" data-location-id="future"><i aria-hidden="true"></i><span>HORIZON</span><b>次の狩場</b></a>
+    <a class="route-node" href="#memory" data-route-id="route.memory" data-location-id="memory"><i aria-hidden="true"></i><span>MEMORY</span><b>狩猟歴史館</b></a>
+  </nav>
+  <a class="current-jump" href="#current" data-route-id="route.current">
+    <small>RETURN TO CURRENT</small><b>ICEBORNE</b>
+  </a>
+</header>
 <section id="home" class="world a-hero-world" data-a-version="0.1">
   <div class="a-world-reference" aria-hidden="true">
     <div class="ref-world r1"></div>
