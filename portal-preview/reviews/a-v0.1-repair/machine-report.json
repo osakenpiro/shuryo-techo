@@ -1,0 +1,35 @@
+{
+  "source_head": "f3e5a5ba61587cd919848b11b07bd459ae8ed9c8",
+  "repair_scope": [
+    "remove duplicate old Hero/Package block",
+    "repair malformed splice",
+    "scope World package class",
+    "scope A state plaques"
+  ],
+  "machine": {
+    "unique_home": true,
+    "unique_packages": true,
+    "single_hero_heading": true,
+    "malformed_route_text_removed": true,
+    "six_A_packages": true,
+    "world_case_compact_desktop": true,
+    "state_plaques_compact_desktop": true,
+    "desktop_no_horizontal_scroll": true,
+    "mobile_A_hero_fits_viewport": true,
+    "mobile_A_shelf_fits_viewport": true,
+    "mobile_document_scrollWidth_note": "429px scrollWidth remains from pre-existing B/N surfaces; body overflow-x=hidden and document scrollLeft remains 0. A hero/shelf are exactly 390px wide."
+  },
+  "hashes": {
+    "html": "c300fa45cd0d4e1f03d42588d96b55d8f6ad4c6eec77dccd213458e8bd31e236",
+    "css": "3581e15fb913cbdc896d0d9eb04309a8f94a39817711149e76449a12ab9b89e9",
+    "desktop": "659bd0c30ad5d2b0bcb4615ceacc81bea41ea15e8e00de083208e4df5341d0a8",
+    "mobile": "730e10b5e18b1ffeedf83e5524d36f64c58f48c6ab8bad31d86e3235aef509fe"
+  },
+  "asset_binding": {
+    "source": "SES-D #367 RETURN v0.1",
+    "world_iceborne_rise_sunbreak_wilds": "REFERENCE_ONLY",
+    "ascendance": "ASSET_PENDING / key visual reference only",
+    "publication_cleared": false
+  },
+  "promotion": "FORBIDDEN_PENDING_SES-O_CONSUME_AND_HUMAN_PASS"
+}

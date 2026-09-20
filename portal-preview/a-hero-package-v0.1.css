@@ -125,12 +125,12 @@
   background:#080a0ac9;border:1px solid #76603e;color:#bda774;
   font:5px var(--sans);letter-spacing:.09em;
 }
-.a-case .state{
+.a-case .a-state{
   position:absolute;left:15px;top:-23px;z-index:5;padding:5px 8px;
   border:1px solid #8a724b;background:#10100edc;color:#d8c390;
   font:5.5px var(--sans);letter-spacing:.14em;white-space:nowrap;
 }
-.a-case.world{left:0;--rot:-5deg;width:185px;height:225px}
+.a-case.title-world{left:0;--rot:-5deg;width:185px;height:225px}
 .a-case.iceborne{left:180px;--rot:-2deg;width:188px;height:235px;z-index:3}
 .a-case.rise{left:355px;--rot:3deg;width:178px;height:220px;z-index:2}
 .a-case.sunbreak{left:525px;--rot:2deg;width:186px;height:222px;z-index:3}
@@ -153,12 +153,12 @@
 }
 .a-case.asc .face{inset:8px 7px 30px 11px}
 .a-case.asc .title{font-size:13px;color:#d8e0e8}
-.a-case.asc .state{border-color:#6f8198;color:#c9d8e5}
-.a-case.iceborne .state{
+.a-case.asc .a-state{border-color:#6f8198;color:#c9d8e5}
+.a-case.iceborne .a-state{
   border-color:#a6c6cc;color:#def1f2;
   box-shadow:0 0 12px rgba(188,229,232,.32)
 }
-.a-case.wilds .state{border-color:#b58d4e;color:#f0d293}
+.a-case.wilds .a-state{border-color:#b58d4e;color:#f0d293}
 .a-case:hover,.a-case:focus-within{
   transform:rotate(var(--rot,0deg)) translateY(-7px);
   z-index:12
@@ -210,7 +210,7 @@
     position:absolute;left:0;right:0;bottom:21px;height:42px
   }
   .a-case,
-  .a-case.world,
+  .a-case.title-world,
   .a-case.iceborne,
   .a-case.rise,
   .a-case.sunbreak,
