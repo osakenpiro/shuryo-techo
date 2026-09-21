@@ -72,3 +72,6 @@ $('copy-prompt').onclick=()=>copy('モンハンの狩猟VC文字起こしから�
 $('source-list').innerHTML=Object.values(SOURCES).map(([title,url,desc])=>'<div><a target="_blank" rel="noopener noreferrer" href="'+url+'">'+title+' ↗</a><small>'+desc+'</small></div>').join('');
 buildMap();render();
 try{if(location.hash.startsWith('#party=')){const raw=JSON.parse(base64ToText(location.hash.slice(7)));loadData(raw);history.replaceState(null,'',location.pathname+location.search);}}catch(err){toast('共有リンクを取り込めません：'+err.message);}
+
+// FLOW v0.4: navigation only. Existing progression and storage remain unchanged.
+(()=>{const panel=document.getElementById('personal-records');if(!panel)return;const a=panel.querySelector('a');if(a){a.href='./flow.html?v=4';a.textContent='次の一狩り｜現在地と周回フローを開く →';}const ps=panel.querySelectorAll('p');if(ps[1])ps[1].textContent='地学珠で周回中の現在地、次に行くクエスト、必要素材と終了目安。火氷の装備票もこのフローから開けます。';const small=panel.querySelector('small');if(small)small.textContent='v0.4公開。個人の現在地リンクを持ち寄り、同じクエストの合流候補を表示。端末内保存・自動同期なし。';})();
