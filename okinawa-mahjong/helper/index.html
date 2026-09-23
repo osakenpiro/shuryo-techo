@@ -18,8 +18,8 @@
 <section id="home" class="page" aria-labelledby="home-title">
 <div class="intro"><div class="crest" aria-hidden="true">發</div><p class="eyebrow">OKINAWA MAHJONG CLUB</p><h1 id="home-title">いま、知りたいこと。</h1><p class="muted">卓のそばに、小さな手引き。</p></div>
 <div class="choices"><a class="choice" href="#yaku"><strong>役を見る</strong><small>形・翻数・鳴いていい？</small><span class="arrow" aria-hidden="true">→</span></a><a class="choice alt" href="#score"><strong>点数を出す</strong><small>親？ 子？ 誰がいくら？</small><span class="arrow" aria-hidden="true">→</span></a></div>
-<p class="note">四人麻雀用 · インストール不要<br>点数は手入力の確認用。あがれるかの自動判定はしません。</p>
 <a class="text-link" href="#fu">符がわからない → 形から確認</a>
+<a class="text-link" href="../learn/">📖 まなぶ →</a>
 <details class="fold"><summary>まず覚える、2つだけ</summary><p>ドラだけではあがれない。必ず役が必要。</p><p>ポン・チー・明カンの後は、リーチも「門前ツモ」の1翻もつかない。暗カンだけなら門前のまま。</p></details>
 <a class="text-link" href="#rules">このページのルール・出典</a>
 </section>
@@ -32,8 +32,9 @@
 <p class="small">図は形の例（手の一部）。組み合わせや待ちによる判定は、卓でも確認。</p>
 </section>
 <section id="score" class="page" hidden aria-labelledby="score-title">
-<div class="page-head"><h1 id="score-title">点数を出す</h1><button class="reset" id="reset">入力を消す</button></div>
+<div class="page-head"><div><h1 id="score-title">点数を出す <span class="badge">4人麻雀</span></h1><p class="small" style="margin:4px 0 0">翻・符を選んで計算</p></div><button class="reset" id="reset">入力を消す</button></div>
 <div id="result" class="result empty" role="status" aria-live="polite" aria-atomic="true"><p>翻と符を選ぶと、支払点が出ます。</p></div>
+<p class="small">あがれるかは判定しません。</p>
 <p class="small" id="profile"></p>
 <div class="panel">
 <div class="two-col"><fieldset><legend>あがった人</legend><div class="seg" id="dealer"></div></fieldset><fieldset><legend>あがり方</legend><div class="seg" id="win"></div></fieldset></div>
