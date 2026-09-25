@@ -5,7 +5,7 @@
   if (!window.MJ || !window.YAKU) { $('boot-warning').textContent='読み込めませんでした。ページを再読み込みしてください。'; return; }
   const GLOSSARY=window.MJ_GLOSSARY||[];
   const initial=()=>({dealer:false,win:'ron',han:null,fu:null,hasYaku:false,yakuman:0,honba:0,sticks:0});
-  let s=initial(), filter='common', fuResult=null;
+  let s=initial(), filter='common', fuResult=null, scoreMode='paper';
   const rule={kiriage:false,kazoe:true,doubleWind:4};
   const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const fmt=n=>n.toLocaleString('ja-JP');
@@ -46,6 +46,45 @@
       return `<article class="yaku" data-yaku="${y.id}"><div class="yaku-top"><h2>${y.name}</h2><span class="badge">${val}</span></div><div class="trait-row">${yakuTrait(y)}</div><p>${y.summary}</p>${y.tiles?`<div class="tiles">${tiles(y.tiles)}</div><span class="tile-label">形の例（手の一部）</span>`:''}<details><summary>読み方・気をつけること</summary><p>${y.reading}</p><p>${y.note}</p></details></article>`;
     }).join(''):'<p class="note">見つかりませんでした。名前を短くするか、検索欄を空にしてください。</p>';
   }
+  const baseScoreInput=(dealer,win,han,fu)=>({dealer,win,han,fu,hasYaku:true,yakuman:0,honba:0,sticks:0,...rule});
+  function paperScore(win,han,fu) {
+    try {
+      const child=MJ.score(baseScoreInput(false,win,han,fu));
+      const dealer=MJ.score(baseScoreInput(true,win,han,fu));
+      if(win==='ron') return `<div class="score-cell"><b>${fmt(child.payments[0].points)}</b><span>${fmt(dealer.payments[0].points)}</span></div>`;
+      const parentPay=child.payments.find(p=>p.payer==='親')?.points;
+      const childPay=child.payments.find(p=>p.payer.startsWith('子'))?.points;
+      const allPay=dealer.payments[0].points;
+      return `<div class="score-cell"><b>${fmt(childPay)}/${fmt(parentPay)}</b><span>${fmt(allPay)}オール</span></div>`;
+    } catch(e) { return '<span class="muted">—</span>'; }
+  }
+  function limitScore(win,han,yakuman=0) {
+    const make=dealer=>MJ.score({dealer,win,han:han||1,fu:30,hasYaku:true,yakuman,honba:0,sticks:0,...rule});
+    const child=make(false), dealer=make(true);
+    if(win==='ron') return `<div class="score-cell"><b>${fmt(child.payments[0].points)}</b><span>${fmt(dealer.payments[0].points)}</span></div>`;
+    const parentPay=child.payments.find(p=>p.payer==='親')?.points;
+    const childPay=child.payments.find(p=>p.payer.startsWith('子'))?.points;
+    return `<div class="score-cell"><b>${fmt(childPay)}/${fmt(parentPay)}</b><span>${fmt(dealer.payments[0].points)}オール</span></div>`;
+  }
+  function paperTable(title,win,fus) {
+    const hans=[1,2,3,4];
+    return `<h2>${title}</h2><div class="score-table-wrap"><table class="score-table"><thead><tr><th>符</th>${hans.map(h=>`<th>${h}翻</th>`).join('')}</tr></thead><tbody>${fus.map(f=>`<tr><th class="fu-head">${f}符</th>${hans.map(h=>`<td>${paperScore(win,h,f)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+  }
+  function limitTable(title,win) {
+    const limits=[['満貫','5翻',5,0],['跳満','6〜7翻',6,0],['倍満','8〜10翻',8,0],['三倍満','11〜12翻',11,0],['役満','',1,1]];
+    return `<h2>${title}・満貫以上</h2><div class="score-table-wrap"><table class="score-table"><thead><tr>${limits.map(x=>`<th>${x[0]}<br><span class="small">${x[1]}</span></th>`).join('')}</tr></thead><tbody><tr>${limits.map(x=>`<td>${limitScore(win,x[2],x[3])}</td>`).join('')}</tr></tbody></table></div>`;
+  }
+  function renderPaper() {
+    const el=$('paper-tables'); if(!el)return;
+    el.innerHTML=paperTable('ツモ','tsumo',[20,25,30,40,50,60,70])+limitTable('ツモ','tsumo')+paperTable('ロン','ron',[25,30,40,50,60,70])+limitTable('ロン','ron');
+  }
+  function renderScoreMode() {
+    const paper=scoreMode==='paper';
+    $('paper-score').hidden=!paper;$('detail-score').hidden=paper;$('reset').hidden=paper;
+    document.querySelectorAll('[data-score-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.scoreMode===scoreMode)));
+    $('score-mode-note').textContent=paper?'いま配られている早見表に合わせた見方です。':'親・子、ロン・ツモ、翻・符、本場・供託まで細かく計算します。';
+    if(paper)renderPaper();
+  }
   function result() {
     const el=$('result'); el.className='result'; $('jump-result').hidden=true;
     if (!s.han&&!s.yakuman) {el.classList.add('empty');el.innerHTML='<p>翻と符を選ぶと、支払点が出ます。</p>';return;}
@@ -75,7 +114,7 @@
     const page=['home','yaku','score','fu','rules'].includes(location.hash.slice(1))?location.hash.slice(1):'home';
     document.querySelectorAll('.page').forEach(el=>{el.hidden=el.id!==page;});
     document.querySelectorAll('.bottom a').forEach(a=>{if(a.hash==='#'+page)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
-    if(page==='score')renderScore();
+    if(page==='score'){renderScore();renderScoreMode();}
     if(page==='fu') { $('f-win').value=s.win; renderFu(); }
     window.scrollTo(0,0);
     const h=$(`${page}-title`); h.tabIndex=-1; h.focus({preventScroll:true});
@@ -99,6 +138,7 @@
   }
   document.addEventListener('click',e=>{
     const b=e.target.closest('button'); if(!b)return;
+    if(b.dataset.scoreMode){scoreMode=b.dataset.scoreMode;renderScoreMode();return;}
     if(b.dataset.term){
       const t=GLOSSARY.find(x=>x.id===b.dataset.term), note=$('term-note'); if(!t||!note)return;
       const closing=!note.hidden&&note.dataset.term===t.id;
@@ -129,11 +169,11 @@
   $('more-fu').addEventListener('change',e=>{s.fu=e.target.value?Number(e.target.value):null;renderScore();});
   $('has-yaku').addEventListener('change',e=>{s.hasYaku=e.target.checked;result();});
   ['honba','sticks'].forEach(id=>$(id).addEventListener('input',e=>{s[id]=e.target.value===''?NaN:Number(e.target.value);result();}));
-  ['kiriage','kazoe'].forEach(id=>$(id).addEventListener('change',e=>{rule[id]=e.target.checked;renderScore();}));
+  ['kiriage','kazoe'].forEach(id=>$(id).addEventListener('change',e=>{rule[id]=e.target.checked;renderScore();renderPaper();}));
   $('double-wind').addEventListener('change',e=>{rule.doubleWind=Number(e.target.value);renderFu();});
   $('reset').addEventListener('click',()=>{s=initial();$('honba').value='0';$('sticks').value='0';$('score-context').textContent='親・子は「あがった人」で選びます。';renderScore();});
   $('fu-form').addEventListener('change',renderFu);
   $('fu-form').addEventListener('submit',e=>{e.preventDefault();renderFu();if(!fuResult)return;s.fu=fuResult.fu;s.win=$('f-win').value;s.yakuman=0;$('score-context').textContent=`符補助から${fuResult.fu}符を反映。役＋ドラの合計翻も確認してください。`;location.hash='score';});
   window.addEventListener('hashchange',route);
-  renderGlossary();renderYaku();renderScore();route();$('boot-warning').hidden=true;
+  renderGlossary();renderYaku();renderScore();renderPaper();renderScoreMode();route();$('boot-warning').hidden=true;
 })();
