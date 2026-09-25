@@ -3,6 +3,7 @@
 (() => {
   const $=id=>document.getElementById(id);
   if (!window.MJ || !window.YAKU) { $('boot-warning').textContent='読み込めませんでした。ページを再読み込みしてください。'; return; }
+  const GLOSSARY=window.MJ_GLOSSARY||[];
   const initial=()=>({dealer:false,win:'ron',han:null,fu:null,hasYaku:false,yakuman:0,honba:0,sticks:0});
   let s=initial(), filter='common', fuResult=null;
   const rule={kiriage:false,kazoe:true,doubleWind:4};
@@ -21,6 +22,16 @@
       return `<span class="tile-group" role="img" aria-label="${digits.map(d=>type==='z'?'東南西北白發中'[Number(d)-1]:d+suit).join(' ')}">${digits.map(d=>`<span class="tile ${type}" aria-hidden="true">${type==='z'?'東南西北白發中'[Number(d)-1]:`${d}<b>${suit}</b>`}</span>`).join('')}</span>`;
     }).join('');
   }
+  function renderGlossary() {
+    const list=$('term-badges'), note=$('term-note'); if(!list||!note)return;
+    list.innerHTML=GLOSSARY.map(t=>`<button type="button" class="term-chip" data-term="${t.id}" aria-pressed="false">${esc(t.name)}</button>`).join('');
+  }
+  function yakuTrait(y) {
+    if(y.han<0)return '<span class="trait rule"><span aria-hidden="true">⚠</span>卓ルール確認</span>';
+    if(y.open<0)return '<span class="trait closed"><span aria-hidden="true">🔒</span>門前のみ</span>';
+    if(y.open!==y.han)return `<span class="trait down"><span aria-hidden="true">↓</span>鳴くと ${y.open}翻</span>`;
+    return '<span class="trait open"><span aria-hidden="true">○</span>鳴きOK</span>';
+  }
   function renderYaku() {
     const filters=[['common','よく使う'],['all','全部'],['open','鳴いてもOK'],['one','1翻'],['two','2翻'],['high','3翻〜役満']];
     choices('filters','filter',filters,filter);
@@ -32,8 +43,7 @@
     $('yaku-count').textContent=`${query?'全ての役から検索 · ':''}${found.length}件 · 翻数は門前時／鳴いた時を併記`;
     $('yaku-cards').innerHTML=found.length?found.map(y=>{
       const val=y.han===0?'役満':y.han<0?'特殊':`${y.han}翻`;
-      const tag=y.han<0?'卓ルール確認':y.open<0?'門前のみ · 鳴き ×':y.open!==y.han?`鳴くと ${y.open}翻`:`鳴き ○${y.han?' · '+y.open+'翻':''}`;
-      return `<article class="yaku" data-yaku="${y.id}"><div class="yaku-top"><h2>${y.name}</h2><span class="badge">${val}</span></div><span class="open-tag">${tag}</span><p>${y.summary}</p>${y.tiles?`<div class="tiles">${tiles(y.tiles)}</div><span class="tile-label">形の例（手の一部）</span>`:''}<details><summary>読み方・気をつけること</summary><p>${y.reading}</p><p>${y.note}</p></details></article>`;
+      return `<article class="yaku" data-yaku="${y.id}"><div class="yaku-top"><h2>${y.name}</h2><span class="badge">${val}</span></div><div class="trait-row">${yakuTrait(y)}</div><p>${y.summary}</p>${y.tiles?`<div class="tiles">${tiles(y.tiles)}</div><span class="tile-label">形の例（手の一部）</span>`:''}<details><summary>読み方・気をつけること</summary><p>${y.reading}</p><p>${y.note}</p></details></article>`;
     }).join(''):'<p class="note">見つかりませんでした。名前を短くするか、検索欄を空にしてください。</p>';
   }
   function result() {
@@ -89,6 +99,15 @@
   }
   document.addEventListener('click',e=>{
     const b=e.target.closest('button'); if(!b)return;
+    if(b.dataset.term){
+      const t=GLOSSARY.find(x=>x.id===b.dataset.term), note=$('term-note'); if(!t||!note)return;
+      const closing=!note.hidden&&note.dataset.term===t.id;
+      document.querySelectorAll('[data-term]').forEach(x=>x.setAttribute('aria-pressed','false'));
+      if(closing){note.hidden=true;note.dataset.term='';return;}
+      b.setAttribute('aria-pressed','true');note.dataset.term=t.id;note.hidden=false;
+      note.innerHTML=`<strong>${esc(t.name)} <span class="small">${esc(t.reading)}</span></strong><span>${esc(t.summary)} ${esc(t.note)}</span>`;
+      return;
+    }
     if(b.dataset.key){
       const {key,value}=b.dataset;
       if(key==='filter'){filter=value;renderYaku();return;}
@@ -116,5 +135,5 @@
   $('fu-form').addEventListener('change',renderFu);
   $('fu-form').addEventListener('submit',e=>{e.preventDefault();renderFu();if(!fuResult)return;s.fu=fuResult.fu;s.win=$('f-win').value;s.yakuman=0;$('score-context').textContent=`符補助から${fuResult.fu}符を反映。役＋ドラの合計翻も確認してください。`;location.hash='score';});
   window.addEventListener('hashchange',route);
-  renderYaku();renderScore();route();$('boot-warning').hidden=true;
+  renderGlossary();renderYaku();renderScore();route();$('boot-warning').hidden=true;
 })();
