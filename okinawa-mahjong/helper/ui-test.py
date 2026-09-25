@@ -13,8 +13,9 @@ def injected_html():
     html=(ROOT/'index.html').read_text()
     for name in ['core','yaku','app']:
         html=html.replace(f'<script defer src="{name}.js?v=1"></script>','')
-    for name in ['core','yaku','app']:
-        html=html.replace('</body>','<script>'+(ROOT/(name+'.js')).read_text()+'</script></body>')
+    html=html.replace('<script defer src="../glossary.js?v=1"></script>','')
+    for path in [ROOT/'core.js',ROOT/'yaku.js',ROOT.parent/'glossary.js',ROOT/'app.js']:
+        html=html.replace('</body>','<script>'+path.read_text()+'</script></body>')
     return html
 loaded=False
 def goto(url):
@@ -40,10 +41,15 @@ with sync_playwright() as pw:
     page.locator('#home .choice[href="#yaku"]').click()
     expect(page.locator('#yaku')).to_be_visible()
     check('common role count',page.locator('.yaku').count()==8)
+    check('shared glossary badges',page.locator('.term-chip').count()==7)
+    page.locator('[data-term="call"]').click();expect(page.locator('#term-note')).to_contain_text('リーチできない');check('call glossary opens inline')
+    expect(page.locator('[data-yaku="riichi"] .trait')).to_contain_text('門前のみ');check('closed-only role badge')
+    expect(page.locator('[data-yaku="tanyao"] .trait')).to_contain_text('鳴きOK');check('open role badge')
     page.locator('#search').fill('ぴんふ');expect(page.locator('.yaku')).to_have_count(1)
     expect(page.locator('.yaku h2')).to_have_text('平和');check('hiragana search')
     page.locator('#search').fill('ピンフ');expect(page.locator('.yaku')).to_have_count(1);check('katakana search')
     page.locator('#search').fill('四暗刻');expect(page.locator('.yaku')).to_have_count(1);check('search outside default common filter')
+    page.locator('#search').fill('三色同順');expect(page.locator('[data-yaku="sanshoku"] .trait')).to_contain_text('鳴くと 1翻');check('open han-down badge')
     page.locator('#search').fill('');page.locator('[data-key="filter"][data-value="all"]').click()
     expect(page.locator('.yaku')).to_have_count(39);check('39 reference cards')
     page.locator('[data-key="filter"][data-value="open"]').click()
