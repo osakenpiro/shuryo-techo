@@ -1,0 +1,23 @@
+{
+  "baseline_commit": "f28c806a28399c8878c20b724531c5218d8fde2d",
+  "unchanged_git_normalized_sha256": {
+    "okinawa-mahjong/helper/core.js": "9bd838c1f69f64ae75e946f51e2c37192b35938cd006ff32b4ee2e1c847794e9",
+    "okinawa-mahjong/helper/yaku.js": "2484d58ab20cf517769b33c12143f84dfd4b70fa75f5b21bf836392f34337bdd"
+  },
+  "mobile_viewports": [
+    [
+      375,
+      812
+    ],
+    [
+      390,
+      844
+    ],
+    [
+      414,
+      896
+    ]
+  ],
+  "device_scope": "Edge Chromium mobile emulation; not a physical phone",
+  "timing_scope": "interaction count/geometry, not human comprehension time"
+}

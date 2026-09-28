@@ -173,7 +173,7 @@
   $('double-wind').addEventListener('change',e=>{rule.doubleWind=Number(e.target.value);renderFu();});
   $('reset').addEventListener('click',()=>{s=initial();$('honba').value='0';$('sticks').value='0';$('score-context').textContent='親・子は「あがった人」で選びます。';renderScore();});
   $('fu-form').addEventListener('change',renderFu);
-  $('fu-form').addEventListener('submit',e=>{e.preventDefault();renderFu();if(!fuResult)return;s.fu=fuResult.fu;s.win=$('f-win').value;s.yakuman=0;$('score-context').textContent=`符補助から${fuResult.fu}符を反映。役＋ドラの合計翻も確認してください。`;location.hash='score';});
+  $('fu-form').addEventListener('submit',e=>{e.preventDefault();renderFu();if(!fuResult)return;scoreMode='detail';s.fu=fuResult.fu;s.win=$('f-win').value;s.yakuman=0;$('score-context').textContent=`符補助から${fuResult.fu}符を反映。役＋ドラの合計翻も確認してください。`;location.hash='score';});
   window.addEventListener('hashchange',route);
   renderGlossary();renderYaku();renderScore();renderPaper();renderScoreMode();route();$('boot-warning').hidden=true;
 })();
