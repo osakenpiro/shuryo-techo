@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>武器棚 — HUNTER BASE</title>
+<style>
+:root{--ink:#f0e3c8;--gold:#c6a364;--serif:"Yu Mincho","Hiragino Mincho ProN",Georgia,serif;--sans:"Yu Gothic",Meiryo,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:#120e09;color:var(--ink);font-family:var(--sans)}a{color:inherit}button{font:inherit}button,a{-webkit-tap-highlight-color:transparent}button:focus-visible,a:focus-visible{outline:3px solid #ffe6a1;outline-offset:4px}.skip{position:absolute;left:16px;top:-80px;z-index:100;background:#181a15;padding:12px}.skip:focus{top:12px}
+.topbar{min-height:70px;padding:14px 4%;display:flex;align-items:center;gap:20px;background:#0b100f;border-bottom:1px solid #76613e}.brand{font:18px var(--serif);letter-spacing:.1em;text-decoration:none;color:#e9d6af}.brand small{display:block;font:7px var(--sans);letter-spacing:.22em;margin-top:5px;color:#a59573}.nav{margin-left:auto;display:flex;gap:24px;font:12px var(--serif)}.nav a{text-decoration:none;padding:9px 2px}.nav a[aria-current]{color:#f4ce82;border-bottom:1px solid #d5ae65}
+.camp{position:relative;isolation:isolate;min-height:calc(100svh - 70px);padding:38px clamp(18px,5vw,88px) 28px;background:linear-gradient(0deg,#160d09bc,transparent 52%),url('assets/hunter-base-environment-r2-v2.png') center/cover no-repeat}.camp:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#160c0633 0 65%,transparent 65%)}.intro{max-width:1500px;margin:auto auto 25px;display:flex;align-items:end;gap:20px}.eyebrow{font:9px var(--sans);letter-spacing:.23em;color:#d6bd89;margin:0 0 9px}.intro h1{margin:0;font:500 clamp(27px,3vw,42px) var(--serif);letter-spacing:.12em;text-shadow:0 3px 9px #000}.intro p:last-child{margin:0 0 4px auto;font:12px/1.8 var(--serif);color:#ecdabe;text-shadow:0 2px 4px #000}.workshop{max-width:1500px;margin:auto;display:grid;grid-template-columns:minmax(0,2.12fr) minmax(260px,1fr);gap:clamp(22px,3vw,48px);align-items:center}
+.rack-wall{position:relative;padding:15px 18px 12px;border:7px ridge #79603f;background:linear-gradient(#251b12d9,#140d08dd),url('assets/hunter-rack-cabinet-r2-v1.png') center/100% 100%;box-shadow:inset 0 0 25px #000a,7px 13px 15px #0009;transform:rotate(-.25deg)}.rack-wall:before,.rack-wall:after{content:"";position:absolute;inset:8px auto auto 8px;width:9px;height:9px;background:radial-gradient(circle at 35% 30%,#cbb58a,#51432d 65%,#21180f);border-radius:50%;box-shadow:0 2px 3px #000}.rack-wall:after{left:auto;right:8px}.rack-title{margin:0 0 16px;padding:8px 12px;text-align:center;background:linear-gradient(95deg,#a58249,#d7bc80 50%,#a07c46);border:1px solid #3a2616;box-shadow:0 3px 4px #0008;color:#312415;font:500 22px var(--serif)}.rack-title small{margin-left:10px;font:9px var(--sans);letter-spacing:.15em}.rack{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px 6px}.weapon{position:relative;min-width:0;min-height:130px;display:flex;flex-direction:column;align-items:stretch;padding:0;color:#312615;background:transparent;border:0;cursor:pointer}.ico{position:relative;display:grid;place-items:center;height:94px;width:100%;background:linear-gradient(#201a13aa,#0d0b09cc),url('assets/hunter-base-environment-r2-v2.png') 18% 55%/auto 900%;border:2px ridge #746449;box-shadow:inset 0 0 0 3px #1a150f,2px 3px 4px #000c}.ico:before,.ico:after{content:"";position:absolute;top:5px;width:4px;height:4px;border-radius:50%;background:#a28e68;box-shadow:0 1px 2px #000}.ico:before{left:5px}.ico:after{right:5px}.raster-weapon{display:block;height:72px;max-height:86%;aspect-ratio:16/15;max-width:92%;background-image:url('assets/weapon-raster-reference.png');background-size:1920% 1365.333333%;background-repeat:no-repeat;box-shadow:0 3px 6px #0009;filter:contrast(1.08) saturate(1.12)}.weapon-label{min-height:36px;padding:5px 1px;display:flex;flex-direction:column;justify-content:center;background:linear-gradient(#e1d1a5,#b79b63);border:1px solid #625030;box-shadow:2px 3px 3px #0008;font:11px/1.15 var(--serif)}.weapon.selected .ico{border-color:#efc779;box-shadow:inset 0 0 0 3px #3b2c16,0 0 13px #db9e4570}.weapon.selected .weapon-label{background:linear-gradient(#ffe3a1,#c69b4e);color:#241708}.weapon.selected .raster-weapon{filter:contrast(1.1) saturate(1.28) brightness(1.15)}.weapon:hover .ico{border-color:#ccb17a}.status-plaque{width:max-content;max-width:100%;margin:14px auto 0;padding:7px 12px;border:1px solid #6c5636;background:#17110be8;color:#e0ca9b;font:10px var(--serif);text-align:center}
+.notebook{position:relative;align-self:center;min-height:450px;padding:55px 31px 43px 66px;background:url('assets/hunter-field-journal-r2-v1.png') center/100% 100% no-repeat;color:#382718;filter:drop-shadow(8px 12px 10px #0008);transform:rotate(1deg)}.notebook .eyebrow{color:#71512e;font-size:8px;letter-spacing:.14em}.notebook h2{font:500 clamp(23px,2.4vw,35px)/1.3 var(--serif);margin:0 0 8px;min-height:84px;overflow-wrap:anywhere}.notebook .en{font:8px var(--sans);letter-spacing:.12em;color:#715534;min-height:20px}.selected-emblem{float:right;margin:8px 0 12px 10px;padding:5px;border:3px ridge #a98349;background:#302516;transform:rotate(-7deg);box-shadow:4px 5px 5px #583b1a77}.selected-emblem .raster-weapon{height:52px;max-height:none;max-width:none}.notebook-copy{font:12px/1.8 var(--serif);min-height:76px;margin:8px 0 14px}.open{display:block;clear:both;width:max-content;max-width:100%;padding:10px 14px;border:1px solid #8a683c;background:linear-gradient(#4b341d,#261b10);color:#f2dbac;box-shadow:2px 3px 3px #583b1a77;font:12px var(--serif);text-decoration:none}.open[hidden]{display:none}.notebook-selector{margin-top:18px;display:flex;flex-wrap:wrap;gap:7px}.notebook-selector button{min-height:36px;padding:7px 9px;color:#4b351c;background:#dec596;border:1px solid #927042;font:11px var(--serif);cursor:pointer}.notebook-selector button[aria-pressed="true"]{color:#f1dba9;background:#49331d}.chapter-note{margin:10px 0 0;font:9px/1.6 var(--serif);color:#735332}
+.camp-bottom{max-width:1500px;margin:28px auto 0;display:grid;grid-template-columns:1.35fr 1fr;gap:28px;align-items:end}.field-map{position:relative;min-height:105px;padding:25px 30px;background:linear-gradient(90deg,#b6955a44,#d1b77e33),url('assets/hunter-expedition-map-r2-v1.png') center/cover;border:1px solid #896742;box-shadow:4px 8px 10px #0008;transform:rotate(-.5deg);color:#302112}.field-map b{font:20px var(--serif);text-shadow:0 1px #e1c28c}.field-map p{margin:6px 0 0;font:11px var(--serif);text-shadow:0 1px #e1c28c}.hunting-plaque{padding:14px 20px;border:4px ridge #857350;background:linear-gradient(115deg,#23372feb,#111b17f5);box-shadow:7px 9px 11px #000a}.hunting-plaque h3{margin:0 0 8px;font:21px var(--serif);color:#e6d7b0}.active-hunter{font:9px var(--sans);letter-spacing:.1em;color:#b6a47f}.log-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px}.log-row{font:8px var(--sans);color:#a79b81}.log-row strong{display:block;margin-top:5px;font:12px var(--serif);color:#dfd3b8}.footer{padding:18px;text-align:center;border-top:1px solid #6b5330;background:#10100c;color:#a89674;font:8px var(--sans);letter-spacing:.14em}
+@media(min-width:1600px){.camp{padding-top:50px}.rack-wall{padding:18px 24px}.ico{height:115px}.weapon{min-height:151px}.raster-weapon{height:82px}.notebook{min-height:500px;padding-top:65px}.camp-bottom{margin-top:40px}}
+@media(max-width:1099px){.camp{padding:30px 28px;background-position:40% center}.intro p:last-child{max-width:230px}.workshop{grid-template-columns:minmax(0,1fr);gap:26px}.rack-wall{max-width:850px;width:100%;margin:auto}.ico{height:90px}.notebook{width:min(390px,100%);min-height:420px;justify-self:end;padding:53px 35px 40px 66px}.notebook h2{font-size:29px}.camp-bottom{margin-top:24px}.field-map{min-height:140px}.hunting-plaque{align-self:stretch}.log-grid{grid-template-columns:1fr;gap:8px}.log-row{display:flex;justify-content:space-between;align-items:center}.log-row strong{margin:0}}
+@media(max-width:680px){.topbar{padding:13px 17px;gap:12px}.brand{font-size:13px}.brand small{font-size:6px}.nav{gap:12px;font-size:10px}.camp{padding:27px 16px;background-position:36% center}.intro{display:block;margin-bottom:21px}.intro h1{font-size:32px}.intro p:last-child{margin-top:10px;max-width:none;font-size:11px}.rack-wall{padding:10px 8px;border-width:5px;transform:none}.rack-title{font-size:20px;padding:8px 3px}.rack-title small{display:block;margin:4px 0 0;font-size:8px}.rack{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px 5px}.weapon{min-height:106px}.ico{height:73px}.raster-weapon{height:59px}.weapon-label{min-height:33px;font-size:10px}.status-plaque{font-size:9px;margin-top:12px;padding:7px}.notebook{justify-self:center;min-height:430px;width:min(360px,100%);transform:none;padding:53px 29px 40px 61px}.notebook h2{font-size:28px}.camp-bottom{grid-template-columns:1fr;gap:17px}.field-map{min-height:100px;padding:22px}.field-map b{font-size:18px}.hunting-plaque{padding:15px}.log-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.log-row{display:block}.log-row strong{margin-top:5px;font-size:11px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style>
+<style id="weapon-shelf-refinement">
+/* Local weapons destination only. Common navigation remains integrator-owned. */
+#current .workshop{grid-template-columns:minmax(0,2.2fr) minmax(290px,.95fr);align-items:start;gap:clamp(20px,2.4vw,40px)}
+#current .rack-bay{min-width:0;padding-top:18px}
+#current .rack-scroll{max-width:100%;padding:12px 4px 24px;overflow-x:auto;scrollbar-color:#ac8651 #21160e;scrollbar-width:thin}
+#current .rack-scroll:focus-visible{outline:2px solid #ffe6a1;outline-offset:2px}
+#current .rack-wall{position:relative;aspect-ratio:1984/746;padding:0;border:0;background:transparent url('assets/hunter-rack-cabinet-r2-v1.png') center/100% 100% no-repeat;box-shadow:none;filter:drop-shadow(5px 12px 8px #0009);transform:rotate(-.25deg)}
+#current .rack-wall:before,#current .rack-wall:after{display:none}
+#current .rack-title{position:absolute;left:7.7%;right:6.4%;top:8.7%;height:8.4%;padding:0;margin:0;border:0;background:none;box-shadow:none;display:flex;align-items:center;justify-content:center;gap:10px;font-size:clamp(14px,1.7vw,22px);color:#291d0d;text-shadow:0 1px #e4c289}
+#current .rack-title small{margin:0;font-size:8px}
+#current .rack{position:absolute;left:7%;right:6.5%;top:20.4%;bottom:13.5%;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:0}
+#current .weapon{display:block;min-height:0;width:100%;height:100%;border:0;background:none;padding:0;border-radius:0;color:#352312}
+#current .ico{position:absolute;inset:2% 8% 25%;height:auto;width:auto;border:0;background:none;box-shadow:none;display:grid;place-items:center}
+#current .ico:before,#current .ico:after{display:none}
+#current .raster-weapon{height:min(72px,7vw);max-height:92%;box-shadow:0 3px 7px #0009}
+#current .weapon-label{position:absolute;left:7%;right:7%;bottom:5.5%;height:18%;min-height:0;padding:0;margin:0;background:none;border:0;box-shadow:none;font:clamp(9px,.85vw,12px)/1.05 var(--serif);text-shadow:0 1px #e8cf9d;display:flex;justify-content:center}
+#current .weapon.selected{background:radial-gradient(ellipse at center,#edb75625,transparent 70%);box-shadow:inset 0 0 0 1px #e3b75999,inset 0 0 18px #d69c3433}
+#current .weapon.selected .ico{border:0;box-shadow:none}
+#current .weapon.selected .weapon-label{background:none;font-weight:bold}
+#current .weapon:hover{background-color:#d4a45a15}
+#current .weapon:hover .ico{border:0}
+#current .weapon:focus-visible{outline:2px solid #ffe6a1;outline-offset:-4px;z-index:2}
+#current .status-plaque{position:absolute;bottom:0;left:50%;transform:translateX(-50%);max-width:80%;min-height:0;margin:0;padding:3px 10px;font-size:9px;white-space:nowrap;background:#1b120bec}
+#current .rack-instruction{margin:20px 7% 0;color:#e5cfa7;text-shadow:0 2px 4px #000;font:12px/1.8 var(--serif)}
+#current .rack-instruction span{display:block;font-size:10px;color:#bfa980}
+#current .rack-instruction .narrow-hint{display:none}
+#current .notebook{margin-top:8px;min-height:470px;transform:rotate(1deg)}
+#current .notebook .selected-emblem .raster-weapon{height:52px;max-height:none}
+#current .dictionary-entry{display:block;margin-top:18px;padding-top:11px;border-top:1px solid #93724790;text-decoration:none;color:#422d17}
+#current .dictionary-entry b{font:600 15px var(--serif);display:flex;justify-content:space-between}
+#current .dictionary-entry small{display:block;margin-top:5px;font:10px/1.6 var(--serif)}
+#current .dictionary-entry:hover{color:#795323}
+#current .log-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(min-width:1600px){#current .notebook{min-height:520px}#current .raster-weapon{height:82px}#current .rack-title{font-size:25px}}
+@media(max-width:1099px){#current .workshop{grid-template-columns:minmax(0,1fr)}#current .rack-bay{width:100%;max-width:880px;margin:auto;padding-top:0}#current .raster-weapon{height:clamp(50px,7.5vw,72px)}#current .weapon-label{font-size:11px}#current .rack-title{font-size:20px}#current .notebook{justify-self:end;min-height:480px}#current .rack-instruction{margin-top:22px}}
+@media(max-width:680px){
+ #current .rack-wall{min-width:640px;aspect-ratio:1984/900;background-size:100% 100%;transform:none}
+ #current .rack-title{font-size:19px;gap:8px}#current .rack-title small{font-size:8px;display:inline}
+ #current .rack{left:7%;right:6.5%;top:20.4%;bottom:13.5%;grid-template-columns:repeat(7,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr))}
+ #current .ico{inset:2% 7% 27%}#current .raster-weapon{height:57px;max-width:94%}
+ #current .weapon-label{left:2%;right:2%;height:21%;bottom:4%;font-size:11px;line-height:1.05;letter-spacing:0}
+ #current .status-plaque{font-size:9px;bottom:-3%;padding:3px 8px}#current .rack-instruction{margin:5px 3% 0;font-size:11px}
+ #current .rack-instruction .narrow-hint{display:block}#current .rack-instruction span{font-size:10px}#current .notebook{justify-self:center;margin-top:0;min-height:485px;transform:none}
+ #current .log-grid{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:12px}
+}
+@media(prefers-reduced-motion:reduce){#current *{transition:none;animation:none;scroll-behavior:auto}}
+
+</style>
+<link rel="stylesheet" href="shared-nav.css"><script defer src="shared-nav.js"></script></head>
+<body>
+<a class="skip" href="#current">武器棚へ進む</a>
+<header class="topbar" data-local-nav><a class="brand" href="index.html">HUNTER BASE<small>MONSTER HUNTER PORTAL</small></a><nav class="nav" aria-label="メインナビゲーション"><a href="index.html">拠点</a><a href="history.html">狩猟歴史館</a><a href="weapons.html" aria-current="page">武器棚</a></nav></header>
+<main class="camp" id="current">
+<div class="intro"><div><p class="eyebrow">HUNTER'S WORKSHOP / FOURTEEN WEAPONS</p><h1>次の一振りを、選ぶ。</h1></div><p>使い慣れた相棒も、気になる武器も。<br>ここから狩りの手帖をひらく。</p></div>
+<div class="workshop">
+<div class="rack-bay"><div class="rack-scroll" role="region" aria-label="14武器の2段棚" tabindex="0"><section class="rack-wall" aria-labelledby="rackTitle"><h2 class="rack-title" id="rackTitle">武器棚 <small>WEAPON RACK / 14 WEAPONS</small></h2><div class="rack" id="rack">
+<button type="button" class="weapon selected" data-weapon-id="switch-axe" aria-label="スラッシュアックスを選ぶ" aria-pressed="true"><span class="ico"><span class="raster-weapon" aria-hidden="true" style="background-position:19.574176% 48.788198%"></span></span><span class="weapon-label"><span>スラッシュ</span><span>アックス</span></span></button>
+<button type="button" class="weapon" data-weapon-id="great-sword" aria-label="大剣を選ぶ" aria-pressed="false"><span class="ico"><span class="raster-weapon" aria-hidden="true" style="background-position:26.648352% 48.788198%"></span></span><span class="weapon-label"><span>大剣</span></span></button>
+<button type="button" class="weapon" data-weapon-id="long-sword" aria-label="太刀を選ぶ" aria-pressed="false"><span class="ico"><span class="raster-weapon" aria-hidden="true" style="background-position:33.791209% 48.788198%"></span></span><span class="weapon-label"><span>太刀</span></span></button>
+<button type="button" class="weapon" data-weapon-id="sword-shield" aria-label="片手剣を選ぶ" aria-pressed="false"><span class="ico"><span class="raster-weapon" aria-hidden="true" style="background-position:40.934066% 48.788198%"></span></span><span class="weapon-label"><span>片手剣</span></span></button>
+<button type="button" class="weapon" data-weapon-id="dual-blades" aria-label="双剣を選ぶ" aria-pressed="false"><span class="ico"><span class="raster-weapon" aria-hidden="true" style="background-position:47.870879% 48.788198%"></span></span><span class="weapon-label"><span>双剣</span></span></button>
+<button type="button" class="weapon" data-weapon-id="hammer" aria-label="ハンマーを選ぶ" aria-pressed="false"><span class="ico"><span class="raster-weapon" aria-hidden="true" style="background-position:54.876374% 48.788198%"></span></span><span class="weapon-label"><span>ハンマー</span></span></button>
+<button type="button" class="weapon" data-weapon-id="hunting-horn" aria-label="狩猟笛を選ぶ" aria-pressed="false"><span class="ico"><span class="raster-weapon" aria-hidden="true" style="background-position:62.087912% 48.788198%"></span></span><span class="weapon-label"><span>狩猟笛</span></span></button>
+<button type="button" class="weapon" data-weapon-id="lance" aria-label="ランスを選ぶ" aria-pressed="false"><span class="ico"><span class="raster-weapon" aria-hidden="true" style="background-position:19.574176% 62.381454%"></span></span><span class="weapon-label"><span>ランス</span></span></button>
+<button type="button" class="weapon" data-weapon-id="gunlance" aria-label="ガンランスを選ぶ" aria-pressed="false"><span class="ico"><span class="raster-weapon" aria-hidden="true" style="background-position:26.648352% 62.381454%"></span></span><span class="weapon-label"><span>ガンランス</span></span></button>
+<button type="button" class="weapon" data-weapon-id="insect-glaive" aria-label="操虫棍を選ぶ" aria-pressed="false"><span class="ico"><span class="raster-weapon" aria-hidden="true" style="background-position:33.791209% 62.381454%"></span></span><span class="weapon-label"><span>操虫棍</span></span></button>
+<button type="button" class="weapon" data-weapon-id="bow" aria-label="弓を選ぶ" aria-pressed="false"><span class="ico"><span class="raster-weapon" aria-hidden="true" style="background-position:40.934066% 62.381454%"></span></span><span class="weapon-label"><span>弓</span></span></button>
+<button type="button" class="weapon" data-weapon-id="light-bowgun" aria-label="ライトボウガンを選ぶ" aria-pressed="false"><span class="ico"><span class="raster-weapon" aria-hidden="true" style="background-position:47.870879% 62.381454%"></span></span><span class="weapon-label"><span>ライト</span><span>ボウガン</span></span></button>
+<button type="button" class="weapon" data-weapon-id="heavy-bowgun" aria-label="ヘビィボウガンを選ぶ" aria-pressed="false"><span class="ico"><span class="raster-weapon" aria-hidden="true" style="background-position:54.876374% 62.381454%"></span></span><span class="weapon-label"><span>ヘビィ</span><span>ボウガン</span></span></button>
+<button type="button" class="weapon" data-weapon-id="charge-blade" aria-label="チャージアックスを選ぶ" aria-pressed="false"><span class="ico"><span class="raster-weapon" aria-hidden="true" style="background-position:62.087912% 62.381454%"></span></span><span class="weapon-label"><span>チャージ</span><span>アックス</span></span></button>
+</div><div class="status-plaque" id="weaponStatus" role="status" aria-live="polite">CURRENT WEAPON — スラッシュアックス</div></section></div><p class="rack-instruction" id="rackInstruction">14種の武器から、次の相棒を選ぶ。<span class="narrow-hint">棚を横に送ると、すべての武器を見られます。</span><span>記録済みの手帖は、三つの綴じ目から。</span></p></div>
+<aside class="notebook" aria-labelledby="selectedName"><p class="eyebrow">狩猟手帖 / HUNTER'S NOTES</p><h2 id="selectedName">スラッシュ<br>アックス</h2><div class="en" id="selectedEnglish">SWITCH AXE</div><div class="selected-emblem" aria-hidden="true"><span class="raster-weapon" id="selectedIcon" style="background-position:19.574176% 48.788198%"></span></div><p class="notebook-copy" id="selectedCopy">剣と斧、ふたつの顔を持つ相棒。<br>今の狩りで積み重ねた手順を、手帖で確かめる。</p><a class="open" id="selectedLink" href="notebook.html#sa">狩猟手帖を開く →</a><div class="notebook-selector" role="group" aria-label="記録済みの入口"><button type="button" data-notebook="switch-axe" aria-pressed="true">スラアク</button><button type="button" data-notebook="bow" aria-pressed="false">弓</button><button type="button" data-notebook="great-sword" aria-pressed="false">大剣</button></div><a class="dictionary-entry" href="dictionary/index.html"><b>狩猟辞書 <span aria-hidden="true">→</span></b><small>知りたいこと、解放の手順、次の一手を引く。</small></a><p class="chapter-note">スラアク・弓は狩猟手帖へ。<br>大剣は狩猟辞書のタックル項目へ。</p></aside>
+</div>
+<div class="camp-bottom"><div class="field-map" id="tier"><b>武器研究 / Tier</b><p>強さの見立ては、作品と場面ごとに。<br>尺度・出典・狩りの記録を残していく。</p></div><aside class="hunting-plaque" aria-label="記録済みの狩猟状況"><h3>Hunting Log</h3><div class="active-hunter">CURRENT: ICEBORNE</div><div class="log-grid"><div class="log-row"><span>HR</span><strong>— 未記録</strong></div><div class="log-row"><span>総狩猟数</span><strong>— 未記録</strong></div><div class="log-row"><span>MAIN WEAPON</span><strong>SA</strong></div><div class="log-row"><span>LAST UPDATE</span><strong>2026.09.18</strong></div></div></aside></div>
+</main>
+<footer class="footer">HUNT. RECORD. RETURN TO CAMP.</footer>
+<script src="data/portal-data-v2.js"></script>
+<script src="data/portal-runtime-bindings-v0.1.js"></script>
+<script id="weapon-rack-destination">
+(()=>{
+ const model=window.MH_PORTAL_MODEL_V01;
+ const entries=[
+  ['switch-axe','SWITCH AXE','19.574176% 48.788198%',['スラッシュ','アックス']],
+  ['great-sword','GREAT SWORD','26.648352% 48.788198%',['大剣']],
+  ['long-sword','LONG SWORD','33.791209% 48.788198%',['太刀']],
+  ['sword-shield','SWORD & SHIELD','40.934066% 48.788198%',['片手剣']],
+  ['dual-blades','DUAL BLADES','47.870879% 48.788198%',['双剣']],
+  ['hammer','HAMMER','54.876374% 48.788198%',['ハンマー']],
+  ['hunting-horn','HUNTING HORN','62.087912% 48.788198%',['狩猟笛']],
+  ['lance','LANCE','19.574176% 62.381454%',['ランス']],
+  ['gunlance','GUNLANCE','26.648352% 62.381454%',['ガンランス']],
+  ['insect-glaive','INSECT GLAIVE','33.791209% 62.381454%',['操虫棍']],
+  ['bow','BOW','40.934066% 62.381454%',['弓']],
+  ['light-bowgun','LIGHT BOWGUN','47.870879% 62.381454%',['ライト','ボウガン']],
+  ['heavy-bowgun','HEAVY BOWGUN','54.876374% 62.381454%',['ヘビィ','ボウガン']],
+  ['charge-blade','CHARGE BLADE','62.087912% 62.381454%',['チャージ','アックス']]
+ ];
+ const destinations={
+  'switch-axe':{href:'notebook.html#sa',label:'狩猟手帖を開く →',copy:'剣と斧、ふたつの顔を持つ相棒。\n今の狩りで積み重ねた手順を、手帖で確かめる。'},
+  bow:{href:'notebook.html#bow',label:'弓の手帖を開く →',copy:'間合いと溜めを、次の一射へ。\n弓の手帖で、狩りの流れを確かめる。'},
+  'great-sword':{href:'dictionary/index.html#gs-tackle',label:'大剣を辞書でひく →',copy:'一撃に込める、その前の一手。\n狩猟辞書でタックルの項目をひく。'}
+ };
+ const rack=document.getElementById('rack');
+ const name=document.getElementById('selectedName'),english=document.getElementById('selectedEnglish'),icon=document.getElementById('selectedIcon'),copy=document.getElementById('selectedCopy'),link=document.getElementById('selectedLink'),status=document.getElementById('weaponStatus');
+ const notebookButtons=[...document.querySelectorAll('[data-notebook]')];
+ const existing=new Map([...rack.querySelectorAll('[data-weapon-id]')].map(button=>[button.dataset.weaponId,button]));
+ const buttons=entries.map(([id,en,position,lines])=>{
+  const label=model?.weaponCatalog?.[id]?.jp||lines.join('');
+  const present=existing.get(id);if(present){present.addEventListener('click',()=>select(id));return present;}
+  const button=document.createElement('button');button.type='button';button.className='weapon';button.dataset.weaponId=id;button.dataset.name=label;button.setAttribute('aria-label',label+'を選ぶ');button.setAttribute('aria-pressed','false');
+  const ico=document.createElement('span');ico.className='ico';const art=document.createElement('span');art.className='raster-weapon';art.style.backgroundPosition=position;art.setAttribute('aria-hidden','true');ico.append(art);
+  const text=document.createElement('span');text.className='weapon-label';for(const line of lines){const part=document.createElement('span');part.textContent=line;text.append(part);}button.append(ico,text);rack.append(button);button.addEventListener('click',()=>select(id));return button;
+ });
+ function select(id){
+  const item=entries.find(entry=>entry[0]===id);if(!item)return;
+  const [key,en,position,lines]=item;const label=model?.weaponCatalog?.[key]?.jp||lines.join('');
+  for(const button of buttons){const active=button.dataset.weaponId===key;button.classList.toggle('selected',active);button.setAttribute('aria-pressed',String(active));}
+  name.replaceChildren();for(const [i,line] of lines.entries()){if(i)name.append(document.createElement('br'));name.append(document.createTextNode(line));}
+  english.textContent=en;icon.style.backgroundPosition=position;status.textContent='選択中 — '+label;
+  const destination=destinations[key];copy.textContent=destination?.copy||'この武器の手帖は、まだ記録されていません。\n記録済みの入口は、下の三つから選べます。';copy.style.whiteSpace='pre-line';
+  link.hidden=!destination;if(destination){link.href=destination.href;link.textContent=destination.label;link.setAttribute('aria-label',label+'：'+destination.label.replace(' →',''));}
+  for(const button of notebookButtons)button.setAttribute('aria-pressed',String(button.dataset.notebook===key));
+ }
+ for(const button of notebookButtons)button.addEventListener('click',()=>select(button.dataset.notebook));
+ // Incoming TOP card links may use either legacy compact keys or semantic catalog IDs.
+ const aliases={greatsword:'great-sword',longsword:'long-sword',sa:'switch-axe',gs:'great-sword'};
+ const requested=new URLSearchParams(location.search).get('weapon');
+ select(aliases[requested]||requested||model?.hunterState?.currentLoadout?.mainWeaponId||'switch-axe');
+ if(!buttons.some(button=>button.classList.contains('selected')))select('switch-axe');
+})();
+</script>
+</body>
+</html>

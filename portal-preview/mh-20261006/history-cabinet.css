@@ -1,0 +1,52 @@
+/* History-only room; no shared navigation selectors or global theme rules. */
+.mh-history{display:flex;flex-direction:column;align-items:center;background:radial-gradient(ellipse at 70% 0,#333027 0,transparent 46%),linear-gradient(115deg,#0d1010,#080b0b 60%,#171711);color:#ede3ce}
+.mh-history .history-intro{width:100%;max-width:1440px;padding:36px clamp(20px,5vw,72px) 28px;background:linear-gradient(100deg,#060909,#1e2421 80%,#2e2a1d);border-bottom:1px solid #8d7753;align-items:center}
+.mh-history .history-intro h1{font-size:clamp(30px,4vw,52px);letter-spacing:.12em;margin:8px 0;color:#f0e0be}
+.mh-history .history-intro p{max-width:33em;font-size:15px;line-height:1.9}
+.mh-history .history-intro p span{font-size:12px;line-height:1.9;color:#c7b38f}
+.mh-history .mh-history-controls{width:min(100%,1300px);display:flex;align-items:end;gap:16px;padding:24px clamp(20px,4vw,54px) 16px;flex-wrap:wrap;font:13px/1.6 "Yu Gothic",sans-serif}
+.mh-history .mh-history-controls label{display:flex;flex-direction:column;gap:7px;color:#d6c7a9}
+.mh-history .mh-history-controls label:first-child{flex:1;min-width:200px}
+.mh-history .mh-history-controls input,.mh-history .mh-history-controls select,.mh-history .mh-history-controls button{font:14px/1.5 "Yu Gothic",sans-serif;color:#f4e7cb;background:#111815;border:1px solid #796747;border-radius:2px;min-height:46px;padding:10px 13px}
+.mh-history #history-shelf-status{width:100%;margin:0;color:#c9b690;font-size:12px}
+.mh-history .frame{width:min(100%,1300px);aspect-ratio:auto;overflow:visible;background:transparent;border:0;padding:0 clamp(20px,4vw,54px) 36px}
+.mh-history .archive-canvas{position:relative;aspect-ratio:auto;transform:none;width:100%;padding:0}
+.mh-history .scene{display:none}
+.mh-history #shelf{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:32px 0;padding:14px 14px 35px;background:linear-gradient(90deg,#030707bb,transparent 15%,transparent 85%,#020505cc);isolation:isolate}
+.mh-history #shelf>.hot{position:relative;left:auto!important;top:auto!important;width:auto!important;height:auto!important;min-width:0;align-self:end;display:flex;justify-content:center;padding:0 12px 16px;cursor:pointer;color:inherit}
+.mh-history #shelf>.hot[hidden]{display:none}
+.mh-history #shelf>.hot::before{content:"";position:absolute;z-index:-1;left:0;right:0;bottom:0;height:15px;background:linear-gradient(#716348 0,#a49166 2px,#22271f 4px,#10150f 9px,#080b09 100%);box-shadow:0 8px 14px #000b}
+.mh-history #shelf>.hot::after{inset:0 9px 16px;border-radius:2px;transition:none}
+.mh-history #shelf>.hot:hover::after,.mh-history #shelf>.hot:focus-visible::after{background:transparent;border-color:#dfca9366;box-shadow:0 0 0 1px #dfca9322}
+.mh-history #shelf>.hot>.tag{display:none}
+.mh-history .real-package-panel{position:relative;inset:auto;width:100%;display:flex;align-items:center;justify-content:end;padding:12px 0 0;overflow:visible;background:transparent;border:0;box-shadow:none;min-height:280px}
+.mh-history .package-pair{display:flex;align-items:end;justify-content:center;gap:12px;width:100%;min-height:215px}
+.mh-history .package-pair>.cover-crop{width:clamp(74px,10vw,130px);max-width:100%;align-self:end;overflow:hidden;border:1px solid #ada58a66;border-right:4px solid #434c47;box-shadow:2px 2px 0 #818277,4px 4px 0 #111614,0 5px 5px #000a,8px 14px 22px #0007;transform-origin:bottom center}
+.mh-history .package-pair:has(>.cover-crop:nth-child(2)){gap:8px}
+.mh-history .package-pair:has(>.cover-crop:nth-child(2))>.cover-crop{width:clamp(62px,7.4vw,94px)}
+.mh-history #shelf>.hot:nth-child(3n+1) .package-pair{transform:rotate(-1deg)}
+.mh-history #shelf>.hot:nth-child(3n+2) .package-pair{transform:rotate(.7deg)}
+.mh-history .shelf-label{flex:none;width:auto;max-width:100%;min-height:52px;padding:10px 14px 6px;margin-top:12px;font:16px/1.45 "Yu Mincho",serif;color:#eddbb6;border:1px solid #89704988;background:linear-gradient(105deg,#27251a,#080e0b);box-shadow:inset 0 1px #d6c39833,0 3px 4px #000a;overflow-wrap:anywhere}
+.mh-history .shelf-label small{font:10px/1.7 "Yu Gothic",sans-serif;letter-spacing:.05em;color:#c4b286}
+.mh-history .future-package-note{width:min(100%,150px);min-height:195px;flex:none;padding:18px 12px;border:1px solid #8e7b5055;border-right:4px solid #42473c;color:#cfbd91;background:linear-gradient(130deg,#2b3029,#101510);font:13px/1.8 "Yu Gothic",sans-serif;box-shadow:0 5px 10px #000a}
+.mh-history .package-placeholder{display:grid;place-items:center;min-height:170px;text-align:center;padding:12px;background:#141a16;color:#d3c09a;font:12px/1.8 "Yu Gothic",sans-serif}
+.mh-history .mh-history-footer{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:20px;padding:20px 0;border-top:1px solid #6d6548}
+.mh-history .mh-history-footer .hot{position:relative;left:auto;top:auto;width:auto;height:auto;min-height:48px;padding:12px 16px;border:1px solid #726846;background:linear-gradient(135deg,#282a21,#0a100d);color:#e1cca2;font:13px/1.6 "Yu Gothic",sans-serif;text-decoration:none;border-radius:2px}
+.mh-history .mh-history-footer .psp{margin-right:auto;background:linear-gradient(110deg,#303327,#181d16);border-radius:4px}
+.mh-history .mh-history-footer .hot::after,.mh-history .mh-history-footer .tag{display:none}
+.mh-history .drawer{position:fixed;z-index:30;left:auto;right:24px;top:100px;bottom:auto;width:min(500px,calc(100vw - 48px));max-height:calc(100dvh - 124px);padding:30px 26px;background:linear-gradient(135deg,#283027f7,#080e0bf7);border:1px solid #b69b65;box-shadow:0 20px 60px #000e;display:none;opacity:1;transform:none;pointer-events:auto}
+.mh-history .drawer.on{display:block}
+.mh-history .drawer h2{font-size:clamp(24px,3vw,34px);margin:10px 36px 10px 0;line-height:1.3}
+.mh-history .drawer small,.mh-history .drawer .year,.mh-history .drawer em{font-size:12px;line-height:1.8}
+.mh-history .drawer p{font-size:17px;line-height:1.9}
+.mh-history .drawer .x{width:44px;height:44px;right:8px;top:8px;font-size:25px;border:1px solid #6f654d}
+.mh-history .package-detail{gap:18px;margin-top:20px}
+.mh-history .package-detail figure{width:calc(50% - 9px);max-width:200px}
+.mh-history .package-detail figure .cover-crop{width:100%;border:1px solid #7d7d6f}
+.mh-history .package-detail figcaption{font:12px/1.8 "Yu Gothic",sans-serif;color:#d9c8a5}
+.mh-history .detail-permalink{display:inline-block;color:#ecd5a5;font:13px/1.7 "Yu Gothic",sans-serif;margin-top:20px;min-height:44px;padding:10px 0;text-underline-offset:4px}
+.mh-history .archive-dialog{z-index:40;background:linear-gradient(135deg,#283027,#080e0b)}
+.mh-history :focus-visible{outline:2px solid #e6ca86;outline-offset:3px}
+@media(max-width:1000px) and (min-width:701px){.mh-history #shelf{grid-template-columns:repeat(3,minmax(0,1fr))}.mh-history .package-pair>.cover-crop{width:115px}.mh-history .package-pair:has(>.cover-crop:nth-child(2))>.cover-crop{width:82px}}
+@media(max-width:700px){.mh-history .history-intro{display:block;padding:25px 22px 18px}.mh-history .history-intro p{margin-top:10px;font-size:14px}.mh-history .mh-history-controls{padding:20px 22px 14px;gap:12px}.mh-history .mh-history-controls label:first-child{flex-basis:100%}.mh-history .frame{padding:0 18px 24px}.mh-history #shelf{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:220px;gap:0;overflow-x:auto;overscroll-behavior-inline:contain;scroll-snap-type:x proximity;padding:14px 4px 26px;scrollbar-color:#9f895b #101810}.mh-history #shelf>.hot{scroll-snap-align:start}.mh-history .package-pair>.cover-crop{width:124px}.mh-history .package-pair:has(>.cover-crop:nth-child(2))>.cover-crop{width:85px}.mh-history .shelf-label{font-size:17px}.mh-history .drawer{right:12px;left:12px;top:84px;width:auto;max-height:calc(100dvh - 100px);padding:24px 20px}.mh-history .drawer p{font-size:16px}.mh-history .mh-history-footer{align-items:stretch}.mh-history .mh-history-footer .hot{flex:1 1 130px;text-align:center}.mh-history .mh-history-footer .psp{flex-basis:100%}}
+@media(prefers-reduced-motion:reduce){.mh-history *{transition:none!important;scroll-behavior:auto!important}}
