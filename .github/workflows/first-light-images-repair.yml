@@ -1,0 +1,176 @@
+name: First Light image delivery repair
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/first-light-images-repair.yml']
+permissions:
+  contents: write
+concurrency:
+  group: first-light-image-repair
+  cancel-in-progress: false
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install image validation and browser tools
+        run: |
+          python -m pip install --disable-pip-version-check Pillow playwright
+          python -m playwright install --with-deps chromium webkit
+      - name: Download and validate the two credited hotel images
+        run: |
+          python - <<'PY'
+          import io, json, re, hashlib, urllib.request
+          from pathlib import Path
+          from PIL import Image, ImageOps
+          root = Path('first-light-2027')
+          assets = root / 'assets'
+          assets.mkdir(exist_ok=True)
+          records = []
+          sources = [
+            ('https://s3-ap-northeast-1.amazonaws.com/img.p-kit.com/uoman/1603347524064827800.jpg', 'uoman-exterior-v2.jpg', 'https://uoman.net/', '民宿 魚萬 外観'),
+            ('https://www.resolstay.jp/uploads/villa/img2308151030333.jpg', 'villa-living-v2.jpg', 'https://www.resolstay.jp/details/miurakaigan/', 'オーシャンフロント三浦海岸 リビング'),
+          ]
+          html_path = root / 'index.html'
+          html = html_path.read_text(encoding='utf-8')
+          for url, filename, source, title in sources:
+            request = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0', 'Referer': source})
+            with urllib.request.urlopen(request, timeout=40) as response:
+              assert response.status == 200
+              raw = response.read(10_000_001)
+              assert len(raw) <= 10_000_000
+            image = Image.open(io.BytesIO(raw))
+            image.load()
+            assert image.format in ('JPEG', 'PNG', 'WEBP')
+            assert min(image.size) >= 400
+            image = ImageOps.exif_transpose(image).convert('RGB')
+            image.thumbnail((1000, 1000), Image.Resampling.LANCZOS)
+            target = assets / filename
+            image.save(target, 'JPEG', quality=83, optimize=True, progressive=True)
+            local = 'assets/' + filename
+            assert f'src="{url}"' in html or f'src="{local}"' in html, 'Unexpected source changes; stop rather than overwrite.'
+            html = html.replace(f'src="{url}"', f'src="{local}"')
+            records.append({'file': local, 'source_image': url, 'source_page': source, 'caption': title, 'size': list(image.size), 'bytes': target.stat().st_size, 'sha256': hashlib.sha256(target.read_bytes()).hexdigest(), 'note': 'Official hotel reference photo, reduced for the existing noncommercial comparison; attribution remains next to each image. Rights remain with the original rights holder.'})
+          # Two images only: avoid lazy-loading compatibility issues in in-app browsers.
+          html = html.replace('loading="lazy" onerror="this.parentElement.classList.add(\'failed\')"', 'loading="eager" decoding="async" onload="this.parentElement.classList.remove(\'failed\')" onerror="this.parentElement.classList.add(\'failed\')"')
+          version = '<meta name="first-light-image-version" content="2">'
+          if version not in html:
+            html = html.replace('<meta charset="utf-8">', '<meta charset="utf-8">' + version, 1)
+          public = 'https://osakenpiro.github.io/shuryo-techo/first-light-2027/'
+          html = html.replace("const SHARE_URL='" + public + "';", "const SHARE_URL='" + public + "?v=2';")
+          if 'property="og:image"' not in html:
+            tags = '<meta property="og:image" content="' + public + 'assets/share-preview-v2.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="年越し、海のそばで。釣りと初日の出のお泊まり会のイメージ"><meta name="twitter:card" content="summary_large_image">'
+            html = html.replace('</head>', tags + '</head>', 1)
+          html_path.write_text(html, encoding='utf-8')
+          (assets / 'photo-sources.json').write_text(json.dumps(records, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          out = Path('.first-light-repair-artifacts')
+          out.mkdir(exist_ok=True)
+          (out / 'image-assets.json').write_text(json.dumps(records, ensure_ascii=False, indent=2), encoding='utf-8')
+          print(json.dumps(records, ensure_ascii=False, indent=2))
+          PY
+      - name: Verify local Chromium and mobile WebKit with third-party requests blocked
+        run: |
+          cat > /tmp/first_light_check.py <<'PY'
+          import json, sys, time, urllib.request
+          from pathlib import Path
+          from urllib.parse import urlparse
+          from playwright.sync_api import sync_playwright
+          public = 'https://osakenpiro.github.io/shuryo-techo/first-light-2027/'
+          live = len(sys.argv) > 1 and sys.argv[1] == 'live'
+          base = public + '?v=2&imagecheck=2' if live else 'http://127.0.0.1:8765/first-light-2027/'
+          out = Path('.first-light-repair-artifacts')
+          out.mkdir(exist_ok=True)
+          if live:
+            ready = False
+            for n in range(48):
+              try:
+                request = urllib.request.Request(public + '?v=2&check=' + str(time.time_ns()), headers={'Cache-Control': 'no-cache', 'User-Agent': 'FirstLightImageQA/2'})
+                with urllib.request.urlopen(request, timeout=15) as response:
+                  text = response.read().decode()
+                if 'name="first-light-image-version" content="2"' in text:
+                  ready = True
+                  break
+              except Exception as exc:
+                print('Waiting for Pages:', type(exc).__name__, flush=True)
+              time.sleep(10)
+            assert ready, 'The version-2 page has not reached public Pages yet.'
+          reports = []
+          with sync_playwright() as p:
+            variants = [('desktop-chromium', p.chromium, {'viewport': {'width': 1440, 'height': 1000}}), ('mobile-chromium', p.chromium, {'viewport': {'width': 390, 'height': 844}, 'is_mobile': True, 'has_touch': True, 'device_scale_factor': 1}), ('mobile-webkit', p.webkit, {'viewport': {'width': 390, 'height': 844}, 'is_mobile': True, 'has_touch': True, 'device_scale_factor': 1})]
+            for label, engine, settings in variants:
+              browser = engine.launch()
+              context = browser.new_context(**settings)
+              origin = urlparse(base).netloc
+              context.route('**/*', lambda route: route.continue_() if urlparse(route.request.url).netloc == origin else route.abort())
+              page = context.new_page()
+              errors = []
+              page.on('pageerror', lambda error: errors.append(str(error)))
+              response = page.goto(base, wait_until='networkidle', timeout=45000)
+              assert response and response.status == 200
+              page.locator('#stays').scroll_into_view_if_needed()
+              page.wait_for_function('Array.from(document.images).length === 2 && Array.from(document.images).every(i => i.complete && i.naturalWidth > 0)', timeout=20000)
+              image_status = page.locator('img').evaluate_all('(imgs) => imgs.map(i => ({src:i.currentSrc, loaded:i.complete && i.naturalWidth>0, width:i.naturalWidth, height:i.naturalHeight, visible:getComputedStyle(i).display!=="none" && i.getBoundingClientRect().height>0, failed:i.parentElement.classList.contains("failed")}))')
+              assert all(i['loaded'] and i['visible'] and not i['failed'] for i in image_status)
+              assert all(urlparse(i['src']).netloc == origin for i in image_status)
+              assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth + 1'), 'Horizontal overflow'
+              assert not errors, errors
+              page.locator('[data-choice="民宿 魚萬"]').click()
+              assert page.locator('#staypick').input_value() == '民宿 魚萬'
+              assert '民宿 魚萬' in page.locator('#invitetext').input_value()
+              page.locator('#stays').scroll_into_view_if_needed()
+              page.screenshot(path=str(out / (('live-' if live else 'local-') + label + '.png')), full_page=True)
+              if not live and label == 'desktop-chromium':
+                page.set_viewport_size({'width': 1200, 'height': 900})
+                page.locator('.hero').screenshot(path='first-light-2027/assets/share-preview-v2.png')
+              reports.append({'view': label, 'url': base, 'http_status': response.status, 'third_party_network': 'blocked', 'images': image_status, 'horizontal_overflow': False, 'javascript_errors': errors, 'selection_test': 'PASS'})
+              context.close()
+              browser.close()
+          report_path = out / ('live-image-check.json' if live else 'local-image-check.json')
+          report_path.write_text(json.dumps(reports, ensure_ascii=False, indent=2), encoding='utf-8')
+          print(json.dumps(reports, ensure_ascii=False, indent=2), flush=True)
+          PY
+          python -m http.server 8765 --bind 127.0.0.1 >/tmp/first-light-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID' EXIT
+          python /tmp/first_light_check.py
+          python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          p = Path('first-light-2027/assets/share-preview-v2.png')
+          im = Image.open(p).convert('RGB')
+          if im.size != (1200, 630):
+            from PIL import ImageOps
+            im = ImageOps.fit(im, (1200, 630))
+          im.save(p, optimize=True)
+          PY
+      - name: Commit only the First Light image fix
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- first-light-2027/index.html first-light-2027/assets/uoman-exterior-v2.jpg first-light-2027/assets/villa-living-v2.jpg first-light-2027/assets/share-preview-v2.png first-light-2027/assets/photo-sources.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Fix First Light hotel photos with same-origin assets and eager decoding'
+            git push origin HEAD:main
+          fi
+          git rev-parse HEAD | tee .first-light-repair-artifacts/repair-commit.txt
+      - name: Await Pages rebuild and verify the actual public URL
+        run: python /tmp/first_light_check.py live
+      - name: Collect review evidence
+        if: always()
+        run: |
+          cp first-light-2027/index.html .first-light-repair-artifacts/index.html
+          cp -r first-light-2027/assets .first-light-repair-artifacts/assets
+      - name: Upload screenshots, assets and test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: first-light-image-repair-evidence
+          path: .first-light-repair-artifacts/
+          retention-days: 7
