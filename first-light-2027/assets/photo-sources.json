@@ -1,0 +1,28 @@
+[
+  {
+    "file": "assets/uoman-exterior-v2.jpg",
+    "source_image": "https://s3-ap-northeast-1.amazonaws.com/img.p-kit.com/uoman/1603347524064827800.jpg",
+    "source_page": "https://uoman.net/",
+    "caption": "民宿 魚萬 外観",
+    "size": [
+      1000,
+      664
+    ],
+    "bytes": 108379,
+    "sha256": "d3ee36afd8bcb597133791c60e9804fb44e4f24ba564793cf4579a789fa63080",
+    "note": "Official hotel reference photo, reduced for the existing noncommercial comparison; attribution remains next to each image. Rights remain with the original rights holder."
+  },
+  {
+    "file": "assets/villa-living-v2.jpg",
+    "source_image": "https://www.resolstay.jp/uploads/villa/img2308151030333.jpg",
+    "source_page": "https://www.resolstay.jp/details/miurakaigan/",
+    "caption": "オーシャンフロント三浦海岸 リビング",
+    "size": [
+      1000,
+      750
+    ],
+    "bytes": 127156,
+    "sha256": "3c5dfddc8f45913dfe5cec72d1ce1815823c311664a5b7c88f550b761729c4a5",
+    "note": "Official hotel reference photo, reduced for the existing noncommercial comparison; attribution remains next to each image. Rights remain with the original rights holder."
+  }
+]
