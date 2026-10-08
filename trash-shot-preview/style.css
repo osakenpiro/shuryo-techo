@@ -7,3 +7,18 @@
 @media(prefers-reduced-motion:reduce){.throw-button{transition:none}}
 @media(max-width:670px){.intro{display:block;position:relative;padding-bottom:26px}.intro h1{white-space:nowrap;font-size:32px;margin-bottom:12px}.intro .tally{position:absolute;right:0;bottom:27px;margin:0}.intro-copy{max-width:185px}.scene-card{position:sticky;top:8px;z-index:2;box-shadow:0 5px 17px rgba(67,83,45,.06)}}
 @media(max-width:350px){.intro h1{font-size:29px}.intro-copy{max-width:177px}.intro .tally{bottom:27px}}
+
+/* A short viewport must leave room for the control beneath the sticky scene.
+   The focus scroll offset keeps browser-native range/select inputs uncovered. */
+@media(max-width:670px){
+  .game-shell{--scene-height:min(285px,42svh)}
+  #scene{height:var(--scene-height)}
+  .control-card input,.control-card select,.control-card button{scroll-margin-top:calc(var(--scene-height) + 80px)}
+}
+@media(max-width:350px){.game-shell{--scene-height:min(260px,42svh)}}
+@media(min-width:671px) and (max-height:500px){
+  .scene-card{position:sticky;top:8px;align-self:start;min-height:0}
+  #scene{flex:none;height:min(320px,calc(100svh - 150px));min-height:0}
+  .scene-meta{padding-top:14px}
+  .scene-bottom{padding-bottom:14px}
+}
