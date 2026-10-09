@@ -47,6 +47,21 @@
         <button id="reset-button" class="reset-button" type="button" disabled>構え直す <span aria-hidden="true">↺</span></button>
       </section>
     </div>
+    <section class="memory-card" aria-labelledby="memory-title">
+      <h2 id="memory-title">どう入った？</h2>
+      <p class="memory-copy">投げた数・入った数は、このプレイの記録。成功した一投の入り方を、もう一度。</p>
+      <div id="shot-result" hidden><strong id="shot-roles"></strong><p id="shot-role-detail"></p><div class="memory-actions"><button id="replay-last" type="button">リプレイを見る</button><button id="save-replay" type="button">この一投を保存</button><button id="share-replay" type="button">共有する</button><button id="download-replay" type="button">リプレイをファイルで保存</button></div></div>
+      <p id="replay-message" role="status" aria-live="polite"></p>
+      <div id="share-controls" hidden><label for="share-link">この一投を開くリンク</label><input id="share-link" type="text" readonly><button id="copy-replay-link" type="button">リンクをコピー</button></div>
+      <div class="saved-heading"><h3>保存した一投</h3><span>このブラウザに5投まで</span></div>
+      <ol id="saved-replays"></ol><p id="saved-empty">保存した成功ショットが、ここに並びます。</p>
+      <label class="replay-import" for="replay-file">リプレイのファイルを開く<input id="replay-file" type="file" accept="application/json,.json"></label>
+    </section>
+    <dialog id="replay-dialog" aria-labelledby="replay-title">
+      <header class="replay-header"><div><h2 id="replay-title">成功した一投</h2><p id="replay-source"></p></div><button id="replay-close" type="button" aria-label="リプレイを閉じる">閉じる ×</button></header>
+      <div class="replay-canvas-wrap"><canvas id="replay-scene" tabindex="0" aria-label="成功した一投のリプレイ。ドラッグまたは矢印キーで見回し、ホイールでズーム。"></canvas></div>
+      <div class="replay-body"><p id="replay-role-title"></p><div class="memory-actions"><button id="replay-play" type="button">一時停止</button><button id="replay-restart" type="button">最初から</button><button id="replay-camera-reset" type="button">視点を戻す</button></div><label class="replay-timeline" for="replay-seek"><span id="replay-time">0.00 秒</span><input id="replay-seek" type="range" min="0" max="5" step="any" value="0" aria-label="リプレイの再生位置"></label><p class="memory-copy">ドラッグで見回し、ホイールでズーム。元の投球や記録は変わりません。</p><div class="memory-actions"><button id="save-viewed-replay" type="button">この一投を保存</button><button id="share-viewed-replay" type="button">共有する</button><button id="download-viewed-replay" type="button">リプレイのファイル</button><button id="record-replay-video" type="button">動画にする</button><button id="save-replay-video" type="button" disabled>動画を保存</button><button id="share-replay-video" type="button" disabled>動画を共有</button></div><div id="replay-share-controls" hidden><label for="replay-share-link">この一投を開くリンク</label><input id="replay-share-link" type="text" readonly><button id="copy-viewed-replay-link" type="button">リンクをコピー</button></div><p id="replay-view-message" role="status" aria-live="polite"></p></div>
+    </dialog>
     <footer class="page-footer"><span>小さなひと投げを、何度でも。</span><span>ごみシュート / FIRST THROW</span></footer>
   </main>
 </body>

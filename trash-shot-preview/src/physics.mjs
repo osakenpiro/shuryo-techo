@@ -7,6 +7,50 @@ const CAN_RADIUS = 0.14;
 const BIN_RADIUS = 0.7;
 const EPSILON = 1e-7;
 const ACTIVE = new Set(['flying', 'settling']);
+// Observers stay outside the simulation state and never receive live references.
+const OBSERVERS = new WeakMap();
+
+function freezeTree(value) {
+  for (const child of Object.values(value)) {
+    if (child && typeof child === 'object') freezeTree(child);
+  }
+  return Object.freeze(value);
+}
+
+function notify(game, type, detail = {}) {
+  const callbacks = OBSERVERS.get(game);
+  if (!callbacks?.size) return;
+  const event = freezeTree({
+    type, time: game.time, shotId: game.attempts, phase: game.phase,
+    can: {
+      position: { ...game.can.position }, velocity: { ...game.can.velocity },
+      radius: game.can.radius,
+    },
+    bin: { center: { ...game.bin.center }, radius: game.bin.radius, height: game.bin.height },
+    attempts: game.attempts, successes: game.successes,
+    ...detail,
+  });
+  for (const subscription of [...callbacks]) {
+    try { subscription.callback(event); } catch { /* Observation cannot abort a simulation step. */ }
+  }
+}
+
+export function observeGame(game, callback) {
+  if (!game || typeof game !== 'object' || typeof callback !== 'function') {
+    throw new TypeError('observeGame requires a game and callback');
+  }
+  let callbacks = OBSERVERS.get(game);
+  if (!callbacks) {
+    callbacks = new Set();
+    OBSERVERS.set(game, callbacks);
+  }
+  const subscription = { callback };
+  callbacks.add(subscription);
+  return () => {
+    callbacks.delete(subscription);
+    if (callbacks.size === 0 && OBSERVERS.get(game) === callbacks) OBSERVERS.delete(game);
+  };
+}
 
 function options(value) {
   return value && typeof value === 'object' ? value : {};
@@ -47,13 +91,14 @@ function freshCan() {
   };
 }
 
-function clearShot(game) {
+function clearShot(game, reason) {
   game.phase = 'ready';
   game.time = 0;
   game.can = freshCan();
   game.lastEvent = null;
   game.events = [];
   game.trail = [{ ...game.can.position }];
+  notify(game, 'shot-reset', { reason });
   return game;
 }
 
@@ -90,32 +135,34 @@ export function setSetup(game, input = {}) {
   const distance = bounded(value.distance, game.bin.center.z, 3, 10);
   const height = bounded(value.height, game.bin.height, 0.5, 2.5);
   game.bin = { center: { x: 0, y: height / 2, z: distance }, radius: BIN_RADIUS, height };
-  return clearShot(game);
+  return clearShot(game, 'setup');
 }
 
 export function resetShot(game) {
   if (ACTIVE.has(game.phase)) return false;
-  clearShot(game);
+  clearShot(game, 'reset');
   return true;
 }
 
 export function throwCan(game, input = {}) {
   if (ACTIVE.has(game.phase)) return false;
-  clearShot(game);
+  clearShot(game, 'next-shot');
   game.can.velocity = initialVelocity(input);
   game.phase = 'flying';
   game.attempts += 1;
   record(game, 'thrown');
+  notify(game, 'shot-start');
   return true;
 }
 
 function reflect(velocity, normal, restitution) {
   const dot = velocity.x * normal.x + velocity.y * normal.y + velocity.z * normal.z;
-  if (dot >= 0) return;
+  if (dot >= 0) return null;
   const impulse = (1 + restitution) * dot;
   velocity.x -= impulse * normal.x;
   velocity.y -= impulse * normal.y;
   velocity.z -= impulse * normal.z;
+  return dot;
 }
 
 function collideWall(game) {
@@ -143,7 +190,16 @@ function collideWall(game) {
   position.x += normal.x * penetration;
   position.y += normal.y * penetration;
   position.z += normal.z * penetration;
-  reflect(velocity, normal, 0.28);
+  const normalSpeed = reflect(velocity, normal, 0.28);
+  if (normalSpeed !== null) {
+    notify(game, 'wall-impact', {
+      surface: wallY === bin.height ? 'rim' : 'side',
+      region: radial < bin.radius ? 'inside' : 'outside',
+      route: game.phase === 'settling' ? 'inside' : 'outside',
+      incomingNormalSpeed: -normalSpeed,
+      normal: { ...normal },
+    });
+  }
   record(game, wallY === bin.height ? 'rim-hit' : 'side-hit');
 }
 
@@ -152,16 +208,27 @@ function finish(game, success) {
   game.can.velocity = { x: 0, y: 0, z: 0 };
   if (success) game.successes += 1;
   record(game, success ? 'success' : 'miss');
+  notify(game, 'result', { success });
 }
 
 function collideFloor(game, dt) {
   const { position, velocity, radius } = game.can;
   if (position.y > radius) return;
   position.y = radius;
+  const incomingVerticalSpeed = velocity.y;
+  // This describes the physical surface, not the stricter aperture/success test.
+  const region = radialDistance(position, game.bin) < game.bin.radius
+    ? 'inside' : 'outside';
+  const floorDetail = {
+    surface: region === 'inside' ? 'bin-bottom' : 'ground', region,
+    route: game.phase === 'settling' ? 'inside' : 'outside',
+    incomingVerticalSpeed,
+  };
   if (velocity.y < -0.55) {
     velocity.y = -velocity.y * 0.2;
     velocity.x *= 0.65;
     velocity.z *= 0.65;
+    notify(game, 'floor-impact', floorDetail);
   } else {
     velocity.y = 0;
     // Coulomb-like floor friction while the sphere is grounded.
@@ -171,6 +238,9 @@ function collideFloor(game, dt) {
       velocity.x *= remaining / horizontal;
       velocity.z *= remaining / horizontal;
     }
+    notify(game, 'floor-contact', {
+      ...floorDetail, kind: horizontal > 0 ? 'sliding' : 'resting',
+    });
   }
   if (Math.hypot(velocity.x, velocity.z) < 0.12 && velocity.y === 0) {
     const inside = radialDistance(position, game.bin) <= game.bin.radius - radius - EPSILON;
@@ -202,12 +272,14 @@ function advance(game, dt) {
       if (radialDistance(crossing, game.bin) < game.bin.radius - radius - EPSILON) {
         game.phase = 'settling';
         record(game, 'entered');
+        notify(game, 'entered');
         break;
       }
     }
   } else if (game.phase === 'settling' && previous.y <= entryPlane && position.y > entryPlane) {
     game.phase = 'flying';
     record(game, 'exited');
+    notify(game, 'exited');
   }
 
   collideWall(game);

@@ -1,11 +1,15 @@
-import { createGame, setSetup, throwCan, resetShot, stepGame, getSnapshot } from './physics.mjs';
+import { createGame, setSetup, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs';
 import { createRenderer } from './render.mjs';
+import { createShotAnalytics } from './shot-analytics.mjs';
+import { createRecorder, createReplayPlayer, validateReplay, loadReplays, saveReplay, deleteReplay, buildReplayURL, decodeReplay, replayToJSON, parseReplayJSON } from './replay.mjs';
 
 const $=id=>document.getElementById(id);
 const canvas=$('scene');
 const game=createGame({distance:6,height:1.3});
 const controls={power:7.8,elevation:48,yaw:0};
 const renderer=createRenderer(canvas);
+const analytics=createShotAnalytics();
+observeGame(game,event=>analytics.observe(event));
 const inputs=['power','elevation','yaw','distance','height'].map($);
 const pointers=new Set();
 const view={mode:'throw',prediction:false,gesture:null};
@@ -86,15 +90,15 @@ $('camera-in').addEventListener('click',()=>cameraAction(()=>renderer.zoom(.88))
 $('camera-out').addEventListener('click',()=>cameraAction(()=>renderer.zoom(1.14)));
 $('prediction-toggle').addEventListener('change',()=>{cancelGesture('prediction-change');view.prediction=$('prediction-toggle').checked;});
 for(const id of ['power','elevation','yaw'])$(id).addEventListener('input',()=>{const value=Number($(id).value);cancelGesture('numeric-change');controls[id]=value;updateControlLabels();updateHint();});
-for(const id of ['distance','height'])$(id).addEventListener('change',()=>{cancelGesture('setup-change');setSetup(game,{distance:Number($('distance').value),height:Number($('height').value)});updateUI(true);});
+for(const id of ['distance','height'])$(id).addEventListener('change',()=>{cancelGesture('setup-change');clearCurrentShot();setSetup(game,{distance:Number($('distance').value),height:Number($('height').value)});updateUI(true);});
 function fire(source='numeric'){
   cancelGesture('other-throw');
   const accepted=throwCan(game,controls);
-  if(accepted){lastInput={type:'throw',source,parameters:{...controls}};previousTime=performance.now();updateUI(true);if(source!=='gesture')canvas.scrollIntoView({block:'center',behavior:'instant'});}
+  if(accepted){clearCurrentShot();shotRecorder=createRecorder(getSnapshot(game),controls,renderer.cameraSnapshot());lastInput={type:'throw',source,parameters:{...controls}};previousTime=performance.now();updateUI(true);if(source!=='gesture')canvas.scrollIntoView({block:'center',behavior:'instant'});}
   return accepted;
 }
 $('throw-button').addEventListener('click',()=>fire());
-$('reset-button').addEventListener('click',()=>{cancelGesture('reset');if(resetShot(game))updateUI(true);});
+$('reset-button').addEventListener('click',()=>{cancelGesture('reset');if(resetShot(game)){clearCurrentShot();updateUI(true);}});
 function inside(event,rect){return event.clientX>=rect.left&&event.clientX<=rect.right&&event.clientY>=rect.top&&event.clientY<=rect.bottom;}
 function sameLayout(gesture){const rect=canvas.getBoundingClientRect();return gesture.viewport.width===innerWidth&&gesture.viewport.height===innerHeight&&rect.width===gesture.rect.width&&rect.height===gesture.rect.height&&rect.left===gesture.rect.left&&rect.top===gesture.rect.top;}
 function gestureAim(gesture,event){
@@ -175,6 +179,7 @@ canvas.addEventListener('wheel',event=>{
   updateControlLabels(view.gesture?.aim);updateHint();
 },{passive:false});
 document.addEventListener('keydown',event=>{
+  if($('replay-dialog').open)return;
   if(event.code==='Escape'){cancelGesture('escape');return;}
   if(event.repeat||event.altKey||event.ctrlKey||event.metaKey)return;
   if(event.target===canvas){
@@ -190,12 +195,160 @@ function resize(){if(renderer.resize())cancelGesture('resize');}
 const resizeObserver=new ResizeObserver(resize);resizeObserver.observe(canvas);
 window.addEventListener('resize',()=>{cancelGesture('resize');renderer.resize();});
 window.addEventListener('blur',()=>{cancelGesture('blur');pointers.clear();});
-document.addEventListener('visibilitychange',()=>{cancelGesture('visibility-change');pointers.clear();previousTime=performance.now();});
-window.__trashShot={game,controls,snapshot:()=>getSnapshot(game),cameraSnapshot:()=>renderer.cameraSnapshot(),inputSnapshot:()=>({mode:view.mode,prediction:view.prediction,activeGesture:view.gesture?.kind||null,activePointers:pointers.size,cancellations,lastInput:lastInput?structuredClone(lastInput):null})};
+document.addEventListener('visibilitychange',()=>{cancelGesture('visibility-change');pointers.clear();previousTime=performance.now();if(document.hidden&&videoState){stopVideo(true);replayMessage('画面を離れたため動画の作成を取り消しました。',true,'VIDEO_CANCELLED');}});
+
+// Replays are detached recorded poses, rendered on their own canvas. They never
+// call throwCan or stepGame and never alter the live play record.
+let shotRecorder=null,lastReplay=null,savedReplays=[],viewedReplay=null,replayPlayer=null,replayTime=0,replayPlaying=false,replaySource='',replayDrag=null,videoState=null,videoBlob=null,videoName='';
+const replayDialog=$('replay-dialog'),replayCanvas=$('replay-scene'),replayRenderer=createRenderer(replayCanvas),linkCache=new Map();
+function replayMessage(text,viewer=false,code=''){
+  const element=$(viewer?'replay-view-message':'replay-message');element.textContent=text;element.dataset.errorCode=code;
+}
+function roleText(replay){return replay.result.roles.map(role=>role.label).join(' · ');}
+function clearCurrentShot(){shotRecorder=null;lastReplay=null;$('shot-result').hidden=true;$('shot-roles').textContent='';$('shot-role-detail').textContent='';$('share-controls').hidden=true;$('share-link').value='';replayMessage('');}
+function captureShot(){
+  if(!shotRecorder)return;
+  try{
+    const snapshot=getSnapshot(game);shotRecorder.record(snapshot);
+    if(snapshot.phase!=='success'&&snapshot.phase!=='miss')return;
+    const result=analytics.snapshot().result;lastReplay=shotRecorder.finish(snapshot,result||{});shotRecorder=null;
+    if(!lastReplay)return;
+    $('shot-roles').textContent=roleText(lastReplay);
+    $('shot-role-detail').textContent=`最後に入るまでの跳ね返り。外の床 ${lastReplay.result.floorBounces} 回 · ふち ${lastReplay.result.rimHits} 回 · 側面 ${lastReplay.result.sideHits} 回。箱の底での反発は床の回数に含めません。`;
+    $('shot-result').hidden=false;prepareReplayLink(lastReplay);
+  }catch(error){shotRecorder=null;replayMessage('この一投のリプレイを作成できませんでした。',false,error.code||'RECORD_FAILED');}
+}
+function storage(){try{return window.localStorage;}catch{return null;}}
+function refreshSaved(){
+  const result=loadReplays(storage());savedReplays=result.replays;renderSaved();
+  if(!result.ok)replayMessage('このブラウザの保存したリプレイを読み込めませんでした。',false,result.error?.code||'STORAGE_UNAVAILABLE');
+  else if(result.discarded)replayMessage('開けない保存記録を除いて読み込みました。');
+}
+function renderSaved(){
+  $('saved-replays').replaceChildren();$('saved-empty').hidden=savedReplays.length>0;
+  for(const replay of savedReplays){
+    const row=document.createElement('li'),label=document.createElement('span'),play=document.createElement('button'),remove=document.createElement('button');
+    label.textContent=`${roleText(replay)} · ${replay.duration.toFixed(2)} 秒`;play.textContent='再生';remove.textContent='削除';play.type=remove.type='button';play.dataset.replayId=remove.dataset.replayId=replay.id;
+    play.addEventListener('click',()=>openReplay(replay,'saved'));
+    remove.addEventListener('click',()=>{const result=deleteReplay(storage(),replay.id);if(result.ok){savedReplays=result.replays;renderSaved();replayMessage('保存記録を削除しました。');}else replayMessage('保存記録を削除できませんでした。',false,result.error?.code||'STORAGE_FAILED');});
+    row.append(label,play,remove);$('saved-replays').append(row);
+  }
+}
+function persistReplay(replay,viewer=false){
+  if(!replay)return;
+  const result=saveReplay(storage(),replay);
+  if(result.ok){savedReplays=result.replays;renderSaved();replayMessage('このブラウザに保存しました。再読み込み後も再生できます。',viewer);}
+  else replayMessage('保存できませんでした。ファイルで保存できます。',viewer,result.error?.code||'STORAGE_FAILED');
+}
+function downloadBlob(blob,name){const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=name;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);}
+function downloadReplay(replay,viewer=false){
+  if(!replay)return;
+  try{downloadBlob(new Blob([replayToJSON(replay)],{type:'application/json'}),`trash-shot-${replay.id}.json`);replayMessage('リプレイのファイルを用意しました。ダウンロード先で保存を確認してください。',viewer);}catch(error){replayMessage('リプレイのファイルを作成できませんでした。',viewer,error.code||'DOWNLOAD_FAILED');}
+}
+function prepareReplayLink(replay){
+  if(!linkCache.has(replay.id)){
+    const promise=buildReplayURL(replay,location.href).then(url=>({url}),error=>({error}));linkCache.set(replay.id,promise);
+    if(linkCache.size>8)linkCache.delete(linkCache.keys().next().value);
+  }
+  return linkCache.get(replay.id);
+}
+async function copyLink(url,viewer=false){
+  try{if(!navigator.clipboard?.writeText)throw new Error('unsupported');await navigator.clipboard.writeText(url);replayMessage('リプレイのリンクをコピーしました。',viewer);}
+  catch{replayMessage('リンクをコピーできませんでした。表示したリンクを選んでコピーできます。',viewer,'CLIPBOARD_UNAVAILABLE');}
+}
+async function shareReplay(replay,viewer=false){
+  if(!replay)return;
+  const result=await prepareReplayLink(replay);
+  if(result.error){replayMessage(result.error.code==='SHARE_TOO_LARGE'?'この一投のリンクは長すぎます。リプレイのファイルで共有できます。':'このブラウザでは共有リンクを作れません。リプレイのファイルを使えます。',viewer,result.error.code);return;}
+  $('share-controls').hidden=false;$('share-link').value=result.url;
+  if(viewer){$('replay-share-controls').hidden=false;$('replay-share-link').value=result.url;}
+  if(navigator.share){
+    try{await navigator.share({title:'ごみシュートの成功リプレイ',text:roleText(replay),url:result.url});replayMessage('共有先にリンクを渡しました。投稿の完了は共有先で確認してください。',viewer);}
+    catch(error){replayMessage(error.name==='AbortError'?'共有を取り消しました。リンクやファイルも使えます。':'共有先を開けませんでした。リンクやファイルも使えます。',viewer,error.name==='AbortError'?'SHARE_CANCELLED':'SHARE_FAILED');}
+  }else await copyLink(result.url,viewer);
+}
+$('copy-replay-link').addEventListener('click',()=>copyLink($('share-link').value));
+$('copy-viewed-replay-link').addEventListener('click',()=>copyLink($('replay-share-link').value,true));
+$('replay-last').addEventListener('click',()=>lastReplay&&openReplay(lastReplay,'latest'));
+$('save-replay').addEventListener('click',()=>persistReplay(lastReplay));
+$('share-replay').addEventListener('click',()=>shareReplay(lastReplay));
+$('download-replay').addEventListener('click',()=>downloadReplay(lastReplay));
+$('save-viewed-replay').addEventListener('click',()=>persistReplay(viewedReplay,true));
+$('share-viewed-replay').addEventListener('click',()=>shareReplay(viewedReplay,true));
+$('download-viewed-replay').addEventListener('click',()=>downloadReplay(viewedReplay,true));
+function restoreReplayCamera(){replayRenderer.resetCamera();replayRenderer.orbit(viewedReplay.camera.azimuth-.581,viewedReplay.camera.elevation-.42);replayRenderer.zoom(viewedReplay.camera.zoom);}
+function openReplay(input,source){
+  if(busy()){replayMessage('投球が落ち着いてからリプレイを開けます。');return;}
+  try{
+    const replay=validateReplay(input);cancelGesture('replay-open');stopVideo(true);videoBlob=null;videoName='';$('save-replay-video').disabled=$('share-replay-video').disabled=true;
+    viewedReplay=replay;replayPlayer=createReplayPlayer(replay);replayTime=0;replayPlaying=true;replaySource=source;replayDrag=null;
+    $('replay-title').textContent=source==='shared'?'共有された成功リプレイ':'成功した一投';
+    $('replay-source').textContent=source==='shared'||source==='file'?'受け取った記録を再生しています。':'記録した動きを、別の視点から。';
+    $('replay-role-title').textContent=roleText(replay);$('replay-seek').max=replay.duration;$('replay-share-controls').hidden=true;$('replay-share-link').value='';replayMessage('',true);
+    if(!replayDialog.open)replayDialog.showModal();replayRenderer.resize();restoreReplayCamera();prepareReplayLink(replay);renderReplay(0);replayCanvas.focus({preventScroll:true});
+  }catch(error){replayMessage('このリプレイを開けませんでした。',false,error.code||'INVALID_REPLAY');}
+}
+function closeReplay(){stopVideo(true);replayPlaying=false;replayDrag=null;if(replayDialog.open)replayDialog.close();}
+$('replay-close').addEventListener('click',closeReplay);
+replayDialog.addEventListener('cancel',event=>{event.preventDefault();closeReplay();});
+$('replay-play').addEventListener('click',()=>{if(videoState){replayMessage('動画の作成中は再生を止められません。閉じると取り消せます。',true);return;}if(replayTime>=replayPlayer.duration)replayTime=0;replayPlaying=!replayPlaying;renderReplay(0);});
+$('replay-restart').addEventListener('click',()=>{if(videoState)return;replayTime=0;replayPlaying=true;renderReplay(0);});
+$('replay-camera-reset').addEventListener('click',()=>viewedReplay&&restoreReplayCamera());
+$('replay-seek').addEventListener('input',()=>{if(videoState)return;replayPlaying=false;const value=Number($('replay-seek').value);replayTime=value>=replayPlayer.duration-1e-9?replayPlayer.duration:clamp(value,0,replayPlayer.duration);renderReplay(0);});
+function renderReplay(dt){
+  if(!replayDialog.open||!replayPlayer)return;
+  if(replayPlaying){replayTime=Math.min(replayPlayer.duration,replayTime+dt);if(replayTime>=replayPlayer.duration)replayPlaying=false;}
+  replayRenderer.render(replayPlayer.sample(replayTime),viewedReplay.controls,{prediction:false});
+  $('replay-play').textContent=replayPlaying?'一時停止':replayTime>=replayPlayer.duration?'もう一度':'再生';
+  $('replay-seek').value=replayTime;$('replay-time').textContent=`${replayTime.toFixed(2)} / ${replayPlayer.duration.toFixed(2)} 秒`;
+  if(videoState&&!replayPlaying&&videoState.recorder.state==='recording'&&!videoState.stopping){const state=videoState;state.stopping=true;setTimeout(()=>{if(videoState===state)stopVideo(false);},180);}
+}
+new ResizeObserver(()=>replayRenderer.resize()).observe(replayCanvas);
+replayCanvas.addEventListener('contextmenu',event=>event.preventDefault());
+replayCanvas.addEventListener('pointerdown',event=>{if(event.button!==0||pointers.size!==1)return;event.preventDefault();replayCanvas.focus({preventScroll:true});replayDrag={id:event.pointerId,x:event.clientX,y:event.clientY};replayCanvas.setPointerCapture(event.pointerId);});
+replayCanvas.addEventListener('pointermove',event=>{if(!replayDrag||replayDrag.id!==event.pointerId)return;if(pointers.size>1){replayDrag=null;return;}event.preventDefault();const rect=replayCanvas.getBoundingClientRect();replayRenderer.orbit(-(event.clientX-replayDrag.x)/rect.width*3.6,(event.clientY-replayDrag.y)/rect.height*2.4);replayDrag.x=event.clientX;replayDrag.y=event.clientY;});
+for(const type of ['pointerup','pointercancel','lostpointercapture'])replayCanvas.addEventListener(type,()=>{replayDrag=null;});
+replayCanvas.addEventListener('wheel',event=>{if(event.ctrlKey||event.metaKey||!Number.isFinite(event.deltaY))return;event.preventDefault();const unit=event.deltaMode===1?16:event.deltaMode===2?replayCanvas.clientHeight:1;replayRenderer.zoom(Math.exp(clamp(event.deltaY*unit,-100,100)*.002));},{passive:false});
+replayCanvas.addEventListener('keydown',event=>{const turns={ArrowLeft:[-.12,0],ArrowRight:[.12,0],ArrowUp:[0,.1],ArrowDown:[0,-.1]};if(turns[event.code]){event.preventDefault();replayRenderer.orbit(...turns[event.code]);}else if(['+','=','-'].includes(event.key)){event.preventDefault();replayRenderer.zoom(event.key==='-'?1.14:.88);}else if(event.code==='Space'){event.preventDefault();$('replay-play').click();}});
+$('replay-file').addEventListener('change',async()=>{const file=$('replay-file').files[0];$('replay-file').value='';if(!file)return;try{if(file.size>180*1024)throw Object.assign(new Error(),{code:'REPLAY_TOO_LARGE'});openReplay(parseReplayJSON(await file.text()),'file');}catch(error){replayMessage('リプレイのファイルを開けません。形式や大きさを確認してください。',false,error.code||'INVALID_REPLAY');}});
+function cleanupVideo(state){clearTimeout(state.deadline);state.stream.getTracks().forEach(track=>track.stop());if(videoState===state){videoState=null;$('record-replay-video').disabled=false;$('replay-seek').disabled=false;}}
+function stopVideo(cancelled){if(!videoState)return;const state=videoState;state.cancelled ||= cancelled;if(state.recorder.state!=='inactive')try{state.recorder.stop();}catch{cleanupVideo(state);replayMessage('動画の作成を中断しました。',true,'VIDEO_FAILED');}}
+function recordVideo(){
+  if(!viewedReplay||videoState)return;
+  if(!globalThis.MediaRecorder||!replayCanvas.captureStream){replayMessage('このブラウザはリプレイの動画作成に対応していません。リンクやリプレイのファイルを使えます。',true,'VIDEO_UNSUPPORTED');return;}
+  let stream,recorder,mime;
+  try{
+    stream=replayCanvas.captureStream(30);
+    for(const candidate of ['video/mp4;codecs=avc1.42E01E','video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm']){if(!MediaRecorder.isTypeSupported(candidate))continue;try{recorder=new MediaRecorder(stream,{mimeType:candidate,videoBitsPerSecond:2000000});mime=candidate;break;}catch{}}
+    if(!recorder)throw new Error('unsupported');
+    const state={recorder,stream,mime,chunks:[],bytes:0,cancelled:false,stopping:false,deadline:null,replayId:viewedReplay.id};videoState=state;videoBlob=null;$('save-replay-video').disabled=$('share-replay-video').disabled=true;$('record-replay-video').disabled=true;$('replay-seek').disabled=true;
+    recorder.addEventListener('dataavailable',event=>{if(!event.data.size)return;state.bytes+=event.data.size;if(state.bytes>12*1024*1024){state.cancelled=true;replayMessage('動画が大きすぎるため作成を取り消しました。',true,'VIDEO_TOO_LARGE');stopVideo(true);}else state.chunks.push(event.data);});
+    recorder.addEventListener('error',()=>{state.cancelled=true;replayMessage('動画を作成できませんでした。',true,'VIDEO_FAILED');stopVideo(true);});
+    recorder.addEventListener('stop',()=>{const current=videoState===state;cleanupVideo(state);if(!current||state.cancelled||!state.chunks.length)return;videoBlob=new Blob(state.chunks,{type:recorder.mimeType||mime});const mp4=videoBlob.type.includes('mp4');videoName=`trash-shot-${state.replayId}.${mp4?'mp4':'webm'}`;$('save-replay-video').disabled=$('share-replay-video').disabled=false;replayMessage(`動画を作成しました（${mp4?'MP4':'WebM'}）。対応する共有先で使えます。`,true);});
+    replayTime=0;replayPlaying=true;renderReplay(0);recorder.start(200);state.deadline=setTimeout(()=>{if(videoState===state){state.cancelled=true;replayMessage('動画の作成が終わらないため取り消しました。',true,'VIDEO_TIMEOUT');stopVideo(true);}},12000);replayMessage('リプレイを動画にしています。見回しも録画に含まれます。閉じると取り消せます。',true);
+  }catch{if(videoState?.recorder===recorder)cleanupVideo(videoState);else stream?.getTracks().forEach(track=>track.stop());$('record-replay-video').disabled=false;$('replay-seek').disabled=false;replayMessage('このブラウザでは動画を作成できません。',true,'VIDEO_UNSUPPORTED');}
+}
+$('record-replay-video').addEventListener('click',recordVideo);
+$('save-replay-video').addEventListener('click',()=>{if(videoBlob)downloadBlob(videoBlob,videoName);});
+$('share-replay-video').addEventListener('click',async()=>{if(!videoBlob)return;try{const file=new File([videoBlob],videoName,{type:videoBlob.type});if(!navigator.share||!navigator.canShare?.({files:[file]})){replayMessage('この共有先では動画を渡せません。「動画を保存」から使えます。',true,'VIDEO_SHARE_UNSUPPORTED');return;}await navigator.share({files:[file],title:'ごみシュートの一投'});replayMessage('共有先に動画を渡しました。投稿の完了は共有先で確認してください。',true);}catch(error){replayMessage(error.name==='AbortError'?'動画の共有を取り消しました。':'動画を共有できませんでした。',true,error.name==='AbortError'?'SHARE_CANCELLED':'SHARE_FAILED');}});
+refreshSaved();
+let sharedImportTicket=0;
+async function loadSharedReplay(){
+  const ticket=++sharedImportTicket,hash=location.hash;
+  if(!/^#tsr\d+\./.test(hash))return;
+  if(replayDialog.open)closeReplay();
+  viewedReplay=null;replayPlayer=null;replayTime=0;replaySource='';$('replay-role-title').textContent='';replayMessage('');
+  try{const replay=await decodeReplay(hash);if(ticket===sharedImportTicket&&location.hash===hash)openReplay(replay,'shared');}
+  catch(error){if(ticket===sharedImportTicket&&location.hash===hash)replayMessage('共有されたリプレイを開けません。リンクが欠けているか、未対応の形式です。',false,error.code||'INVALID_REPLAY');}
+}
+window.addEventListener('hashchange',loadSharedReplay);
+loadSharedReplay();
+window.__trashShot={game,controls,snapshot:()=>getSnapshot(game),cameraSnapshot:()=>renderer.cameraSnapshot(),inputSnapshot:()=>({mode:view.mode,prediction:view.prediction,activeGesture:view.gesture?.kind||null,activePointers:pointers.size,cancellations,lastInput:lastInput?structuredClone(lastInput):null}),analyticsSnapshot:()=>analytics.snapshot(),replaySnapshot:()=>({active:replayDialog.open,playing:replayPlaying,time:replayTime,duration:replayPlayer?.duration||0,sourceId:viewedReplay?.id||null,sourceType:replaySource,recordedFrames:viewedReplay?.frames.length||0,current:replayPlayer?structuredClone(replayPlayer.sample(replayTime)):null,result:viewedReplay?structuredClone(viewedReplay.result):null,savedCount:savedReplays.length,latestId:lastReplay?.id||null,recording:Boolean(videoState),video:videoBlob?{size:videoBlob.size,mime:videoBlob.type}:null})};
 updateControlLabels();updateUI(true);
 function frame(now){
   const dt=Math.max(0,Math.min((now-previousTime)/1000,.045));previousTime=now;
-  stepGame(game,dt);updateUI();renderer.render(game,controls,{prediction:view.prediction,aim:view.gesture?.kind==='throw'?{...controls,...view.gesture.aim}:null});
+  stepGame(game,dt);captureShot();updateUI();renderer.render(game,controls,{prediction:view.prediction,aim:view.gesture?.kind==='throw'?{...controls,...view.gesture.aim}:null});
+  renderReplay(dt);
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
