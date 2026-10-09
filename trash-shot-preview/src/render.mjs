@@ -1,4 +1,4 @@
-import { predictArc } from './physics.mjs';
+import { predictArc } from './physics.mjs?v=20261009-throw-fix-1';
 
 const add = (a,b) => ({ x:a.x+b.x, y:a.y+b.y, z:a.z+b.z });
 const sub = (a,b) => ({ x:a.x-b.x, y:a.y-b.y, z:a.z-b.z });

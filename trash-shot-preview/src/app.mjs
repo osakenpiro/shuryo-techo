@@ -1,7 +1,7 @@
-import { createGame, setSetup, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs';
-import { createRenderer } from './render.mjs';
-import { createShotAnalytics } from './shot-analytics.mjs';
-import { createRecorder, createReplayPlayer, validateReplay, loadReplays, saveReplay, deleteReplay, buildReplayURL, decodeReplay, replayToJSON, parseReplayJSON } from './replay.mjs';
+import { createGame, setSetup, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261009-throw-fix-1';
+import { createRenderer } from './render.mjs?v=20261009-throw-fix-1';
+import { createShotAnalytics } from './shot-analytics.mjs?v=20261009-throw-fix-1';
+import { createRecorder, createReplayPlayer, validateReplay, loadReplays, saveReplay, deleteReplay, buildReplayURL, decodeReplay, replayToJSON, parseReplayJSON } from './replay.mjs?v=20261009-throw-fix-1';
 
 const $=id=>document.getElementById(id);
 const canvas=$('scene');
@@ -138,7 +138,9 @@ canvas.addEventListener('pointermove',event=>{
   const gesture=view.gesture;if(!gesture||gesture.id!==event.pointerId)return;
   event.preventDefault();
   if(!sameLayout(gesture)){cancelGesture('layout-change');return;}
-  if(!inside(event,gesture.rect)){cancelGesture('outside-canvas');return;}
+  // A throw owns its pointer from the canvas press through release. A fast
+  // swipe may finish beyond the canvas; leaving its edge is not cancellation.
+  if(gesture.kind!=='throw'&&!inside(event,gesture.rect)){cancelGesture('outside-canvas');return;}
   if(gesture.kind==='observe')renderer.orbit(-(event.clientX-gesture.lastX)/gesture.rect.width*3.6,(event.clientY-gesture.lastY)/gesture.rect.height*2.4);
   else{gesture.aim=gestureAim(gesture,event);showGesture(gesture,event);}
   gesture.lastX=event.clientX;gesture.lastY=event.clientY;
@@ -147,7 +149,7 @@ canvas.addEventListener('pointerup',event=>{
   const gesture=view.gesture;if(!gesture||gesture.id!==event.pointerId)return;
   event.preventDefault();
   const aim=gesture.kind==='throw'?gestureAim(gesture,event):null;
-  const accepted=aim?.valid&&sameLayout(gesture)&&inside(event,gesture.rect)&&!busy();
+  const accepted=aim?.valid&&sameLayout(gesture)&&!busy();
   view.gesture=null;wheelAnglePixels=0;$('gesture-feedback').hidden=true;
   if(canvas.hasPointerCapture(event.pointerId))canvas.releasePointerCapture(event.pointerId);
   if(accepted){controls.power=aim.power;controls.yaw=aim.yaw;updateControlLabels();fire('gesture');}
