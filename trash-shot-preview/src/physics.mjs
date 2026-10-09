@@ -187,18 +187,23 @@ function advance(game, dt) {
   velocity.y -= GRAVITY * dt;
   game.time += dt;
 
-  // Entry is evaluated at the actual crossing, not at a nearby pixel or wall hit.
+  // A descending sphere can clear the rim obliquely after its lower cap passes
+  // the early plane. Also check its centre crossing, where its full cross-section
+  // must fit the aperture; neither wall contact nor an inside position is entry.
   const entryPlane = game.bin.height + radius;
-  if (game.phase === 'flying' && velocity.y < 0
-      && previous.y > entryPlane && position.y <= entryPlane) {
-    const fraction = (previous.y - entryPlane) / (previous.y - position.y);
-    const crossing = {
-      x: previous.x + (position.x - previous.x) * fraction,
-      z: previous.z + (position.z - previous.z) * fraction,
-    };
-    if (radialDistance(crossing, game.bin) < game.bin.radius - radius - EPSILON) {
-      game.phase = 'settling';
-      record(game, 'entered');
+  if (game.phase === 'flying' && velocity.y < 0) {
+    for (const plane of [entryPlane, game.bin.height]) {
+      if (previous.y <= plane || position.y > plane) continue;
+      const fraction = (previous.y - plane) / (previous.y - position.y);
+      const crossing = {
+        x: previous.x + (position.x - previous.x) * fraction,
+        z: previous.z + (position.z - previous.z) * fraction,
+      };
+      if (radialDistance(crossing, game.bin) < game.bin.radius - radius - EPSILON) {
+        game.phase = 'settling';
+        record(game, 'entered');
+        break;
+      }
     }
   } else if (game.phase === 'settling' && previous.y <= entryPlane && position.y > entryPlane) {
     game.phase = 'flying';
