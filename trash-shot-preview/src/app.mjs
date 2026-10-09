@@ -9,15 +9,16 @@ const renderer=createRenderer(canvas);
 const inputs=['power','elevation','yaw','distance','height'].map($);
 const pointers=new Set();
 const view={mode:'throw',prediction:false,gesture:null};
-let lastUIKey='',previousTime=performance.now(),lastInput=null,cancellations=0;
+let lastUIKey='',previousTime=performance.now(),lastInput=null,cancellations=0,wheelAnglePixels=0;
 const busy=()=>game.phase==='flying'||game.phase==='settling';
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 
-function updateControlLabels(){
-  $('power-value').textContent=controls.power.toFixed(2).replace(/0$/,'');
-  $('elevation-value').textContent=`${controls.elevation}°`;
-  $('yaw-value').textContent=controls.yaw===0?'まっすぐ':`${controls.yaw<0?'左':'右'} ${Math.abs(controls.yaw)}°`;
-  for(const id of ['power','elevation','yaw']){const input=$(id);input.value=controls[id];const progress=(Number(input.value)-Number(input.min))/(Number(input.max)-Number(input.min))*100;input.style.setProperty('--fill',`${progress}%`);}
+function updateControlLabels(aim=null){
+  const values={...controls,...aim};
+  $('power-value').textContent=values.power.toFixed(2).replace(/0$/,'');
+  $('elevation-value').textContent=`${values.elevation}°`;
+  $('yaw-value').textContent=values.yaw===0?'まっすぐ':`${values.yaw<0?'左':'右'} ${Math.abs(values.yaw)}°`;
+  for(const id of ['power','elevation','yaw']){const input=$(id);input.value=values[id];const progress=(Number(input.value)-Number(input.min))/(Number(input.max)-Number(input.min))*100;input.style.setProperty('--fill',`${progress}%`);}
 }
 function updateHint(){
   canvas.dataset.mode=view.mode;canvas.dataset.dragging=String(Boolean(view.gesture));
@@ -26,9 +27,9 @@ function updateHint(){
   $('cancel-gesture').hidden=!view.gesture||view.gesture.kind!=='throw';
   if(view.mode==='observe'){
     $('interaction-hint').textContent='ドラッグで見回す。缶も箱も、別の角度から。';
-    $('input-detail').textContent='ホイール／＋−でズーム。視点を動かしても投球しません。';
+    $('input-detail').textContent='ホイールでズーム。右クリックで手投げに戻ります。';
   }else if(busy()){
-    $('interaction-hint').textContent='缶の行方を見届けよう。「見回す」で視点を変えられます。';
+    $('interaction-hint').textContent='缶の行方を見届けよう。右クリック／「見回す」で視点を変えられます。';
     $('input-detail').textContent='投球が落ち着いたら、もう一投。';
   }else if(view.gesture){
     const aim=view.gesture.aim;
@@ -36,9 +37,9 @@ function updateHint(){
     $('input-detail').textContent=`強さ ${aim.power.toFixed(1)} · ${aim.yaw===0?'箱へまっすぐ':`${aim.yaw<0?'左':'右'} ${Math.abs(aim.yaw)}°`} · 角度 ${controls.elevation}°`;
   }else{
     $('interaction-hint').textContent='上へドラッグ／スワイプして、離すと一投。';
-    $('input-detail').textContent='長く動かすほど強く。左右は箱の方向を基準に。';
+    $('input-detail').textContent=`長く動かすほど強く。ホイール上で高い弧（${controls.elevation}°）。右クリックで見回す。`;
   }
-  canvas.setAttribute('aria-label',view.mode==='observe'?'缶と箱を観察する立体画面。ドラッグか矢印キーでカメラ回転。プラスとマイナスでズーム。':'缶を投げる立体画面。上へドラッグまたはスワイプして離すと一投。左右は箱方向を基準。数値で投げるボタンも使えます。');
+  canvas.setAttribute('aria-label',view.mode==='observe'?'缶と箱を観察する立体画面。ドラッグか矢印キーでカメラ回転。ホイールかプラスとマイナスでズーム。右クリックで手投げに切替。':'缶を投げる立体画面。上へドラッグまたはスワイプして離すと一投。左右は箱方向を基準。ホイール上で投球の角度が上がります。右クリックで見回す。数値で投げるボタンも使えます。');
 }
 function updateUI(force=false){
   const key=[game.phase,game.lastEvent,game.attempts,game.successes,game.bin.center.z,game.bin.height].join('|');
@@ -66,11 +67,13 @@ function updateUI(force=false){
   updateHint();
 }
 function cancelGesture(reason='cancel'){
+  wheelAnglePixels=0;
   const gesture=view.gesture;
   if(!gesture)return;
   view.gesture=null;cancellations++;lastInput={type:'cancel',reason};
   $('gesture-feedback').hidden=true;
   if(canvas.hasPointerCapture(gesture.id))canvas.releasePointerCapture(gesture.id);
+  updateControlLabels();
   updateHint();
 }
 function setMode(mode){cancelGesture('mode-change');view.mode=mode;updateHint();}
@@ -82,7 +85,7 @@ for(const [id,x,y] of [['camera-left',-.16,0],['camera-right',.16,0],['camera-up
 $('camera-in').addEventListener('click',()=>cameraAction(()=>renderer.zoom(.88)));
 $('camera-out').addEventListener('click',()=>cameraAction(()=>renderer.zoom(1.14)));
 $('prediction-toggle').addEventListener('change',()=>{cancelGesture('prediction-change');view.prediction=$('prediction-toggle').checked;});
-for(const id of ['power','elevation','yaw'])$(id).addEventListener('input',()=>{cancelGesture('numeric-change');controls[id]=Number($(id).value);updateControlLabels();});
+for(const id of ['power','elevation','yaw'])$(id).addEventListener('input',()=>{const value=Number($(id).value);cancelGesture('numeric-change');controls[id]=value;updateControlLabels();updateHint();});
 for(const id of ['distance','height'])$(id).addEventListener('change',()=>{cancelGesture('setup-change');setSetup(game,{distance:Number($('distance').value),height:Number($('height').value)});updateUI(true);});
 function fire(source='numeric'){
   cancelGesture('other-throw');
@@ -106,6 +109,7 @@ function showGesture(gesture,event){
   $('gesture-origin').style.left=`${x}px`;$('gesture-origin').style.top=`${y}px`;
   $('gesture-tip').style.left=`${x+dx}px`;$('gesture-tip').style.top=`${y+dy}px`;
   const line=$('gesture-line');line.style.left=`${x}px`;line.style.top=`${y}px`;line.style.width=`${Math.hypot(dx,dy)}px`;line.style.transform=`rotate(${Math.atan2(dy,dx)}rad)`;
+  updateControlLabels(gesture.aim);
   updateHint();
 }
 document.addEventListener('pointerdown',event=>{pointers.add(event.pointerId);if(pointers.size>1)cancelGesture('second-pointer');},true);
@@ -118,6 +122,13 @@ canvas.addEventListener('pointerdown',event=>{
   view.gesture={kind:view.mode,id:event.pointerId,rect,viewport:{width:innerWidth,height:innerHeight},startX:event.clientX,startY:event.clientY,lastX:event.clientX,lastY:event.clientY};
   if(view.mode==='throw')view.gesture.aim=gestureAim(view.gesture,event);
   canvas.setPointerCapture(event.pointerId);updateHint();
+});
+// A prevented left pointerdown suppresses compatibility mousedown on a right
+// button chord. contextmenu still arrives once for both forms of right click.
+canvas.addEventListener('contextmenu',event=>{
+  event.preventDefault();
+  if(event.button!==2||event.pointerType==='touch')return;
+  canvas.focus({preventScroll:true});setMode(view.mode==='throw'?'observe':'throw');
 });
 canvas.addEventListener('pointermove',event=>{
   const gesture=view.gesture;if(!gesture||gesture.id!==event.pointerId)return;
@@ -133,14 +144,36 @@ canvas.addEventListener('pointerup',event=>{
   event.preventDefault();
   const aim=gesture.kind==='throw'?gestureAim(gesture,event):null;
   const accepted=aim?.valid&&sameLayout(gesture)&&inside(event,gesture.rect)&&!busy();
-  view.gesture=null;$('gesture-feedback').hidden=true;
+  view.gesture=null;wheelAnglePixels=0;$('gesture-feedback').hidden=true;
   if(canvas.hasPointerCapture(event.pointerId))canvas.releasePointerCapture(event.pointerId);
   if(accepted){controls.power=aim.power;controls.yaw=aim.yaw;updateControlLabels();fire('gesture');}
-  else{if(gesture.kind==='throw'){lastInput={type:'cancel',reason:'short-or-invalid-release'};cancellations++;}updateHint();}
+  else{if(gesture.kind==='throw'){lastInput={type:'cancel',reason:'short-or-invalid-release'};cancellations++;}updateControlLabels();updateHint();}
 });
 canvas.addEventListener('lostpointercapture',()=>cancelGesture('lostpointercapture'));
 $('cancel-gesture').addEventListener('click',()=>cancelGesture('cancel-button'));
-canvas.addEventListener('wheel',event=>{if(view.mode!=='observe')return;event.preventDefault();cancelGesture('wheel');renderer.zoom(Math.exp(clamp(event.deltaY,-100,100)*.002));},{passive:false});
+function editingInput(target){return target instanceof HTMLElement&&(target.matches('input,select,textarea')||target.isContentEditable);}
+document.addEventListener('focusin',event=>{if(editingInput(event.target))cancelGesture('input-focus');});
+canvas.addEventListener('wheel',event=>{
+  // Preserve browser zoom and focused form editing. Outside the canvas there
+  // is no listener, so ordinary page scrolling keeps its native behavior.
+  if(event.ctrlKey||event.metaKey||event.altKey||editingInput(document.activeElement))return;
+  if(!Number.isFinite(event.deltaY)||event.deltaY===0)return;
+  const unit=event.deltaMode===0?1:event.deltaMode===1?16:event.deltaMode===2?canvas.clientHeight:0;
+  const delta=event.deltaY*unit;
+  if(!Number.isFinite(delta)||!delta)return;
+  event.preventDefault();
+  if(pointers.size>1){wheelAnglePixels=0;return;}
+  if(view.mode==='observe'){cancelGesture('wheel');renderer.zoom(Math.exp(clamp(delta,-100,100)*.002));return;}
+  if(busy()){wheelAnglePixels=0;return;}
+  if(view.gesture&&!sameLayout(view.gesture)){cancelGesture('layout-change');return;}
+  // Accumulate small trackpad deltas without rounding each event to a jump.
+  wheelAnglePixels-=delta;
+  const degrees=Math.trunc(wheelAnglePixels/24);
+  wheelAnglePixels-=degrees*24;
+  controls.elevation=clamp(controls.elevation+degrees,15,75);
+  if((controls.elevation===75&&wheelAnglePixels>0)||(controls.elevation===15&&wheelAnglePixels<0))wheelAnglePixels=0;
+  updateControlLabels(view.gesture?.aim);updateHint();
+},{passive:false});
 document.addEventListener('keydown',event=>{
   if(event.code==='Escape'){cancelGesture('escape');return;}
   if(event.repeat||event.altKey||event.ctrlKey||event.metaKey)return;
