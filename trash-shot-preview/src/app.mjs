@@ -1,7 +1,8 @@
-import { createGame, setSetup, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261010-score-1';
-import { createRenderer } from './render.mjs?v=20261010-score-1';
-import { createShotAnalytics } from './shot-analytics.mjs?v=20261010-score-1';
-import { createRecorder, createReplayPlayer, validateReplay, loadReplays, saveReplay, deleteReplay, buildReplayURL, decodeReplay, replayToJSON, parseReplayJSON } from './replay.mjs?v=20261010-score-1';
+import { STAGES, createStageProgress } from './stages.mjs?v=20261010-stages-1';
+import { createGame, setSetup, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261010-stages-1';
+import { createRenderer } from './render.mjs?v=20261010-stages-1';
+import { createShotAnalytics } from './shot-analytics.mjs?v=20261010-stages-1';
+import { createRecorder, createReplayPlayer, validateReplay, loadReplays, saveReplay, deleteReplay, buildReplayURL, decodeReplay, replayToJSON, parseReplayJSON } from './replay.mjs?v=20261010-stages-1';
 
 const $=id=>document.getElementById(id);
 const canvas=$('scene');
@@ -9,6 +10,9 @@ const game=createGame({distance:6,height:1.3});
 const controls={power:7.8,elevation:48,yaw:0};
 const renderer=createRenderer(canvas);
 const analytics=createShotAnalytics();
+const stageProgress=createStageProgress();
+let freeSetup={distance:6,height:1.3};
+observeGame(game,event=>stageProgress.result(event));
 observeGame(game,event=>analytics.observe(event));
 const inputs=['power','elevation','yaw','distance','height'].map($);
 const pointers=new Set();
@@ -111,6 +115,7 @@ function updateUI(force=false){
   $('attempt-count').textContent=String(game.attempts).padStart(2,'0');
   $('success-count').textContent=String(game.successes).padStart(2,'0');
   updateScoreSummary();
+  updateStageUI();
   $('setup-description').textContent=`距離 ${game.bin.center.z} m · 高さ ${game.bin.height} m`;
   const messages={
     ready:['↗','いいところに、投げてみよう。','画面で手投げ、または数値で投げられます。','数値で投げる'],
@@ -146,11 +151,41 @@ $('camera-in').addEventListener('click',()=>cameraAction(()=>renderer.zoom(.88))
 $('camera-out').addEventListener('click',()=>cameraAction(()=>renderer.zoom(1.14)));
 $('prediction-toggle').addEventListener('change',()=>{cancelGesture('prediction-change');view.prediction=$('prediction-toggle').checked;});
 for(const id of ['power','elevation','yaw'])$(id).addEventListener('input',()=>{const value=Number($(id).value);cancelGesture('numeric-change');controls[id]=value;updateControlLabels();updateHint();});
-for(const id of ['distance','height'])$(id).addEventListener('change',()=>{cancelGesture('setup-change');clearCurrentShot();setSetup(game,{distance:Number($('distance').value),height:Number($('height').value)});updateUI(true);});
+for(const id of ['distance','height'])$(id).addEventListener('change',()=>{
+  if(busy()||stageProgress.snapshot().id!=='free'){$('distance').value=String(game.bin.center.z);$('height').value=String(game.bin.height);return;}
+  cancelGesture('setup-change');clearCurrentShot();setSetup(game,{distance:Number($('distance').value),height:Number($('height').value)});updateUI(true);
+});
+function selectStage(id){
+  if(busy()||!STAGES[id])return false;
+  if(stageProgress.snapshot().id==='free')freeSetup={distance:game.bin.center.z,height:game.bin.height};
+  cancelGesture('stage-change');pointers.clear();clearCurrentShot();stageProgress.select(id);
+  const setup=id==='free'?freeSetup:STAGES[id];setSetup(game,setup);
+  $('distance').value=String(setup.distance);$('height').value=String(setup.height);
+  if(id!=='free'){Object.assign(controls,{power:setup.power,elevation:setup.elevation,yaw:setup.yaw});renderer.resetCamera();}
+  updateControlLabels();updateUI(true);return true;
+}
+if($('stage-select')){
+  $('stage-select').addEventListener('change',()=>{if(!selectStage($('stage-select').value))$('stage-select').value=stageProgress.snapshot().id;});
+  $('start-tutorial').addEventListener('click',()=>selectStage('tutorial'));
+  $('stage-next').addEventListener('click',()=>{if(stageProgress.snapshot().id==='tutorial'&&stageProgress.snapshot().completed.includes('tutorial'))selectStage('first');});
+  $('stage-retry').addEventListener('click',()=>selectStage(stageProgress.snapshot().id));
+}
+function updateStageUI(){
+  const state=stageProgress.snapshot();
+  if(state.id!=='free')for(const id of ['distance','height'])$(id).disabled=true;
+  if(!$('stage-select'))return;
+  $('stage-select').value=state.id;$('stage-select').disabled=busy();$('start-tutorial').disabled=busy();
+  $('tutorial-card').hidden=state.id!=='tutorial';
+  const clear=state.completed.includes(state.id);
+  $('stage-progress').textContent=state.id==='free'?'自由投球 · プレイ記録は累積':`${clear?'クリア済み · ':''}この挑戦 ${state.successes} 成功 / ${state.attempts} 投 · 箱に1回入れよう`;
+  $('stage-message').textContent=busy()?'投球が落ち着いたら、ステージを変えられます。':state.id==='tutorial'&&clear?'できた！ 次は、いつものゴミ箱へ。':state.id==='first'&&clear?'クリア！ 同じ箱でもう一投、自由投球にも戻れます。':game.phase==='miss'&&state.id!=='free'?'向きや強さを変えて、もう一投。':'';
+  $('stage-next').hidden=state.id!=='tutorial'||!clear;$('stage-next').disabled=busy();
+  $('stage-retry').hidden=state.id==='free';$('stage-retry').disabled=busy();
+}
 function fire(source='numeric'){
   cancelGesture('other-throw');
   const accepted=throwCan(game,controls);
-  if(accepted){clearCurrentShot();shotRecorder=createRecorder(getSnapshot(game),controls,renderer.cameraSnapshot());lastInput={type:'throw',source,parameters:{...controls}};previousTime=performance.now();updateUI(true);if(source!=='gesture')canvas.scrollIntoView({block:'center',behavior:'instant'});}
+  if(accepted){stageProgress.launch(game.attempts);clearCurrentShot();shotRecorder=createRecorder(getSnapshot(game),controls,renderer.cameraSnapshot());lastInput={type:'throw',source,parameters:{...controls}};previousTime=performance.now();updateUI(true);if(source!=='gesture')canvas.scrollIntoView({block:'center',behavior:'instant'});}
   return accepted;
 }
 $('throw-button').addEventListener('click',()=>fire());
@@ -445,7 +480,7 @@ async function loadSharedReplay(){
 }
 window.addEventListener('hashchange',loadSharedReplay);
 loadSharedReplay();
-window.__trashShot={game,controls,snapshot:()=>getSnapshot(game),cameraSnapshot:()=>renderer.cameraSnapshot(),inputSnapshot:()=>({mode:view.mode,prediction:view.prediction,activeGesture:view.gesture?.kind||null,activePointers:pointers.size,cancellations,lastInput:lastInput?structuredClone(lastInput):null}),analyticsSnapshot:()=>analytics.snapshot(),replaySnapshot:()=>({active:replayDialog.open,playing:replayPlaying,time:replayTime,duration:replayPlayer?.duration||0,sourceId:viewedReplay?.id||null,sourceType:replaySource,recordedFrames:viewedReplay?.frames.length||0,current:replayPlayer?structuredClone(replayPlayer.sample(replayTime)):null,result:viewedReplay?structuredClone(viewedReplay.result):null,savedCount:savedReplays.length,latestId:lastReplay?.id||null,recording:Boolean(videoState),video:videoBlob?{size:videoBlob.size,mime:videoBlob.type}:null})};
+window.__trashShot={game,controls,stageSnapshot:()=>stageProgress.snapshot(),snapshot:()=>getSnapshot(game),cameraSnapshot:()=>renderer.cameraSnapshot(),inputSnapshot:()=>({mode:view.mode,prediction:view.prediction,activeGesture:view.gesture?.kind||null,activePointers:pointers.size,cancellations,lastInput:lastInput?structuredClone(lastInput):null}),analyticsSnapshot:()=>analytics.snapshot(),replaySnapshot:()=>({active:replayDialog.open,playing:replayPlaying,time:replayTime,duration:replayPlayer?.duration||0,sourceId:viewedReplay?.id||null,sourceType:replaySource,recordedFrames:viewedReplay?.frames.length||0,current:replayPlayer?structuredClone(replayPlayer.sample(replayTime)):null,result:viewedReplay?structuredClone(viewedReplay.result):null,savedCount:savedReplays.length,latestId:lastReplay?.id||null,recording:Boolean(videoState),video:videoBlob?{size:videoBlob.size,mime:videoBlob.type}:null})};
 updateControlLabels();updateUI(true);
 
 // Diagnosis observes input only after an explicit opt-in. The game's input
@@ -454,7 +489,7 @@ function setupInputCheck(){
   const [entry,panel,copy,close,text,message]=['input-check-open','input-check-panel','input-check-copy','input-check-close','input-check-text','input-check-message'].map($);
   // A new app can be loaded by an older cached HTML page without these nodes.
   if(![entry,panel,copy,close,text,message].every(Boolean))return;
-  const version='20261010-score-1',limit=24,maxBytes=12000;
+  const version='20261010-stages-1',limit=24,maxBytes=12000;
   let session=null,removeListeners=[];
   const clone=value=>value?(typeof structuredClone==='function'?structuredClone(value):JSON.parse(JSON.stringify(value))):null;
   const geometry=()=>{
