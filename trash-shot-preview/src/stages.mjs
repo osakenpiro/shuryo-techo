@@ -2,8 +2,8 @@
 export const STAGES=Object.freeze({
   free:Object.freeze({label:'自由に投げる'}),
   tutorial:Object.freeze({label:'はじめの一投',distance:4,height:.8,power:6,elevation:48,yaw:0}),
-  first:Object.freeze({label:'ステージ1：いつものゴミ箱',distance:6,height:1.3,power:7.8,elevation:48,yaw:0}),
-  side:Object.freeze({label:'ステージ2：横からぽいっ',projection:'side',distance:8,height:1.3,power:9,elevation:48,yaw:0})
+  first:Object.freeze({label:'1-1：いつものゴミ箱',distance:6,height:1.3,power:7.8,elevation:48,yaw:0}),
+  side:Object.freeze({label:'脇道：横からぽいっ（2D）',projection:'side',distance:8,height:1.3,power:9,elevation:48,yaw:0})
 });
 export function createStageProgress(){
   let id='free',run=0,active=null,attempts=0,successes=0;const completed=new Set();

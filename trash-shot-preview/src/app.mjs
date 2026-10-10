@@ -1,8 +1,9 @@
-import { STAGES, createStageProgress } from './stages.mjs?v=20261010-side-stage-1';
-import { createGame, setSetup, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261010-side-stage-1';
-import { createRenderer } from './render.mjs?v=20261010-side-stage-1';
-import { createShotAnalytics } from './shot-analytics.mjs?v=20261010-side-stage-1';
-import { createRecorder, createReplayPlayer, validateReplay, loadReplays, saveReplay, deleteReplay, buildReplayURL, decodeReplay, replayToJSON, parseReplayJSON } from './replay.mjs?v=20261010-side-stage-1';
+import { STAGES, createStageProgress } from './stages.mjs?v=20261010-side-aim-1';
+import { sideAim } from './side-aim.mjs?v=20261010-side-aim-1';
+import { createGame, setSetup, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261010-side-aim-1';
+import { createRenderer } from './render.mjs?v=20261010-side-aim-1';
+import { createShotAnalytics } from './shot-analytics.mjs?v=20261010-side-aim-1';
+import { createRecorder, createReplayPlayer, validateReplay, loadReplays, saveReplay, deleteReplay, buildReplayURL, decodeReplay, replayToJSON, parseReplayJSON } from './replay.mjs?v=20261010-side-aim-1';
 
 const $=id=>document.getElementById(id);
 const canvas=$('scene');
@@ -70,9 +71,9 @@ function updateHint(){
   $('mode-observe').setAttribute('aria-pressed',String(view.mode==='observe'));
   $('cancel-gesture').hidden=!view.gesture||view.gesture.kind!=='throw';
   if(sideStage()){
-    $('interaction-hint').textContent=busy()?'横から、缶の行方を見届けよう。':view.gesture?.aim?.valid?'離すと一投。Esc または下のボタンで取消。':view.gesture?'もう少し上へ動かすと、投げられます。':'上へドラッグ／スワイプして、離すと一投。';
-    $('input-detail').textContent=view.gesture?`強さ ${view.gesture.aim.power.toFixed(1)} · 箱へまっすぐ · 角度 ${controls.elevation}°`:`横視点で方向は固定。長く上へ動かすほど強く。ホイールで弧の高さ（${controls.elevation}°）、つまみでも。`;
-    canvas.setAttribute('aria-label','横から見た2D投球画面。上へドラッグまたはスワイプして離すと一投。左右の方向は固定。ホイールか角度のつまみで弧の高さを調整。数値で投げるボタンも使えます。');
+    $('interaction-hint').textContent=busy()?'横から、缶の行方を見届けよう。':view.gesture?.aim?.valid?'離すと一投。Esc または下のボタンで取消。':view.gesture?'右上へ、少し長くなぞると投げられます。':'右上へなぞって、離すと一投。';
+    $('input-detail').textContent=view.gesture?`角度 ${view.gesture.aim.elevation}° · 強さ ${view.gesture.aim.power.toFixed(2).replace(/0$/,'')} · なぞる向きで角度、長さで強さ`:'なぞる向きで角度、長さで強さ。低くも高くも自由に。角度・強さのつまみでも投げられます。';
+    canvas.setAttribute('aria-label','横から見た2D投球画面。右上へドラッグまたはスワイプして離すと一投。なぞる向きで角度、長さで強さを決めます。箱へ向かう平面内で投げます。角度と強さのつまみ、数値で投げるボタンも使えます。');
     return;
   }
   if(view.gesture?.temporaryObserve){
@@ -105,6 +106,8 @@ function updateScoreSummary(){
   $('live-shot-result').textContent=titles[game.phase]||titles.ready;
   const roles=$('live-shot-roles');roles.replaceChildren();roles.hidden=true;
   let detail={ready:'上へドラッグして、離すと一投。',flying:'缶の行方を見届けよう。',settling:'成功は、箱の中で落ち着いてから。',miss:'向きや強さを変えて、もう一投。'}[game.phase]||'';
+  if(sideStage()&&game.phase==='ready')detail='右上へなぞる。向きで角度、長さで強さを決めて、離すと一投。';
+  if(sideStage()&&game.phase==='miss')detail='角度や強さを変えて、もう一投。';
   const result=analytics.snapshot().result;
   if(game.phase==='success'&&result?.success){
     for(const role of result.roles){const chip=document.createElement('span');chip.className='shot-role-chip';chip.textContent=role.label;roles.append(chip);}
@@ -176,13 +179,16 @@ function selectStage(id){
   if(willBeSide&&!wasSide){previous3DMode=view.mode;view.mode='throw';}
   else if(wasSide&&!willBeSide)view.mode=previous3DMode;
   renderer.setProjection(willBeSide?'side':'perspective');
+  $('power').min=willBeSide?'.5':'4';$('power').max=willBeSide?'14':'13';
+  $('elevation').min=willBeSide?'5':'15';$('elevation').max=willBeSide?'85':'75';$('elevation').step=willBeSide?'.5':'1';
   if(id!=='free'){Object.assign(controls,{power:setup.power,elevation:setup.elevation,yaw:setup.yaw});if(willBeSide||!wasSide)renderer.resetCamera();}
+  if(!willBeSide){controls.power=clamp(controls.power,4,13);controls.elevation=Math.round(clamp(controls.elevation,15,75));}
   updateControlLabels();updateUI(true);return true;
 }
 if($('stage-select')){
   $('stage-select').addEventListener('change',()=>{if(!selectStage($('stage-select').value))$('stage-select').value=stageProgress.snapshot().id;});
   $('start-tutorial').addEventListener('click',()=>selectStage('tutorial'));
-  $('stage-next').addEventListener('click',()=>{const state=stageProgress.snapshot(),next={tutorial:'first',first:'side'}[state.id];if(next&&state.completed.includes(state.id))selectStage(next);});
+  $('stage-next').addEventListener('click',()=>{const state=stageProgress.snapshot(),next={tutorial:'first',first:'free'}[state.id];if(next&&state.completed.includes(state.id))selectStage(next);});
   $('stage-retry').addEventListener('click',()=>selectStage(stageProgress.snapshot().id));
 }
 function updateStageUI(){
@@ -191,17 +197,19 @@ function updateStageUI(){
   $('yaw').disabled=busy()||side;
   $('mode-observe').disabled=side;
   for(const id of ['camera-left','camera-right','camera-up','camera-down'])$(id).disabled=side;
-  $('camera-help').textContent=side?'横視点では方向を固定。＋／−でズーム、視点を戻すボタンで元の大きさへ。投球の弧はホイールか角度のつまみで調整できます。':'右ボタンを押したままドラッグで一時的に見回す。短い右クリック／ボタンで「見回す」に切替。ドラッグや矢印キーで回転、ホイールでズーム。';
-  if($('control-help'))$('control-help').textContent=side?'横視点は箱へまっすぐ。上へ動かす長さで強さを、ホイールや角度のつまみで弧の高さを調整します。左右は固定です。':'手投げの強さはドラッグの長さ、左右は箱方向を基準。弧の高さはホイールで調整できます。つまみとボタンでも。';
-  if($('stage-help')){$('stage-help').hidden=!side;$('stage-help').textContent='横から見て、8 m先の箱へ。上ドラッグの長さで強さ、ホイール／角度のつまみで弧を調整。左右とカメラの向きは固定。記録は3Dで見回せます。';}
+  $('camera-help').textContent=side?'横視点のカメラは固定。＋／−でズーム、視点を戻すボタンで元の大きさへ。投球は右上へなぞり、向きで角度、長さで強さを決めます。':'右ボタンを押したままドラッグで一時的に見回す。短い右クリック／ボタンで「見回す」に切替。ドラッグや矢印キーで回転、ホイールでズーム。';
+  if($('first-throw-tip'))$('first-throw-tip').textContent=side?'脇道の2D：右上へなぞる。向きで角度、長さで強さ。離すと一投。':'画面を上へドラッグ／スワイプして、離すと一投。';
+  if($('control-help'))$('control-help').textContent=side?'右上へなぞる向きで角度、長さで強さ。数値なら角度5〜85°、強さ0.5〜14をそれぞれ自由に調整できます。':'手投げの強さはドラッグの長さ、左右は箱方向を基準。弧の高さはホイールで調整できます。つまみとボタンでも。';
+  if($('stage-help')){$('stage-help').hidden=!side;$('stage-help').textContent='本編とは別の、2Dの脇道。右上へなぞる向きで角度、長さで強さを決めて、8 m先の箱へ。低くも高くも投げられます。記録は3Dで見回せます。';}
   if(state.id!=='free')for(const id of ['distance','height'])$(id).disabled=true;
   if(!$('stage-select'))return;
   $('stage-select').value=state.id;$('stage-select').disabled=busy();$('start-tutorial').disabled=busy();
   $('tutorial-card').hidden=state.id!=='tutorial';
   const clear=state.completed.includes(state.id);
   $('stage-progress').textContent=state.id==='free'?'自由投球 · プレイ記録は累積':`${clear?'クリア済み · ':''}この挑戦 ${state.successes} 成功 / ${state.attempts} 投 · 箱に1回入れよう`;
-  $('stage-message').textContent=busy()?'投球が落ち着いたら、ステージを変えられます。':state.id==='tutorial'&&clear?'できた！ 次は、いつものゴミ箱へ。':state.id==='first'&&clear?'クリア！ 次は横から、少し遠い箱へ。':side&&clear?'クリア！ 横からもう一投、自由投球にも戻れます。':game.phase==='miss'&&state.id!=='free'?(side?'強さや弧の高さを変えて、もう一投。':'向きや強さを変えて、もう一投。'):'';
+  $('stage-message').textContent=busy()?'投球が落ち着いたら、ステージを変えられます。':state.id==='tutorial'&&clear?'できた！ 次は、1-1のゴミ箱へ。':state.id==='first'&&clear?'クリア！ 自由投球へ。2Dの脇道はステージ選択から遊べます。':side&&clear?'脇道クリア！ 本編とは別の挑戦です。もう一投、自由投球にも戻れます。':game.phase==='miss'&&state.id!=='free'?(side?'角度や強さを変えて、もう一投。':'向きや強さを変えて、もう一投。'):'';
   $('stage-next').hidden=!['tutorial','first'].includes(state.id)||!clear;$('stage-next').disabled=busy();
+  $('stage-next').textContent=state.id==='first'?'自由に投げるへ':'次のステージへ';
   $('stage-retry').hidden=state.id==='free';$('stage-retry').disabled=busy();
 }
 function fire(source='numeric'){
@@ -217,12 +225,13 @@ function inside(event,rect){return event.clientX>=rect.left&&event.clientX<=rect
 function sameLayout(gesture){const rect=canvas.getBoundingClientRect();return gesture.viewport.width===innerWidth&&gesture.viewport.height===innerHeight&&rect.width===gesture.rect.width&&rect.height===gesture.rect.height&&rect.left===gesture.rect.left&&rect.top===gesture.rect.top;}
 function gestureAim(gesture,event){
   const size=Math.max(1,Math.min(gesture.rect.width,gesture.rect.height));
+  if(sideStage())return sideAim(event.clientX-gesture.startX,gesture.startY-event.clientY,size);
   const upward=(gesture.startY-event.clientY)/size,sideways=(event.clientX-gesture.startX)/size;
   return {power:Math.round(clamp(4+upward*18,4,13)*20)/20,yaw:sideStage()?0:Math.round(clamp(sideways*60,-60,60)*2)/2,valid:upward>=.10};
 }
 function showGesture(gesture,event){
   const x=gesture.startX-gesture.rect.left,y=gesture.startY-gesture.rect.top;
-  const dx=sideStage()?0:event.clientX-gesture.startX,dy=event.clientY-gesture.startY;
+  const dx=event.clientX-gesture.startX,dy=event.clientY-gesture.startY;
   $('gesture-feedback').hidden=false;
   $('gesture-origin').style.left=`${x}px`;$('gesture-origin').style.top=`${y}px`;
   $('gesture-tip').style.left=`${x+dx}px`;$('gesture-tip').style.top=`${y+dy}px`;
@@ -292,7 +301,7 @@ function releaseGesture(gesture,aim){
   const accepted=aim?.valid&&sameLayout(gesture)&&!busy();
   view.gesture=null;wheelAnglePixels=0;$('gesture-feedback').hidden=true;
   if(canvas.hasPointerCapture(gesture.id))canvas.releasePointerCapture(gesture.id);
-  if(accepted){controls.power=aim.power;controls.yaw=aim.yaw;updateControlLabels();fire('gesture');}
+  if(accepted){controls.power=aim.power;controls.yaw=aim.yaw;if(sideStage())controls.elevation=aim.elevation;updateControlLabels();fire('gesture');}
   else{if(gesture.kind==='throw'){lastInput={type:'cancel',reason:'short-or-invalid-release'};cancellations++;}updateControlLabels();updateHint();}
 }
 canvas.addEventListener('pointerup',event=>{
@@ -330,13 +339,16 @@ canvas.addEventListener('wheel',event=>{
   if(view.gesture?.temporaryObserve){renderer.zoom(Math.exp(clamp(delta,-100,100)*.002));return;}
   if(view.mode==='observe'){cancelGesture('wheel');renderer.zoom(Math.exp(clamp(delta,-100,100)*.002));return;}
   if(busy()){wheelAnglePixels=0;return;}
+  // In 2D a held vector owns its angle. A wheel cannot silently replace it.
+  if(sideStage()&&view.gesture){wheelAnglePixels=0;return;}
   if(view.gesture&&!sameLayout(view.gesture)){cancelGesture('layout-change');return;}
   // Accumulate small trackpad deltas without rounding each event to a jump.
   wheelAnglePixels-=delta;
   const degrees=Math.trunc(wheelAnglePixels/24);
   wheelAnglePixels-=degrees*24;
-  controls.elevation=clamp(controls.elevation+degrees,15,75);
-  if((controls.elevation===75&&wheelAnglePixels>0)||(controls.elevation===15&&wheelAnglePixels<0))wheelAnglePixels=0;
+  const lower=sideStage()?5:15,upper=sideStage()?85:75;
+  controls.elevation=clamp(controls.elevation+degrees,lower,upper);
+  if((controls.elevation===upper&&wheelAnglePixels>0)||(controls.elevation===lower&&wheelAnglePixels<0))wheelAnglePixels=0;
   updateControlLabels(view.gesture?.aim);updateHint();
 },{passive:false});
 document.addEventListener('keydown',event=>{
@@ -504,7 +516,7 @@ async function loadSharedReplay(){
 }
 window.addEventListener('hashchange',loadSharedReplay);
 loadSharedReplay();
-window.__trashShot={game,controls,stageSnapshot:()=>stageProgress.snapshot(),snapshot:()=>getSnapshot(game),cameraSnapshot:()=>renderer.cameraSnapshot(),inputSnapshot:()=>({mode:view.mode,prediction:view.prediction,activeGesture:view.gesture?.kind||null,activePointers:pointers.size,cancellations,lastInput:lastInput?structuredClone(lastInput):null}),analyticsSnapshot:()=>analytics.snapshot(),replaySnapshot:()=>({active:replayDialog.open,playing:replayPlaying,time:replayTime,duration:replayPlayer?.duration||0,sourceId:viewedReplay?.id||null,sourceType:replaySource,recordedFrames:viewedReplay?.frames.length||0,current:replayPlayer?structuredClone(replayPlayer.sample(replayTime)):null,result:viewedReplay?structuredClone(viewedReplay.result):null,savedCount:savedReplays.length,latestId:lastReplay?.id||null,recording:Boolean(videoState),video:videoBlob?{size:videoBlob.size,mime:videoBlob.type}:null})};
+window.__trashShot={game,controls,stageSnapshot:()=>stageProgress.snapshot(),snapshot:()=>getSnapshot(game),cameraSnapshot:()=>renderer.cameraSnapshot(),inputSnapshot:()=>({mode:view.mode,prediction:view.prediction,activeGesture:view.gesture?.kind||null,heldAim:view.gesture?.kind==='throw'?{...view.gesture.aim}:null,activePointers:pointers.size,cancellations,lastInput:lastInput?structuredClone(lastInput):null}),analyticsSnapshot:()=>analytics.snapshot(),replaySnapshot:()=>({active:replayDialog.open,playing:replayPlaying,time:replayTime,duration:replayPlayer?.duration||0,sourceId:viewedReplay?.id||null,sourceType:replaySource,recordedFrames:viewedReplay?.frames.length||0,current:replayPlayer?structuredClone(replayPlayer.sample(replayTime)):null,result:viewedReplay?structuredClone(viewedReplay.result):null,savedCount:savedReplays.length,latestId:lastReplay?.id||null,recording:Boolean(videoState),video:videoBlob?{size:videoBlob.size,mime:videoBlob.type}:null})};
 updateControlLabels();updateUI(true);
 
 // Diagnosis observes input only after an explicit opt-in. The game's input
@@ -513,7 +525,7 @@ function setupInputCheck(){
   const [entry,panel,copy,close,text,message]=['input-check-open','input-check-panel','input-check-copy','input-check-close','input-check-text','input-check-message'].map($);
   // A new app can be loaded by an older cached HTML page without these nodes.
   if(![entry,panel,copy,close,text,message].every(Boolean))return;
-  const version='20261010-side-stage-1',limit=24,maxBytes=12000;
+  const version='20261010-side-aim-1',limit=24,maxBytes=12000;
   let session=null,removeListeners=[];
   const clone=value=>value?(typeof structuredClone==='function'?structuredClone(value):JSON.parse(JSON.stringify(value))):null;
   const geometry=()=>{

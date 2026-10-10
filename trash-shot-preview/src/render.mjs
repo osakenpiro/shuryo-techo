@@ -1,4 +1,4 @@
-import { predictArc } from './physics.mjs?v=20261010-side-stage-1';
+import { predictArc } from './physics.mjs?v=20261010-side-aim-1';
 
 const add = (a,b) => ({ x:a.x+b.x, y:a.y+b.y, z:a.z+b.z });
 const sub = (a,b) => ({ x:a.x-b.x, y:a.y-b.y, z:a.z-b.z });
@@ -191,7 +191,7 @@ export function createRenderer(canvas) {
     const trail=game.trail||[],points=[game.can.position,...trail];
     let prediction=[];
     if(view.prediction&&['ready','success','miss'].includes(game.phase)){
-      const arc=predictArc(game,{...controls,yaw:0},64),end=arc.findIndex((p,i)=>i>1&&p.y<.03);
+      const arc=predictArc(game,{...(view.aim||controls),yaw:0},64),end=arc.findIndex((p,i)=>i>1&&p.y<.03);
       prediction=end<0?arc:arc.slice(0,end+1);
       points.push(...prediction);
     }
@@ -207,9 +207,14 @@ export function createRenderer(canvas) {
     stroke({z:minZ,y:0},{z:maxZ,y:0},'#829570',1.5);
     ctx.textAlign='center';ctx.font='10px system-ui,sans-serif';ctx.fillStyle='#536b49';
     for(let z=0;z<=game.bin.center.z;z+=2){const p=project({z,y:0});ctx.beginPath();ctx.moveTo(p.x,floor);ctx.lineTo(p.x,floor+5);ctx.strokeStyle='#829570';ctx.stroke();ctx.fillText(`${z} m`,p.x,floor+20);}
-    ctx.textAlign='left';ctx.font='600 12px system-ui,sans-serif';ctx.fillStyle='#36553f';ctx.fillText('横からぽいっ · 2D',14,22);
+    ctx.textAlign='left';ctx.font='600 12px system-ui,sans-serif';ctx.fillStyle='#36553f';ctx.fillText('脇道 · 横からぽいっ（2D）',14,22);
     if(prediction.length){ctx.fillStyle='#ac7728';for(let i=0;i<prediction.length;i+=2){const p=project(prediction[i]);if(prediction[i].y>=0){ctx.beginPath();ctx.arc(p.x,p.y,1.7,0,Math.PI*2);ctx.fill();}}}
     for(let i=1;i<trail.length;i++)stroke(trail[i-1],trail[i],`rgba(167,112,33,${.25+.4*i/trail.length})`,2);
+    if(view.aim?.valid){
+      const angle=view.aim.elevation*Math.PI/180,length=.6+view.aim.power*.06,origin=game.phase==='ready'?game.can.position:{y:1.05,z:0};
+      const end={z:origin.z+Math.cos(angle)*length,y:origin.y+Math.sin(angle)*length},a=project(origin),b=project(end),heading=Math.atan2(b.y-a.y,b.x-a.x);
+      stroke(origin,end,'#a86d25',2.5);ctx.beginPath();ctx.moveTo(b.x,b.y);ctx.lineTo(b.x-8*Math.cos(heading-.45),b.y-8*Math.sin(heading-.45));ctx.lineTo(b.x-8*Math.cos(heading+.45),b.y-8*Math.sin(heading+.45));ctx.closePath();ctx.fillStyle='#a86d25';ctx.fill();
+    }
     const c=game.bin.center,r=game.bin.radius,h=game.bin.height;
     const left=project({z:c.z-r,y:h}),right=project({z:c.z+r,y:0});
     // Open-topped section of the same hollow cylinder. The inside edges
