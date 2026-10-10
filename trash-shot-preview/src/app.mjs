@@ -1,7 +1,7 @@
-import { createGame, setSetup, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261010-friends-1';
-import { createRenderer } from './render.mjs?v=20261010-friends-1';
-import { createShotAnalytics } from './shot-analytics.mjs?v=20261010-friends-1';
-import { createRecorder, createReplayPlayer, validateReplay, loadReplays, saveReplay, deleteReplay, buildReplayURL, decodeReplay, replayToJSON, parseReplayJSON } from './replay.mjs?v=20261010-friends-1';
+import { createGame, setSetup, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261010-input-check-1';
+import { createRenderer } from './render.mjs?v=20261010-input-check-1';
+import { createShotAnalytics } from './shot-analytics.mjs?v=20261010-input-check-1';
+import { createRecorder, createReplayPlayer, validateReplay, loadReplays, saveReplay, deleteReplay, buildReplayURL, decodeReplay, replayToJSON, parseReplayJSON } from './replay.mjs?v=20261010-input-check-1';
 
 const $=id=>document.getElementById(id);
 const canvas=$('scene');
@@ -70,7 +70,8 @@ function updateHint(){
     $('input-detail').textContent='投球が落ち着いたら、もう一投。';
   }else if(view.gesture){
     const aim=view.gesture.aim;
-    $('interaction-hint').textContent=aim.valid?'離すと一投。取り消しは Esc または下のボタン。':'もう少し上へ動かすと、投げられます。';
+    const outsideEmbeddedMouse=view.gesture.pointerType==='mouse'&&window.self!==window.top&&!inside({clientX:view.gesture.lastX,clientY:view.gesture.lastY},view.gesture.rect);
+    $('interaction-hint').textContent=aim.valid?(outsideEmbeddedMouse?'外で離したら、カーソルを画面へ戻すと一投。Esc で取消。':'離すと一投。取り消しは Esc または下のボタン。'):'もう少し上へ動かすと、投げられます。';
     $('input-detail').textContent=`強さ ${aim.power.toFixed(1)} · ${aim.yaw===0?'箱へまっすぐ':`${aim.yaw<0?'左':'右'} ${Math.abs(aim.yaw)}°`} · 角度 ${controls.elevation}°`;
   }else{
     $('interaction-hint').textContent='上へドラッグ／スワイプして、離すと一投。';
@@ -149,14 +150,24 @@ function showGesture(gesture,event){
   updateControlLabels(gesture.aim);
   updateHint();
 }
-document.addEventListener('pointerdown',event=>{pointers.add(event.pointerId);if(pointers.size>1)cancelGesture('second-pointer');},true);
-for(const type of ['pointerup','pointercancel'])document.addEventListener(type,event=>{pointers.delete(event.pointerId);if(type==='pointercancel')cancelGesture('pointercancel');},true);
+document.addEventListener('pointerdown',event=>{if(view.gesture?.releasedCapture)cancelGesture('lostpointercapture');pointers.add(event.pointerId);if(pointers.size>1)cancelGesture('second-pointer');},true);
+for(const type of ['pointerup','pointercancel'])document.addEventListener(type,event=>{
+  pointers.delete(event.pointerId);
+  if(type==='pointercancel')cancelGesture('pointercancel');
+  else if(view.gesture?.releasedCapture&&view.gesture.id===event.pointerId)cancelGesture('lostpointercapture');
+},true);
+document.addEventListener('pointermove',event=>{
+  const gesture=view.gesture;if(!gesture?.releasedCapture||gesture.id!==event.pointerId)return;
+  if(event.isTrusted&&event.pointerType==='mouse'&&event.buttons===0&&pointers.size===0&&document.hasFocus()&&!document.hidden){
+    releaseGesture(gesture,gesture.aim);
+  }else cancelGesture('lostpointercapture');
+},true);
 canvas.addEventListener('pointerdown',event=>{
   if(event.button!==0||pointers.size!==1||view.gesture||(view.mode==='throw'&&busy()))return;
   const rect=canvas.getBoundingClientRect();
   if(!inside(event,rect))return;
   event.preventDefault();canvas.focus({preventScroll:true});
-  view.gesture={kind:view.mode,id:event.pointerId,rect,viewport:{width:innerWidth,height:innerHeight},startX:event.clientX,startY:event.clientY,lastX:event.clientX,lastY:event.clientY};
+  view.gesture={kind:view.mode,id:event.pointerId,pointerType:event.pointerType,rect,viewport:{width:innerWidth,height:innerHeight},startX:event.clientX,startY:event.clientY,lastX:event.clientX,lastY:event.clientY};
   if(view.mode==='throw')view.gesture.aim=gestureAim(view.gesture,event);
   canvas.setPointerCapture(event.pointerId);updateHint();
 });
@@ -178,17 +189,31 @@ canvas.addEventListener('pointermove',event=>{
   else{gesture.aim=gestureAim(gesture,event);showGesture(gesture,event);}
   gesture.lastX=event.clientX;gesture.lastY=event.clientY;
 });
+function releaseGesture(gesture,aim){
+  const accepted=aim?.valid&&sameLayout(gesture)&&!busy();
+  view.gesture=null;wheelAnglePixels=0;$('gesture-feedback').hidden=true;
+  if(canvas.hasPointerCapture(gesture.id))canvas.releasePointerCapture(gesture.id);
+  if(accepted){controls.power=aim.power;controls.yaw=aim.yaw;updateControlLabels();fire('gesture');}
+  else{if(gesture.kind==='throw'){lastInput={type:'cancel',reason:'short-or-invalid-release'};cancellations++;}updateControlLabels();updateHint();}
+}
 canvas.addEventListener('pointerup',event=>{
   const gesture=view.gesture;if(!gesture||gesture.id!==event.pointerId)return;
   event.preventDefault();
-  const aim=gesture.kind==='throw'?gestureAim(gesture,event):null;
-  const accepted=aim?.valid&&sameLayout(gesture)&&!busy();
-  view.gesture=null;wheelAnglePixels=0;$('gesture-feedback').hidden=true;
-  if(canvas.hasPointerCapture(event.pointerId))canvas.releasePointerCapture(event.pointerId);
-  if(accepted){controls.power=aim.power;controls.yaw=aim.yaw;updateControlLabels();fire('gesture');}
-  else{if(gesture.kind==='throw'){lastInput={type:'cancel',reason:'short-or-invalid-release'};cancellations++;}updateControlLabels();updateHint();}
+  if(gesture.releasedCapture){cancelGesture('lostpointercapture');return;}
+  releaseGesture(gesture,gesture.kind==='throw'?gestureAim(gesture,event):null);
 });
-canvas.addEventListener('lostpointercapture',()=>cancelGesture('lostpointercapture'));
+canvas.addEventListener('lostpointercapture',event=>{
+  const gesture=view.gesture;
+  // A cross-site iframe can miss mouse pointerup outside its border, then
+  // receive capture loss on return with the real released button state.
+  // Wait for a button-free move: loss followed by pointerup can instead be
+  // capture being released while held and flushed by that next pointerup.
+  const released=event.isTrusted&&event.pointerType==='mouse'&&event.buttons===0;
+  if(released)pointers.delete(event.pointerId);
+  if(released&&gesture?.id===event.pointerId&&gesture.kind==='throw'&&pointers.size===0&&document.hasFocus()&&!document.hidden){
+    gesture.releasedCapture=true;
+  }else cancelGesture('lostpointercapture');
+});
 $('cancel-gesture').addEventListener('click',()=>cancelGesture('cancel-button'));
 function editingInput(target){return target instanceof HTMLElement&&(target.matches('input,select,textarea')||target.isContentEditable);}
 document.addEventListener('focusin',event=>{if(editingInput(event.target))cancelGesture('input-focus');});
@@ -380,6 +405,108 @@ window.addEventListener('hashchange',loadSharedReplay);
 loadSharedReplay();
 window.__trashShot={game,controls,snapshot:()=>getSnapshot(game),cameraSnapshot:()=>renderer.cameraSnapshot(),inputSnapshot:()=>({mode:view.mode,prediction:view.prediction,activeGesture:view.gesture?.kind||null,activePointers:pointers.size,cancellations,lastInput:lastInput?structuredClone(lastInput):null}),analyticsSnapshot:()=>analytics.snapshot(),replaySnapshot:()=>({active:replayDialog.open,playing:replayPlaying,time:replayTime,duration:replayPlayer?.duration||0,sourceId:viewedReplay?.id||null,sourceType:replaySource,recordedFrames:viewedReplay?.frames.length||0,current:replayPlayer?structuredClone(replayPlayer.sample(replayTime)):null,result:viewedReplay?structuredClone(viewedReplay.result):null,savedCount:savedReplays.length,latestId:lastReplay?.id||null,recording:Boolean(videoState),video:videoBlob?{size:videoBlob.size,mime:videoBlob.type}:null})};
 updateControlLabels();updateUI(true);
+
+// Diagnosis observes input only after an explicit opt-in. The game's input
+// handlers above remain independent of the record and its copy controls.
+function setupInputCheck(){
+  const [entry,panel,copy,close,text,message]=['input-check-open','input-check-panel','input-check-copy','input-check-close','input-check-text','input-check-message'].map($);
+  // A new app can be loaded by an older cached HTML page without these nodes.
+  if(![entry,panel,copy,close,text,message].every(Boolean))return;
+  const version='20261010-input-check-1',limit=24,maxBytes=12000;
+  let session=null,removeListeners=[];
+  const clone=value=>value?(typeof structuredClone==='function'?structuredClone(value):JSON.parse(JSON.stringify(value))):null;
+  const geometry=()=>{
+    const rect=canvas.getBoundingClientRect();
+    return {canvas:{x:rect.x,y:rect.y,width:rect.width,height:rect.height},viewport:{width:innerWidth,height:innerHeight,scrollX,scrollY,scale:window.visualViewport?.scale??null}};
+  };
+  const state=event=>{
+    const gesture=view.gesture;
+    return {mode:view.mode,phase:game.phase,attempts:game.attempts,busy:busy(),pointers:pointers.size,gesture:gesture?.kind??null,pointerId:gesture?.id??null,pendingRelease:Boolean(gesture?.releasedCapture),heldAim:clone(gesture?.aim),releaseAim:gesture?.kind==='throw'&&event?.type==='pointerup'?gestureAim(gesture,event):null,layout:gesture?sameLayout(gesture):null,cancellations,lastInput:clone(lastInput),focus:document.hasFocus(),hidden:document.hidden};
+  };
+  function append(event,stage){
+    if(!session)return;
+    const pointer=event instanceof PointerEvent;
+    if(pointer&&event.target!==canvas&&!view.gesture&&!session.pointerIds.has(event.pointerId))return;
+    if(pointer&&stage==='capture')session.pointerIds.add(event.pointerId);
+    if(stage==='capture'||stage==='after')session.counts[event.type]=(session.counts[event.type]||0)+1;
+    const snapshot=state(event),record={ms:Math.round(performance.now()-session.started),type:event.type,stage,trusted:event.isTrusted,target:event.target===canvas?'scene':event.target===window?'window':event.target===document?'document':'outside-scene',state:snapshot};
+    if(pointer)Object.assign(record,{id:event.pointerId,pointerType:event.pointerType,button:event.button,buttons:event.buttons,x:Math.round(event.clientX*10)/10,y:Math.round(event.clientY*10)/10,prevented:event.defaultPrevented});
+    if(event.type==='pointerdown'&&stage==='capture'){session.lossBefore=null;session.lastReleaseBefore=null;}
+    if(stage==='capture'&&snapshot.gesture&&(event.type==='pointerup'||event.type==='lostpointercapture'))record.gestureGeometry={canvas:{x:view.gesture.rect.left,y:view.gesture.rect.top,width:view.gesture.rect.width,height:view.gesture.rect.height},viewport:clone(view.gesture.viewport)};
+    if(event.type==='lostpointercapture'&&stage==='capture'&&snapshot.gesture){session.lossBefore=record;session.lastReleaseBefore=record;}
+    if(event.type==='pointerup'&&stage==='capture')session.lastReleaseBefore=snapshot.gesture?record:session.lossBefore?.id===event.pointerId?session.lossBefore:record;
+    // The existing document capture handler can finish a pending release
+    // before this observer runs. Preserve the actually observed loss stage.
+    if(event.type==='pointermove'&&snapshot.attempts>session.lastAttempts&&session.lossBefore?.id===event.pointerId)session.lastReleaseBefore=session.lossBefore;
+    if(event.type==='keydown'&&event.code!=='Escape')return;
+    if(event.type==='wheel')Object.assign(record,{deltaY:event.deltaY,deltaMode:event.deltaMode,ctrl:event.ctrlKey});
+    if(event.type==='error'||event.type==='unhandledrejection'){
+      const name=(event.error||event.reason)?.name;
+      const names=['Error','TypeError','ReferenceError','SyntaxError','RangeError','URIError','EvalError','AggregateError','AbortError','NotAllowedError','SecurityError','NotSupportedError','InvalidStateError','DataError','OperationError','QuotaExceededError'];
+      let modulePath=null;
+      try{const url=new URL(event.filename);if(url.origin===location.origin&&/\.m?js$/.test(url.pathname))modulePath=url.pathname.slice(0,512);}catch{}
+      record.failure={name:names.includes(name)?name:'Error',modulePath,line:Number.isFinite(event.lineno)?event.lineno:null,column:Number.isFinite(event.colno)?event.colno:null};
+      session.lastRuntimeError=record;
+    }
+    if(view.gesture&&event.type==='pointerdown'&&stage==='bubble')session.gestureStart={ms:record.ms,pointerType:event.pointerType,id:view.gesture.id,start:{x:view.gesture.startX,y:view.gesture.startY},geometry:geometry(),state:snapshot};
+    if(event.type==='pointerup'||(snapshot.attempts>session.lastAttempts))session.lastRelease=record;
+    if(snapshot.cancellations>session.lastCancellations)session.lastCancellation=record;
+    session.lastAttempts=snapshot.attempts;session.lastCancellations=snapshot.cancellations;
+    session.events.push(record);
+    if(session.events.length>limit){session.events.shift();session.dropped++;}
+    if(pointer&&stage==='bubble'&&!view.gesture&&pointers.size===0){session.pointerIds.clear();session.lossBefore=null;}
+  }
+  function listen(target,type,handler,capture=false){
+    target.addEventListener(type,handler,{capture,passive:true});
+    removeListeners.push(()=>target.removeEventListener(type,handler,capture));
+  }
+  function open(){
+    if(session)return;
+    session={started:performance.now(),entryBefore:state(),entryGeometry:geometry(),events:[],counts:{},pointerIds:new Set(),dropped:0,gestureStart:null,lastReleaseBefore:null,lossBefore:null,lastRelease:null,lastCancellation:null,lastRuntimeError:null,lastAttempts:game.attempts,lastCancellations:cancellations};
+    panel.hidden=false;entry.setAttribute('aria-expanded','true');text.hidden=true;text.value='';message.textContent='一度投げてから「記録をコピー」を押してください。';
+    for(const type of ['pointerdown','pointermove','pointerup','pointercancel','gotpointercapture','lostpointercapture']){
+      listen(document,type,event=>append(event,'capture'),true);
+      listen(document,type,event=>append(event,'bubble'));
+    }
+    for(const type of ['keydown','focusin','click','contextmenu','wheel'])listen(document,type,event=>{
+      if(type==='keydown'&&event.code!=='Escape')return;
+      if(type==='click'&&(!event.target.closest?.('.scene-toolbar,.camera-controls,.control-card')&&event.target!==$('cancel-gesture')))return;
+      if(type==='wheel'&&event.target!==canvas)return;
+      append(event,'after');
+    });
+    for(const type of ['resize','blur','scroll','error','unhandledrejection'])listen(window,type,event=>append(event,'after'));
+    listen(document,'visibilitychange',event=>append(event,'after'));
+  }
+  function stop(){
+    for(const remove of removeListeners)remove();
+    removeListeners=[];session=null;panel.hidden=true;entry.setAttribute('aria-expanded','false');text.value='';text.hidden=true;message.textContent='';
+  }
+  function report(){
+    const data={format:'trash-shot-input-check-1',version,childURL:(location.origin+location.pathname).slice(0,1024),embedded:window.self!==window.top,userAgent:navigator.userAgent.slice(0,320),platform:navigator.platform.slice(0,80),elapsedMs:Math.round(performance.now()-session.started),entryBeforeExistingState:session.entryBefore,entryGeometry:session.entryGeometry,gestureStart:session.gestureStart,lastReleaseBefore:session.lastReleaseBefore,lastRelease:session.lastRelease,lastCancellation:session.lastCancellation,lastRuntimeError:session.lastRuntimeError,nativeEventCounts:session.counts,droppedEvents:session.dropped,finalState:state(),finalGeometry:geometry(),events:[...session.events],ordering:'capture: after existing document capture handlers; bubble/after: after game handlers',scope:'Opt-in child-frame events only; no parent events or physical-device proof.'};
+    let result=JSON.stringify(data,null,2);
+    while(new TextEncoder().encode(result).length>maxBytes&&data.events.length){data.events.shift();data.droppedEvents++;result=JSON.stringify(data,null,2);}
+    return result;
+  }
+  entry.addEventListener('click',open);
+  close.addEventListener('click',stop);
+  copy.addEventListener('click',async()=>{
+    if(!session)return;
+    const startedSession=session;
+    text.value=report();
+    try{
+      if(!navigator.clipboard?.writeText)throw new Error('unsupported');
+      await navigator.clipboard.writeText(text.value);
+      if(session===startedSession)message.textContent='記録をコピーしました。この会話へ貼ってください。';
+    }catch{
+      if(session!==startedSession)return;
+      text.hidden=false;text.focus();text.select();
+      message.textContent='コピーが使えないため、記録をすべて選択しました。手動でコピーして、この会話へ貼ってください。';
+    }
+  });
+  if(new URLSearchParams(location.search).get('input-debug')==='1')open();
+}
+setupInputCheck();
+
 function frame(now){
   const dt=Math.max(0,Math.min((now-previousTime)/1000,.045));previousTime=now;
   stepGame(game,dt);captureShot();updateUI();renderer.render(game,controls,{prediction:view.prediction,aim:view.gesture?.kind==='throw'?{...controls,...view.gesture.aim}:null});
