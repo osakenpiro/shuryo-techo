@@ -1,7 +1,7 @@
-import { createGame, setSetup, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261010-right-drag-1';
-import { createRenderer } from './render.mjs?v=20261010-right-drag-1';
-import { createShotAnalytics } from './shot-analytics.mjs?v=20261010-right-drag-1';
-import { createRecorder, createReplayPlayer, validateReplay, loadReplays, saveReplay, deleteReplay, buildReplayURL, decodeReplay, replayToJSON, parseReplayJSON } from './replay.mjs?v=20261010-right-drag-1';
+import { createGame, setSetup, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261010-score-1';
+import { createRenderer } from './render.mjs?v=20261010-score-1';
+import { createShotAnalytics } from './shot-analytics.mjs?v=20261010-score-1';
+import { createRecorder, createReplayPlayer, validateReplay, loadReplays, saveReplay, deleteReplay, buildReplayURL, decodeReplay, replayToJSON, parseReplayJSON } from './replay.mjs?v=20261010-score-1';
 
 const $=id=>document.getElementById(id);
 const canvas=$('scene');
@@ -82,6 +82,24 @@ function updateHint(){
   }
   canvas.setAttribute('aria-label',view.mode==='observe'?'缶と箱を観察する立体画面。ドラッグか矢印キーでカメラ回転。ホイールかプラスとマイナスでズーム。右クリックで手投げに切替。':'缶を投げる立体画面。上へドラッグまたはスワイプして離すと一投。左右は箱方向を基準。ホイール上で投球の角度が上がります。右ドラッグで見回す。短い右クリックで切替。数値で投げるボタンも使えます。');
 }
+function updateScoreSummary(){
+  const rate=$('success-rate');
+  if(rate)rate.textContent=game.attempts?`${Math.round(game.successes/game.attempts*100)}%`:'—';
+  const summary=$('live-shot-summary');
+  if(!summary)return;
+  summary.dataset.phase=game.phase;
+  const titles={ready:game.attempts?'次の一投を構えています':'まだ投げていません',flying:'飛んでいます…',settling:'箱の中で落ち着くのを待っています…',success:'成功！ 箱に入りました',miss:'今回は入りませんでした'};
+  $('live-shot-result').textContent=titles[game.phase]||titles.ready;
+  const roles=$('live-shot-roles');roles.replaceChildren();roles.hidden=true;
+  let detail={ready:'上へドラッグして、離すと一投。',flying:'缶の行方を見届けよう。',settling:'成功は、箱の中で落ち着いてから。',miss:'向きや強さを変えて、もう一投。'}[game.phase]||'';
+  const result=analytics.snapshot().result;
+  if(game.phase==='success'&&result?.success){
+    for(const role of result.roles){const chip=document.createElement('span');chip.className='shot-role-chip';chip.textContent=role.label;roles.append(chip);}
+    roles.hidden=!result.roles.length;
+    detail=result.roles.some(role=>role.id==='direct')?'床・ふち・側面で跳ね返らず、そのまま箱へ。':`入るまでの跳ね返り：外の床 ${result.floorBounces} 回 · ふち ${result.rimHits} 回 · 側面 ${result.sideHits} 回。`;
+  }
+  $('live-shot-detail').textContent=detail;
+}
 function updateUI(force=false){
   const key=[game.phase,game.lastEvent,game.attempts,game.successes,game.bin.center.z,game.bin.height].join('|');
   if(key===lastUIKey&&!force)return;
@@ -92,6 +110,7 @@ function updateUI(force=false){
   $('status-panel').dataset.phase=game.phase;
   $('attempt-count').textContent=String(game.attempts).padStart(2,'0');
   $('success-count').textContent=String(game.successes).padStart(2,'0');
+  updateScoreSummary();
   $('setup-description').textContent=`距離 ${game.bin.center.z} m · 高さ ${game.bin.height} m`;
   const messages={
     ready:['↗','いいところに、投げてみよう。','画面で手投げ、または数値で投げられます。','数値で投げる'],
@@ -435,7 +454,7 @@ function setupInputCheck(){
   const [entry,panel,copy,close,text,message]=['input-check-open','input-check-panel','input-check-copy','input-check-close','input-check-text','input-check-message'].map($);
   // A new app can be loaded by an older cached HTML page without these nodes.
   if(![entry,panel,copy,close,text,message].every(Boolean))return;
-  const version='20261010-right-drag-1',limit=24,maxBytes=12000;
+  const version='20261010-score-1',limit=24,maxBytes=12000;
   let session=null,removeListeners=[];
   const clone=value=>value?(typeof structuredClone==='function'?structuredClone(value):JSON.parse(JSON.stringify(value))):null;
   const geometry=()=>{
