@@ -6,14 +6,14 @@
   <meta name="theme-color" content="#f4f1e8">
   <title>ごみシュート / FIRST THROW</title>
   <meta name="description" content="缶ひとつ、箱ひとつ。ドラッグやスワイプで投げる、ごみシュート。友だちにもひと投げを。">
-  <link rel="stylesheet" href="./style.css?v=20261010-stages-1">
-  <script type="module" src="./src/app.mjs?v=20261010-stages-1"></script>
+  <link rel="stylesheet" href="./style.css?v=20261010-stages-2">
+  <script type="module" src="./src/app.mjs?v=20261010-stages-2"></script>
 </head>
 <body>
   <main class="game-shell">
     <header class="masthead">
       <a class="wordmark" href="./" aria-label="ごみシュート ホーム"><span class="brand-mark" aria-hidden="true">↗</span> ごみシュート</a>
-      <div class="masthead-actions"><span class="edition">FIRST THROW <span>操作を試す版</span></span><a id="browser-open" class="invite-button browser-open" href="https://osakenpiro.github.io/shuryo-techo/trash-shot-preview/?v=20261010-stages-1" target="_blank" rel="noopener noreferrer">ブラウザで開く <span aria-hidden="true">↗</span></a><button id="invite-game" class="invite-button" type="button">友だちに渡す <span aria-hidden="true">↗</span></button></div>
+      <div class="masthead-actions"><span class="edition">FIRST THROW <span>操作を試す版</span></span><a id="browser-open" class="invite-button browser-open" href="https://osakenpiro.github.io/shuryo-techo/trash-shot-preview/?v=20261010-stages-2" target="_blank" rel="noopener noreferrer">ブラウザで開く <span aria-hidden="true">↗</span></a><button id="invite-game" class="invite-button" type="button">友だちに渡す <span aria-hidden="true">↗</span></button></div>
     </header>
 
     <section class="intro" aria-labelledby="game-title">
@@ -39,7 +39,7 @@
         <p id="interaction-hint" class="interaction-hint">上へドラッグ／スワイプして、離すと一投。</p>
         <div class="scene-bottom"><span id="input-detail">長く動かすほど強く。ホイール上で高い弧。右ドラッグで見回す。短い右クリックで切替。</span><button id="cancel-gesture" type="button" hidden>投球を取り消す</button></div>
         <details class="camera-controls"><summary>視点の操作 <span>角度・ズーム</span></summary><p id="camera-help">右ボタンを押したままドラッグで一時的に見回す。短い右クリック／ボタンで「見回す」に切替。ドラッグや矢印キーで回転、ホイールでズーム。</p><div class="camera-buttons" role="group" aria-label="カメラの角度とズーム"><button id="camera-left" type="button" aria-label="視点を左へ回す">←</button><button id="camera-right" type="button" aria-label="視点を右へ回す">→</button><button id="camera-up" type="button" aria-label="視点を上へ回す">↑</button><button id="camera-down" type="button" aria-label="視点を下へ回す">↓</button><button id="camera-in" type="button" aria-label="視点を近づける">＋</button><button id="camera-out" type="button" aria-label="視点を遠ざける">−</button></div></details>
-        <div class="input-check-entry"><button id="input-check-open" type="button" aria-expanded="false" aria-controls="input-check-panel">投げられないとき</button><span>20261010-stages-1</span></div>
+        <div class="input-check-entry"><button id="input-check-open" type="button" aria-expanded="false" aria-controls="input-check-panel">投げられないとき</button><span>20261010-stages-2</span></div>
         <section id="input-check-panel" class="input-check-panel" aria-label="投げる操作の記録" hidden><p>ここを開いている間の操作を記録します。一度投げてからコピーし、この会話へ貼ってください。</p><div class="input-check-actions"><button id="input-check-copy" type="button">記録をコピー</button><button id="input-check-close" type="button">記録を閉じる</button></div><p id="input-check-message" role="status" aria-live="polite"></p><textarea id="input-check-text" aria-label="操作の記録。すべて選択してコピーできます" readonly hidden></textarea></section>
       </section>
 
