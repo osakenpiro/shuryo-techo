@@ -1,7 +1,7 @@
-import { createGame, setSetup, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261009-throw-fix-1';
-import { createRenderer } from './render.mjs?v=20261009-throw-fix-1';
-import { createShotAnalytics } from './shot-analytics.mjs?v=20261009-throw-fix-1';
-import { createRecorder, createReplayPlayer, validateReplay, loadReplays, saveReplay, deleteReplay, buildReplayURL, decodeReplay, replayToJSON, parseReplayJSON } from './replay.mjs?v=20261009-throw-fix-1';
+import { createGame, setSetup, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261010-friends-1';
+import { createRenderer } from './render.mjs?v=20261010-friends-1';
+import { createShotAnalytics } from './shot-analytics.mjs?v=20261010-friends-1';
+import { createRecorder, createReplayPlayer, validateReplay, loadReplays, saveReplay, deleteReplay, buildReplayURL, decodeReplay, replayToJSON, parseReplayJSON } from './replay.mjs?v=20261010-friends-1';
 
 const $=id=>document.getElementById(id);
 const canvas=$('scene');
@@ -16,6 +16,39 @@ const view={mode:'throw',prediction:false,gesture:null};
 let lastUIKey='',previousTime=performance.now(),lastInput=null,cancellations=0,wheelAnglePixels=0;
 const busy=()=>game.phase==='flying'||game.phase==='settling';
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
+
+const inviteDialog=$('invite-dialog');
+// Older cached pages have no invitation controls; keep their game playable.
+if(inviteDialog && $('invite-game')){
+  $('invite-game').addEventListener('click',()=>{
+    cancelGesture('game-invite');
+    const url=new URL(location.href);url.hash='';url.search='';
+    $('invite-link').value=url.href;
+    $('invite-message').textContent='';
+    $('invite-share').hidden=typeof navigator.share!=='function';
+    inviteDialog.showModal();
+  });
+  $('invite-close').addEventListener('click',()=>inviteDialog.close());
+  $('invite-link').addEventListener('click',event=>event.target.select());
+  $('invite-copy').addEventListener('click',async()=>{
+    try{
+      if(!navigator.clipboard?.writeText)throw new Error('unsupported');
+      await navigator.clipboard.writeText($('invite-link').value);
+      $('invite-message').textContent='ゲームのリンクをコピーしました。友だちに送ってみよう。';
+    }catch{
+      $('invite-link').focus();$('invite-link').select();
+      $('invite-message').textContent='コピーできませんでした。上のリンクを選んで、手動でコピーできます。';
+    }
+  });
+  $('invite-share').addEventListener('click',async()=>{
+    try{
+      await navigator.share({title:'ごみシュート',text:'缶ひとつ、箱ひとつ。ひと投げしてみよう。',url:$('invite-link').value});
+      $('invite-message').textContent='共有先にゲームのリンクを渡しました。';
+    }catch(error){
+      $('invite-message').textContent=error.name==='AbortError'?'共有を取り消しました。リンクはここからコピーできます。':'共有できませんでした。リンクをコピーして渡せます。';
+    }
+  });
+}
 
 function updateControlLabels(aim=null){
   const values={...controls,...aim};

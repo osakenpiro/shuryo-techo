@@ -5,14 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f4f1e8">
   <title>ごみシュート / FIRST THROW</title>
-  <link rel="stylesheet" href="./style.css?v=20261009-throw-fix-1">
-  <script type="module" src="./src/app.mjs?v=20261009-throw-fix-1"></script>
+  <meta name="description" content="缶ひとつ、箱ひとつ。ドラッグやスワイプで投げる、ごみシュート。友だちにもひと投げを。">
+  <link rel="stylesheet" href="./style.css?v=20261010-friends-1">
+  <script type="module" src="./src/app.mjs?v=20261010-friends-1"></script>
 </head>
 <body>
   <main class="game-shell">
     <header class="masthead">
       <a class="wordmark" href="./" aria-label="ごみシュート ホーム"><span class="brand-mark" aria-hidden="true">↗</span> ごみシュート</a>
-      <span class="edition">FIRST THROW <span>操作を試す版</span></span>
+      <div class="masthead-actions"><span class="edition">FIRST THROW <span>操作を試す版</span></span><button id="invite-game" class="invite-button" type="button">友だちに渡す <span aria-hidden="true">↗</span></button></div>
     </header>
 
     <section class="intro" aria-labelledby="game-title">
@@ -21,6 +22,7 @@
         <div><strong id="attempt-count">00</strong><span>投げた数</span></div><div><strong id="success-count">00</strong><span>入った数</span></div>
       </div>
     </section>
+    <p class="first-throw-tip">画面を上へドラッグ／スワイプして、離すと一投。</p>
 
     <div class="play-layout">
       <section class="scene-card" aria-label="ごみシュートのプレイ画面">
@@ -50,7 +52,7 @@
     <section class="memory-card" aria-labelledby="memory-title">
       <h2 id="memory-title">どう入った？</h2>
       <p class="memory-copy">投げた数・入った数は、このプレイの記録。成功した一投の入り方を、もう一度。</p>
-      <div id="shot-result" hidden><strong id="shot-roles"></strong><p id="shot-role-detail"></p><div class="memory-actions"><button id="replay-last" type="button">リプレイを見る</button><button id="save-replay" type="button">この一投を保存</button><button id="share-replay" type="button">共有する</button><button id="download-replay" type="button">リプレイをファイルで保存</button></div></div>
+      <div id="shot-result" hidden><strong id="shot-roles"></strong><p id="shot-role-detail"></p><div class="memory-actions"><button id="replay-last" type="button">リプレイを見る</button><button id="save-replay" type="button">この一投を保存</button><button id="share-replay" type="button">この一投を共有</button><button id="download-replay" type="button">リプレイをファイルで保存</button></div></div>
       <p id="replay-message" role="status" aria-live="polite"></p>
       <div id="share-controls" hidden><label for="share-link">この一投を開くリンク</label><input id="share-link" type="text" readonly><button id="copy-replay-link" type="button">リンクをコピー</button></div>
       <div class="saved-heading"><h3>保存した一投</h3><span>このブラウザに5投まで</span></div>
@@ -60,7 +62,11 @@
     <dialog id="replay-dialog" aria-labelledby="replay-title">
       <header class="replay-header"><div><h2 id="replay-title">成功した一投</h2><p id="replay-source"></p></div><button id="replay-close" type="button" aria-label="リプレイを閉じる">閉じる ×</button></header>
       <div class="replay-canvas-wrap"><canvas id="replay-scene" tabindex="0" aria-label="成功した一投のリプレイ。ドラッグまたは矢印キーで見回し、ホイールでズーム。"></canvas></div>
-      <div class="replay-body"><p id="replay-role-title"></p><div class="memory-actions"><button id="replay-play" type="button">一時停止</button><button id="replay-restart" type="button">最初から</button><button id="replay-camera-reset" type="button">視点を戻す</button></div><label class="replay-timeline" for="replay-seek"><span id="replay-time">0.00 秒</span><input id="replay-seek" type="range" min="0" max="5" step="any" value="0" aria-label="リプレイの再生位置"></label><p class="memory-copy">ドラッグで見回し、ホイールでズーム。元の投球や記録は変わりません。</p><div class="memory-actions"><button id="save-viewed-replay" type="button">この一投を保存</button><button id="share-viewed-replay" type="button">共有する</button><button id="download-viewed-replay" type="button">リプレイのファイル</button><button id="record-replay-video" type="button">動画にする</button><button id="save-replay-video" type="button" disabled>動画を保存</button><button id="share-replay-video" type="button" disabled>動画を共有</button></div><div id="replay-share-controls" hidden><label for="replay-share-link">この一投を開くリンク</label><input id="replay-share-link" type="text" readonly><button id="copy-viewed-replay-link" type="button">リンクをコピー</button></div><p id="replay-view-message" role="status" aria-live="polite"></p></div>
+      <div class="replay-body"><p id="replay-role-title"></p><div class="memory-actions"><button id="replay-play" type="button">一時停止</button><button id="replay-restart" type="button">最初から</button><button id="replay-camera-reset" type="button">視点を戻す</button></div><label class="replay-timeline" for="replay-seek"><span id="replay-time">0.00 秒</span><input id="replay-seek" type="range" min="0" max="5" step="any" value="0" aria-label="リプレイの再生位置"></label><p class="memory-copy">ドラッグで見回し、ホイールでズーム。元の投球や記録は変わりません。</p><div class="memory-actions"><button id="save-viewed-replay" type="button">この一投を保存</button><button id="share-viewed-replay" type="button">この一投を共有</button><button id="download-viewed-replay" type="button">リプレイのファイル</button><button id="record-replay-video" type="button">動画にする</button><button id="save-replay-video" type="button" disabled>動画を保存</button><button id="share-replay-video" type="button" disabled>動画を共有</button></div><div id="replay-share-controls" hidden><label for="replay-share-link">この一投を開くリンク</label><input id="replay-share-link" type="text" readonly><button id="copy-viewed-replay-link" type="button">リンクをコピー</button></div><p id="replay-view-message" role="status" aria-live="polite"></p></div>
+    </dialog>
+    <dialog id="invite-dialog" aria-labelledby="invite-title" aria-describedby="invite-description">
+      <header class="replay-header"><h2 id="invite-title">友だちも、ひと投げ。</h2><button id="invite-close" type="button">閉じる ×</button></header>
+      <div class="invite-body"><p id="invite-description">このリンクから、友だちも自分の一投を始められます。</p><label for="invite-link">ゲームを開くリンク</label><input id="invite-link" type="text" readonly><div class="memory-actions"><button id="invite-copy" class="invite-button" type="button">リンクをコピー</button><button id="invite-share" class="invite-button" type="button" hidden>共有先を選ぶ</button></div><p id="invite-message" role="status" aria-live="polite"></p></div>
     </dialog>
     <footer class="page-footer"><span>小さなひと投げを、何度でも。</span><span>ごみシュート / FIRST THROW</span></footer>
   </main>
