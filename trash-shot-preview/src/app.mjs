@@ -1,7 +1,7 @@
-import { createGame, setSetup, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261010-input-check-1';
-import { createRenderer } from './render.mjs?v=20261010-input-check-1';
-import { createShotAnalytics } from './shot-analytics.mjs?v=20261010-input-check-1';
-import { createRecorder, createReplayPlayer, validateReplay, loadReplays, saveReplay, deleteReplay, buildReplayURL, decodeReplay, replayToJSON, parseReplayJSON } from './replay.mjs?v=20261010-input-check-1';
+import { createGame, setSetup, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261010-browser-open-1';
+import { createRenderer } from './render.mjs?v=20261010-browser-open-1';
+import { createShotAnalytics } from './shot-analytics.mjs?v=20261010-browser-open-1';
+import { createRecorder, createReplayPlayer, validateReplay, loadReplays, saveReplay, deleteReplay, buildReplayURL, decodeReplay, replayToJSON, parseReplayJSON } from './replay.mjs?v=20261010-browser-open-1';
 
 const $=id=>document.getElementById(id);
 const canvas=$('scene');
@@ -412,7 +412,7 @@ function setupInputCheck(){
   const [entry,panel,copy,close,text,message]=['input-check-open','input-check-panel','input-check-copy','input-check-close','input-check-text','input-check-message'].map($);
   // A new app can be loaded by an older cached HTML page without these nodes.
   if(![entry,panel,copy,close,text,message].every(Boolean))return;
-  const version='20261010-input-check-1',limit=24,maxBytes=12000;
+  const version='20261010-browser-open-1',limit=24,maxBytes=12000;
   let session=null,removeListeners=[];
   const clone=value=>value?(typeof structuredClone==='function'?structuredClone(value):JSON.parse(JSON.stringify(value))):null;
   const geometry=()=>{
