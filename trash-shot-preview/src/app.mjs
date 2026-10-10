@@ -1,7 +1,7 @@
-import { createGame, setSetup, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261010-browser-open-1';
-import { createRenderer } from './render.mjs?v=20261010-browser-open-1';
-import { createShotAnalytics } from './shot-analytics.mjs?v=20261010-browser-open-1';
-import { createRecorder, createReplayPlayer, validateReplay, loadReplays, saveReplay, deleteReplay, buildReplayURL, decodeReplay, replayToJSON, parseReplayJSON } from './replay.mjs?v=20261010-browser-open-1';
+import { createGame, setSetup, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261010-right-drag-1';
+import { createRenderer } from './render.mjs?v=20261010-right-drag-1';
+import { createShotAnalytics } from './shot-analytics.mjs?v=20261010-right-drag-1';
+import { createRecorder, createReplayPlayer, validateReplay, loadReplays, saveReplay, deleteReplay, buildReplayURL, decodeReplay, replayToJSON, parseReplayJSON } from './replay.mjs?v=20261010-right-drag-1';
 
 const $=id=>document.getElementById(id);
 const canvas=$('scene');
@@ -62,7 +62,10 @@ function updateHint(){
   $('mode-throw').setAttribute('aria-pressed',String(view.mode==='throw'));
   $('mode-observe').setAttribute('aria-pressed',String(view.mode==='observe'));
   $('cancel-gesture').hidden=!view.gesture||view.gesture.kind!=='throw';
-  if(view.mode==='observe'){
+  if(view.gesture?.temporaryObserve){
+    $('interaction-hint').textContent='右ボタンを押したままドラッグで見回す。離すと元の操作へ。';
+    $('input-detail').textContent='短い右クリックで見回す／手投げを切り替え。';
+  }else if(view.mode==='observe'){
     $('interaction-hint').textContent='ドラッグで見回す。缶も箱も、別の角度から。';
     $('input-detail').textContent='ホイールでズーム。右クリックで手投げに戻ります。';
   }else if(busy()){
@@ -75,9 +78,9 @@ function updateHint(){
     $('input-detail').textContent=`強さ ${aim.power.toFixed(1)} · ${aim.yaw===0?'箱へまっすぐ':`${aim.yaw<0?'左':'右'} ${Math.abs(aim.yaw)}°`} · 角度 ${controls.elevation}°`;
   }else{
     $('interaction-hint').textContent='上へドラッグ／スワイプして、離すと一投。';
-    $('input-detail').textContent=`長く動かすほど強く。ホイール上で高い弧（${controls.elevation}°）。右クリックで見回す。`;
+    $('input-detail').textContent=`長く動かすほど強く。ホイール上で高い弧（${controls.elevation}°）。右ドラッグで見回す。短い右クリックで切替。`;
   }
-  canvas.setAttribute('aria-label',view.mode==='observe'?'缶と箱を観察する立体画面。ドラッグか矢印キーでカメラ回転。ホイールかプラスとマイナスでズーム。右クリックで手投げに切替。':'缶を投げる立体画面。上へドラッグまたはスワイプして離すと一投。左右は箱方向を基準。ホイール上で投球の角度が上がります。右クリックで見回す。数値で投げるボタンも使えます。');
+  canvas.setAttribute('aria-label',view.mode==='observe'?'缶と箱を観察する立体画面。ドラッグか矢印キーでカメラ回転。ホイールかプラスとマイナスでズーム。右クリックで手投げに切替。':'缶を投げる立体画面。上へドラッグまたはスワイプして離すと一投。左右は箱方向を基準。ホイール上で投球の角度が上がります。右ドラッグで見回す。短い右クリックで切替。数値で投げるボタンも使えます。');
 }
 function updateUI(force=false){
   const key=[game.phase,game.lastEvent,game.attempts,game.successes,game.bin.center.z,game.bin.height].join('|');
@@ -163,6 +166,12 @@ document.addEventListener('pointermove',event=>{
   }else cancelGesture('lostpointercapture');
 },true);
 canvas.addEventListener('pointerdown',event=>{
+  if(event.button===2&&event.pointerType==='mouse'){
+    event.preventDefault();cancelGesture('right-button');canvas.focus({preventScroll:true});
+    const rect=canvas.getBoundingClientRect();
+    view.gesture={kind:'observe',temporaryObserve:true,id:event.pointerId,pointerType:event.pointerType,rect,viewport:{width:innerWidth,height:innerHeight},startX:event.clientX,startY:event.clientY,lastX:event.clientX,lastY:event.clientY,started:performance.now(),moved:false};
+    canvas.setPointerCapture(event.pointerId);updateHint();return;
+  }
   if(event.button!==0||pointers.size!==1||view.gesture||(view.mode==='throw'&&busy()))return;
   const rect=canvas.getBoundingClientRect();
   if(!inside(event,rect))return;
@@ -171,16 +180,28 @@ canvas.addEventListener('pointerdown',event=>{
   if(view.mode==='throw')view.gesture.aim=gestureAim(view.gesture,event);
   canvas.setPointerCapture(event.pointerId);updateHint();
 });
-// A prevented left pointerdown suppresses compatibility mousedown on a right
-// button chord. contextmenu still arrives once for both forms of right click.
+// Context menus fire on press or release depending on the OS. Only the
+// right-button release owns the click toggle; menus never toggle modes.
 canvas.addEventListener('contextmenu',event=>{
   event.preventDefault();
-  if(event.button!==2||event.pointerType==='touch')return;
-  canvas.focus({preventScroll:true});setMode(view.mode==='throw'?'observe':'throw');
+  if(view.gesture?.kind==='throw')cancelGesture('right-button-chord');
 });
+function finishRightObserve(event){
+  const gesture=view.gesture;
+  if(event.button!==2||!gesture?.temporaryObserve)return;
+  event.preventDefault();
+  const toggle=!gesture.moved&&Math.hypot(event.clientX-gesture.startX,event.clientY-gesture.startY)<5&&performance.now()-gesture.started<500;
+  view.gesture=null;
+  if(canvas.hasPointerCapture(gesture.id))canvas.releasePointerCapture(gesture.id);
+  if(toggle)view.mode=view.mode==='throw'?'observe':'throw';
+  updateHint();
+}
+document.addEventListener('mouseup',finishRightObserve,true);
 canvas.addEventListener('pointermove',event=>{
   const gesture=view.gesture;if(!gesture||gesture.id!==event.pointerId)return;
   event.preventDefault();
+  if(gesture.kind==='throw'&&(event.buttons&2)){cancelGesture('right-button-chord');return;}
+  if(gesture.temporaryObserve&&Math.hypot(event.clientX-gesture.startX,event.clientY-gesture.startY)>=5)gesture.moved=true;
   if(!sameLayout(gesture)){cancelGesture('layout-change');return;}
   // A throw owns its pointer from the canvas press through release. A fast
   // swipe may finish beyond the canvas; leaving its edge is not cancellation.
@@ -199,6 +220,7 @@ function releaseGesture(gesture,aim){
 canvas.addEventListener('pointerup',event=>{
   const gesture=view.gesture;if(!gesture||gesture.id!==event.pointerId)return;
   event.preventDefault();
+  if(gesture.temporaryObserve){finishRightObserve(event);return;}
   if(gesture.releasedCapture){cancelGesture('lostpointercapture');return;}
   releaseGesture(gesture,gesture.kind==='throw'?gestureAim(gesture,event):null);
 });
@@ -227,6 +249,7 @@ canvas.addEventListener('wheel',event=>{
   if(!Number.isFinite(delta)||!delta)return;
   event.preventDefault();
   if(pointers.size>1){wheelAnglePixels=0;return;}
+  if(view.gesture?.temporaryObserve){renderer.zoom(Math.exp(clamp(delta,-100,100)*.002));return;}
   if(view.mode==='observe'){cancelGesture('wheel');renderer.zoom(Math.exp(clamp(delta,-100,100)*.002));return;}
   if(busy()){wheelAnglePixels=0;return;}
   if(view.gesture&&!sameLayout(view.gesture)){cancelGesture('layout-change');return;}
@@ -412,7 +435,7 @@ function setupInputCheck(){
   const [entry,panel,copy,close,text,message]=['input-check-open','input-check-panel','input-check-copy','input-check-close','input-check-text','input-check-message'].map($);
   // A new app can be loaded by an older cached HTML page without these nodes.
   if(![entry,panel,copy,close,text,message].every(Boolean))return;
-  const version='20261010-browser-open-1',limit=24,maxBytes=12000;
+  const version='20261010-right-drag-1',limit=24,maxBytes=12000;
   let session=null,removeListeners=[];
   const clone=value=>value?(typeof structuredClone==='function'?structuredClone(value):JSON.parse(JSON.stringify(value))):null;
   const geometry=()=>{
