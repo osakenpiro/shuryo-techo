@@ -1,4 +1,4 @@
-import { predictArc } from './physics.mjs?v=20261009-throw-fix-1';
+import { predictArc } from './physics.mjs?v=20261010-side-stage-1';
 
 const add = (a,b) => ({ x:a.x+b.x, y:a.y+b.y, z:a.z+b.z });
 const sub = (a,b) => ({ x:a.x-b.x, y:a.y-b.y, z:a.z-b.z });
@@ -14,6 +14,7 @@ export function createRenderer(canvas) {
   let camera = {x:7.3,y:6.5,z:-8.3}, target = {x:0,y:.3,z:3.2};
   const defaultOrbit={azimuth:.581,elevation:.42,zoom:1};
   let orbitState={...defaultOrbit},sceneDistance=6;
+  let projection='perspective',sideZoom=1,sideFrame={scale:40,left:40,floor:height-42};
   const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
   let forward, right, up, focal;
   const configureCamera = () => {
@@ -24,11 +25,13 @@ export function createRenderer(canvas) {
   };
   const worldToCamera = point => {const p=sub(point,camera); return {x:dot(p,right),y:dot(p,up),z:dot(p,forward)};};
   const cameraToScreen = point => ({x:width/2+point.x*focal/point.z,y:height*.47-point.y*focal/point.z,depth:point.z,visible:point.z>.1});
-  const project = point => cameraToScreen(worldToCamera(point));
-  function cameraSnapshot(){return {azimuth:orbitState.azimuth,elevation:orbitState.elevation,zoom:orbitState.zoom,position:{...camera},target:{...target},viewport:{width,height}};}
-  function orbit(azimuth,elevation){orbitState.azimuth=((orbitState.azimuth+azimuth)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);orbitState.elevation=clamp(orbitState.elevation+elevation,.15,1.43);configureCamera();}
-  function zoom(factor){orbitState.zoom=clamp(orbitState.zoom*factor,.62,1.8);configureCamera();}
-  function resetCamera(){orbitState={...defaultOrbit};configureCamera();}
+  const project = point => projection==='side'?{x:sideFrame.left+point.z*sideFrame.scale,y:sideFrame.floor-point.y*sideFrame.scale,depth:1,visible:true}:cameraToScreen(worldToCamera(point));
+  // The legal 3D orbit is retained for V1 replays; side zoom never changes it.
+  function cameraSnapshot(){return {azimuth:orbitState.azimuth,elevation:orbitState.elevation,zoom:orbitState.zoom,projection,sideZoom,position:{...camera},target:{...target},viewport:{width,height}};}
+  function setProjection(mode){projection=mode==='side'?'side':'perspective';}
+  function orbit(azimuth,elevation){if(projection==='side')return;orbitState.azimuth=((orbitState.azimuth+azimuth)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);orbitState.elevation=clamp(orbitState.elevation+elevation,.15,1.43);configureCamera();}
+  function zoom(factor){if(projection==='side'){sideZoom=clamp(sideZoom*factor,.62,1.8);return;}orbitState.zoom=clamp(orbitState.zoom*factor,.62,1.8);configureCamera();}
+  function resetCamera(){if(projection==='side'){sideZoom=1;return;}orbitState={...defaultOrbit};configureCamera();}
   function resize() {
     const rect=canvas.getBoundingClientRect();
     const changed=width!==Math.max(1,rect.width)||height!==Math.max(1,rect.height);
@@ -182,6 +185,42 @@ export function createRenderer(canvas) {
     }
     depthContext.putImageData(depthPixels,0,0);ctx.drawImage(depthCanvas,0,0,width,height);
   }
+  function drawSide(game,controls,view){
+    // A true orthographic y/z plane: a metre has the same scale on both axes,
+    // independent of depth. Fit the actual flight without hiding the bin.
+    const trail=game.trail||[],points=[game.can.position,...trail];
+    let prediction=[];
+    if(view.prediction&&['ready','success','miss'].includes(game.phase)){
+      const arc=predictArc(game,{...controls,yaw:0},64),end=arc.findIndex((p,i)=>i>1&&p.y<.03);
+      prediction=end<0?arc:arc.slice(0,end+1);
+      points.push(...prediction);
+    }
+    const minZ=Math.min(-.8,...points.map(p=>p.z-.3)),maxZ=Math.max(game.bin.center.z+1.8,...points.map(p=>p.z+.4));
+    const maxY=Math.max(3.8,...points.map(p=>p.y+.45));
+    const scale=Math.min((width-44)/(maxZ-minZ),(height-72)/maxY)/sideZoom;
+    sideFrame={scale,left:22-minZ*scale,floor:height-38};
+    ctx.fillStyle='#eef2e7';ctx.fillRect(0,0,width,height);
+    const stroke=(a,b,color,lineWidth=1)=>{const p=project(a),q=project(b);ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle=color;ctx.lineWidth=lineWidth;ctx.stroke();};
+    for(let y=1;y<=Math.ceil(maxY);y++)stroke({z:minZ,y},{z:maxZ,y},'rgba(103,132,81,.12)');
+    const floor=sideFrame.floor;
+    ctx.fillStyle='#dde5cf';ctx.fillRect(0,floor,width,height-floor);
+    stroke({z:minZ,y:0},{z:maxZ,y:0},'#829570',1.5);
+    ctx.textAlign='center';ctx.font='10px system-ui,sans-serif';ctx.fillStyle='#536b49';
+    for(let z=0;z<=game.bin.center.z;z+=2){const p=project({z,y:0});ctx.beginPath();ctx.moveTo(p.x,floor);ctx.lineTo(p.x,floor+5);ctx.strokeStyle='#829570';ctx.stroke();ctx.fillText(`${z} m`,p.x,floor+20);}
+    ctx.textAlign='left';ctx.font='600 12px system-ui,sans-serif';ctx.fillStyle='#36553f';ctx.fillText('横からぽいっ · 2D',14,22);
+    if(prediction.length){ctx.fillStyle='#ac7728';for(let i=0;i<prediction.length;i+=2){const p=project(prediction[i]);if(prediction[i].y>=0){ctx.beginPath();ctx.arc(p.x,p.y,1.7,0,Math.PI*2);ctx.fill();}}}
+    for(let i=1;i<trail.length;i++)stroke(trail[i-1],trail[i],`rgba(167,112,33,${.25+.4*i/trail.length})`,2);
+    const c=game.bin.center,r=game.bin.radius,h=game.bin.height;
+    const left=project({z:c.z-r,y:h}),right=project({z:c.z+r,y:0});
+    // Open-topped section of the same hollow cylinder. The inside edges
+    // coincide with physical walls; decorative thickness extends outward.
+    ctx.fillStyle='rgba(131,164,111,.16)';ctx.fillRect(left.x,left.y,right.x-left.x,right.y-left.y);
+    ctx.fillStyle='#779568';ctx.fillRect(left.x-4,left.y,4,right.y-left.y);ctx.fillRect(right.x,left.y,4,right.y-left.y);ctx.fillRect(left.x-4,right.y,right.x-left.x+8,4);
+    stroke({z:c.z-r,y:h},{z:c.z-r,y:0},'#3f6647',1.5);stroke({z:c.z+r,y:h},{z:c.z+r,y:0},'#3f6647',1.5);
+    const p=project(game.can.position),canRadius=Math.max(4,game.can.radius*scale),tilt=['flying','settling'].includes(game.phase)?game.time*2.7:-.18;
+    ctx.save();ctx.translate(p.x,p.y);ctx.rotate(tilt);ctx.fillStyle='#bb7c49';ctx.fillRect(-canRadius*.65,-canRadius,canRadius*1.3,canRadius*2);ctx.strokeStyle='#835a36';ctx.lineWidth=1;ctx.strokeRect(-canRadius*.65,-canRadius,canRadius*1.3,canRadius*2);ctx.fillStyle='#ece7d9';ctx.beginPath();ctx.ellipse(0,-canRadius,canRadius*.65,canRadius*.22,0,0,Math.PI*2);ctx.fill();ctx.restore();
+    if(game.phase==='success'){const p=project({z:c.z,y:h+.6});ctx.textAlign='center';ctx.fillStyle='#946c23';ctx.font='600 13px system-ui,sans-serif';ctx.fillText('NICE SHOT!',p.x,p.y);}
+  }
   function render(game,controls,view={}) {
     // Layout adapts the target only. The user's orbit survives every phase and resize.
     const distance=game.bin.center.z;
@@ -189,6 +228,7 @@ export function createRenderer(canvas) {
     target={x:0,y:.45,z:distance*.47};
     configureCamera();
     ctx.setTransform(pixelRatio,0,0,pixelRatio,0,0);ctx.clearRect(0,0,width,height);
+    if(projection==='side'){drawSide(game,controls,view);return;}
     drawFloor();drawDistance(game);
     shadow(game.bin.center,.97,.8,.11);
     shadow(game.can.position,.2+Math.max(0,game.can.position.y)*.035,.2,.13/(1+Math.max(0,game.can.position.y)*.8));
@@ -204,5 +244,5 @@ export function createRenderer(canvas) {
     }
   }
   resize();
-  return {resize,render,project,orbit,zoom,resetCamera,cameraSnapshot};
+  return {resize,render,project,orbit,zoom,resetCamera,cameraSnapshot,setProjection};
 }

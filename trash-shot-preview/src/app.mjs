@@ -1,8 +1,8 @@
-import { STAGES, createStageProgress } from './stages.mjs?v=20261010-stages-2';
-import { createGame, setSetup, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261010-stages-2';
-import { createRenderer } from './render.mjs?v=20261010-stages-2';
-import { createShotAnalytics } from './shot-analytics.mjs?v=20261010-stages-2';
-import { createRecorder, createReplayPlayer, validateReplay, loadReplays, saveReplay, deleteReplay, buildReplayURL, decodeReplay, replayToJSON, parseReplayJSON } from './replay.mjs?v=20261010-stages-2';
+import { STAGES, createStageProgress } from './stages.mjs?v=20261010-side-stage-1';
+import { createGame, setSetup, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261010-side-stage-1';
+import { createRenderer } from './render.mjs?v=20261010-side-stage-1';
+import { createShotAnalytics } from './shot-analytics.mjs?v=20261010-side-stage-1';
+import { createRecorder, createReplayPlayer, validateReplay, loadReplays, saveReplay, deleteReplay, buildReplayURL, decodeReplay, replayToJSON, parseReplayJSON } from './replay.mjs?v=20261010-side-stage-1';
 
 const $=id=>document.getElementById(id);
 const canvas=$('scene');
@@ -12,6 +12,7 @@ const renderer=createRenderer(canvas);
 const analytics=createShotAnalytics();
 const stageProgress=createStageProgress();
 let freeSetup={distance:6,height:1.3};
+let previous3DMode='throw';
 observeGame(game,event=>stageProgress.result(event));
 observeGame(game,event=>analytics.observe(event));
 const inputs=['power','elevation','yaw','distance','height'].map($);
@@ -19,6 +20,7 @@ const pointers=new Set();
 const view={mode:'throw',prediction:false,gesture:null};
 let lastUIKey='',previousTime=performance.now(),lastInput=null,cancellations=0,wheelAnglePixels=0;
 const busy=()=>game.phase==='flying'||game.phase==='settling';
+const sideStage=()=>STAGES[stageProgress.snapshot().id]?.projection==='side';
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 
 const inviteDialog=$('invite-dialog');
@@ -63,9 +65,16 @@ function updateControlLabels(aim=null){
 }
 function updateHint(){
   canvas.dataset.mode=view.mode;canvas.dataset.dragging=String(Boolean(view.gesture));
+  canvas.dataset.projection=sideStage()?'side':'perspective';
   $('mode-throw').setAttribute('aria-pressed',String(view.mode==='throw'));
   $('mode-observe').setAttribute('aria-pressed',String(view.mode==='observe'));
   $('cancel-gesture').hidden=!view.gesture||view.gesture.kind!=='throw';
+  if(sideStage()){
+    $('interaction-hint').textContent=busy()?'横から、缶の行方を見届けよう。':view.gesture?.aim?.valid?'離すと一投。Esc または下のボタンで取消。':view.gesture?'もう少し上へ動かすと、投げられます。':'上へドラッグ／スワイプして、離すと一投。';
+    $('input-detail').textContent=view.gesture?`強さ ${view.gesture.aim.power.toFixed(1)} · 箱へまっすぐ · 角度 ${controls.elevation}°`:`横視点で方向は固定。長く上へ動かすほど強く。ホイールで弧の高さ（${controls.elevation}°）、つまみでも。`;
+    canvas.setAttribute('aria-label','横から見た2D投球画面。上へドラッグまたはスワイプして離すと一投。左右の方向は固定。ホイールか角度のつまみで弧の高さを調整。数値で投げるボタンも使えます。');
+    return;
+  }
   if(view.gesture?.temporaryObserve){
     $('interaction-hint').textContent='右ボタンを押したままドラッグで見回す。離すと元の操作へ。';
     $('input-detail').textContent='短い右クリックで見回す／手投げを切り替え。';
@@ -126,6 +135,8 @@ function updateUI(force=false){
   };
   const message=messages[game.phase]||messages.ready;
   $('status-icon').textContent=message[0];$('status').textContent=message[1];$('status-detail').textContent=message[2];$('throw-label').textContent=message[3];
+  if(sideStage()&&game.phase==='success')$('status-detail').textContent='横から入った！ 記録は3Dで見回せます。';
+  if(sideStage()&&game.phase==='miss')$('status-detail').textContent='強さや弧の高さを変えて、もう一投。';
   if(busy()&&game.lastEvent==='rim-hit')$('status-detail').textContent='ふちに当たった！ どうなるかな。';
   if(busy()&&game.lastEvent==='side-hit')$('status-detail').textContent='箱の横に当たった。';
   if(busy()&&game.lastEvent==='entered')$('status-detail').textContent='箱の中へ！ 缶が落ち着くのを待とう。';
@@ -141,7 +152,7 @@ function cancelGesture(reason='cancel'){
   updateControlLabels();
   updateHint();
 }
-function setMode(mode){cancelGesture('mode-change');view.mode=mode;updateHint();}
+function setMode(mode){cancelGesture('mode-change');view.mode=sideStage()?'throw':mode;updateHint();}
 $('mode-throw').addEventListener('click',()=>setMode('throw'));
 $('mode-observe').addEventListener('click',()=>setMode('observe'));
 function cameraAction(action){cancelGesture('camera-control');action();}
@@ -150,40 +161,52 @@ for(const [id,x,y] of [['camera-left',-.16,0],['camera-right',.16,0],['camera-up
 $('camera-in').addEventListener('click',()=>cameraAction(()=>renderer.zoom(.88)));
 $('camera-out').addEventListener('click',()=>cameraAction(()=>renderer.zoom(1.14)));
 $('prediction-toggle').addEventListener('change',()=>{cancelGesture('prediction-change');view.prediction=$('prediction-toggle').checked;});
-for(const id of ['power','elevation','yaw'])$(id).addEventListener('input',()=>{const value=Number($(id).value);cancelGesture('numeric-change');controls[id]=value;updateControlLabels();updateHint();});
+for(const id of ['power','elevation','yaw'])$(id).addEventListener('input',()=>{const value=sideStage()&&id==='yaw'?0:Number($(id).value);cancelGesture('numeric-change');controls[id]=value;updateControlLabels();updateHint();});
 for(const id of ['distance','height'])$(id).addEventListener('change',()=>{
   if(busy()||stageProgress.snapshot().id!=='free'){$('distance').value=String(game.bin.center.z);$('height').value=String(game.bin.height);return;}
   cancelGesture('setup-change');clearCurrentShot();setSetup(game,{distance:Number($('distance').value),height:Number($('height').value)});updateUI(true);
 });
 function selectStage(id){
   if(busy()||!STAGES[id])return false;
+  const wasSide=sideStage(),willBeSide=STAGES[id].projection==='side';
   if(stageProgress.snapshot().id==='free')freeSetup={distance:game.bin.center.z,height:game.bin.height};
   cancelGesture('stage-change');pointers.clear();clearCurrentShot();stageProgress.select(id);
   const setup=id==='free'?freeSetup:STAGES[id];setSetup(game,setup);
   $('distance').value=String(setup.distance);$('height').value=String(setup.height);
-  if(id!=='free'){Object.assign(controls,{power:setup.power,elevation:setup.elevation,yaw:setup.yaw});renderer.resetCamera();}
+  if(willBeSide&&!wasSide){previous3DMode=view.mode;view.mode='throw';}
+  else if(wasSide&&!willBeSide)view.mode=previous3DMode;
+  renderer.setProjection(willBeSide?'side':'perspective');
+  if(id!=='free'){Object.assign(controls,{power:setup.power,elevation:setup.elevation,yaw:setup.yaw});if(willBeSide||!wasSide)renderer.resetCamera();}
   updateControlLabels();updateUI(true);return true;
 }
 if($('stage-select')){
   $('stage-select').addEventListener('change',()=>{if(!selectStage($('stage-select').value))$('stage-select').value=stageProgress.snapshot().id;});
   $('start-tutorial').addEventListener('click',()=>selectStage('tutorial'));
-  $('stage-next').addEventListener('click',()=>{if(stageProgress.snapshot().id==='tutorial'&&stageProgress.snapshot().completed.includes('tutorial'))selectStage('first');});
+  $('stage-next').addEventListener('click',()=>{const state=stageProgress.snapshot(),next={tutorial:'first',first:'side'}[state.id];if(next&&state.completed.includes(state.id))selectStage(next);});
   $('stage-retry').addEventListener('click',()=>selectStage(stageProgress.snapshot().id));
 }
 function updateStageUI(){
   const state=stageProgress.snapshot();
+  const side=sideStage();
+  $('yaw').disabled=busy()||side;
+  $('mode-observe').disabled=side;
+  for(const id of ['camera-left','camera-right','camera-up','camera-down'])$(id).disabled=side;
+  $('camera-help').textContent=side?'横視点では方向を固定。＋／−でズーム、視点を戻すボタンで元の大きさへ。投球の弧はホイールか角度のつまみで調整できます。':'右ボタンを押したままドラッグで一時的に見回す。短い右クリック／ボタンで「見回す」に切替。ドラッグや矢印キーで回転、ホイールでズーム。';
+  if($('control-help'))$('control-help').textContent=side?'横視点は箱へまっすぐ。上へ動かす長さで強さを、ホイールや角度のつまみで弧の高さを調整します。左右は固定です。':'手投げの強さはドラッグの長さ、左右は箱方向を基準。弧の高さはホイールで調整できます。つまみとボタンでも。';
+  if($('stage-help')){$('stage-help').hidden=!side;$('stage-help').textContent='横から見て、8 m先の箱へ。上ドラッグの長さで強さ、ホイール／角度のつまみで弧を調整。左右とカメラの向きは固定。記録は3Dで見回せます。';}
   if(state.id!=='free')for(const id of ['distance','height'])$(id).disabled=true;
   if(!$('stage-select'))return;
   $('stage-select').value=state.id;$('stage-select').disabled=busy();$('start-tutorial').disabled=busy();
   $('tutorial-card').hidden=state.id!=='tutorial';
   const clear=state.completed.includes(state.id);
   $('stage-progress').textContent=state.id==='free'?'自由投球 · プレイ記録は累積':`${clear?'クリア済み · ':''}この挑戦 ${state.successes} 成功 / ${state.attempts} 投 · 箱に1回入れよう`;
-  $('stage-message').textContent=busy()?'投球が落ち着いたら、ステージを変えられます。':state.id==='tutorial'&&clear?'できた！ 次は、いつものゴミ箱へ。':state.id==='first'&&clear?'クリア！ 同じ箱でもう一投、自由投球にも戻れます。':game.phase==='miss'&&state.id!=='free'?'向きや強さを変えて、もう一投。':'';
-  $('stage-next').hidden=state.id!=='tutorial'||!clear;$('stage-next').disabled=busy();
+  $('stage-message').textContent=busy()?'投球が落ち着いたら、ステージを変えられます。':state.id==='tutorial'&&clear?'できた！ 次は、いつものゴミ箱へ。':state.id==='first'&&clear?'クリア！ 次は横から、少し遠い箱へ。':side&&clear?'クリア！ 横からもう一投、自由投球にも戻れます。':game.phase==='miss'&&state.id!=='free'?(side?'強さや弧の高さを変えて、もう一投。':'向きや強さを変えて、もう一投。'):'';
+  $('stage-next').hidden=!['tutorial','first'].includes(state.id)||!clear;$('stage-next').disabled=busy();
   $('stage-retry').hidden=state.id==='free';$('stage-retry').disabled=busy();
 }
 function fire(source='numeric'){
   cancelGesture('other-throw');
+  if(sideStage()){controls.yaw=0;updateControlLabels();}
   const accepted=throwCan(game,controls);
   if(accepted){stageProgress.launch(game.attempts);clearCurrentShot();shotRecorder=createRecorder(getSnapshot(game),controls,renderer.cameraSnapshot());lastInput={type:'throw',source,parameters:{...controls}};previousTime=performance.now();updateUI(true);if(source!=='gesture')canvas.scrollIntoView({block:'center',behavior:'instant'});}
   return accepted;
@@ -195,11 +218,11 @@ function sameLayout(gesture){const rect=canvas.getBoundingClientRect();return ge
 function gestureAim(gesture,event){
   const size=Math.max(1,Math.min(gesture.rect.width,gesture.rect.height));
   const upward=(gesture.startY-event.clientY)/size,sideways=(event.clientX-gesture.startX)/size;
-  return {power:Math.round(clamp(4+upward*18,4,13)*20)/20,yaw:Math.round(clamp(sideways*60,-60,60)*2)/2,valid:upward>=.10};
+  return {power:Math.round(clamp(4+upward*18,4,13)*20)/20,yaw:sideStage()?0:Math.round(clamp(sideways*60,-60,60)*2)/2,valid:upward>=.10};
 }
 function showGesture(gesture,event){
   const x=gesture.startX-gesture.rect.left,y=gesture.startY-gesture.rect.top;
-  const dx=event.clientX-gesture.startX,dy=event.clientY-gesture.startY;
+  const dx=sideStage()?0:event.clientX-gesture.startX,dy=event.clientY-gesture.startY;
   $('gesture-feedback').hidden=false;
   $('gesture-origin').style.left=`${x}px`;$('gesture-origin').style.top=`${y}px`;
   $('gesture-tip').style.left=`${x+dx}px`;$('gesture-tip').style.top=`${y+dy}px`;
@@ -222,6 +245,7 @@ document.addEventListener('pointermove',event=>{
 canvas.addEventListener('pointerdown',event=>{
   if(event.button===2&&event.pointerType==='mouse'){
     event.preventDefault();cancelGesture('right-button');canvas.focus({preventScroll:true});
+    if(sideStage())return;
     const rect=canvas.getBoundingClientRect();
     view.gesture={kind:'observe',temporaryObserve:true,id:event.pointerId,pointerType:event.pointerType,rect,viewport:{width:innerWidth,height:innerHeight},startX:event.clientX,startY:event.clientY,lastX:event.clientX,lastY:event.clientY,started:performance.now(),moved:false};
     canvas.setPointerCapture(event.pointerId);updateHint();return;
@@ -420,7 +444,7 @@ function openReplay(input,source){
     const replay=validateReplay(input);cancelGesture('replay-open');stopVideo(true);videoBlob=null;videoName='';$('save-replay-video').disabled=$('share-replay-video').disabled=true;
     viewedReplay=replay;replayPlayer=createReplayPlayer(replay);replayTime=0;replayPlaying=true;replaySource=source;replayDrag=null;
     $('replay-title').textContent=source==='shared'?'共有された成功リプレイ':'成功した一投';
-    $('replay-source').textContent=source==='shared'||source==='file'?'受け取った記録を再生しています。':'記録した動きを、別の視点から。';
+    $('replay-source').textContent=source==='shared'||source==='file'?'受け取った記録は3Dで見回せます。':'記録は3Dで見回せます。';
     $('replay-role-title').textContent=roleText(replay);$('replay-seek').max=replay.duration;$('replay-share-controls').hidden=true;$('replay-share-link').value='';replayMessage('',true);
     if(!replayDialog.open)replayDialog.showModal();replayRenderer.resize();restoreReplayCamera();prepareReplayLink(replay);renderReplay(0);replayCanvas.focus({preventScroll:true});
   }catch(error){replayMessage('このリプレイを開けませんでした。',false,error.code||'INVALID_REPLAY');}
@@ -489,7 +513,7 @@ function setupInputCheck(){
   const [entry,panel,copy,close,text,message]=['input-check-open','input-check-panel','input-check-copy','input-check-close','input-check-text','input-check-message'].map($);
   // A new app can be loaded by an older cached HTML page without these nodes.
   if(![entry,panel,copy,close,text,message].every(Boolean))return;
-  const version='20261010-stages-2',limit=24,maxBytes=12000;
+  const version='20261010-side-stage-1',limit=24,maxBytes=12000;
   let session=null,removeListeners=[];
   const clone=value=>value?(typeof structuredClone==='function'?structuredClone(value):JSON.parse(JSON.stringify(value))):null;
   const geometry=()=>{
