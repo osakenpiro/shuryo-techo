@@ -324,6 +324,7 @@ document.addEventListener('pointermove',event=>{
   }else cancelGesture('lostpointercapture');
 },true);
 canvas.addEventListener('pointerdown',event=>{
+  if($('chapter-top')&&!$('chapter-top').hidden||$('chapter-result')?.open||replayDialog.open)return;
   if(event.button===2&&event.pointerType==='mouse'){
     event.preventDefault();cancelGesture('right-button');canvas.focus({preventScroll:true});
     if(sideStage())return;
@@ -698,7 +699,7 @@ if($('pixel-intro-controls')){
   document.addEventListener('visibilitychange',()=>{if(document.hidden)pixelIntro.cancel();});
   $('pixel-intro-skip')?.addEventListener('click',event=>pixelIntro.skip(event.isTrusted));$('pixel-intro-retry')?.addEventListener('click',()=>pixelIntro.retry());
   $('intro-replay')?.addEventListener('click',()=>{if(busy()||pixelIntro.active)return;cancelGesture('intro-replay');introHasRun=true;pixelIntro.start();updateIntroUI();canvas.scrollIntoView({block:'center',behavior:'instant'});});
-  if(!sharedEntry&&!STAGES[entryStage]){let seen=chapterProgress.snapshot().introSeen;try{seen=seen||storage()?.getItem(introSeenKey)==='seen';}catch{}if(seen||loadedProgress.data){selectStage(chapterProgress.snapshot().resumeStage,{fromEntry:true});showChapterTop();}else{introHasRun=true;pixelIntro.start();}}
+  if(!sharedEntry&&!STAGES[entryStage]){let seen=chapterProgress.snapshot().introSeen;try{seen=seen||storage()?.getItem(introSeenKey)==='seen';}catch{}if(seen||loadedProgress.data){selectStage(chapterProgress.snapshot().resumeStage,{fromEntry:true});}else{introHasRun=true;pixelIntro.start();}}
   updateIntroUI();
 }
 
@@ -708,7 +709,7 @@ function setupInputCheck(){
   const [entry,panel,copy,close,text,message]=['input-check-open','input-check-panel','input-check-copy','input-check-close','input-check-text','input-check-message'].map($);
   // A new app can be loaded by an older cached HTML page without these nodes.
   if(![entry,panel,copy,close,text,message].every(Boolean))return;
-  const version='20261011-play-analysis-1',limit=24,maxBytes=12000;
+  const version='20261011-throw-resume-1',limit=24,maxBytes=12000;
   let session=null,removeListeners=[];
   const clone=value=>value?(typeof structuredClone==='function'?structuredClone(value):JSON.parse(JSON.stringify(value))):null;
   const geometry=()=>{
