@@ -6,18 +6,26 @@
   <meta name="theme-color" content="#f4f1e8">
   <title>ごみシュート / FIRST THROW</title>
   <meta name="description" content="缶ひとつ、箱ひとつ。ドラッグやスワイプで投げる、ごみシュート。友だちにもひと投げを。">
-  <link rel="stylesheet" href="./style.css?v=20261011-play-analysis-1">
-  <script type="module" src="./src/app.mjs?v=20261011-throw-resume-1"></script>
+  <link rel="stylesheet" href="./style.css?v=20261011-game-shell-1">
+  <script type="module" src="./src/app.mjs?v=20261011-game-shell-1"></script>
 </head>
-<body>
-  <main class="game-shell">
+<body class="chapter-game">
+  <main class="game-shell chapter-shell">
     <header class="masthead">
       <a class="wordmark" href="./" aria-label="ごみシュート ホーム"><span class="brand-mark" aria-hidden="true">↗</span> ごみシュート</a>
       <div class="masthead-actions"><span class="edition">自分の部屋</span><button id="game-menu-open" class="invite-button" type="button" aria-expanded="false" aria-controls="game-menu">メニュー</button></div>
     </header>
 
     <h1 id="game-title" class="sr-only">ごみシュート</h1>
-    <section id="chapter-top" class="chapter-top" aria-labelledby="chapter-top-title" hidden><p class="eyebrow">FIRST CHAPTER</p><h2 id="chapter-top-title">自分の部屋</h2><p id="chapter-top-record"></p><div class="stage-actions"><button id="chapter-continue" type="button">続きから</button><button id="chapter-menu" type="button">ステージを選ぶ</button></div></section>
+    <section id="chapter-top" class="chapter-top" aria-labelledby="chapter-top-title" hidden>
+      <div class="home-art" role="presentation"><span class="home-art-tag">ひとつの部屋から、はじまる。</span></div>
+      <div class="home-content">
+        <div class="home-heading"><p class="chapter-kicker">小さなひと投げが、遊びになる。</p><h2 class="home-game-name">ごみシュート</h2><h3 id="chapter-top-title">自分の部屋</h3></div>
+        <div class="home-progress"><div id="home-face-progress" class="home-face-progress" aria-label="第1章のクリア状況"></div><p id="chapter-top-record"></p></div>
+        <div class="home-actions"><button id="chapter-continue" class="shell-primary" type="button">続きから</button><button id="chapter-menu" class="shell-secondary" type="button">ステージを選ぶ</button></div>
+        <p class="home-save-note">続きは、このブラウザに自動保存。</p>
+      </div>
+    </section>
     <p id="first-throw-tip" class="first-throw-tip">下へ引いて、離すと一投。</p>
 
     <div class="play-layout">
@@ -46,19 +54,30 @@
         <button id="reset-button" class="reset-button" type="button" disabled>構え直す <span aria-hidden="true">↺</span></button>
       </section>
     </div>
-    <details id="game-menu" class="game-menu"><summary>メニュー・ステージ・保存</summary>
-    <section class="stage-card" aria-label="ステージを選ぶ">
-      <div class="stage-choice"><label for="stage-select">遊ぶステージ</label><select id="stage-select"><option value="first">1-1：部屋のゴミ箱</option><option value="desk-over">1-2：机を越えて</option><option value="desk-side">1-3：机の横を通して</option><option value="room-extra">1-4：扇風機と猫</option><option value="free">自由トレーニング</option><option value="tutorial">はじめの一投</option><option value="side">脇道：横からぽいっ（2D）</option></select><button id="start-tutorial" type="button">はじめの一投へ</button><label class="scheme-choice" for="input-scheme">投げ方<select id="input-scheme"><option value="pull">引っぱって離す</option><option value="swipe">なぞって離す</option></select></label></div>
-      <p id="stage-progress">自由投球 · プレイ記録は累積</p>
-      <div id="tutorial-card" hidden><h2>まずは箱に1回入れてみよう</h2><ol><li id="tutorial-motion">下へ引いて、離すと一投。</li><li>右ボタンを押したままドラッグで見回せます。スマホは「見回す」へ。</li><li>手投げ中はホイール上で高い弧、下で低い弧。スマホは「弧 −／＋」で調整できます。</li></ol></div>
-      <p id="stage-help" hidden></p><div id="fan-controls" class="fan-controls" hidden><label><input id="fan-toggle" type="checkbox" checked> 扇風機</label><span id="fan-state">風 ON · 箱の手前だけ右へ</span></div><p id="stage-message" role="status" aria-live="polite"></p><div class="stage-actions"><button id="training-start" type="button">この面でトレーニング</button><button id="stage-next" type="button" hidden>次のステージへ</button><button id="stage-retry" type="button" hidden>このステージをもう一度</button><button id="chapter-home-open" type="button">ゲームトップ</button><button id="intro-replay" type="button">ドットの入口をもう一度</button></div>
-      <details class="progress-controls"><summary>続きの保存・持ち運び</summary><p id="progress-status" role="status">このブラウザに自動保存します。</p><p>別のブラウザでは保存コードを貼って、続きから遊べます。</p><label for="progress-code">自分の保存コード</label><textarea id="progress-code" rows="4" spellcheck="false" autocomplete="off"></textarea><div class="stage-actions"><button id="progress-export" type="button">保存コードを出す</button><button id="progress-copy" type="button">コードをコピー</button><button id="progress-restore" type="button">このコードで復元</button></div></details>
-      <div class="stage-actions"><a id="browser-open" class="invite-button browser-open" href="https://osakenpiro.github.io/shuryo-techo/trash-shot-preview/?v=20261011-play-analysis-1" target="_blank" rel="noopener noreferrer">ブラウザで開く ↗</a><button id="invite-game" class="invite-button" type="button">友だちに渡す ↗</button></div>
+    <details id="game-menu" class="game-menu">
+      <summary>ステージ・設定・記録</summary>
+      <div class="menu-heading"><div><p class="chapter-kicker">CHAPTER 1</p><h2>自分の部屋</h2></div><button id="game-menu-close" class="shell-secondary" type="button">ゲームへ戻る</button></div>
+      <section class="stage-card" aria-label="ステージを選ぶ">
+        <div id="chapter-stage-cards" class="chapter-stage-cards"></div>
+        <p id="stage-progress">自由投球 · プレイ記録は累積</p>
+        <p id="stage-help" hidden></p>
+        <div id="fan-controls" class="fan-controls" hidden><label><input id="fan-toggle" type="checkbox" checked> 扇風機</label><span id="fan-state">風 ON · 箱の手前だけ右へ</span></div>
+        <p id="stage-message" role="status" aria-live="polite"></p>
+        <div class="stage-actions stage-followup"><button id="stage-next" type="button" hidden>次のステージへ</button><button id="stage-retry" type="button" hidden>このステージをもう一度</button></div>
+        <details class="stage-other-routes"><summary>入口・トレーニング・2Dの脇道</summary><div class="stage-choice"><label for="stage-select">遊ぶステージ</label><select id="stage-select"><option value="first">1-1：部屋のゴミ箱</option><option value="desk-over">1-2：机を越えて</option><option value="desk-side">1-3：机の横を通して</option><option value="room-extra">1-4：扇風機と猫</option><option value="free">自由トレーニング</option><option value="tutorial">はじめの一投</option><option value="side">脇道：横からぽいっ（2D）</option></select></div><div class="stage-actions"><button id="training-start" type="button">この面でトレーニング</button><button id="intro-replay" type="button">ドットの入口をもう一度</button><button id="start-tutorial" type="button">はじめの一投へ</button></div><p>トレーニングでは数値と予測線を確認できます。</p></details>
+        <div class="chapter-horizon" aria-label="これからのテーマ"><span>制作予定</span><p>2 学校 · 3 外 · 4 工場 · 5 色物 · 6 リミックス · 7 エクストラ</p></div>
+      </section>
+      <div class="menu-notebook">
+        <section class="menu-settings" aria-labelledby="menu-settings-title"><h2 id="menu-settings-title">遊び方・設定</h2>
+          <label class="scheme-choice" for="input-scheme">投げ方<select id="input-scheme"><option value="pull">引っぱって離す</option><option value="swipe">なぞって離す</option></select></label>
+          <div id="tutorial-card" hidden><h3>まずは箱に1回入れてみよう</h3><ol><li id="tutorial-motion">下へ引いて、離すと一投。</li><li>右ドラッグで見回す。スマホは「見回す」へ。</li><li>弧はホイール、または「弧 −／＋」で調整。</li></ol></div>
         <details class="camera-controls"><summary>視点の操作 <span>角度・ズーム</span></summary><p id="camera-help">右ボタンを押したままドラッグで一時的に見回す。短い右クリック／ボタンで「見回す」に切替。ドラッグや矢印キーで回転、ホイールでズーム。</p><div class="camera-buttons" role="group" aria-label="カメラの角度とズーム"><button id="camera-left" type="button" aria-label="視点を左へ回す">←</button><button id="camera-right" type="button" aria-label="視点を右へ回す">→</button><button id="camera-up" type="button" aria-label="視点を上へ回す">↑</button><button id="camera-down" type="button" aria-label="視点を下へ回す">↓</button><button id="camera-in" type="button" aria-label="視点を近づける">＋</button><button id="camera-out" type="button" aria-label="視点を遠ざける">−</button></div></details>
         <div class="input-check-entry"><button id="input-check-open" type="button" aria-expanded="false" aria-controls="input-check-panel">投げられないとき</button><span>20261011-play-analysis-1</span></div>
         <section id="input-check-panel" class="input-check-panel" aria-label="投げる操作の記録" hidden><p>ここを開いている間の操作を記録します。一度投げてからコピーし、この会話へ貼ってください。</p><div class="input-check-actions"><button id="input-check-copy" type="button">記録をコピー</button><button id="input-check-close" type="button">記録を閉じる</button></div><p id="input-check-message" role="status" aria-live="polite"></p><textarea id="input-check-text" aria-label="操作の記録。すべて選択してコピーできます" readonly hidden></textarea></section>
-    </section>
-    </details>
+
+        </section>
+        <section class="menu-records" aria-labelledby="menu-records-title"><h2 id="menu-records-title">記録のノート</h2>
+          <details class="progress-controls"><summary>続きの保存・持ち運び</summary><p id="progress-status" role="status">このブラウザに自動保存します。</p><p>別のブラウザでは保存コードを貼って、続きから遊べます。</p><label for="progress-code">自分の保存コード</label><textarea id="progress-code" rows="4" spellcheck="false" autocomplete="off"></textarea><div class="stage-actions"><button id="progress-export" type="button">保存コードを出す</button><button id="progress-copy" type="button">コードをコピー</button><button id="progress-restore" type="button">このコードで復元</button></div></details>
     <details id="session-stats" class="record-details"><summary>このプレイの記録</summary>
         <section class="play-score" aria-label="このプレイの記録">
           <div class="score-totals"><div class="score-primary"><span>成功</span><strong id="success-count">00</strong><span>回</span></div><div class="score-secondary"><span>投げた数 <strong id="attempt-count">00</strong></span><span>成功率 <strong id="success-rate">—</strong></span></div></div>
@@ -77,7 +96,21 @@
       <label class="replay-import" for="replay-file">リプレイのファイルを開く<input id="replay-file" type="file" accept="application/json,.json"></label>
     </section>
     </details>
-    <dialog id="chapter-result" class="chapter-result" aria-labelledby="chapter-result-title"><div class="result-inner"><p class="eyebrow" id="chapter-result-kind">STAGE CLEAR</p><h2 id="chapter-result-title"></h2><p id="chapter-result-attempts" class="result-attempts"></p><div id="chapter-result-roles" class="live-shot-roles"></div><p id="chapter-result-best"></p><p id="chapter-result-detail"></p><button id="chapter-result-next" type="button" class="throw-button">次のステージへ</button><section class="result-analysis" aria-label="この一投の分析"><h3>この一投</h3><p id="chapter-launch-analysis" class="launch-analysis"></p><p id="chapter-impact-analysis"></p></section><div class="stage-actions"><button id="chapter-result-share" type="button">この結果をシェア</button><button id="chapter-result-repeat" type="button">この面をもう一度</button><button id="chapter-result-replay" type="button">一投を見る</button><button id="chapter-result-save" type="button">この一投を保存</button></div><p id="chapter-share-status" role="status"></p><textarea id="chapter-share-text" aria-label="結果と共有リンク" readonly hidden></textarea></div></dialog>
+
+        </section>
+      </div>
+      <div class="menu-bottom"><button id="chapter-home-open" class="shell-secondary" type="button">ゲームトップ</button><button id="invite-game" class="shell-secondary" type="button">友だちに渡す ↗</button><a id="browser-open" class="invite-button browser-open" href="https://osakenpiro.github.io/shuryo-techo/trash-shot-preview/?v=20261011-game-shell-1" target="_blank" rel="noopener noreferrer">ブラウザで開く ↗</a></div>
+    </details>
+    <dialog id="chapter-result" class="chapter-result" aria-labelledby="chapter-result-title"><div class="result-inner">
+      <div class="result-stamp"><canvas id="result-clear-pixel" aria-hidden="true" data-pixel-text="CLEAR"></canvas><span id="chapter-result-kind">STAGE CLEAR</span></div>
+      <canvas id="result-face-pixel" class="result-face-pixel" aria-hidden="true"></canvas><h2 id="chapter-result-title"></h2>
+      <p id="chapter-result-attempts" class="result-attempts"></p><p id="chapter-result-best" class="result-best"></p><div id="chapter-result-roles" class="live-shot-roles"></div><p id="chapter-result-detail" class="result-detail"></p>
+      <button id="chapter-result-next" type="button" class="throw-button">次のステージへ</button>
+      <div class="result-share-actions"><button id="chapter-result-share" type="button">結果をシェア ↗</button><button id="chapter-result-replay" type="button">一投を見る ▷</button></div>
+      <details class="result-analysis"><summary>この一投の分析</summary><p id="chapter-launch-analysis" class="launch-analysis"></p><p id="chapter-impact-analysis"></p></details>
+      <div class="stage-actions result-extra-actions"><button id="chapter-result-repeat" type="button">この面をもう一度</button><button id="chapter-result-save" type="button">この一投を保存</button></div>
+      <p id="chapter-share-status" role="status"></p><textarea id="chapter-share-text" aria-label="結果と共有リンク" readonly hidden></textarea>
+    </div></dialog>
     <dialog id="replay-dialog" aria-labelledby="replay-title">
       <header class="replay-header"><div><h2 id="replay-title">成功した一投</h2><p id="replay-source"></p></div><button id="replay-close" type="button" aria-label="リプレイを閉じる">閉じる ×</button></header>
       <div class="replay-canvas-wrap"><canvas id="replay-scene" tabindex="0" aria-label="成功した一投のリプレイ。ドラッグまたは矢印キーで見回し、ホイールでズーム。"></canvas></div>
