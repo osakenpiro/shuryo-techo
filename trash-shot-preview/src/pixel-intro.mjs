@@ -1,4 +1,4 @@
-import {createGame,throwCan,stepGame,resetShot,getSnapshot} from './physics.mjs?v=20261011-desk-over-1';
+import {createGame,throwCan,stepGame,resetShot,getSnapshot} from './physics.mjs?v=20261011-store-tricks-1';
 import {sideAim} from './side-aim.mjs?v=20261011-play-ui-1';
 import {drawPixelText} from './pixel-type.mjs?v=20261011-play-ui-1';
 import {paintScreenQuad} from './room-scene.mjs?v=20261011-desk-over-1';

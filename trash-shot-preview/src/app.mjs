@@ -1,19 +1,26 @@
 import { STAGES, createStageProgress } from './stages.mjs?v=20261011-desk-over-1';
 import { sideAim } from './side-aim.mjs?v=20261011-play-ui-1';
-import {createPixelIntro} from './pixel-intro.mjs?v=20261011-desk-over-1';
-import {createRoomWindStepper} from './room-gimmicks.mjs?v=20261011-desk-over-1';
-import {CHAPTER_IDS,createChapterProgress,loadProgress,saveProgress,restoreProgress,encodeProgressCode,decodeProgressCode} from './progress-save.mjs?v=20261011-play-ui-1';
-import {roomCourse,roomWorld,createRoomCourseStepper} from './room-course.mjs?v=20261011-desk-over-1';
-import {createPlayRoomStepper,predictPlayRoomArc} from './play-room.mjs?v=20261011-desk-over-1';
-import {COURSE_REPLAY_LIMITS,createCourseReplay,validateCourseReplay,coursePayload,courseReplayResult,createCourseReplayPlayer,courseReplayToJSON,parseCourseReplayJSON,decodeCourseReplay,buildCourseReplayURL,interpretPlayContacts,loadPlayReplays,savePlayReplay,deletePlayReplay} from './play-replay.mjs?v=20261011-desk-over-1';
+import {createPixelIntro} from './pixel-intro.mjs?v=20261011-store-tricks-1';
+import {createRoomWindStepper} from './room-gimmicks.mjs?v=20261011-store-tricks-1';
+import {CHAPTER_IDS,createChapterProgress} from './progress-save.mjs?v=20261011-play-ui-1';
+import {roomCourse,roomWorld,createRoomCourseStepper} from './room-course.mjs?v=20261011-store-tricks-1';
+import {createPlayRoomStepper,predictPlayRoomArc} from './play-room.mjs?v=20261011-store-tricks-1';
+import {COURSE_REPLAY_LIMITS,createCourseReplay,validateCourseReplay,coursePayload,courseReplayResult,createCourseReplayPlayer,courseReplayToJSON,parseCourseReplayJSON,decodeCourseReplay,buildCourseReplayURL,interpretPlayContacts,loadPlayReplays,savePlayReplay,deletePlayReplay,loadItemReplays,saveItemReplay,deleteItemReplay} from './play-replay.mjs?v=20261011-store-tricks-1';
 import {createPullScale,mapScaledPull} from './pull-scale.mjs?v=20261011-room-contact-1';
 import {createPlayCue,playCueMarkup,pullHandleMarkup} from './play-cue.mjs?v=20261011-play-analysis-1';
 import {launchSummary,impactSummary} from './shot-summary.mjs?v=20261011-play-analysis-1';
-import { createGame, setSetup, setRoomWorld, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261011-desk-over-1';
-import { createRenderer } from './render.mjs?v=20261011-desk-over-1';
+import { createGame, setSetup, setRoomWorld, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261011-store-tricks-1';
+import { createRenderer } from './render.mjs?v=20261011-store-tricks-1';
 import { createShotAnalytics } from './shot-analytics.mjs?v=20261011-play-ui-1';
-import { createRecorder, loadReplays, saveReplay, deleteReplay } from './replay.mjs?v=20261011-desk-over-1';
+import { createRecorder, loadReplays, saveReplay, deleteReplay } from './replay.mjs?v=20261011-store-tricks-1';
 import {createGameShell} from './game-shell.mjs?v=20261011-desk-over-1';
+
+import {createRewards,ACHIEVEMENTS} from './rewards.mjs?v=20261011-store-tricks-1';
+import {loadPlayerSave,savePlayerSave,restorePlayerSave,encodePlayerCode,decodePlayerCode} from './player-save.mjs?v=20261011-store-tricks-1';
+import {THROWABLE_CATALOG,getThrowable} from './throwables.mjs?v=20261011-store-tricks-1';
+import {setThrowable,getThrowableId} from './throwable-physics.mjs?v=20261011-store-tricks-1';
+import {createStoreUI} from './item-store.mjs?v=20261011-store-tricks-1';
+import {createRewardEffects} from './reward-effects.mjs?v=20261011-store-tricks-1';
 
 const $=id=>document.getElementById(id);
 const canvas=$('scene');
@@ -22,7 +29,9 @@ const controls={power:7.8,elevation:48,yaw:0};
 const renderer=createRenderer(canvas);
 const analytics=createShotAnalytics();
 const stageProgress=createStageProgress();
-const loadedProgress=loadProgress(storage());
+const loadedPlayer=loadPlayerSave(storage());
+const loadedProgress={ok:loadedPlayer.ok,data:loadedPlayer.progress};
+let rewards=createRewards(loadedPlayer.rewards??undefined);
 let chapterProgress=createChapterProgress(loadedProgress.data??undefined),chapterPractice=false,chapterShot=null,chapterResult=null;
 let trainingMode=true,trainingReturnStage='first',trainingStats={attempts:0,successes:0},shotContext=null;
 let angleCueUntil=0;
@@ -39,7 +48,8 @@ observeGame(game,event=>analytics.observe(event));
 const inputs=['power','elevation','yaw','distance','height'].map($);
 const pointers=new Set();
 const view={mode:'throw',prediction:false,gesture:null};
-let pixelIntro=null,introHasRun=false,gameShell=null;
+let pixelIntro=null,introHasRun=false,gameShell=null,storeUI=null;
+const rewardEffects=createRewardEffects({document,reducedMotion:()=>matchMedia('(prefers-reduced-motion: reduce)').matches});
 const roomWind=createRoomWindStepper();let fanEnabled=true,environmentTime=0;
 const courseStepper=createRoomCourseStepper();
 const extraRoom=()=>stageProgress.snapshot().id==='room-extra';
@@ -83,6 +93,7 @@ if(inviteDialog && $('invite-game')){
 
 function updateControlLabels(aim=null){
   const values={...controls,...aim};
+  const label=document.querySelector('label[for="power"]');if(label)label.textContent=getThrowableId(game)==='can'?'初速（m/s）':'引っ張りの強さ';
   $('power-value').textContent=values.power.toFixed(2).replace(/0$/,'');
   $('elevation-value').textContent=`${values.elevation}°`;
   $('yaw-value').textContent=values.yaw===0?'まっすぐ':`${values.yaw<0?'左':'右'} ${Math.abs(values.yaw)}°`;
@@ -97,9 +108,9 @@ function updateHint(){
   $('mode-observe').setAttribute('aria-pressed',String(view.mode==='observe'));
   $('cancel-gesture').hidden=!view.gesture||view.gesture.kind!=='throw';
   if(sideStage()){
-    $('interaction-hint').textContent=busy()?'横から、缶の行方を見届けよう。':view.gesture?.aim?.valid?'離すと一投。Esc または下のボタンで取消。':`${motion}、離すと一投。`;
+    $('interaction-hint').textContent=busy()?'横から、投げたものの行方を見届けよう。':view.gesture?.aim?.valid?'離すと一投。Esc または下のボタンで取消。':`${motion}、離すと一投。`;
     const aim=view.gesture?.aim?.actual;
-    $('input-detail').textContent=aim&&trainingMode?`弧 ${aim.elevation.toFixed(1)}° · 初速 ${aim.power.toFixed(2)} m/s · 向きで角度、長さで強さ`:view.gesture?pullStateHint(view.gesture):`${motion}、向きで角度、長さで強さ。${trainingMode?'つまみでも練習できます。':'金色の弧で角度、矢印の長さで強さ。'}`;
+    $('input-detail').textContent=aim&&trainingMode?`弧 ${aim.elevation.toFixed(1)}° · 初速 ${(aim.power*getThrowable(getThrowableId(game)).physics.launchScale).toFixed(2)} m/s · 向きで角度、長さで強さ`:view.gesture?pullStateHint(view.gesture):`${motion}、向きで角度、長さで強さ。${trainingMode?'つまみでも練習できます。':'金色の弧で角度、矢印の長さで強さ。'}`;
     canvas.setAttribute('aria-label',`横から見た2D投球画面。${motion}、離すと一投。向きで角度、長さで強さ。箱へ向かう平面内で投げます。${trainingMode?'練習では数値でも投げられます。':''}`);
     return;
   }
@@ -110,13 +121,13 @@ function updateHint(){
     $('interaction-hint').textContent='ドラッグで見回す。缶も箱も、別の角度から。';
     $('input-detail').textContent='ホイールでズーム。右クリックで手投げに戻ります。';
   }else if(busy()){
-    $('interaction-hint').textContent='缶の行方を見届けよう。右クリック／「見回す」で視点を変えられます。';
+    $('interaction-hint').textContent='投げたものの行方を見届けよう。右クリック／「見回す」で視点を変えられます。';
     $('input-detail').textContent='投球が落ち着いたら、もう一投。';
   }else if(view.gesture){
     const mapped=view.gesture.aim,aim=mapped.actual;
     const outsideEmbeddedMouse=view.gesture.pointerType==='mouse'&&window.self!==window.top&&!inside({clientX:view.gesture.lastX,clientY:view.gesture.lastY},view.gesture.rect);
     $('interaction-hint').textContent=!view.gesture.scale?.ready&&pullInput()?view.gesture.scale.reasonText:mapped.valid?(outsideEmbeddedMouse?'画面の外で離すと取り消します。':'離すと一投。取り消しは Esc または下のボタン。'):`もう少し${pullInput()?'下':'上'}へ動かすと、投げられます。`;
-    $('input-detail').textContent=trainingMode?launchSummary(aim).text:pullStateHint(view.gesture);
+    $('input-detail').textContent=trainingMode?launchSummary({...aim,power:aim.power*getThrowable(getThrowableId(game)).physics.launchScale}).text:pullStateHint(view.gesture);
   }else{
     $('interaction-hint').textContent=game.phase==='miss'?`もう一投。${straight}、離してみよう。`:`${straight}、離すと一投。`;
     $('input-detail').textContent='矢印の向きが方向、長さが強さ。金色の弧が角度。ホイール／弧 −・＋で調整。右ドラッグで見回す。左右は部屋の奥を基準。';
@@ -139,7 +150,7 @@ function updateScoreSummary(){
   const titles={ready:game.attempts?'次の一投を構えています':'まだ投げていません',flying:'飛んでいます…',settling:'箱の中で落ち着くのを待っています…',success:'成功！ 箱に入りました',miss:'今回は入りませんでした'};
   $('live-shot-result').textContent=titles[game.phase]||titles.ready;
   const roles=$('live-shot-roles');roles.replaceChildren();roles.hidden=true;
-  let detail={ready:`${pullInput()?'下へ引いて':'上へなぞって'}、離すと一投。`,flying:'缶の行方を見届けよう。',settling:'成功は、箱の中で落ち着いてから。',miss:'向きや強さを変えて、もう一投。'}[game.phase]||'';
+  let detail={ready:`${pullInput()?'下へ引いて':'上へなぞって'}、離すと一投。`,flying:'投げたものの行方を見届けよう。',settling:'成功は、箱の中で落ち着いてから。',miss:'向きや強さを変えて、もう一投。'}[game.phase]||'';
   if(sideStage()&&game.phase==='ready')detail=`${pullInput()?'左下へ引く':'右上へなぞる'}。向きで角度、長さで強さを決めて、離すと一投。`;
   if(sideStage()&&game.phase==='miss')detail='角度や強さを変えて、もう一投。';
   const result=actualLiveResult();
@@ -167,8 +178,8 @@ function updateUI(force=false){
   $('setup-description').textContent=`距離 ${game.bin.center.z} m · 高さ ${game.bin.height} m`;
   const messages={
     ready:['↗','いいところに、投げてみよう。','画面で手投げ、または数値で投げられます。','数値で投げる'],
-    flying:['·','缶の行方を、見届けよう。','すとん、と入ると気持ちいい。','飛んでいます…'],
-    settling:['·','もう少し、見届けよう。','缶が落ち着くまでお待ちください。','着地を待っています…'],
+    flying:['·','投げたものの行方を、見届けよう。','すとん、と入ると気持ちいい。','飛んでいます…'],
+    settling:['·','もう少し、見届けよう。','投げたものが落ち着くまでお待ちください。','着地を待っています…'],
     success:['✓','すとん！ 箱に入った。','視点を変えて中を見ても、もうひと投げでも。','この数値でもう一度'],
     miss:['↺','もうひと投げ。','向きや強さを変えて試してみよう。','この数値でもう一度']
   };
@@ -178,7 +189,7 @@ function updateUI(force=false){
   if(sideStage()&&game.phase==='miss')$('status-detail').textContent='強さや弧の高さを変えて、もう一投。';
   if(busy()&&game.lastEvent==='rim-hit')$('status-detail').textContent='ふちに当たった！ どうなるかな。';
   if(busy()&&game.lastEvent==='side-hit')$('status-detail').textContent='箱の横に当たった。';
-  if(busy()&&game.lastEvent==='entered')$('status-detail').textContent='箱の中へ！ 缶が落ち着くのを待とう。';
+  if(busy()&&game.lastEvent==='entered')$('status-detail').textContent='箱の中へ！ 投げたものが落ち着くのを待とう。';
   updateHint();
 }
 function cancelGesture(reason='cancel'){
@@ -225,6 +236,7 @@ function selectStage(id,{fromIntro=false,allowPractice=false,fromEntry=false,tra
   if(stageProgress.snapshot().id==='free')freeSetup={distance:game.bin.center.z,height:game.bin.height};
   cancelGesture('stage-change');pointers.clear();if(fromIntro)shotRecorder=null;else clearCurrentShot();stageProgress.select(id);
   roomWind.reset();courseStepper.reset();if(id==='room-extra')fanEnabled=true;
+  setThrowable(game,CHAPTER_IDS.includes(id)?rewards.snapshot().equipped:'can');
   const setup=id==='free'?freeSetup:STAGES[id];if(CHAPTER_IDS.includes(id))setRoomWorld(game,setup.worldVersion);else setSetup(game,setup);renderer.setWorldView(liveWorld());
   playStepper=liveWorld()?createPlayRoomStepper(liveWorld(),{extra:id==='room-extra'}):null;
   $('distance').value=String(setup.distance);$('height').value=String(setup.height);
@@ -292,11 +304,11 @@ function updateStageUI(){
 }
 function fire(source='numeric'){
   if((source==='numeric'||source==='keyboard')&&!trainingMode)return false;
-  if(pixelIntro?.active||$('chapter-result')?.open||replayDialog.open||$('chapter-top')&&!$('chapter-top').hidden)return false;
+  if(pixelIntro?.active||$('chapter-result')?.open||replayDialog.open||$('store-dialog')?.open||$('chapter-top')&&!$('chapter-top').hidden)return false;
   cancelGesture('other-throw');
   if(sideStage()){controls.yaw=0;updateControlLabels();}
   const accepted=throwCan(game,controls);
-  if(accepted){if(trainingMode)trainingStats.attempts++;else stageProgress.launch(game.attempts);clearCurrentShot();roomWind.reset();courseStepper.reset();playStepper?.reset();shotContext={id:stageProgress.snapshot().id,shotId:game.attempts,training:trainingMode,worldVersion:liveWorld()?.worldVersion??1,fanEnabled,finished:false,launch:launchSummary(controls),initialVelocity:{...game.can.velocity}};lastShotAnalysis=null;lastReleasedAim={parameters:{...controls},initialVelocity:{...game.can.velocity},presented:source==='gesture'&&lastPresentedAim?structuredClone(lastPresentedAim):null};chapterShot=!trainingMode&&chapterStage()?{...shotContext,eligible:!chapterPractice}:null;if(chapterShot?.eligible){chapterProgress.recordAttempt();persistChapter();}try{shotRecorder=createRecorder(getSnapshot(game),controls,renderer.cameraSnapshot(),liveWorld()?{worldVersion:liveWorld().worldVersion}:{});}catch{replayMessage('この一投の録画を開始できません。プレイの結果は記録します。');}lastInput={type:'throw',source,training:trainingMode,parameters:{...controls}};previousTime=performance.now();updateUI(true);if(source!=='gesture')canvas.scrollIntoView({block:'center',behavior:'instant'});}
+  if(accepted){if(trainingMode)trainingStats.attempts++;else stageProgress.launch(game.attempts);clearCurrentShot();roomWind.reset();courseStepper.reset();playStepper?.reset();shotContext={id:stageProgress.snapshot().id,shotId:game.attempts,training:trainingMode,worldVersion:liveWorld()?.worldVersion??1,fanEnabled,finished:false,itemId:getThrowableId(game),launch:{...launchSummary({...controls,power:Math.hypot(game.can.velocity.x,game.can.velocity.y,game.can.velocity.z)}),effort:controls.power},initialVelocity:{...game.can.velocity}};lastShotAnalysis=null;lastReleasedAim={parameters:{...controls},initialVelocity:{...game.can.velocity},presented:source==='gesture'&&lastPresentedAim?structuredClone(lastPresentedAim):null};chapterShot=!trainingMode&&chapterStage()?{...shotContext,eligible:!chapterPractice}:null;if(chapterShot?.eligible){chapterProgress.recordAttempt();chapterShot.rewardTicket=rewards.beginShot({stageId:chapterShot.id,itemId:chapterShot.itemId,eligible:true,source:'live',training:false,practice:false});persistChapter();}try{shotRecorder=createRecorder(getSnapshot(game),controls,renderer.cameraSnapshot(),liveWorld()?{worldVersion:liveWorld().worldVersion,...(getThrowableId(game)!=='can'?{itemId:getThrowableId(game),profileVersion:1}:{})}:{});}catch{replayMessage('この一投の録画を開始できません。プレイの結果は記録します。');}lastInput={type:'throw',source,training:trainingMode,parameters:{...controls}};previousTime=performance.now();updateUI(true);if(source!=='gesture')canvas.scrollIntoView({block:'center',behavior:'instant'});}
   return accepted;
 }
 $('throw-button').addEventListener('click',()=>fire());
@@ -483,7 +495,7 @@ function captureShot(){
     if(snapshot.phase!=='success'&&snapshot.phase!=='miss')return;
     const result=analytics.snapshot().result;lastReplay=shotRecorder.finish(snapshot,result||{});shotRecorder=null;
     if(!lastReplay)return;
-    if(shotContext&&CHAPTER_IDS.includes(shotContext.id))lastReplay=createCourseReplay(lastReplay,shotContext.id,playStepper?.snapshot().contacts??[],{worldVersion:shotContext.worldVersion,fanEnabled:shotContext.id==='room-extra'&&shotContext.fanEnabled});
+    if(shotContext&&CHAPTER_IDS.includes(shotContext.id))lastReplay=createCourseReplay(lastReplay,shotContext.id,playStepper?.snapshot().contacts??[],{worldVersion:shotContext.worldVersion,itemId:shotContext.itemId,fanEnabled:shotContext.id==='room-extra'&&shotContext.fanEnabled});
     const actual=courseReplayResult(lastReplay);
     $('shot-roles').textContent=(shotContext?.training?'練習の一投 · ':'')+roleText(lastReplay);
     $('shot-role-detail').textContent=impactSummary(actual)+' 箱の底での反発は床の回数に含めません。';
@@ -494,7 +506,7 @@ function captureShot(){
 }
 function storage(){try{return window.localStorage;}catch{return null;}}
 function persistChapter(){
-  const result=saveProgress(storage(),chapterProgress.snapshot());
+  const result=savePlayerSave(storage(),{progress:chapterProgress.snapshot(),rewards:rewards.snapshot()});
   if($('progress-status'))$('progress-status').textContent=result.ok?'第1章の記録をこのブラウザに保存しました。':'このブラウザへ保存できませんでした。保存コードを出して持ち運べます。';
   return result;
 }
@@ -507,23 +519,46 @@ function showChapterTop(closed=false){
   if($('game-menu'))$('game-menu').open=false;
   gameShell?.update();panel.scrollIntoView({block:'start',behavior:'instant'});$('chapter-continue')?.focus({preventScroll:true});return true;
 }
+function presentReward(award){
+  const points=$('chapter-result-points'),breakdown=$('chapter-score-breakdown'),coins=$('chapter-reward-coins');
+  for(const id of ['chapter-reward-score','chapter-score-detail'])if($(id))$(id).hidden=!award.ok;
+  if(points){points.hidden=!award.ok;points.textContent=award.ok?`${award.points} pt`:'';}
+  if(coins){coins.hidden=!award.ok;coins.textContent=award.ok?`+${award.coins} コイン · 残高 ${award.wallet}`:'';}
+  if(breakdown){breakdown.replaceChildren();breakdown.hidden=!award.ok;if(award.ok){for(const row of award.breakdown){const line=document.createElement('li');line.textContent=`${row.label} +${row.points}`;breakdown.append(line);}if(award.newAchievements?.length){const line=document.createElement('li');line.className='reward-new-achievements';line.textContent='実績を獲得：'+award.newAchievements.map(a=>typeof a==='string'?Object.values(ACHIEVEMENTS).find(item=>item.id===a)?.label??a:a.label).join(' / ');breakdown.append(line);}}}
+  if(!award.ok)rewardEffects.clear();
+}
+function storeAvailable(){return !busy()&&!pixelIntro?.active&&!$('chapter-result')?.open&&!replayDialog.open;}
+function refreshEquipped(){
+  if(chapterStage())selectStage(stageProgress.snapshot().id,{allowPractice:true,fromEntry:true,training:trainingMode});
+  predictionCache?.clear();storeUI?.update();updateUI(true);
+}
+function storeAction(action,id){
+  if(!storeAvailable())return {ok:false,message:'投球と結果画面を終えてから選べます。'};
+  cancelGesture('store-item');const result=action==='buy'?rewards.purchase(id):rewards.equip(id);
+  if(!result.ok)return {ok:false,message:result.reason==='insufficient-coins'?'コインが足りません。ステージをクリアして貯めよう。':'この物はまだ選べません。'};
+  if(action==='buy')rewards.equip(id);
+  refreshEquipped();const saved=persistChapter();
+  return {ok:true,message:saved.ok?(action==='buy'?'購入して装備しました。この面をはじめから遊べます。':'持ち替えました。この面をはじめから遊べます。'):'今回は装備しました。保存できないため、保存コードを控えてください。'};
+}
 function completeChapterShot(replay=null){
   const shot=chapterShot;if(trainingMode||game.phase!=='success'||!shot||!CHAPTER_IDS.includes(shot.id)||shot.shotId!==game.attempts)return;
   const actual=actualLiveResult();chapterShot=null;const attempts=stageProgress.snapshot().attempts,roles=actual?.roles??[];
   const eligible=shot.eligible&&chapterProgress.clear(shot.id,attempts);
+  const award=eligible?rewards.award({ticket:shot.rewardTicket,stageId:shot.id,itemId:shot.itemId,attempts,result:actual,eligible:true,source:'live',training:false,practice:false}):{ok:false};
   if(eligible){const next=CHAPTER_IDS[CHAPTER_IDS.indexOf(shot.id)+1];if(next)chapterProgress.chooseStage(next);persistChapter();}
-  chapterResult={stageId:shot.id,attempts,roles:roles.map(r=>({...r})),best:eligible?chapterProgress.snapshot().stageBestAttempts[shot.id]:null,practice:!eligible,replay,analysis:lastShotAnalysis?structuredClone(lastShotAnalysis):{launch:{...shot.launch}}};
+  chapterResult={stageId:shot.id,attempts,roles:roles.map(r=>({...r})),best:eligible?chapterProgress.snapshot().stageBestAttempts[shot.id]:null,practice:!eligible,itemId:shot.itemId,reward:award.ok?award:null,replay,analysis:lastShotAnalysis?structuredClone(lastShotAnalysis):{launch:{...shot.launch}}};
   const dialog=$('chapter-result');if(!dialog)return;
   cancelGesture('chapter-result');$('chapter-result-kind').textContent=eligible?'STAGE CLEAR':'PRACTICE CLEAR';$('chapter-result-title').textContent=STAGES[shot.id].label;
-  $('chapter-result-attempts').textContent=`${attempts} 投で成功`;$('chapter-result-best').textContent=eligible?`ベスト ${chapterResult.best} 投`:'練習の結果です。第1章の記録は変わりません。';
+  $('chapter-result-attempts').textContent=`${attempts} 投で成功`;$('chapter-result-best').textContent=eligible?(award.ok?`${getThrowable(shot.itemId).label}のベスト ${award.itemBest.bestPoints} pt · ${award.itemBest.bestAttempts} 投`:`ベスト ${chapterResult.best} 投`):'練習の結果です。第1章の記録は変わりません。';
   $('chapter-result-roles').replaceChildren(...roles.map(role=>{const chip=document.createElement('span');chip.className='shot-role-chip';chip.textContent=role.label;return chip;}));
-  $('chapter-result-detail').textContent='缶が箱の中で落ち着いて、成功。';
+  $('chapter-result-detail').textContent=getThrowable(shot.itemId).label+'が箱の中で落ち着いて、成功。';
+  presentReward(award);
   if($('chapter-launch-analysis'))$('chapter-launch-analysis').textContent=shot.launch.text;
   if($('chapter-impact-analysis'))$('chapter-impact-analysis').textContent=impactSummary(actual);
   for(const id of ['chapter-result-replay','chapter-result-save'])if($(id))$(id).hidden=!replay;
   const next=CHAPTER_IDS[CHAPTER_IDS.indexOf(shot.id)+1];$('chapter-result-next').textContent=!eligible?'練習を終える':next?`${STAGES[next].label}へ`:'第1章クリア · トップへ';
   if(eligible&&!next){$('chapter-result-kind').textContent='CHAPTER CLEAR';$('chapter-result-detail').textContent='第1章クリア！ 各面のベスト：'+CHAPTER_IDS.map(id=>`${STAGES[id].number??(id==='first'?'1-1':'1-4')} ${chapterProgress.snapshot().stageBestAttempts[id]}投`).join(' / ');}
-  $('chapter-share-status').textContent='';$('chapter-share-text').hidden=true;gameShell?.update();dialog.showModal();
+  $('chapter-share-status').textContent='';$('chapter-share-text').hidden=true;gameShell?.update();storeUI?.update();dialog.showModal();if(award.ok)rewardEffects.celebrate({holeInOne:award.holeInOne,tricky:roles.some(r=>r.id!=='direct'),points:award.points});
 }
 if($('chapter-result')){
   $('chapter-result-next').addEventListener('click',()=>{const result=chapterResult;$('chapter-result').close();if(!result)return;const next=CHAPTER_IDS[CHAPTER_IDS.indexOf(result.stageId)+1];if(result.practice||!next)showChapterTop(!result.practice);else selectPlayable(next);});
@@ -532,7 +567,7 @@ if($('chapter-result')){
   $('chapter-result-save')?.addEventListener('click',()=>{if(chapterResult?.replay)$('chapter-share-status').textContent=persistReplay(chapterResult.replay)?'この一投をこのブラウザに保存しました。':'この一投を保存できません。リプレイ画面からファイルで保存できます。';});
   $('chapter-result-share').addEventListener('click',async()=>{
     const result=chapterResult;if(!result)return;const link=result.replay?await prepareReplayLink(result.replay):{},url=link.url??new URL('./',location.href).href;
-    const text=`ごみシュート ${STAGES[result.stageId].label}：${result.attempts}投で成功 · ${result.roles.map(r=>r.label).join(' / ')}${result.best?` · ベスト${result.best}投`:''}${result.practice?'（練習）':''}`;
+    const text=`ごみシュート ${STAGES[result.stageId].label}：${result.attempts}投で成功 · ${result.roles.map(r=>r.label).join(' / ')}${result.reward?` · ${result.reward.points}点`:''} · ${getThrowable(result.itemId??'can').label}${result.best?` · ベスト${result.best}投`:''}${result.practice?'（練習）':''}`;
     $('chapter-share-text').value=text+'\n'+url;$('chapter-share-text').hidden=false;
     try{if(navigator.share){await navigator.share({title:'ごみシュートの結果',text,url});$('chapter-share-status').textContent='共有先に結果を渡しました。';}else{if(!navigator.clipboard?.writeText)throw new Error('unsupported');await navigator.clipboard.writeText(text+'\n'+url);$('chapter-share-status').textContent='結果とリンクをコピーしました。';}}
     catch(error){$('chapter-share-status').textContent=error.name==='AbortError'?'共有を取り消しました。':'結果とリンクを選んで手動でコピーできます。';}
@@ -540,9 +575,9 @@ if($('chapter-result')){
 }
 if($('progress-export')){
   $('input-scheme').addEventListener('change',()=>{if(busy()||pixelIntro?.active){$('input-scheme').value=chapterProgress.snapshot().inputScheme;return;}cancelGesture('input-scheme');chapterProgress.setInputScheme($('input-scheme').value);persistChapter();updateUI(true);});
-  $('progress-export').addEventListener('click',()=>{$('progress-code').value=encodeProgressCode(chapterProgress.snapshot());$('progress-status').textContent='保存コードを出しました。このコードを控えておけます。';});
-  $('progress-copy').addEventListener('click',async()=>{if(!$('progress-code').value)$('progress-code').value=encodeProgressCode(chapterProgress.snapshot());try{if(!navigator.clipboard?.writeText)throw new Error('unsupported');await navigator.clipboard.writeText($('progress-code').value);$('progress-status').textContent='保存コードをコピーしました。';}catch{$('progress-code').focus();$('progress-code').select();$('progress-status').textContent='コードを選択しました。手動でコピーできます。';}});
-  $('progress-restore').addEventListener('click',()=>{if(busy()||pixelIntro?.active||$('chapter-result')?.open||replayDialog.open){$('progress-status').textContent='投球と結果画面を終えてから復元できます。';return;}let data;try{data=decodeProgressCode($('progress-code').value.trim());}catch{$('progress-status').textContent='コードを読み込めません。今の記録は変更していません。';return;}const saved=restoreProgress(storage(),data);cancelGesture('progress-restore');chapterProgress=createChapterProgress(data);chapterPractice=false;selectStage(data.resumeStage,{fromEntry:true});updateUI(true);showChapterTop();$('progress-status').textContent=saved.ok?saved.status==='restored-with-corrupt-backup'?'元の壊れた保存を控えて、コードから復元しました。':'コードから復元し、このブラウザに保存しました。':'コードから復元しました。このブラウザへ保存できません。コードを控えておいてください。';});
+  $('progress-export').addEventListener('click',()=>{$('progress-code').value=encodePlayerCode({progress:chapterProgress.snapshot(),rewards:rewards.snapshot()});$('progress-status').textContent='保存コードを出しました。このコードを控えておけます。';});
+  $('progress-copy').addEventListener('click',async()=>{if(!$('progress-code').value)$('progress-code').value=encodePlayerCode({progress:chapterProgress.snapshot(),rewards:rewards.snapshot()});try{if(!navigator.clipboard?.writeText)throw new Error('unsupported');await navigator.clipboard.writeText($('progress-code').value);$('progress-status').textContent='保存コードをコピーしました。';}catch{$('progress-code').focus();$('progress-code').select();$('progress-status').textContent='コードを選択しました。手動でコピーできます。';}});
+  $('progress-restore').addEventListener('click',()=>{if(busy()||pixelIntro?.active||$('chapter-result')?.open||replayDialog.open){$('progress-status').textContent='投球と結果画面を終えてから復元できます。';return;}let data;try{data=decodePlayerCode($('progress-code').value.trim());}catch{$('progress-status').textContent='コードを読み込めません。今の記録は変更していません。';return;}const saved=restorePlayerSave(storage(),data);cancelGesture('progress-restore');chapterProgress=createChapterProgress(data.progress);if(data.rewards)rewards=createRewards(data.rewards);chapterPractice=false;selectStage(data.progress.resumeStage,{fromEntry:true});storeUI?.update();updateUI(true);showChapterTop();$('progress-status').textContent=saved.ok?saved.status==='restored-with-corrupt-backup'?'元の壊れた保存を控えて、コードから復元しました。':'コードから復元し、このブラウザに保存しました。':'コードから復元しました。このブラウザへ保存できません。コードを控えておいてください。';});
   $('chapter-home-open').addEventListener('click',()=>showChapterTop());$('chapter-continue').addEventListener('click',()=>selectPlayable(chapterProgress.snapshot().resumeStage));$('chapter-menu').addEventListener('click',()=>{$('chapter-top').hidden=true;if($('game-menu')){$('game-menu').open=true;$('game-menu-open')?.setAttribute('aria-expanded','true');}const target=$('chapter-stage-cards')??$('stage-select');target.scrollIntoView({block:'start',behavior:'instant'});target.querySelector('button:not(:disabled)')?.focus({preventScroll:true});});
   if(!loadedProgress.ok)$('progress-status').textContent='保存した記録を読み込めません。元の保存は残しています。保存コードでも続けられます。';
 }
@@ -557,7 +592,7 @@ function writeCourseRecords(records){
   try{store.setItem(courseStorageKey,text);if(store.getItem(courseStorageKey)!==text)throw new Error('Readback failed');}catch(error){try{if(old===null)store.removeItem(courseStorageKey);else store.setItem(courseStorageKey,old);}catch{}throw error;}
 }
 function refreshSaved(){
-  const result=loadReplays(storage());let courses=[],roomRecords=[];try{courses=loadCourseRecords();}catch{replayMessage('以前の第1章の保存記録を読み込めません。元の保存は残しています。');}try{roomRecords=loadPlayReplays(storage());}catch{replayMessage('部屋の保存記録を読み込めません。元の保存は残しています。');}savedReplays=[...roomRecords,...courses,...result.replays];renderSaved();
+  const result=loadReplays(storage());let courses=[],roomRecords=[],itemRecords=[];try{courses=loadCourseRecords();}catch{replayMessage('以前の第1章の保存記録を読み込めません。元の保存は残しています。');}try{roomRecords=loadPlayReplays(storage());}catch{replayMessage('部屋の保存記録を読み込めません。元の保存は残しています。');}try{itemRecords=loadItemReplays(storage());}catch{replayMessage('投げる物の保存記録を読み込めません。元の保存は残しています。');}savedReplays=[...itemRecords,...roomRecords,...courses,...result.replays];renderSaved();
   if(!result.ok)replayMessage('このブラウザの保存したリプレイを読み込めませんでした。',false,result.error?.code||'STORAGE_UNAVAILABLE');
   else if(result.discarded)replayMessage('開けない保存記録を除いて読み込みました。');
 }
@@ -565,14 +600,15 @@ function renderSaved(){
   $('saved-replays').replaceChildren();$('saved-empty').hidden=savedReplays.length>0;
   for(const replay of savedReplays){
     const row=document.createElement('li'),label=document.createElement('span'),play=document.createElement('button'),remove=document.createElement('button');
-    const payload=coursePayload(replay);label.textContent=`${replay.course?STAGES[replay.course.stageId].label+' · ':''}${roleText(replay)} · ${payload.duration.toFixed(2)} 秒`;play.textContent='再生';remove.textContent='削除';play.type=remove.type='button';play.dataset.replayId=remove.dataset.replayId=payload.id;
+    const payload=coursePayload(replay);label.textContent=`${replay.item?getThrowable(replay.item.id).label+' · ':''}${replay.course?STAGES[replay.course.stageId].label+' · ':''}${roleText(replay)} · ${payload.duration.toFixed(2)} 秒`;play.textContent='再生';remove.textContent='削除';play.type=remove.type='button';play.dataset.replayId=remove.dataset.replayId=payload.id;
     play.addEventListener('click',()=>openReplay(replay,'saved'));
-    remove.addEventListener('click',()=>{if(replay.version===3){try{deletePlayReplay(storage(),payload.id);refreshSaved();replayMessage('保存記録を削除しました。');}catch{replayMessage('保存記録を削除できませんでした。');}}else if(replay.version===2){try{writeCourseRecords(loadCourseRecords().filter(record=>coursePayload(record).id!==payload.id));refreshSaved();replayMessage('保存記録を削除しました。');}catch{replayMessage('保存記録を削除できませんでした。');}}else{const result=deleteReplay(storage(),payload.id);if(result.ok){refreshSaved();replayMessage('保存記録を削除しました。');}else replayMessage('保存記録を削除できませんでした。',false,result.error?.code||'STORAGE_FAILED');}});
+    remove.addEventListener('click',()=>{if(replay.version===4){try{deleteItemReplay(storage(),payload.id);refreshSaved();replayMessage('保存記録を削除しました。');}catch{replayMessage('保存記録を削除できませんでした。');}}else if(replay.version===3){try{deletePlayReplay(storage(),payload.id);refreshSaved();replayMessage('保存記録を削除しました。');}catch{replayMessage('保存記録を削除できませんでした。');}}else if(replay.version===2){try{writeCourseRecords(loadCourseRecords().filter(record=>coursePayload(record).id!==payload.id));refreshSaved();replayMessage('保存記録を削除しました。');}catch{replayMessage('保存記録を削除できませんでした。');}}else{const result=deleteReplay(storage(),payload.id);if(result.ok){refreshSaved();replayMessage('保存記録を削除しました。');}else replayMessage('保存記録を削除できませんでした。',false,result.error?.code||'STORAGE_FAILED');}});
     row.append(label,play,remove);$('saved-replays').append(row);
   }
 }
 function persistReplay(replay,viewer=false){
   if(!replay)return;
+  if(replay.version===4){try{saveItemReplay(storage(),replay);refreshSaved();replayMessage('この物の一投をこのブラウザに保存しました。',viewer);return true;}catch{replayMessage('保存できませんでした。リプレイのファイルで保存できます。',viewer,'STORAGE_FAILED');return false;}}
   if(replay.version===3){try{savePlayReplay(storage(),replay);refreshSaved();replayMessage('部屋の一投をこのブラウザに保存しました。',viewer);return true;}catch{replayMessage('保存できませんでした。リプレイのファイルで保存できます。',viewer,'STORAGE_FAILED');return false;}}
   if(replay.version===2){try{const valid=validateCourseReplay(replay),id=coursePayload(valid).id;writeCourseRecords([valid,...loadCourseRecords().filter(record=>coursePayload(record).id!==id)].slice(0,5));refreshSaved();replayMessage('第1章の一投をこのブラウザに保存しました。',viewer);return true;}catch{replayMessage('保存できませんでした。リプレイのファイルで保存できます。',viewer,'STORAGE_FAILED');return false;}}
   const result=saveReplay(storage(),replay);
@@ -624,8 +660,8 @@ function openReplay(input,source){
     viewedReplay=replay;viewedPayload=payload;viewedResult=courseReplayResult(replay);replayPlayer=createCourseReplayPlayer(replay);replayTime=0;replayPlaying=true;replaySource=source;replayDrag=null;
     $('replay-title').textContent=source==='shared'?'共有された成功リプレイ':'成功した一投';
     $('replay-source').textContent=replay.course?'保存した軌道を、その面の部屋で見回せます。プレイヤーの進行は変わりません。':'記録は共通の3D画面で見回せます。';
-    $('replay-role-title').textContent=roleText(replay);$('replay-seek').max=payload.duration;$('replay-share-controls').hidden=true;$('replay-share-link').value='';replayMessage('',true);
-    if($('replay-launch-analysis'))$('replay-launch-analysis').textContent=launchSummary(payload.controls)?.text??'';
+    $('replay-role-title').textContent=(replay.item?getThrowable(replay.item.id).label+' · ':'')+roleText(replay);$('replay-seek').max=payload.duration;$('replay-share-controls').hidden=true;$('replay-share-link').value='';replayMessage('',true);
+    if($('replay-launch-analysis'))$('replay-launch-analysis').textContent=launchSummary({...payload.controls,power:payload.controls.power*(replay.item?getThrowable(replay.item.id).physics.launchScale:1)})?.text??'';
     if(!replayDialog.open)replayDialog.showModal();replayRenderer.resize();restoreReplayCamera();prepareReplayLink(replay);renderReplay(0);replayCanvas.focus({preventScroll:true});
   }catch(error){replayMessage('このリプレイを開けませんでした。',false,error.code||'INVALID_REPLAY');}
 }
@@ -684,7 +720,7 @@ async function loadSharedReplay(){
 }
 window.addEventListener('hashchange',loadSharedReplay);
 loadSharedReplay();
-window.__trashShot={game,controls,stageSnapshot:()=>({...stageProgress.snapshot(),completed:[...stageProgress.snapshot().completed.filter(id=>!CHAPTER_IDS.includes(id)),...chapterProgress.snapshot().completedIDs]}),chapterSnapshot:()=>({...chapterProgress.snapshot(),training:trainingMode,practice:chapterPractice,currentStage:stageProgress.snapshot().id,result:chapterResult?{stageId:chapterResult.stageId,attempts:chapterResult.attempts,roles:structuredClone(chapterResult.roles),best:chapterResult.best,practice:chapterResult.practice,analysis:structuredClone(chapterResult.analysis)}:null}),courseSnapshot:()=>playStepper?.snapshot()??courseStepper.snapshot(),playSnapshot:()=>structuredClone({roomContacts:playStepper?.snapshot()??null,cue:cueSnapshot,trainingPreview:trainingPreview??[],frozenScale:view.gesture?.scale??null,presentedAim:lastPresentedAim,releasedAim:lastReleasedAim,resultAnalysis:lastShotAnalysis,numericLabels:trainingMode,predictionVisible:trainingMode&&view.prediction}),snapshot:()=>getSnapshot(game),cameraSnapshot:()=>renderer.cameraSnapshot(),introSnapshot:()=>pixelIntro?.snapshot()??null,gimmickSnapshot:()=>({active:extraRoom(),fanEnabled,...(playStepper?.snapshot()??roomWind.snapshot()),windArc:(trainingPreview??[]).map(p=>({...p}))}),inputSnapshot:()=>({scheme:chapterProgress.snapshot().inputScheme,training:trainingMode,trainingStats:{...trainingStats},worldVersion:liveWorld()?.worldVersion??1,mode:view.mode,prediction:view.prediction,activeGesture:view.gesture?.kind||null,heldAim:view.gesture?.kind==='throw'?{...view.gesture.aim.actual,valid:view.gesture.aim.valid,risk:view.gesture.aim.risk,rawDistance:view.gesture.aim.rawDistance}:null,lastPaintedPhase:view.gesture?.kind==='throw'?(view.gesture.presentationTime-view.gesture.started)/1000:null,activePointers:pointers.size,cancellations,lastInput:lastInput?structuredClone(lastInput):null}),analyticsSnapshot:()=>({...analytics.snapshot(),result:actualLiveResult()}),replaySnapshot:()=>({active:replayDialog.open,playing:replayPlaying,time:replayTime,duration:replayPlayer?.duration||0,sourceId:viewedPayload?.id||null,sourceType:replaySource,recordedFrames:viewedPayload?.frames.length||0,current:replayPlayer?structuredClone(replayPlayer.sample(replayTime)):null,result:viewedResult?structuredClone(viewedResult):null,course:viewedReplay?.course?structuredClone(viewedReplay.course):null,savedCount:savedReplays.length,latestId:lastReplay?coursePayload(lastReplay).id:null,recording:Boolean(videoState),video:videoBlob?{size:videoBlob.size,mime:videoBlob.type}:null})};
+window.__trashShot={game,controls,stageSnapshot:()=>({...stageProgress.snapshot(),completed:[...stageProgress.snapshot().completed.filter(id=>!CHAPTER_IDS.includes(id)),...chapterProgress.snapshot().completedIDs]}),chapterSnapshot:()=>({...chapterProgress.snapshot(),training:trainingMode,practice:chapterPractice,currentStage:stageProgress.snapshot().id,result:chapterResult?{stageId:chapterResult.stageId,attempts:chapterResult.attempts,roles:structuredClone(chapterResult.roles),best:chapterResult.best,practice:chapterResult.practice,itemId:chapterResult.itemId,reward:structuredClone(chapterResult.reward),analysis:structuredClone(chapterResult.analysis)}:null}),courseSnapshot:()=>playStepper?.snapshot()??courseStepper.snapshot(),rewardSnapshot:()=>rewards.snapshot(),throwableSnapshot:()=>({id:getThrowableId(game),profile:getThrowable(getThrowableId(game)).physics}),playSnapshot:()=>structuredClone({roomContacts:playStepper?.snapshot()??null,cue:cueSnapshot,trainingPreview:trainingPreview??[],frozenScale:view.gesture?.scale??null,presentedAim:lastPresentedAim,releasedAim:lastReleasedAim,resultAnalysis:lastShotAnalysis,numericLabels:trainingMode,predictionVisible:trainingMode&&view.prediction}),snapshot:()=>getSnapshot(game),cameraSnapshot:()=>renderer.cameraSnapshot(),introSnapshot:()=>pixelIntro?.snapshot()??null,gimmickSnapshot:()=>({active:extraRoom(),fanEnabled,...(playStepper?.snapshot()??roomWind.snapshot()),windArc:(trainingPreview??[]).map(p=>({...p}))}),inputSnapshot:()=>({scheme:chapterProgress.snapshot().inputScheme,training:trainingMode,trainingStats:{...trainingStats},worldVersion:liveWorld()?.worldVersion??1,mode:view.mode,prediction:view.prediction,activeGesture:view.gesture?.kind||null,heldAim:view.gesture?.kind==='throw'?{...view.gesture.aim.actual,valid:view.gesture.aim.valid,risk:view.gesture.aim.risk,rawDistance:view.gesture.aim.rawDistance}:null,lastPaintedPhase:view.gesture?.kind==='throw'?(view.gesture.presentationTime-view.gesture.started)/1000:null,activePointers:pointers.size,cancellations,lastInput:lastInput?structuredClone(lastInput):null}),analyticsSnapshot:()=>({...analytics.snapshot(),result:actualLiveResult()}),replaySnapshot:()=>({active:replayDialog.open,playing:replayPlaying,time:replayTime,duration:replayPlayer?.duration||0,sourceId:viewedPayload?.id||null,sourceType:replaySource,recordedFrames:viewedPayload?.frames.length||0,current:replayPlayer?structuredClone(replayPlayer.sample(replayTime)):null,result:viewedResult?structuredClone(viewedResult):null,course:viewedReplay?.course?structuredClone(viewedReplay.course):null,savedCount:savedReplays.length,latestId:lastReplay?coursePayload(lastReplay).id:null,recording:Boolean(videoState),video:videoBlob?{size:videoBlob.size,mime:videoBlob.type}:null})};
 updateControlLabels();updateUI(true);
 // Explicit stages and shared records bypass the fresh pixel introduction.
 const entryStage=new URLSearchParams(location.search).get('stage');
@@ -718,7 +754,7 @@ function setupInputCheck(){
   const [entry,panel,copy,close,text,message]=['input-check-open','input-check-panel','input-check-copy','input-check-close','input-check-text','input-check-message'].map($);
   // A new app can be loaded by an older cached HTML page without these nodes.
   if(![entry,panel,copy,close,text,message].every(Boolean))return;
-  const version='20261011-desk-over-1',limit=24,maxBytes=12000;
+  const version='20261011-store-tricks-1',limit=24,maxBytes=12000;
   let session=null,removeListeners=[];
   const clone=value=>value?(typeof structuredClone==='function'?structuredClone(value):JSON.parse(JSON.stringify(value))):null;
   const geometry=()=>{
@@ -816,7 +852,7 @@ setupInputCheck();
 const predictionCache=new Map();
 function previewFor(aim){
   if(!trainingMode||!view.prediction||busy())return [];
-  const world=liveWorld(),key=[stageProgress.snapshot().id,game.bin.center.z,game.bin.height,aim.power,aim.elevation,aim.yaw,fanEnabled].join('/');
+  const world=liveWorld(),key=[getThrowableId(game),stageProgress.snapshot().id,game.bin.center.z,game.bin.height,aim.power,aim.elevation,aim.yaw,fanEnabled].join('/');
   if(predictionCache.has(key)){const arc=predictionCache.get(key);predictionCache.delete(key);predictionCache.set(key,arc);return arc;}
   // Free / side use their unchanged renderer predictor. Chapter training uses
   // exactly the same room + optional wind integrator as the accepted shot.
@@ -828,7 +864,7 @@ function paintPlayCue(aim){
   const overlay=$('play-cue');if(!overlay)return;
   const rect=canvas.getBoundingClientRect();overlay.setAttribute('viewBox',`0 0 ${rect.width} ${rect.height}`);
   if(!aim||busy()||pixelIntro?.active||$('chapter-result')?.open||replayDialog.open){overlay.replaceChildren();cueSnapshot={visible:false,numericLabels:trainingMode,predictionVisible:trainingMode&&view.prediction&&!busy(),predictionPoints:trainingPreview?.length??0};return;}
-  const origin=liveWorld()?.origin??{x:0,y:1.05,z:0};
+  const world=liveWorld();const origin=world?(getThrowableId(game)==='can'?world.origin:{...world.origin,y:world.origin.y+game.can.radius-.14}):{x:0,y:1.05,z:0};
   const cue=createPlayCue(origin,aim,renderer.project,rect.width,rect.height);
   const gesture=view.gesture?.kind==='throw'?view.gesture:null;
   overlay.innerHTML=playCueMarkup(cue,{risk:gesture?.aim?.risk>0})+(gesture?pullHandleMarkup(gesture,gesture.aim,sideStage(),pullInput()?-1:1):'');
@@ -860,6 +896,10 @@ function frame(now){
   renderReplay(dt);
   requestAnimationFrame(frame);
 }
+storeUI=createStoreUI({document,catalog:Object.values(THROWABLE_CATALOG),
+  getState:()=>{const state=rewards.snapshot();return {coins:state.wallet,ownedIds:state.purchased,equippedId:state.equipped,achievements:Object.values(ACHIEVEMENTS).filter(a=>state.achievements.includes(a.id)),busy:busy(),canOpen:storeAvailable()};},
+  onBuy:id=>storeAction('buy',id),onEquip:id=>storeAction('equip',id)});
+$('store-open')?.addEventListener('click',()=>{if(!storeAvailable())return;cancelGesture('store-open');storeUI.open();});
 gameShell=createGameShell({
   getState:()=>({progress:chapterProgress.snapshot(),stageId:stageProgress.snapshot().id,busy:busy(),introActive:pixelIntro?.active===true,trainingMode,result:chapterResult}),
   selectStage

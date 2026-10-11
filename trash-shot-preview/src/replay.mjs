@@ -1,5 +1,6 @@
 // Recorded world poses, never a seed or a second physics simulation.
-import { ROOM_PHYSICS_WORLDS } from './physics.mjs?v=20261011-desk-over-1';
+import { ROOM_PHYSICS_WORLDS } from './physics.mjs?v=20261011-store-tricks-1';
+import { THROWABLE_CATALOG } from './throwables.mjs?v=20261011-store-tricks-1';
 export const REPLAY_LIMITS = Object.freeze({version:1, duration:5.1, frames:720,
   hz:60, rawBytes:180*1024, saved:5, storageBytes:900*1024, urlChars:8000,
   contacts:2400, precision:1e-5, storageKey:'trash-shot.replays.v1'});
@@ -44,13 +45,23 @@ function vector(value,where,velocity=false){
 }
 const quantize = value => Number(value.toFixed(5));
 const qvector = value => ({x:quantize(value.x),y:quantize(value.y),z:quantize(value.z)});
-function replayWorld(context={}){
+function replayContext(context={}){
   if(!context||typeof context!=='object'||Array.isArray(context)||Object.getPrototypeOf(context)!==Object.prototype)
     fail('INVALID_REPLAY','replay context: plain object required');
-  if(Reflect.ownKeys(context).length===0)return 1;
-  object(context,['worldVersion'],'replay context');
+  if(Reflect.ownKeys(context).length===0)return {worldVersion:1,radius:.14,itemId:null,launchScale:1};
+  const item=Object.getOwnPropertyDescriptor(context,'itemId');
+  object(context,item?['worldVersion','itemId','profileVersion']:['worldVersion'],'replay context');
   if(![1,2,3].includes(context.worldVersion))fail('UNSUPPORTED_VERSION','Replay world context is unsupported');
-  return context.worldVersion;
+  if(!item)return {worldVersion:context.worldVersion,radius:.14,itemId:null,launchScale:1};
+  if(context.profileVersion!==1||typeof context.itemId!=='string'||context.itemId==='can'
+    ||!Object.hasOwn(THROWABLE_CATALOG,context.itemId)||![2,3].includes(context.worldVersion))
+    fail('INVALID_REPLAY','Unsupported fixed item replay context');
+  const profile=THROWABLE_CATALOG[context.itemId].physics;
+  return {worldVersion:context.worldVersion,radius:profile.radius,itemId:context.itemId,launchScale:profile.launchScale};
+}
+function replayOrigin(worldVersion,radius,itemId){
+  const origin=ROOM_PHYSICS_WORLDS[worldVersion].origin;
+  return itemId?{...origin,y:quantize(origin.y+radius-.14)}:origin;
 }
 function binData(value,worldVersion=1){
   object(value,['center','radius','height'],'bin');const center=vector(value.center,'bin.center');
@@ -104,10 +115,10 @@ function roleData(input,duration,strict=false){
   }
   result.roles=expected.map(id=>({id,label:REPLAY_ROLE_LABELS[id]}));return result;
 }
-function frameData(snapshot){
+function frameData(snapshot,radius=.14){
   if(!snapshot||!PHASES.includes(snapshot.phase))fail('INVALID_REPLAY','frame: invalid phase');
   const time=number(snapshot.time,0,REPLAY_LIMITS.duration,'frame.time');
-  if(snapshot.can?.radius!==.14)fail('INVALID_REPLAY','frame: invalid can radius');
+  if(snapshot.can?.radius!==radius)fail('INVALID_REPLAY','frame: invalid throwable radius');
   return {time,phase:snapshot.phase,position:qvector(vector(snapshot.can.position,'position')),
     velocity:qvector(vector(snapshot.can.velocity,'velocity',true))};
 }
@@ -121,7 +132,7 @@ function replayID(){
 function validID(id){return typeof id==='string'&&/^(?:[a-f0-9]{32}|[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12})$/.test(id);}
 function encodedSize(text){return enc.encode(text).byteLength;}
 export function validateReplay(input,context={}){
-  const worldVersion=replayWorld(context);
+  const {worldVersion,radius,itemId,launchScale}=replayContext(context);
   object(input,['version','id','createdAt','duration','bin','controls','camera','result','frames'],'replay');
   if(input.version!==1)fail('UNSUPPORTED_VERSION','Replay version is unsupported');
   if(!validID(input.id))fail('INVALID_REPLAY','Invalid replay ID');
@@ -139,22 +150,28 @@ export function validateReplay(input,context={}){
   });
   const first=frames[0],last=frames.at(-1);
   if(worldVersion===2||worldVersion===3){
-    const origin=ROOM_PHYSICS_WORLDS[worldVersion].origin;
+    const origin=replayOrigin(worldVersion,radius,itemId);
     if(['x','y','z'].some(axis=>first.position[axis]!==origin[axis]))fail('INVALID_REPLAY',`Initial pose differs from room world ${worldVersion} origin`);
   }
   if(first.time!==0||first.phase!=='flying'||last.time!==duration||last.phase!=='success'
-      ||Math.hypot(last.position.x-bin.center.x,last.position.z-bin.center.z)>bin.radius-.14+1e-5
-      ||Math.abs(last.position.y-.14)>1e-5||Object.values(last.velocity).some(v=>v!==0))
+      ||Math.hypot(last.position.x-bin.center.x,last.position.z-bin.center.z)>bin.radius-radius+1e-5
+      ||Math.abs(last.position.y-radius)>1e-5||Object.values(last.velocity).some(v=>v!==0))
     fail('INVALID_REPLAY','Initial/terminal pose is invalid');
+  if(itemId){
+    const elevation=controls.elevation*Math.PI/180,yaw=controls.yaw*Math.PI/180,speed=controls.power*launchScale;
+    const expected={x:speed*Math.cos(elevation)*Math.sin(yaw),y:speed*Math.sin(elevation),z:speed*Math.cos(elevation)*Math.cos(yaw)};
+    if(['x','y','z'].some(axis=>Math.abs(first.velocity[axis]-expected[axis])>1e-5))
+      fail('INVALID_REPLAY','Initial item velocity disagrees with its fixed launch profile');
+  }
   const replay={version:1,id:input.id,createdAt,duration,bin,controls,camera,result:roleData(input.result,duration,true),frames};
   if(encodedSize(JSON.stringify(replay))>REPLAY_LIMITS.rawBytes)fail('REPLAY_TOO_LARGE','Replay exceeds raw data limit');
   return freeze(replay);
 }
 export function createRecorder(startSnapshot,controls,camera,context={}){
-  const worldVersion=replayWorld(context),codecContext={worldVersion};
-  const first=frameData(startSnapshot);
+  const {worldVersion,radius,itemId}=replayContext(context),codecContext=itemId?{...context}:{worldVersion};
+  const first=frameData(startSnapshot,radius);
   if(first.time!==0||first.phase!=='flying')fail('INVALID_REPLAY','Recorder starts immediately after launch');
-  if((worldVersion===2||worldVersion===3)&&['x','y','z'].some(axis=>first.position[axis]!==ROOM_PHYSICS_WORLDS[worldVersion].origin[axis]))fail('INVALID_REPLAY',`Recorder origin differs from room world ${worldVersion}`);
+  if((worldVersion===2||worldVersion===3)&&['x','y','z'].some(axis=>first.position[axis]!==replayOrigin(worldVersion,radius,itemId)[axis]))fail('INVALID_REPLAY',`Recorder origin differs from room world ${worldVersion}`);
   const bin=binData(startSnapshot.bin,worldVersion),initialControls=controlData(controls),initialCamera=cameraData(camera);
   const frames=[first];let closed=false,lastObserved=0,dropped=0,finished=null;
   const unchanged=snapshot=>{
@@ -165,7 +182,7 @@ export function createRecorder(startSnapshot,controls,camera,context={}){
     if(closed)return false;
     unchanged(snapshot);
     if(snapshot.phase==='miss'){number(snapshot.time,lastObserved,REPLAY_LIMITS.duration,'miss.time');return false;}
-    const frame=frameData(snapshot);
+    const frame=frameData(snapshot,radius);
     if(frame.time<lastObserved)fail('INVALID_REPLAY','Recording time moved backwards');lastObserved=frame.time;
     const prior=frames.at(-1);
     if(frame.time===prior.time)return false;
@@ -185,7 +202,7 @@ export function createRecorder(startSnapshot,controls,camera,context={}){
   return {record,finish,get closed(){return closed;},get frameCount(){return frames.length;},get dropped(){return dropped;}};
 }
 export function createReplayPlayer(input,context={}){
-  const replay=validateReplay(input,context),frames=replay.frames;
+  const {radius,itemId}=replayContext(context),replay=validateReplay(input,context),frames=replay.frames;
   function sample(time){
     if(typeof time!=='number'||!Number.isFinite(time))fail('INVALID_PLAYBACK_TIME','Playback time must be finite');
     const t=Math.max(0,Math.min(replay.duration,time));let low=0,high=frames.length-1;
@@ -194,7 +211,7 @@ export function createReplayPlayer(input,context={}){
     const a=frames[low],b=frames[high],fraction=high===low?0:(t-a.time)/(b.time-a.time);
     const lerp=(x,y)=>({x:x.x+(y.x-x.x)*fraction,y:x.y+(y.y-x.y)*fraction,z:x.z+(y.z-x.z)*fraction});
     const position=lerp(a.position,b.position),velocity=lerp(a.velocity,b.velocity);
-    return {phase:a.phase,time:t,can:{position,velocity,radius:.14},
+    return {phase:a.phase,time:t,can:{position,velocity,radius},...(itemId?{throwableId:itemId}:{}),
       bin:{...replay.bin,center:{...replay.bin.center}},attempts:0,successes:0,lastEvent:null,events:[],
       trail:[...frames.slice(Math.max(0,low-158),low+1).map(frame=>({...frame.position})),{...position}]};
   }

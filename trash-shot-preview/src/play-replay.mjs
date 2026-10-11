@@ -1,9 +1,12 @@
 // A versioned room-contact envelope around the unchanged V1 pose recording.
 // Legacy V1/V2 records retain their own codecs and interpretation.
-import * as legacy from './course-replay.mjs?v=20261011-desk-over-1';
-import {validateReplay,createReplayPlayer,ReplayError} from './replay.mjs?v=20261011-desk-over-1';
-import {roomWorld} from './room-course.mjs?v=20261011-desk-over-1';
-import {roomContactColliders} from './room-contact.mjs?v=20261011-desk-over-1';
+import * as legacy from './course-replay.mjs?v=20261011-store-tricks-1';
+import {validateReplay,createReplayPlayer,ReplayError} from './replay.mjs?v=20261011-store-tricks-1';
+import {roomWorld} from './room-course.mjs?v=20261011-store-tricks-1';
+import {roomContactColliders} from './room-contact.mjs?v=20261011-store-tricks-1';
+import {validateItemReplay,createItemReplay,itemPayload,createItemReplayPlayer,itemReplayToJSON,
+  parseItemReplayJSON,encodeItemReplay,decodeItemReplay,buildItemReplayURL} from './item-replay.mjs?v=20261011-store-tricks-1';
+export {ITEM_REPLAY_LIMITS,ITEM_REPLAY_STORAGE_KEY,loadItemReplays,saveItemReplay,deleteItemReplay} from './item-replay.mjs?v=20261011-store-tricks-1';
 
 export const PLAY_REPLAY_STORAGE_KEY='trash-shot-room-replays-v3';
 export const COURSE_REPLAY_LIMITS=Object.freeze({...legacy.COURSE_REPLAY_LIMITS,
@@ -69,6 +72,7 @@ function contact(value,colliders,duration){
 }
 
 export function validateCourseReplay(input){
+  if(version(input)===4)return validateItemReplay(input);
   if(version(input)!==3)return legacy.validateCourseReplay(input);
   object(input,['version','kind','course','replay'],'room replay');
   if(input.kind!=='room-contacts')fail('UNSUPPORTED_VERSION','Room replay kind is unsupported');
@@ -97,11 +101,13 @@ export function validateCourseReplay(input){
   if(encoder.encode(JSON.stringify(record)).byteLength>COURSE_REPLAY_LIMITS.rawBytes)fail('REPLAY_TOO_LARGE','Room replay exceeds raw byte limit');
   return freeze(record);
 }
-export function createCourseReplay(coreV1,stageId,contacts=[],{fanEnabled=false,worldVersion=2}={}){
+export function createCourseReplay(coreV1,stageId,contacts=[],{fanEnabled=false,worldVersion=2,itemId='can',profileVersion=1}={}){
+  if(itemId!=='can')return createItemReplay(coreV1,stageId,contacts,{fanEnabled,worldVersion,itemId,profileVersion});
   array(contacts,COURSE_REPLAY_LIMITS.contacts,'contacts');
   return validateCourseReplay({version:3,kind:'room-contacts',course:{worldVersion,contactModel:1,stageId,roomHits:contacts.length,contacts,fanEnabled},replay:coreV1});
 }
 export function coursePayload(record){
+  if(version(record)===4)return itemPayload(record);
   if(version(record)!==3)return legacy.coursePayload(record);
   return validateCourseReplay(record).replay;
 }
@@ -125,15 +131,18 @@ export function interpretPlayContacts(coreResult,contacts=[]){
   return {...result,...counts,roomContacts:beforeEntry};
 }
 export function courseReplayResult(record){
+  if(version(record)===4){const valid=validateItemReplay(record);return interpretPlayContacts(valid.replay.result,valid.course.contacts);}
   if(version(record)!==3)return legacy.courseReplayResult(record);
   const valid=validateCourseReplay(record);return interpretPlayContacts(valid.replay.result,valid.course.contacts);
 }
 export function createCourseReplayPlayer(record){
+  if(version(record)===4)return createItemReplayPlayer(record);
   if(version(record)!==3)return legacy.createCourseReplayPlayer(record);
   const valid=validateCourseReplay(record);
   return createReplayPlayer(valid.replay,{worldVersion:valid.course.worldVersion});
 }
 export function courseReplayToJSON(record){
+  if(version(record)===4)return itemReplayToJSON(record);
   if(version(record)!==3)return legacy.courseReplayToJSON(record);
   return JSON.stringify(validateCourseReplay(record));
 }
@@ -142,7 +151,7 @@ export function parseCourseReplayJSON(text){
   if(text.length>COURSE_REPLAY_LIMITS.rawBytes||encoder.encode(text).byteLength>COURSE_REPLAY_LIMITS.rawBytes)
     fail('REPLAY_TOO_LARGE','Room replay exceeds JSON byte limit');
   let record;try{record=JSON.parse(text);}catch{fail('INVALID_REPLAY','Malformed room replay JSON');}
-  return version(record)===3?validateCourseReplay(record):legacy.parseCourseReplayJSON(text);
+  return version(record)===4?parseItemReplayJSON(text):version(record)===3?validateCourseReplay(record):legacy.parseCourseReplayJSON(text);
 }
 
 // The existing bounded gzip/base64url recipe, with an explicit new fragment.
@@ -164,6 +173,7 @@ function unbase64url(text){
   const bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));if(base64url(bytes)!==text)fail('INVALID_ENCODING','Noncanonical base64url room replay');return bytes;
 }
 export async function encodeCourseReplay(record){
+  if(version(record)===4)return encodeItemReplay(record);
   if(version(record)!==3)return legacy.encodeCourseReplay(record);
   const json=courseReplayToJSON(record);
   if(typeof CompressionStream!=='function'){const error=new ReplayError('COMPRESSION_UNAVAILABLE','Room replay URL compression unavailable');error.fallbackJSON=json;throw error;}
@@ -176,6 +186,7 @@ export async function encodeCourseReplay(record){
 export async function decodeCourseReplay(fragment){
   if(typeof fragment!=='string'||fragment.length>COURSE_REPLAY_LIMITS.urlChars)fail('SHARE_TOO_LARGE','Room replay fragment exceeds URL limit');
   const text=fragment.startsWith('#')?fragment.slice(1):fragment;
+  if(text.startsWith('tsc4.'))return decodeItemReplay(fragment);
   if(!text.startsWith('tsc3.'))return legacy.decodeCourseReplay(fragment);
   const bytes=unbase64url(text.slice(5));
   if(typeof DecompressionStream!=='function')fail('COMPRESSION_UNAVAILABLE','Room replay URL decompression unavailable');
@@ -185,6 +196,7 @@ export async function decodeCourseReplay(fragment){
   const record=parseCourseReplayJSON(json);if(record.version!==3)fail('UNSUPPORTED_VERSION','Room fragment cannot carry an older replay');return record;
 }
 export async function buildCourseReplayURL(record,url){
+  if(version(record)===4)return buildItemReplayURL(record,url);
   if(version(record)!==3)return legacy.buildCourseReplayURL(record,url);
   let result;try{result=new URL(url);}catch{fail('INVALID_URL','Room replay URL base is invalid');}
   if(!['http:','https:'].includes(result.protocol)||result.username||result.password)fail('INVALID_URL','Room replay URL must use HTTP or HTTPS');

@@ -1,4 +1,4 @@
-import {createGame,throwCan,stepGame,setRoomWorld,getRoomWorldVersion} from './physics.mjs?v=20261011-desk-over-1';
+import {createGame,throwCan,stepGame,setRoomWorld,getRoomWorldVersion} from './physics.mjs?v=20261011-store-tricks-1';
 
 export const ROOM_WIND=Object.freeze({minX:-1.5,maxX:1.5,minY:.4,maxY:3.4,minZ:1.8,maxZ:4.2,accelerationX:1.2});
 export function windAcceleration(position,enabled=true){

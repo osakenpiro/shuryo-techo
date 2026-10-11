@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#f4f1e8">
   <title>ごみシュート / FIRST THROW</title>
   <meta name="description" content="缶ひとつ、箱ひとつ。ドラッグやスワイプで投げる、ごみシュート。友だちにもひと投げを。">
-  <link rel="stylesheet" href="./style.css?v=20261011-game-shell-1">
-  <script type="module" src="./src/app.mjs?v=20261011-desk-over-1"></script>
+  <link rel="stylesheet" href="./style.css?v=20261011-store-tricks-1">
+  <script type="module" src="./src/app.mjs?v=20261011-store-tricks-1"></script>
 </head>
 <body class="chapter-game">
   <main class="game-shell chapter-shell">
@@ -20,7 +20,7 @@
     <section id="chapter-top" class="chapter-top" aria-labelledby="chapter-top-title" hidden>
       <div class="home-art" role="presentation"><span class="home-art-tag">ひとつの部屋から、はじまる。</span></div>
       <div class="home-content">
-        <div class="home-heading"><p class="chapter-kicker">小さなひと投げが、遊びになる。</p><h2 class="home-game-name">ごみシュート</h2><h3 id="chapter-top-title">自分の部屋</h3></div>
+        <div class="home-heading"><p class="chapter-kicker">小さなひと投げが、遊びになる。</p><h2 class="home-game-name">ごみシュート</h2><h3 id="chapter-top-title">自分の部屋</h3><p id="home-equipped-item" class="home-equipped-item"></p></div>
         <div class="home-progress"><div id="home-face-progress" class="home-face-progress" aria-label="第1章のクリア状況"></div><p id="chapter-top-record"></p></div>
         <div class="home-actions"><button id="chapter-continue" class="shell-primary" type="button">続きから</button><button id="chapter-menu" class="shell-secondary" type="button">ステージを選ぶ</button></div>
         <p class="home-save-note">続きは、このブラウザに自動保存。</p>
@@ -99,18 +99,26 @@
 
         </section>
       </div>
-      <div class="menu-bottom"><button id="chapter-home-open" class="shell-secondary" type="button">ゲームトップ</button><button id="invite-game" class="shell-secondary" type="button">友だちに渡す ↗</button><a id="browser-open" class="invite-button browser-open" href="https://osakenpiro.github.io/shuryo-techo/trash-shot-preview/?v=20261011-desk-over-1" target="_blank" rel="noopener noreferrer">ブラウザで開く ↗</a></div>
+      <div class="menu-bottom"><button id="store-open" class="shell-secondary" type="button">投げるもののお店</button><button id="chapter-home-open" class="shell-secondary" type="button">ゲームトップ</button><button id="invite-game" class="shell-secondary" type="button">友だちに渡す ↗</button><a id="browser-open" class="invite-button browser-open" href="https://osakenpiro.github.io/shuryo-techo/trash-shot-preview/?v=20261011-store-tricks-1" target="_blank" rel="noopener noreferrer">ブラウザで開く ↗</a></div>
     </details>
     <dialog id="chapter-result" class="chapter-result" aria-labelledby="chapter-result-title"><div class="result-inner">
       <div class="result-stamp"><canvas id="result-clear-pixel" aria-hidden="true" data-pixel-text="CLEAR"></canvas><span id="chapter-result-kind">STAGE CLEAR</span></div>
       <canvas id="result-face-pixel" class="result-face-pixel" aria-hidden="true"></canvas><h2 id="chapter-result-title"></h2>
-      <p id="chapter-result-attempts" class="result-attempts"></p><p id="chapter-result-best" class="result-best"></p><div id="chapter-result-roles" class="live-shot-roles"></div><p id="chapter-result-detail" class="result-detail"></p>
+      <div id="chapter-reward-bonuses" class="chapter-reward-bonuses" role="status" aria-live="polite" hidden></div>
+      <p id="chapter-result-attempts" class="result-attempts"></p>
+      <div id="chapter-reward-score" class="chapter-reward-score" hidden><div><span class="result-score-label">この面のスコア</span><strong id="chapter-result-points"></strong></div><p id="chapter-reward-coins"></p></div>
+      <p id="chapter-result-best" class="result-best"></p><div id="chapter-result-roles" class="live-shot-roles"></div><p id="chapter-result-detail" class="result-detail"></p>
       <button id="chapter-result-next" type="button" class="throw-button">次のステージへ</button>
       <div class="result-share-actions"><button id="chapter-result-share" type="button">結果をシェア ↗</button><button id="chapter-result-replay" type="button">一投を見る ▷</button></div>
+      <details id="chapter-score-detail" class="result-analysis score-breakdown" hidden><summary>スコアの内訳</summary><ul id="chapter-score-breakdown"></ul></details>
       <details class="result-analysis"><summary>この一投の分析</summary><p id="chapter-launch-analysis" class="launch-analysis"></p><p id="chapter-impact-analysis"></p></details>
       <div class="stage-actions result-extra-actions"><button id="chapter-result-repeat" type="button">この面をもう一度</button><button id="chapter-result-save" type="button">この一投を保存</button></div>
       <p id="chapter-share-status" role="status"></p><textarea id="chapter-share-text" aria-label="結果と共有リンク" readonly hidden></textarea>
     </div></dialog>
+    <dialog id="store-dialog" class="item-store" aria-labelledby="store-title" aria-describedby="store-description">
+      <header class="store-header"><div><p class="chapter-kicker">ひと投げの道具箱</p><h2 id="store-title">投げるもののお店</h2></div><button id="store-close" class="shell-secondary" type="button" aria-label="お店を閉じる">閉じる ×</button></header>
+      <div class="store-body"><div class="store-intro"><p id="store-description">次のひと投げに、気分を変えて。</p><p class="store-wallet-label">持っているコイン <strong id="store-wallet">0</strong></p></div><p class="store-note">コインは本編の成功ショットで集まります。</p><div id="store-items" class="store-items"></div><section class="store-achievements-section" aria-labelledby="store-achievements-title"><h3 id="store-achievements-title">集めた実績</h3><ul id="store-achievements" class="store-achievements"></ul><p id="store-achievements-empty">成功ショットで見つけた入り方が、ここに並びます。</p></section><p id="store-status" class="store-status" role="status" aria-live="polite"></p></div>
+    </dialog>
     <dialog id="replay-dialog" aria-labelledby="replay-title">
       <header class="replay-header"><div><h2 id="replay-title">成功した一投</h2><p id="replay-source"></p></div><button id="replay-close" type="button" aria-label="リプレイを閉じる">閉じる ×</button></header>
       <div class="replay-canvas-wrap"><canvas id="replay-scene" tabindex="0" aria-label="成功した一投のリプレイ。ドラッグまたは矢印キーで見回し、ホイールでズーム。"></canvas></div>

@@ -1,9 +1,10 @@
 // Live chapter play and training compose the approved room contacts and fan.
 // The contact adapter alone advances positions, gravity, bin entry and results.
-import {createGame, setRoomWorld, throwCan} from './physics.mjs?v=20261011-desk-over-1';
-import {roomWorld} from './room-course.mjs?v=20261011-desk-over-1';
-import {windAcceleration} from './room-gimmicks.mjs?v=20261011-desk-over-1';
-import {createRoomContactStepper, ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261011-desk-over-1';
+import {createGame, setRoomWorld, throwCan} from './physics.mjs?v=20261011-store-tricks-1';
+import {roomWorld} from './room-course.mjs?v=20261011-store-tricks-1';
+import {windAcceleration} from './room-gimmicks.mjs?v=20261011-store-tricks-1';
+import {createRoomContactStepper, ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261011-store-tricks-1';
+import {cloneThrowable,throwableWindScale} from './throwable-physics.mjs?v=20261011-store-tricks-1';
 
 export const PLAY_ROOM_TICK = ROOM_CONTACT_TICK;
 const TICK = PLAY_ROOM_TICK, EPS = 1e-9;
@@ -49,7 +50,7 @@ export function createPlayRoomStepper(world, {extra=false}={}) {
       if (h > EPS && extraRoom && game.phase === 'flying') {
         const acceleration = windAcceleration(game.can.position, fanEnabled);
         // The established fan is a local x acceleration, applied before motion.
-        game.can.velocity.x += acceleration.x*h;
+        game.can.velocity.x += acceleration.x*h*throwableWindScale(game);
         if (acceleration.x) windSteps++;
       }
       remainder = Math.max(0, remainder-TICK); ticks++;
@@ -73,6 +74,7 @@ export function predictPlayRoomArc(game, input, world,
   requireWorld(world);
   const predicted=createGame();
   setRoomWorld(predicted, world.worldVersion);
+  cloneThrowable(game,predicted);
   predicted.bin={...game.bin, center:copy(game.bin.center)};
   throwCan(predicted, input);
   const stepper=createPlayRoomStepper(world, {extra}), points=[copy(predicted.can.position)];

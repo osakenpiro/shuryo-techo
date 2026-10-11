@@ -1,8 +1,9 @@
 // Shared room-contact adapter. The established simulation still owns gravity,
 // the hollow bin, floor contact, the five-second result, and save compatibility.
-import {createGame, setRoomWorld, throwCan, stepGame} from './physics.mjs?v=20261011-desk-over-1';
-import {sweepSphereAABB} from './room-course.mjs?v=20261011-desk-over-1';
+import {createGame, setRoomWorld, throwCan, stepGame} from './physics.mjs?v=20261011-store-tricks-1';
+import {sweepSphereAABB} from './room-course.mjs?v=20261011-store-tricks-1';
 import {roomSolidColliders} from './room-solids.mjs?v=20261011-desk-over-1';
+import {applyThrowableAir,throwableRestitution,throwableFriction,throwableContact,cloneThrowable} from './throwable-physics.mjs?v=20261011-store-tricks-1';
 
 const TICK = 1 / 240, GRAVITY = 9.81, EPS = 1e-9, CORE_EPS = 1.000001e-7, SLOP = 1e-5;
 const AXES = ['x', 'y', 'z'], ACTIVE = new Set(['flying', 'settling']);
@@ -106,13 +107,15 @@ export function createRoomContactStepper(world,{onContact,extra=false}={}) {
   function impact(game,hit,collider) {
     const v=game.can.velocity,before=copy(v),normalSpeed=dot(v,hit.normal),incoming=Math.max(0,-normalSpeed);
     const supported=hit.normal.y>.999 && incoming<.55;
-    const bounce=supported?0:Number.isFinite(collider.restitution)?Math.max(0,Math.min(.8,collider.restitution)):
+    const materialBounce=Number.isFinite(collider.restitution)?Math.max(0,Math.min(.8,collider.restitution)):
       collider.object==='bed'?.18:.28;
+    const bounce=supported?0:throwableRestitution(game,collider.surface,materialBounce);
     if(normalSpeed<0) {
       for(const axis of AXES) v[axis]-=(1+bounce)*normalSpeed*hit.normal[axis];
       const outward=dot(v,hit.normal),tangent=Object.fromEntries(AXES.map(axis=>[axis,v[axis]-outward*hit.normal[axis]]));
-      const speed=Math.hypot(tangent.x,tangent.y,tangent.z),remaining=Math.max(0,speed-incoming*(1+bounce)*.22);
+      const speed=Math.hypot(tangent.x,tangent.y,tangent.z),remaining=Math.max(0,speed-incoming*(1+bounce)*throwableFriction(game,.22));
       for(const axis of AXES) v[axis]=outward*hit.normal[axis]+(speed>EPS?tangent[axis]*remaining/speed:0);
+      throwableContact(game,hit.normal,before,incoming);
     }
     for(const axis of AXES) game.can.position[axis]=hit.position[axis]+hit.normal[axis]*(hit.penetration+SLOP);
     if(supported) v.y=0;
@@ -125,15 +128,16 @@ export function createRoomContactStepper(world,{onContact,extra=false}={}) {
     const p=game.can.position,v=game.can.velocity;
     const supported=support && aboveFootprint({x:p.x+v.x*dt,z:p.z+v.z*dt},support);
     if(supported) v.y=GRAVITY*dt/2; // The surface supplies the normal reaction.
-    stepGame(game,dt);
+    stepGame(game,dt,{airApplied:true});
     if(supported && active(game) && aboveFootprint(game.can.position,support)) {
       game.can.position.y=support.max.y+game.can.radius+SLOP;v.y=0;
-      const speed=Math.hypot(v.x,v.z),remaining=Math.max(0,speed-8*dt);
+      const speed=Math.hypot(v.x,v.z),remaining=Math.max(0,speed-throwableFriction(game,8)*dt);
       if(speed>EPS){v.x*=remaining/speed;v.z*=remaining/speed;}
       if(game.trail.length) game.trail[game.trail.length-1]=copy(game.can.position);
     }
   }
   function advanceTick(game,h) {
+    applyThrowableAir(game,h);
     let remaining=h,support=findSupport(game,colliders);
     for(let count=0;count<16 && remaining>CORE_EPS && active(game);count++) {
       const start=copy(game.can.position),v=game.can.velocity;
@@ -197,6 +201,7 @@ export function predictRoomContactArc(game,input,world,{sampleEvery=1/60,maxSeco
   const copyGame=createGame();
   if(world?.worldVersion===2||world?.worldVersion===3)setRoomWorld(copyGame,world.worldVersion);
   else throw new RangeError('A supported room world is required');
+  cloneThrowable(game,copyGame);
   copyGame.bin={...game.bin,center:copy(game.bin.center)};
   throwCan(copyGame,input);
   const stepper=createRoomContactStepper(world,{extra}),points=[copy(copyGame.can.position)];

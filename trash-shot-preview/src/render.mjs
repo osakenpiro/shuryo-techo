@@ -1,6 +1,8 @@
-import { predictArc } from './physics.mjs?v=20261011-desk-over-1';
+import { predictArc } from './physics.mjs?v=20261011-store-tricks-1';
 import { roomScene,roomMotionShapes,roomMonitorQuad,paintScreenQuad } from './room-scene.mjs?v=20261011-desk-over-1';
 import {drawPixelText} from './pixel-type.mjs?v=20261011-play-ui-1';
+import {getThrowable} from './throwables.mjs?v=20261011-store-tricks-1';
+import {getThrowableId,throwablePose} from './throwable-physics.mjs?v=20261011-store-tricks-1';
 
 const add = (a,b) => ({ x:a.x+b.x, y:a.y+b.y, z:a.z+b.z });
 const sub = (a,b) => ({ x:a.x-b.x, y:a.y-b.y, z:a.z-b.z });
@@ -103,7 +105,8 @@ export function createRenderer(canvas) {
     for(let i=1;i<trail.length;i++)line(trail[i-1],trail[i],`rgba(184,135,52,${.12+.3*i/trail.length})`,1.7);
   }
   function drawAngleCue(game,aim,numericLabels=true){
-    const origin=worldView?.origin??{x:0,y:1.05,z:0},angle=aim.elevation*Math.PI/180,heading=aim.yaw*Math.PI/180,radius=.66;
+    const baseOrigin=worldView?.origin??{x:0,y:1.05,z:0},item=getThrowable(getThrowableId(game));
+    const origin=item.id==='can'?baseOrigin:{...baseOrigin,y:baseOrigin.y+item.physics.radius-.14},angle=aim.elevation*Math.PI/180,heading=aim.yaw*Math.PI/180,radius=.66;
     const at=a=>({x:origin.x+Math.sin(heading)*Math.cos(a)*radius,y:origin.y+Math.sin(a)*radius,z:origin.z+Math.cos(heading)*Math.cos(a)*radius});
     const arc=Array.from({length:13},(_,i)=>at(angle*i/12));polygon([origin,...arc],'rgba(218,173,75,.18)');
     for(let i=1;i<arc.length;i++)line(arc[i-1],arc[i],'#c49942',1.4);
@@ -133,6 +136,8 @@ export function createRenderer(canvas) {
     return shapes;
   }
   function shapesForCan(game,room=false) {
+    const item=getThrowable(getThrowableId(game));
+    if(item.id!=='can')return shapesForItem(game,item);
     const c=game.can.position,r=game.can.radius*.6,half=game.can.radius*.8,n=20,shapes=[];
     const flying=game.phase==='flying'||game.phase==='settling';
     const tilt=flying?Math.min(game.time*2.7,12):-.18;
@@ -144,6 +149,40 @@ export function createRenderer(canvas) {
     for(let i=0;i<n;i++){const j=(i+1)%n,theta=(i+.5)/n*Math.PI*2,shade=Math.round(78+Math.cos(theta)*9);if(room){const color=`hsl(27 78% ${Math.round(53+Math.cos(theta)*10)}%)`;shapes.push({points:[bottom[i],bottom[j],middle[j],middle[i]],fill:color},{points:[middle[i],middle[j],top[j],top[i]],fill:i%5===0?'#eaa66b':color});}else shapes.push({points:[bottom[i],bottom[j],top[j],top[i]],fill:i%8<3?'#af6b39':`hsl(46 12% ${shade}%)`,stroke:null});}
     shapes.push({points:bottom,fill:'#afa997',stroke:'#9b978a'},{points:top,fill:'#f0ede0',stroke:'#999f8d'});
     const cap=add(c,scale(axis,half+.003));shapes.push({points:[add(cap,scale(v,-.035)),add(cap,scale(w,.035)),add(cap,scale(v,.035)),add(cap,scale(w,-.035))],fill:'#939b8a',stroke:null});
+    return shapes;
+  }
+  function shapesForItem(game,item){
+    const center=game.can.position,radius=game.can.radius,pose=throwablePose(game),shapes=[];
+    const transform=point=>{
+      const cp=Math.cos(pose.pitch),sp=Math.sin(pose.pitch),cy=Math.cos(pose.yaw),sy=Math.sin(pose.yaw),cr=Math.cos(pose.roll),sr=Math.sin(pose.roll);
+      const a={x:point.x,y:point.y*cp-point.z*sp,z:point.y*sp+point.z*cp};
+      const b={x:a.x*cy+a.z*sy,y:a.y,z:-a.x*sy+a.z*cy};
+      return {x:center.x+b.x*cr-b.y*sr,y:center.y+b.x*sr+b.y*cr,z:center.z+b.z};
+    };
+    const face=(points,fill,stroke=null)=>shapes.push({points:points.map(transform),fill,stroke});
+    if(item.shape==='ball'||item.shape==='heavy'){
+      const rows=8,columns=16;
+      const vertex=(row,column)=>{const latitude=-Math.PI/2+row/rows*Math.PI,longitude=column/columns*Math.PI*2;return {x:Math.cos(latitude)*Math.cos(longitude)*radius*.96,y:Math.sin(latitude)*radius*.96,z:Math.cos(latitude)*Math.sin(longitude)*radius*.96};};
+      for(let row=0;row<rows;row++)for(let column=0;column<columns;column++){
+        const shade=item.shape==='heavy'?Math.round(42+row*3+Math.cos(column/columns*Math.PI*2)*9):Math.round(51+row*2+Math.cos(column/columns*Math.PI*2)*8);
+        const color=item.shape==='heavy'?`hsl(171 9% ${shade}%)`:(row===3||column===3?'#f4de94':`hsl(41 77% ${shade}%)`);
+        face([vertex(row,column),vertex(row,column+1),vertex(row+1,column+1),vertex(row+1,column)],color);
+      }
+    }else if(item.shape==='paper'){
+      const phi=(1+Math.sqrt(5))/2;
+      const vertices=[[-1,phi,0],[1,phi,0],[-1,-phi,0],[1,-phi,0],[0,-1,phi],[0,1,phi],[0,-1,-phi],[0,1,-phi],[phi,0,-1],[phi,0,1],[-phi,0,-1],[-phi,0,1]].map(([x,y,z],index)=>{
+        const scale=radius*(.78+.16*Math.cos(index*2.3))/Math.hypot(x,y,z);return {x:x*scale,y:y*scale,z:z*scale};
+      });
+      const triangles=[[0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],[1,5,9],[5,11,4],[11,10,2],[10,7,6],[7,1,8],[3,9,4],[3,4,2],[3,2,6],[3,6,8],[3,8,9],[4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]];
+      triangles.forEach((indices,index)=>face(indices.map(i=>vertices[i]),['#f3ead7','#dfd3b7','#fff7e5','#e7dcc3'][index%4],'#c9bc9e'));
+    }else{
+      // The box fits inside its documented spherical collision envelope. Its
+      // asymmetric folded top and deterministic tumble remain visible.
+      const x=radius*.45,y=radius*.70,z=radius*.43;
+      const vertices=[{x:-x,y:-y,z:-z},{x:x,y:-y,z:-z},{x:x,y:y,z:-z},{x:-x,y:y,z:-z},{x:-x,y:-y,z:z},{x:x,y:-y,z:z},{x:x,y:y*.77,z:z},{x:-x,y:y*.77,z:z}];
+      for(const [indices,color] of [[[0,1,2,3],'#5f9688'],[[1,5,6,2],'#79aa9b'],[[5,4,7,6],'#e7ead5'],[[4,0,3,7],'#6e9f91'],[[3,2,6,7],'#f5eedb'],[[0,4,5,1],'#497d72']])face(indices.map(i=>vertices[i]),color);
+      face([{x:-x*.55,y:-y*.25,z:z+.001},{x:x*.55,y:-y*.25,z:z+.001},{x:x*.55,y:y*.36,z:z+.001},{x:-x*.55,y:y*.36,z:z+.001}],'#d9b96b');
+    }
     return shapes;
   }
   // The same capped depth buffer handles room and gameplay meshes. Static room
@@ -214,7 +253,7 @@ export function createRenderer(canvas) {
   }
   function drawRoom(game,controls,view){
     ctx.fillStyle='#f4ead5';ctx.fillRect(0,0,width,height);
-    const flightKey=[worldView?.worldVersion,game.bin.radius,worldView?.origin.y,game.attempts,game.bin.center.z,game.bin.height,controls.power,controls.elevation,controls.yaw].join('/');
+    const flightKey=[worldView?.worldVersion,getThrowableId(game),game.bin.radius,worldView?.origin.y,game.attempts,game.bin.center.z,game.bin.height,controls.power,controls.elevation,controls.yaw].join('/');
     // An explicit empty path is intentional: normal aiming must not use a
     // hidden future trajectory to fade walls or furniture.
     if(!Array.isArray(view.windArc)&&roomFlightKey!==flightKey){roomFlightKey=flightKey;roomFlight=predictArc(game,controls,80);}
@@ -268,7 +307,17 @@ export function createRenderer(canvas) {
     ctx.fillStyle='#779568';ctx.fillRect(left.x-4,left.y,4,right.y-left.y);ctx.fillRect(right.x,left.y,4,right.y-left.y);ctx.fillRect(left.x-4,right.y,right.x-left.x+8,4);
     stroke({z:c.z-r,y:h},{z:c.z-r,y:0},'#3f6647',1.5);stroke({z:c.z+r,y:h},{z:c.z+r,y:0},'#3f6647',1.5);
     const p=project(game.can.position),canRadius=Math.max(4,game.can.radius*scale),tilt=['flying','settling'].includes(game.phase)?game.time*2.7:-.18;
-    ctx.save();ctx.translate(p.x,p.y);ctx.rotate(tilt);ctx.fillStyle='#bb7c49';ctx.fillRect(-canRadius*.65,-canRadius,canRadius*1.3,canRadius*2);ctx.strokeStyle='#835a36';ctx.lineWidth=1;ctx.strokeRect(-canRadius*.65,-canRadius,canRadius*1.3,canRadius*2);ctx.fillStyle='#ece7d9';ctx.beginPath();ctx.ellipse(0,-canRadius,canRadius*.65,canRadius*.22,0,0,Math.PI*2);ctx.fill();ctx.restore();
+    const item=getThrowable(getThrowableId(game));
+    if(item.id==='can'){
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(tilt);ctx.fillStyle='#bb7c49';ctx.fillRect(-canRadius*.65,-canRadius,canRadius*1.3,canRadius*2);ctx.strokeStyle='#835a36';ctx.lineWidth=1;ctx.strokeRect(-canRadius*.65,-canRadius,canRadius*1.3,canRadius*2);ctx.fillStyle='#ece7d9';ctx.beginPath();ctx.ellipse(0,-canRadius,canRadius*.65,canRadius*.22,0,0,Math.PI*2);ctx.fill();ctx.restore();
+    }else{
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(throwablePose(game).roll);ctx.fillStyle=item.color;ctx.strokeStyle=item.shape==='paper'?'#c9bc9e':'#5b7f72';ctx.lineWidth=1;
+      ctx.beginPath();
+      if(item.shape==='ball'||item.shape==='heavy')ctx.arc(0,0,canRadius*.96,0,Math.PI*2);
+      else if(item.shape==='paper')for(let index=0;index<9;index++){const angle=index/9*Math.PI*2,r=canRadius*(.8+.14*Math.cos(index*2.3)),x=Math.cos(angle)*r,y=Math.sin(angle)*r;index?ctx.lineTo(x,y):ctx.moveTo(x,y);}
+      else{ctx.moveTo(-canRadius*.45,-canRadius*.7);ctx.lineTo(canRadius*.45,-canRadius*.54);ctx.lineTo(canRadius*.45,canRadius*.7);ctx.lineTo(-canRadius*.45,canRadius*.7);}
+      ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();
+    }
     if(game.phase==='success'){const p=project({z:c.z,y:h+.6});ctx.textAlign='center';ctx.fillStyle='#946c23';ctx.font='600 13px system-ui,sans-serif';ctx.fillText('NICE SHOT!',p.x,p.y);}
   }
   function render(game,controls,view={}) {

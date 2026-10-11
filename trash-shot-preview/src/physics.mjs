@@ -1,4 +1,6 @@
 // World-space simulation. One metre is one unit; rendering never affects physics.
+import {throwableRadius,throwableInitialVelocity,beginThrowableShot,applyThrowableAir,
+  throwableRestitution,throwableFriction,throwableContact,getThrowableProfile,cloneThrowable} from './throwable-physics.mjs?v=20261011-store-tricks-1';
 const GRAVITY = 9.81;
 const SUBSTEP = 1 / 240;
 const MAX_FRAME = 0.1;
@@ -12,6 +14,9 @@ const OBSERVERS = new WeakMap();
 // Only explicit room presets alter the launch origin. Ordinary setup, free play,
 // and the independent pixel introduction retain the original metre-space setup.
 const ROOM_SETUPS = new WeakMap();
+// A below-rim pose is entry evidence only after this shot physically approached
+// the opening from above. Side contact and old-shot state cannot manufacture it.
+const BIN_TOP_APPROACH = new WeakSet();
 
 function freezeTree(value) {
   for (const child of Object.values(value)) {
@@ -97,14 +102,16 @@ function initialVelocity(input) {
 
 function freshCan(game) {
   const origin = ROOM_PHYSICS_WORLDS[ROOM_SETUPS.get(game)]?.origin ?? { x: 0, y: 1.05, z: 0 };
+  const radius=throwableRadius(game,CAN_RADIUS);
   return {
-    position: { ...origin },
+    position: getThrowableProfile(game)?{...origin,y:origin.y+radius-CAN_RADIUS}:{...origin},
     velocity: { x: 0, y: 0, z: 0 },
-    radius: CAN_RADIUS,
+    radius,
   };
 }
 
 function clearShot(game, reason) {
+  BIN_TOP_APPROACH.delete(game);
   game.phase = 'ready';
   game.time = 0;
   game.can = freshCan(game);
@@ -170,7 +177,8 @@ export function resetShot(game) {
 export function throwCan(game, input = {}) {
   if (ACTIVE.has(game.phase)) return false;
   clearShot(game, 'next-shot');
-  game.can.velocity = initialVelocity(input);
+  game.can.velocity = throwableInitialVelocity(game,initialVelocity(input));
+  beginThrowableShot(game);
   game.phase = 'flying';
   game.attempts += 1;
   record(game, 'thrown');
@@ -213,8 +221,10 @@ function collideWall(game) {
   position.x += normal.x * penetration;
   position.y += normal.y * penetration;
   position.z += normal.z * penetration;
-  const normalSpeed = reflect(velocity, normal, 0.28);
+  const beforeVelocity={...velocity};
+  const normalSpeed = reflect(velocity, normal, throwableRestitution(game,'bin',0.28));
   if (normalSpeed !== null) {
+    throwableContact(game,normal,beforeVelocity,-normalSpeed);
     notify(game, 'wall-impact', {
       surface: wallY === bin.height ? 'rim' : 'side',
       region: radial < bin.radius ? 'inside' : 'outside',
@@ -248,15 +258,18 @@ function collideFloor(game, dt) {
     incomingVerticalSpeed,
   };
   if (velocity.y < -0.55) {
-    velocity.y = -velocity.y * 0.2;
-    velocity.x *= 0.65;
-    velocity.z *= 0.65;
+    const beforeVelocity={...velocity};
+    velocity.y = -velocity.y * throwableRestitution(game,region==='inside'?'bin-bottom':'floor',0.2);
+    const retention=getThrowableProfile(game)?Math.max(0,1-throwableFriction(game,.35)):.65;
+    velocity.x *= retention;
+    velocity.z *= retention;
+    throwableContact(game,{x:0,y:1,z:0},beforeVelocity,-incomingVerticalSpeed);
     notify(game, 'floor-impact', floorDetail);
   } else {
     velocity.y = 0;
     // Coulomb-like floor friction while the sphere is grounded.
     const horizontal = Math.hypot(velocity.x, velocity.z);
-    const remaining = Math.max(0, horizontal - 8 * dt);
+    const remaining = Math.max(0, horizontal - throwableFriction(game,8) * dt);
     if (horizontal > 0) {
       velocity.x *= remaining / horizontal;
       velocity.z *= remaining / horizontal;
@@ -266,12 +279,13 @@ function collideFloor(game, dt) {
     });
   }
   if (Math.hypot(velocity.x, velocity.z) < 0.12 && velocity.y === 0) {
-    const inside = radialDistance(position, game.bin) <= game.bin.radius - radius - EPSILON;
+    const inside = radialDistance(position, game.bin) <= game.bin.radius - radius + EPSILON;
     finish(game, game.phase === 'settling' && inside);
   }
 }
 
-function advance(game, dt) {
+function advance(game, dt, airApplied=false) {
+  if(!airApplied)applyThrowableAir(game,dt);
   const previous = { ...game.can.position };
   const { position, velocity, radius } = game.can;
   position.x += velocity.x * dt;
@@ -279,6 +293,9 @@ function advance(game, dt) {
   position.z += velocity.z * dt;
   velocity.y -= GRAVITY * dt;
   game.time += dt;
+
+  if(game.phase==='flying'&&[previous,position].some(point=>point.y>=game.bin.height
+      &&radialDistance(point,game.bin)<=game.bin.radius+radius+EPSILON))BIN_TOP_APPROACH.add(game);
 
   // A descending sphere can clear the rim obliquely after its lower cap passes
   // the early plane. Also check its centre crossing, where its full cross-section
@@ -306,17 +323,24 @@ function advance(game, dt) {
   }
 
   collideWall(game);
+  // A rim reflection may pass between both original descending entry planes.
+  // Accept the actual wholly-contained sphere only with the above-opening
+  // witness; it still has to settle and can still escape before succeeding.
+  if(game.phase==='flying'&&BIN_TOP_APPROACH.has(game)&&position.y+radius<=game.bin.height+EPSILON
+      &&radialDistance(position,game.bin)<=game.bin.radius-radius+EPSILON){
+    game.phase='settling';record(game,'entered');notify(game,'entered');
+  }
   collideFloor(game, dt);
   if (ACTIVE.has(game.phase) && game.time >= MAX_SHOT_TIME - EPSILON) finish(game, false);
 }
 
-export function stepGame(game, dtSeconds) {
+export function stepGame(game, dtSeconds,{airApplied=false}={}) {
   if (!ACTIVE.has(game.phase) || typeof dtSeconds !== 'number'
       || !Number.isFinite(dtSeconds) || dtSeconds <= 0) return game;
   let remaining = Math.min(MAX_FRAME, dtSeconds, MAX_SHOT_TIME - game.time);
   while (remaining > EPSILON && ACTIVE.has(game.phase)) {
     const dt = Math.min(SUBSTEP, remaining);
-    advance(game, dt);
+    advance(game, dt,airApplied);
     remaining -= dt;
   }
   game.trail.push({ ...game.can.position });
@@ -326,6 +350,15 @@ export function stepGame(game, dtSeconds) {
 
 export function predictArc(game, input = {}, steps = 35) {
   const count = Math.round(bounded(steps, 35, 2, 140));
+  if(getThrowableProfile(game)){
+    const predicted=createGame(),worldVersion=ROOM_SETUPS.get(game);
+    if(worldVersion)setRoomWorld(predicted,worldVersion);
+    predicted.bin={...game.bin,center:{...game.bin.center}};
+    cloneThrowable(game,predicted);throwCan(predicted,input);
+    const points=[{...predicted.can.position}];
+    while(ACTIVE.has(predicted.phase)){stepGame(predicted,SUBSTEP);points.push({...predicted.can.position});}
+    return Array.from({length:count+1},(_,index)=>points[Math.round(index*(points.length-1)/count)]);
+  }
   const position = freshCan(game).position;
   const velocity = initialVelocity(input);
   const impactTime = (velocity.y + Math.sqrt(velocity.y ** 2
