@@ -263,13 +263,13 @@
 .chapter-shell .reward-particle{position:absolute;left:50%;top:180px;width:7px;height:11px;border-radius:2px;background:var(--reward-color);opacity:0;animation:reward-pop 1000ms ease-out var(--reward-delay) both;will-change:transform,opacity}
 .chapter-shell .reward-spark{width:11px;height:11px;border-radius:0;clip-path:polygon(50% 0,61% 36%,100% 50%,61% 62%,50% 100%,38% 62%,0 50%,38% 36%)}
 @keyframes reward-pop{0%{opacity:0;transform:translate(0,0) rotate(0deg) scale(.5)}15%{opacity:.9}75%{opacity:.7}100%{opacity:0;transform:translate(var(--reward-x),var(--reward-y)) rotate(var(--reward-rotation)) scale(.65)}}
-.chapter-shell .item-store{width:min(860px,calc(100% - 24px));max-height:92dvh;overflow:auto;padding:0;border:2px solid #286864;border-radius:22px;background:#fff8e9;color:#274e47;box-shadow:0 6px 0 #173c36}
-.chapter-shell .item-store::backdrop{background:#173c36b3;backdrop-filter:blur(3px)}
+.chapter-shell .item-store{width:min(860px,calc(100% - 24px));max-height:92dvh;overflow:auto;padding:0;border:2px solid #286864;border-radius:22px;background:#fff8e9f2;color:#274e47;box-shadow:0 6px 0 #173c36}
+.chapter-shell .item-store::backdrop{background:linear-gradient(#fff8e917,#173c3633),url('art/store/20261011/store-workbench-background.png') center/cover #dac3a0}
 .chapter-shell .store-header{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:19px 24px;background:#fff8e9;border-bottom:1px solid #d8c7a7}
 .chapter-shell .store-header h2{font-size:25px;line-height:1.4;color:#286864;margin:0}
 .chapter-shell .store-header .chapter-kicker{font-size:12px;margin:0 0 4px;color:#a77737}
 .chapter-shell .store-header button{flex-shrink:0}
-.chapter-shell .store-body{padding:20px 24px 24px}
+.chapter-shell .store-body{padding:20px 24px 24px;background:linear-gradient(#fff8e9db,#fff8e9e8),url('art/store/20261011/store-workbench-background.png') center/cover}
 .chapter-shell .store-intro{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:8px}
 .chapter-shell #store-description{font-size:14px;line-height:1.8;margin:0;color:#628279}
 .chapter-shell .store-wallet-label{margin:0;padding:9px 13px;border:1px solid #e2c477;border-radius:12px;background:#fff0bd;color:#94703a;font-size:12px;line-height:1.5;white-space:nowrap}
@@ -278,6 +278,10 @@
 .chapter-shell .store-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .chapter-shell .store-item{min-width:0;position:relative;display:flex;align-items:flex-start;gap:17px;padding:18px 16px;background:#fffdf4;border:2px solid #d1d7c4;border-radius:16px;box-shadow:0 3px 0 #e0d9c4}
 .chapter-shell .store-item[data-equipped=true]{border-color:#619c8d;background:#eff5e9}
+.chapter-shell .store-coming-soon{min-width:0;display:flex;align-items:center;gap:17px;padding:18px 16px;background:#fff3dce8;border:2px dashed #d5b57a;border-radius:16px;box-shadow:0 3px 0 #e0d9c4}
+.chapter-shell .store-coming-mark{display:grid;place-items:center;flex:0 0 50px;width:50px;height:54px;border:1px solid #d5b57a;border-radius:12px;background:#ffefd0;color:#c78946;font-size:32px;line-height:1}
+.chapter-shell .store-coming-soon h3{font-size:18px;line-height:1.5;letter-spacing:.08em;margin:0 0 7px;color:#94703b}
+.chapter-shell .store-coming-soon p{font-size:12px;line-height:1.8;margin:0;color:#856d4a;overflow-wrap:anywhere}
 .chapter-shell .store-item-info{min-width:0;flex:1}
 .chapter-shell .store-item-heading{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-bottom:8px}
 .chapter-shell .store-item h3{font-size:17px;line-height:1.5;margin:0;color:#286864}

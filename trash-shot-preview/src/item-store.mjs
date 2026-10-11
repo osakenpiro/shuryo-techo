@@ -66,6 +66,20 @@ export function createStoreUI({ document: doc, getState, onBuy, onEquip, catalog
       }
     });
   }
+  const preview = doc.createElement('article');
+  preview.className = 'store-coming-soon';
+  const previewMark = doc.createElement('span');
+  previewMark.className = 'store-coming-mark';
+  previewMark.setAttribute('aria-hidden', 'true');
+  previewMark.textContent = '＋';
+  const previewInformation = doc.createElement('div');
+  const previewTitle = doc.createElement('h3');
+  previewTitle.textContent = 'AND MORE…';
+  const previewCopy = doc.createElement('p');
+  previewCopy.textContent = '投げるものは、これからも増えていく。';
+  previewInformation.append(previewTitle, previewCopy);
+  preview.append(previewMark, previewInformation);
+  $('store-items')?.append(preview);
   on($('store-close'), 'click', close);
   on(dialog, 'cancel', event => { event.preventDefault(); close(); });
   on(dialog, 'close', () => {

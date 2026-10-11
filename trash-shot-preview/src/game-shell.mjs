@@ -1,5 +1,5 @@
 // Presentation only. Chapter progress and stage changes stay owned by app.mjs.
-import { STAGES } from './stages.mjs?v=20261011-desk-over-1';
+import { STAGES } from './stages.mjs?v=20261011-friends-1';
 import { CHAPTER_IDS } from './progress-save.mjs?v=20261011-play-ui-1';
 import { drawPixelText, measurePixelText } from './pixel-type.mjs?v=20261011-play-ui-1';
 
@@ -7,7 +7,7 @@ const $ = id => document.getElementById(id);
 const FACE_HELP = Object.freeze({
   first: '机から、奥のゴミ箱へ。',
   'desk-over': '机の上を越えるひと投げ。',
-  'desk-side': '机の横を通して狙おう。',
+  'desk-side': '本棚を越すか、横の壁で跳ね返そう。',
   'room-extra': '扇風機の風と、気ままな猫。',
 });
 

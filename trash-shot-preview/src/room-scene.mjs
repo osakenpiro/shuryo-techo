@@ -1,10 +1,10 @@
-// Peripheral room furniture is presentation only and stays outside the throw lane.
-// Chapter desks draw from the exact bounds owned by the course collision module.
+// Room furniture primitives also supply the production room-contact geometry.
+// New layouts translate these meshes; saved layouts and their open gaps stay fixed.
 export const ROOM_PALETTE=Object.freeze({cream:'#f4ead5',teal:'#438f88',darkTeal:'#286864',wood:'#c89357',gold:'#e8b54e',orange:'#e98238'});
 export const ROOM_LANE=Object.freeze({minX:-1.65,maxX:1.65,minZ:-1,maxZ:7.6});
 export const ROOM_MONITOR_QUAD=Object.freeze([{x:3.12,y:2.22,z:4.28},{x:4.1,y:2.22,z:4.28},{x:4.1,y:1.66,z:4.28},{x:3.12,y:1.66,z:4.28}].map(Object.freeze));
 const COMPACT_MONITOR_QUAD=Object.freeze([{x:-.60,y:1.30,z:-.558},{x:-.07,y:1.30,z:-.558},{x:-.07,y:1,z:-.558},{x:-.60,y:1,z:-.558}].map(Object.freeze));
-const compactWorld=world=>world?.worldVersion===2||world?.worldVersion===3;
+const compactWorld=world=>world?.worldVersion===2||world?.worldVersion===3||world?.worldVersion===4;
 export function roomMonitorQuad(world){return compactWorld(world)?COMPACT_MONITOR_QUAD:ROOM_MONITOR_QUAD;}
 const p=(x,y,z)=>({x,y,z});
 const face=(points,fill,stroke=null)=>({points,fill,stroke});
@@ -114,7 +114,7 @@ group('fan',{minX:-2.8,maxX:-1.82,minZ:2.55,maxZ:3.55},s=>{
 },true);
 let compactCache=null;
 function compactRoom(world){
-  const key=JSON.stringify([world.room,world.sourceDesk,world.shelfOffsetX,world.plantOffsetZ]);if(compactCache?.key===key)return compactCache.groups;
+  const key=JSON.stringify([world.room,world.sourceDesk,world.shelfOffsetX,world.shelfOffsetZ,world.plantOffsetZ]);if(compactCache?.key===key)return compactCache.groups;
   const list=[],r=world.room;
   const g=(id,bounds,build,extra=false)=>{const shapes=[];build(shapes);list.push({id,bounds,shapes,extra});};
   g('floor',null,s=>{
@@ -149,6 +149,11 @@ function compactRoom(world){
     const shelf=list.find(group=>group.id==='shelf'),offset=world.shelfOffsetX;
     shelf.bounds={...shelf.bounds,minX:shelf.bounds.minX+offset,maxX:shelf.bounds.maxX+offset};
     shelf.shapes=shelf.shapes.map(shape=>({...shape,points:shape.points.map(point=>({...point,x:point.x+offset}))}));
+  }
+  if(Number.isFinite(world.shelfOffsetZ)&&world.shelfOffsetZ!==0){
+    const shelf=list.find(group=>group.id==='shelf'),offset=world.shelfOffsetZ;
+    shelf.bounds={...shelf.bounds,minZ:shelf.bounds.minZ+offset,maxZ:shelf.bounds.maxZ+offset};
+    shelf.shapes=shelf.shapes.map(shape=>({...shape,points:shape.points.map(point=>({...point,z:point.z+offset}))}));
   }
   g('floor-plant',{minX:1.96,maxX:2.82,minY:0,maxY:.95,minZ:2.65,maxZ:3.4},s=>plant(s,2.37,0,3.02,.7));
   if(Number.isFinite(world.plantOffsetZ)&&world.plantOffsetZ!==0){
@@ -188,7 +193,7 @@ export function roomScene(camera,binZ=6,flight=[],extra=false,course=null,world=
     const maxY={bed:1.5,shelf:3.15,desk:2.45,'floor-plant':1.6,fan:2.05}[g.id];
     const reached=g.bounds&&flight.some(q=>(g.id!=='source-desk'||q.z<-.08)&&q.y<=(g.bounds.maxY??maxY)+.14&&q.x>=g.bounds.minX-.14&&q.x<=g.bounds.maxX+.14&&q.z>=g.bounds.minZ-.14&&q.z<=g.bounds.maxZ+.14);
     const wallReached=g.id==='back-wall'&&flight.some(q=>q.z>=(r?r.maxZ-.14:9.06)&&q.y<(r?r.height+.14:3.8))||g.id==='front-wall'&&flight.some(q=>q.z<=(r?r.minZ+.14:-1.86)&&q.y<(r?r.height+.14:3.8))||g.id==='left-wall'&&flight.some(q=>q.x<=(r?r.minX+.14:-4.66)&&q.y<(r?r.height+.14:3.8))||g.id==='right-wall'&&flight.some(q=>q.x>=(r?r.maxX-.14:4.66)&&q.y<(r?r.height+.14:3.8));
-    const binSight=world?.worldVersion===3?p(world.bin.center.x,world.bin.height,binZ):p(0,world?.bin.height??1,binZ);
+    const binSight=world?.worldVersion>=3?p(world.bin.center.x,world.bin.height,binZ):p(0,world?.bin.height??1,binZ);
     const faded=reached||wallReached||g.bounds&&[world?.origin??p(0,1,0),binSight].some(q=>intersectsSight(g.bounds,camera,q));
     if(faded){cutaway.push(g.id);const dim=c=>c?`rgba(${parseInt(c.slice(1,3),16)},${parseInt(c.slice(3,5),16)},${parseInt(c.slice(5,7),16)},.23)`:null;for(const s of g.shapes)shapes.push({...s,fill:dim(s.fill),stroke:dim(s.stroke),depthWrite:false});}
     else shapes.push(...g.shapes);

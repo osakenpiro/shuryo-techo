@@ -1,9 +1,9 @@
 // Live chapter play and training compose the approved room contacts and fan.
 // The contact adapter alone advances positions, gravity, bin entry and results.
-import {createGame, setRoomWorld, throwCan} from './physics.mjs?v=20261011-store-tricks-1';
-import {roomWorld} from './room-course.mjs?v=20261011-store-tricks-1';
-import {windAcceleration} from './room-gimmicks.mjs?v=20261011-store-tricks-1';
-import {createRoomContactStepper, ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261011-store-tricks-1';
+import {createGame, setRoomWorld, throwCan} from './physics.mjs?v=20261011-friends-1';
+import {roomWorld} from './room-course.mjs?v=20261011-friends-1';
+import {windAcceleration} from './room-gimmicks.mjs?v=20261011-friends-1';
+import {createRoomContactStepper, ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261011-friends-1';
 import {cloneThrowable,throwableWindScale} from './throwable-physics.mjs?v=20261011-store-tricks-1';
 
 export const PLAY_ROOM_TICK = ROOM_CONTACT_TICK;
@@ -12,7 +12,7 @@ const active = game => game?.phase === 'flying' || game?.phase === 'settling';
 const copy = point => ({x:point.x, y:point.y, z:point.z});
 
 function requireWorld(world) {
-  if ((world?.worldVersion !== 2 && world?.worldVersion !== 3) || !roomWorld(world.stageId, world.worldVersion)) {
+  if (!([2,3,4].includes(world?.worldVersion)) || !roomWorld(world.stageId, world.worldVersion)) {
     throw new RangeError('A supported compact chapter room is required');
   }
 }

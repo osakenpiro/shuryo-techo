@@ -1,25 +1,25 @@
-import { STAGES, createStageProgress } from './stages.mjs?v=20261011-desk-over-1';
+import { STAGES, createStageProgress } from './stages.mjs?v=20261011-friends-1';
 import { sideAim } from './side-aim.mjs?v=20261011-play-ui-1';
-import {createPixelIntro} from './pixel-intro.mjs?v=20261011-store-tricks-1';
-import {createRoomWindStepper} from './room-gimmicks.mjs?v=20261011-store-tricks-1';
+import {createPixelIntro} from './pixel-intro.mjs?v=20261011-friends-1';
+import {createRoomWindStepper} from './room-gimmicks.mjs?v=20261011-friends-1';
 import {CHAPTER_IDS,createChapterProgress} from './progress-save.mjs?v=20261011-play-ui-1';
-import {roomCourse,roomWorld,createRoomCourseStepper} from './room-course.mjs?v=20261011-store-tricks-1';
-import {createPlayRoomStepper,predictPlayRoomArc} from './play-room.mjs?v=20261011-store-tricks-1';
-import {COURSE_REPLAY_LIMITS,createCourseReplay,validateCourseReplay,coursePayload,courseReplayResult,createCourseReplayPlayer,courseReplayToJSON,parseCourseReplayJSON,decodeCourseReplay,buildCourseReplayURL,interpretPlayContacts,loadPlayReplays,savePlayReplay,deletePlayReplay,loadItemReplays,saveItemReplay,deleteItemReplay} from './play-replay.mjs?v=20261011-store-tricks-1';
+import {roomCourse,roomWorld,createRoomCourseStepper} from './room-course.mjs?v=20261011-friends-1';
+import {createPlayRoomStepper,predictPlayRoomArc} from './play-room.mjs?v=20261011-friends-1';
+import {COURSE_REPLAY_LIMITS,createCourseReplay,validateCourseReplay,coursePayload,courseReplayResult,createCourseReplayPlayer,courseReplayToJSON,parseCourseReplayJSON,decodeCourseReplay,buildCourseReplayURL,interpretPlayContacts,loadPlayReplays,savePlayReplay,deletePlayReplay,loadItemReplays,saveItemReplay,deleteItemReplay} from './play-replay.mjs?v=20261011-friends-1';
 import {createPullScale,mapScaledPull} from './pull-scale.mjs?v=20261011-room-contact-1';
 import {createPlayCue,playCueMarkup,pullHandleMarkup} from './play-cue.mjs?v=20261011-play-analysis-1';
 import {launchSummary,impactSummary} from './shot-summary.mjs?v=20261011-play-analysis-1';
-import { createGame, setSetup, setRoomWorld, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261011-store-tricks-1';
-import { createRenderer } from './render.mjs?v=20261011-store-tricks-1';
+import { createGame, setSetup, setRoomWorld, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261011-friends-1';
+import { createRenderer } from './render.mjs?v=20261011-friends-1';
 import { createShotAnalytics } from './shot-analytics.mjs?v=20261011-play-ui-1';
-import { createRecorder, loadReplays, saveReplay, deleteReplay } from './replay.mjs?v=20261011-store-tricks-1';
-import {createGameShell} from './game-shell.mjs?v=20261011-desk-over-1';
+import { createRecorder, loadReplays, saveReplay, deleteReplay } from './replay.mjs?v=20261011-friends-1';
+import {createGameShell} from './game-shell.mjs?v=20261011-friends-1';
 
 import {createRewards,ACHIEVEMENTS} from './rewards.mjs?v=20261011-store-tricks-1';
 import {loadPlayerSave,savePlayerSave,restorePlayerSave,encodePlayerCode,decodePlayerCode} from './player-save.mjs?v=20261011-store-tricks-1';
 import {THROWABLE_CATALOG,getThrowable} from './throwables.mjs?v=20261011-store-tricks-1';
 import {setThrowable,getThrowableId} from './throwable-physics.mjs?v=20261011-store-tricks-1';
-import {createStoreUI} from './item-store.mjs?v=20261011-store-tricks-1';
+import {createStoreUI} from './item-store.mjs?v=20261011-friends-1';
 import {createRewardEffects} from './reward-effects.mjs?v=20261011-store-tricks-1';
 
 const $=id=>document.getElementById(id);
@@ -63,7 +63,7 @@ const inviteDialog=$('invite-dialog');
 if(inviteDialog && $('invite-game')){
   $('invite-game').addEventListener('click',()=>{
     cancelGesture('game-invite');
-    const url=new URL(location.href);url.hash='';url.search='';
+    const url=new URL(location.href);url.hash='';url.search='';url.searchParams.set('v','20261011-friends-1');
     $('invite-link').value=url.href;
     $('invite-message').textContent='';
     $('invite-share').hidden=typeof navigator.share!=='function';
@@ -137,7 +137,7 @@ function updateHint(){
 function pullStateHint(gesture){return gesture.scale&&!gesture.scale.ready?gesture.scale.reasonText:gesture.aim?.risk>0?'力み · 少し戻すと安定。':gesture.aim?.rawDistance>.28?'ゴム抵抗 · 矢印の長さが強さ。':'矢印の向きが方向、長さが強さ。金色の弧が角度。';}
 function actualLiveResult(){
   const result=analytics.snapshot().result;if(!result?.success)return result;
-  if([2,3].includes(shotContext?.worldVersion)&&playStepper)return interpretPlayContacts(result,playStepper.snapshot().contacts);
+  if([2,3,4].includes(shotContext?.worldVersion)&&playStepper)return interpretPlayContacts(result,playStepper.snapshot().contacts);
   const deskHits=liveCourse()?courseStepper.snapshot().contacts.filter(c=>c.time<result.finalEntryTime+1e-8).length:0;
   return {...result,deskHits,roles:deskHits?[...result.roles.filter(r=>r.id!=='direct'),{id:'desk-bank',label:'机当て'}]:result.roles};
 }
@@ -273,6 +273,7 @@ function updateStageUI(){
   if($('tutorial-motion'))$('tutorial-motion').textContent=`${straight}、離すと一投。`;
   if($('input-scheme')){$('input-scheme').value=chapterProgress.snapshot().inputScheme;$('input-scheme').disabled=busy()||pixelIntro?.active===true;}
   if($('stage-help')){$('stage-help').hidden=!side;$('stage-help').textContent=`本編とは別の2D脇道。${motion}向きで角度、長さで強さを決めて、8 m先の箱へ。記録は3Dで見回せます。`;}
+  if(state.id==='desk-side'&&liveWorld()?.worldVersion===4&&$('stage-help')){$('stage-help').hidden=false;$('stage-help').textContent='箱の前に本棚。高い弧で上を越すか、横の壁や家具で跳ね返して狙おう。';}
   if(course?.desk&&$('stage-help')){$('stage-help').hidden=false;$('stage-help').textContent=state.id==='desk-over'?'箱の手前に机。高い弧で越えても、机で跳ね返って入っても成功。':'机の横に開いた投球路。左右と弧を合わせて箱へ。机と4本の脚には実際に当たります。';}
   $('prediction-toggle').disabled=!trainingMode;if(!trainingMode){view.prediction=false;$('prediction-toggle').checked=false;}
   if(extraRoom()&&$('stage-help')){$('stage-help').hidden=false;$('stage-help').textContent='1-4のおまけ。箱の手前だけ、扇風機が右へ風を送ります。猫は部屋の住人。風は投げる前に切り替えられます。記録はこの部屋の3D画面で見回せます。';}
@@ -484,7 +485,7 @@ function captureShot(){
     const result=actualLiveResult();
     // Misses have no successful replay or entry-relative bounce totals. Keep
     // their actual launch, with complete witnessed contacts separately named.
-    const analyticsTrace=analytics.snapshot(),roomContacts=[2,3].includes(shotContext.worldVersion)?playStepper?.snapshot().contacts??[]:[];
+    const analyticsTrace=analytics.snapshot(),roomContacts=[2,3,4].includes(shotContext.worldVersion)?playStepper?.snapshot().contacts??[]:[];
     lastShotAnalysis={shotId:game.attempts,success:game.phase==='success',launch:{...shotContext.launch},initialVelocity:{...shotContext.initialVelocity},result:result?structuredClone(result):null,
       witnessedContacts:{core:analyticsTrace.contacts.length,room:roomContacts.length},finalEntryTime:game.phase==='success'?result?.finalEntryTime??null:null};
     updateAnalysisUI();
@@ -557,7 +558,7 @@ function completeChapterShot(replay=null){
   if($('chapter-impact-analysis'))$('chapter-impact-analysis').textContent=impactSummary(actual);
   for(const id of ['chapter-result-replay','chapter-result-save'])if($(id))$(id).hidden=!replay;
   const next=CHAPTER_IDS[CHAPTER_IDS.indexOf(shot.id)+1];$('chapter-result-next').textContent=!eligible?'練習を終える':next?`${STAGES[next].label}へ`:'第1章クリア · トップへ';
-  if(eligible&&!next){$('chapter-result-kind').textContent='CHAPTER CLEAR';$('chapter-result-detail').textContent='第1章クリア！ 各面のベスト：'+CHAPTER_IDS.map(id=>`${STAGES[id].number??(id==='first'?'1-1':'1-4')} ${chapterProgress.snapshot().stageBestAttempts[id]}投`).join(' / ');}
+  if(eligible&&!next){$('chapter-result-kind').textContent='CHAPTER CLEAR';$('chapter-result-detail').textContent='第1章クリア！ 2-1以降は製作中。各面のベスト：'+CHAPTER_IDS.map(id=>`${STAGES[id].number??(id==='first'?'1-1':'1-4')} ${chapterProgress.snapshot().stageBestAttempts[id]}投`).join(' / ');}
   $('chapter-share-status').textContent='';$('chapter-share-text').hidden=true;gameShell?.update();storeUI?.update();dialog.showModal();if(award.ok)rewardEffects.celebrate({holeInOne:award.holeInOne,tricky:roles.some(r=>r.id!=='direct'),points:award.points});
 }
 if($('chapter-result')){
@@ -754,7 +755,7 @@ function setupInputCheck(){
   const [entry,panel,copy,close,text,message]=['input-check-open','input-check-panel','input-check-copy','input-check-close','input-check-text','input-check-message'].map($);
   // A new app can be loaded by an older cached HTML page without these nodes.
   if(![entry,panel,copy,close,text,message].every(Boolean))return;
-  const version='20261011-store-tricks-1',limit=24,maxBytes=12000;
+  const version='20261011-friends-1',limit=24,maxBytes=12000;
   let session=null,removeListeners=[];
   const clone=value=>value?(typeof structuredClone==='function'?structuredClone(value):JSON.parse(JSON.stringify(value))):null;
   const geometry=()=>{

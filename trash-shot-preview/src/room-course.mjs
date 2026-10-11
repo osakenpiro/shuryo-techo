@@ -1,4 +1,4 @@
-import { stepGame, ROOM_PHYSICS_WORLDS } from './physics.mjs?v=20261011-store-tricks-1';
+import { stepGame, ROOM_PHYSICS_WORLDS } from './physics.mjs?v=20261011-friends-1';
 
 const TICK = 1 / 240, EPS = 1e-9, SLOP = 1e-5;
 const AXES = ['x', 'y', 'z'];
@@ -37,6 +37,9 @@ const COURSES_3=freeze({
   'desk-over':{stageId:'desk-over',worldVersion:3,
     desk:desk(1.9,{z:3.5,width:1.8,depth:1.7,topY:.8,topThickness:.08,legWidth:.14})},
 });
+const COURSES_4=freeze({
+  'desk-side':{stageId:'desk-side',worldVersion:4,desk:null},
+});
 const ROOM_STAGES=['first','desk-over','desk-side','room-extra'];
 const LEGACY_WORLDS=Object.fromEntries([1,2].map(worldVersion=>[worldVersion,Object.fromEntries(ROOM_STAGES.map(stageId=>{
   const physics=ROOM_PHYSICS_WORLDS[worldVersion],courses=worldVersion===1?ROOM_COURSES:COURSES_2;
@@ -47,24 +50,30 @@ const LEGACY_WORLDS=Object.fromEntries([1,2].map(worldVersion=>[worldVersion,Obj
     view:worldVersion===1?{target:{x:0,y:.45,z:2.82},distance:13.6}:{target:{x:0,y:.75,z:2},distance:8},
     launch:worldVersion===1?{power:7.8,elevation:48,yaw:0}:{power:6.2,elevation:48,yaw:stageId==='room-extra'?-2:0}}];
 }))]));
-// 1-2 gets its own immutable layout; saved world 1/2 shots retain their exact
-// desk, shelf, bin and camera descriptors rather than being silently moved.
+// Each changed chapter obstacle gets a new immutable layout. Saved worlds
+// retain their exact desks, shelf, bin and camera rather than being moved.
 const WORLDS=freeze({...LEGACY_WORLDS,3:{'desk-over':{
   ...LEGACY_WORLDS[2]['desk-over'],worldVersion:3,
   physics:ROOM_PHYSICS_WORLDS[3],origin:ROOM_PHYSICS_WORLDS[3].origin,bin:ROOM_PHYSICS_WORLDS[3].bin,
   desk:COURSES_3['desk-over'].desk,shelfOffsetX:-1,plantOffsetZ:-1.35,
   view:{target:{x:.65,y:.75,z:2.3},distance:8.6},
   launch:{power:7.2,elevation:48,yaw:Math.atan2(2.5,4.8)*180/Math.PI},
+}},4:{'desk-side':{
+  ...LEGACY_WORLDS[2]['desk-side'],worldVersion:4,
+  physics:ROOM_PHYSICS_WORLDS[4],origin:ROOM_PHYSICS_WORLDS[4].origin,bin:ROOM_PHYSICS_WORLDS[4].bin,
+  desk:null,shelfOffsetX:-2.47,shelfOffsetZ:-1.9,
+  view:{target:{x:0,y:.9,z:2.3},distance:8.4},
+  launch:{power:6.9,elevation:60,yaw:Math.atan2(.5,4.4)*180/Math.PI},
 }}});
 
 // Old callers keep world 1. New live play and replay explicitly choose a world;
 // no mutable imported geometry can redefine a saved course.
 export function roomCourse(stageId,worldVersion=1) {
-  const courses=worldVersion===1?ROOM_COURSES:worldVersion===2?COURSES_2:worldVersion===3?COURSES_3:null;
+  const courses=worldVersion===1?ROOM_COURSES:worldVersion===2?COURSES_2:worldVersion===3?COURSES_3:worldVersion===4?COURSES_4:null;
   return courses&&Object.hasOwn(courses,stageId)?courses[stageId]:null;
 }
 export function roomWorld(stageId,worldVersion=2) {
-  const worlds=worldVersion===1||worldVersion===2||worldVersion===3?WORLDS[worldVersion]:null;
+  const worlds=worldVersion===1||worldVersion===2||worldVersion===3||worldVersion===4?WORLDS[worldVersion]:null;
   return worlds&&Object.hasOwn(worlds,stageId)?worlds[stageId]:null;
 }
 
@@ -214,7 +223,7 @@ export function createRoomCourseStepper({ onContact } = {}) {
   function step(game, dt, nextStageId, afterStep = () => {}, nextWorldVersion=1) {
     if (!ACTIVE.has(game?.phase) || typeof dt !== 'number' || !Number.isFinite(dt) || dt <= 0) return game;
     const course = roomCourse(nextStageId,nextWorldVersion);
-    if (!course) { stepGame(game, dt); afterStep(); return game; }
+    if (!course?.desk) { stepGame(game, dt); afterStep(); return game; }
     if (stageId !== nextStageId || worldVersion!==nextWorldVersion || shotId !== game.attempts || game.time === 0 && substeps) {
       reset(); stageId = nextStageId; shotId = game.attempts; worldVersion=nextWorldVersion;
     }

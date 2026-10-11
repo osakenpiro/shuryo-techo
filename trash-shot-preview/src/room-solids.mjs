@@ -1,7 +1,7 @@
 // Collision solids for the comparison room, recovered from the actual meshes.
 // Keep the saved worlds and production renderer unchanged. A furniture group
 // is never converted to one solid box: open legs and shelf gaps stay open.
-import {roomScene} from './room-scene.mjs?v=20261011-desk-over-1';
+import {roomScene} from './room-scene.mjs?v=20261011-friends-1';
 
 const AXES = ['x', 'y', 'z'];
 const freeze = value => {
@@ -72,10 +72,10 @@ function bevelCapAt(shapes, start, body) {
 }
 
 export function roomSolidColliders(world, extra = false) {
-  if ((world?.worldVersion !== 2 && world?.worldVersion !== 3) || !world.room || !world.sourceDesk) {
+  if ((world?.worldVersion !== 2 && world?.worldVersion !== 3 && world?.worldVersion !== 4) || !world.room || !world.sourceDesk) {
     throw new RangeError('Comparison room solids require the fixed compact room');
   }
-  const key = JSON.stringify([world.stageId, world.worldVersion, world.room, world.sourceDesk, world.desk, world.shelfOffsetX, world.plantOffsetZ, Boolean(extra)]);
+  const key = JSON.stringify([world.stageId, world.worldVersion, world.room, world.sourceDesk, world.desk, world.shelfOffsetX, world.shelfOffsetZ, world.plantOffsetZ, Boolean(extra)]);
   if (cache.has(key)) return cache.get(key);
   const r = world.room;
   // A camera inside the room retains all wall geometry. Fading changes colors

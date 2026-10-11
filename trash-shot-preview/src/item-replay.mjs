@@ -1,8 +1,8 @@
 // Version 4 carries an allowlisted throwable profile alongside actual recorded poses.
 // V1/V2/V3 codecs remain responsible for their original can recordings.
-import {validateReplay,createReplayPlayer,ReplayError} from './replay.mjs?v=20261011-store-tricks-1';
-import {roomWorld} from './room-course.mjs?v=20261011-store-tricks-1';
-import {roomContactColliders} from './room-contact.mjs?v=20261011-store-tricks-1';
+import {validateReplay,createReplayPlayer,ReplayError} from './replay.mjs?v=20261011-friends-1';
+import {roomWorld} from './room-course.mjs?v=20261011-friends-1';
+import {roomContactColliders} from './room-contact.mjs?v=20261011-friends-1';
 import {THROWABLE_CATALOG} from './throwables.mjs?v=20261011-store-tricks-1';
 
 export const ITEM_REPLAY_STORAGE_KEY='trash-shot-item-replays-v4';
@@ -77,7 +77,8 @@ export function validateItemReplay(input){
   if(input.kind!=='item-room-contacts')fail('UNSUPPORTED_VERSION','Room replay kind is unsupported');
   object(input.course,['worldVersion','contactModel','stageId','roomHits','contacts','fanEnabled'],'course');
   const course=input.course;
-  if(![2,3].includes(course.worldVersion)||course.worldVersion===3&&course.stageId!=='desk-over'||course.contactModel!==1||!STAGES.has(course.stageId)
+  if(![2,3,4].includes(course.worldVersion)||course.worldVersion===3&&course.stageId!=='desk-over'
+    ||course.worldVersion===4&&course.stageId!=='desk-side'||course.contactModel!==1||!STAGES.has(course.stageId)
     ||typeof course.fanEnabled!=='boolean'||course.stageId!=='room-extra'&&course.fanEnabled)
     fail('INVALID_REPLAY','Unsupported fixed room contact world');
   const world=roomWorld(course.stageId,course.worldVersion),replay=validateReplay(input.replay,{worldVersion:course.worldVersion,itemId:input.item.id,profileVersion:1});
