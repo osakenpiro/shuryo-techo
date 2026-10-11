@@ -34,6 +34,8 @@ export const ROOM_PHYSICS_WORLDS = freezeTree({
     bin: { center: { x: 2.5, y: .35, z: 4.8 }, radius: .35, height: .7 } },
   4: { worldVersion: 4, origin: { x: 0, y: .94, z: 0 },
     bin: { center: { x: .5, y: .35, z: 4.4 }, radius: .35, height: .7 } },
+  5: { worldVersion: 5, origin: { x: 0, y: .94, z: 0 },
+    bin: { center: { x: 0, y: .35, z: 4 }, radius: .35, height: .7 } },
 });
 
 function notify(game, type, detail = {}) {
@@ -162,7 +164,7 @@ export function setSetup(game, input = {}) {
 }
 
 export function setRoomWorld(game, worldVersion = 2) {
-  if (worldVersion !== 1 && worldVersion !== 2 && worldVersion !== 3 && worldVersion !== 4) throw new RangeError('Room world version must be 1, 2, 3 or 4');
+  if (worldVersion !== 1 && worldVersion !== 2 && worldVersion !== 3 && worldVersion !== 4 && worldVersion !== 5) throw new RangeError('Room world version must be 1, 2, 3, 4 or 5');
   const world = ROOM_PHYSICS_WORLDS[worldVersion];
   ROOM_SETUPS.set(game, worldVersion);
   game.bin = { ...world.bin, center: { ...world.bin.center } };

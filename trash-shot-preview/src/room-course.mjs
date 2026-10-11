@@ -1,4 +1,4 @@
-import { stepGame, ROOM_PHYSICS_WORLDS } from './physics.mjs?v=20261011-friends-1';
+import { stepGame, ROOM_PHYSICS_WORLDS } from './physics.mjs?v=20261011-room-breeze-1';
 
 const TICK = 1 / 240, EPS = 1e-9, SLOP = 1e-5;
 const AXES = ['x', 'y', 'z'];
@@ -40,6 +40,9 @@ const COURSES_3=freeze({
 const COURSES_4=freeze({
   'desk-side':{stageId:'desk-side',worldVersion:4,desk:null},
 });
+const COURSES_5=freeze({
+  'room-extra':{stageId:'room-extra',worldVersion:5,desk:null},
+});
 const ROOM_STAGES=['first','desk-over','desk-side','room-extra'];
 const LEGACY_WORLDS=Object.fromEntries([1,2].map(worldVersion=>[worldVersion,Object.fromEntries(ROOM_STAGES.map(stageId=>{
   const physics=ROOM_PHYSICS_WORLDS[worldVersion],courses=worldVersion===1?ROOM_COURSES:COURSES_2;
@@ -64,16 +67,20 @@ const WORLDS=freeze({...LEGACY_WORLDS,3:{'desk-over':{
   desk:null,shelfOffsetX:-2.47,shelfOffsetZ:-1.9,
   view:{target:{x:0,y:.9,z:2.3},distance:8.4},
   launch:{power:6.9,elevation:60,yaw:Math.atan2(.5,4.4)*180/Math.PI},
+}},5:{'room-extra':{
+  ...LEGACY_WORLDS[2]['room-extra'],worldVersion:5,
+  physics:ROOM_PHYSICS_WORLDS[5],origin:ROOM_PHYSICS_WORLDS[5].origin,bin:ROOM_PHYSICS_WORLDS[5].bin,
+  launch:{power:6.2,elevation:48,yaw:0},
 }}});
 
 // Old callers keep world 1. New live play and replay explicitly choose a world;
 // no mutable imported geometry can redefine a saved course.
 export function roomCourse(stageId,worldVersion=1) {
-  const courses=worldVersion===1?ROOM_COURSES:worldVersion===2?COURSES_2:worldVersion===3?COURSES_3:worldVersion===4?COURSES_4:null;
+  const courses=worldVersion===1?ROOM_COURSES:worldVersion===2?COURSES_2:worldVersion===3?COURSES_3:worldVersion===4?COURSES_4:worldVersion===5?COURSES_5:null;
   return courses&&Object.hasOwn(courses,stageId)?courses[stageId]:null;
 }
 export function roomWorld(stageId,worldVersion=2) {
-  const worlds=worldVersion===1||worldVersion===2||worldVersion===3||worldVersion===4?WORLDS[worldVersion]:null;
+  const worlds=worldVersion===1||worldVersion===2||worldVersion===3||worldVersion===4||worldVersion===5?WORLDS[worldVersion]:null;
   return worlds&&Object.hasOwn(worlds,stageId)?worlds[stageId]:null;
 }
 

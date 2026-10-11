@@ -1,5 +1,5 @@
 // Presentation only. Chapter progress and stage changes stay owned by app.mjs.
-import { STAGES } from './stages.mjs?v=20261011-friends-1';
+import { STAGES } from './stages.mjs?v=20261011-room-breeze-1';
 import { CHAPTER_IDS } from './progress-save.mjs?v=20261011-play-ui-1';
 import { drawPixelText, measurePixelText } from './pixel-type.mjs?v=20261011-play-ui-1';
 

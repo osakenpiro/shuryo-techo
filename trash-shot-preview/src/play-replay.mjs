@@ -1,12 +1,12 @@
 // A versioned room-contact envelope around the unchanged V1 pose recording.
 // Legacy V1/V2 records retain their own codecs and interpretation.
-import * as legacy from './course-replay.mjs?v=20261011-friends-1';
-import {validateReplay,createReplayPlayer,ReplayError} from './replay.mjs?v=20261011-friends-1';
-import {roomWorld} from './room-course.mjs?v=20261011-friends-1';
-import {roomContactColliders} from './room-contact.mjs?v=20261011-friends-1';
+import * as legacy from './course-replay.mjs?v=20261011-room-breeze-1';
+import {validateReplay,createReplayPlayer,ReplayError} from './replay.mjs?v=20261011-room-breeze-1';
+import {roomWorld} from './room-course.mjs?v=20261011-room-breeze-1';
+import {roomContactColliders} from './room-contact.mjs?v=20261011-room-breeze-1';
 import {validateItemReplay,createItemReplay,itemPayload,createItemReplayPlayer,itemReplayToJSON,
-  parseItemReplayJSON,encodeItemReplay,decodeItemReplay,buildItemReplayURL} from './item-replay.mjs?v=20261011-friends-1';
-export {ITEM_REPLAY_LIMITS,ITEM_REPLAY_STORAGE_KEY,loadItemReplays,saveItemReplay,deleteItemReplay} from './item-replay.mjs?v=20261011-friends-1';
+  parseItemReplayJSON,encodeItemReplay,decodeItemReplay,buildItemReplayURL} from './item-replay.mjs?v=20261011-room-breeze-1';
+export {ITEM_REPLAY_LIMITS,ITEM_REPLAY_STORAGE_KEY,loadItemReplays,saveItemReplay,deleteItemReplay} from './item-replay.mjs?v=20261011-room-breeze-1';
 
 export const PLAY_REPLAY_STORAGE_KEY='trash-shot-room-replays-v3';
 export const COURSE_REPLAY_LIMITS=Object.freeze({...legacy.COURSE_REPLAY_LIMITS,
@@ -78,8 +78,9 @@ export function validateCourseReplay(input){
   if(input.kind!=='room-contacts')fail('UNSUPPORTED_VERSION','Room replay kind is unsupported');
   object(input.course,['worldVersion','contactModel','stageId','roomHits','contacts','fanEnabled'],'course');
   const course=input.course;
-  if(![2,3,4].includes(course.worldVersion)||course.worldVersion===3&&course.stageId!=='desk-over'
-    ||course.worldVersion===4&&course.stageId!=='desk-side'||course.contactModel!==1||!STAGES.has(course.stageId)
+  if(![2,3,4,5].includes(course.worldVersion)||course.worldVersion===3&&course.stageId!=='desk-over'
+    ||course.worldVersion===4&&course.stageId!=='desk-side'
+    ||course.worldVersion===5&&course.stageId!=='room-extra'||course.contactModel!==1||!STAGES.has(course.stageId)
     ||typeof course.fanEnabled!=='boolean'||course.stageId!=='room-extra'&&course.fanEnabled)
     fail('INVALID_REPLAY','Unsupported fixed room contact world');
   const world=roomWorld(course.stageId,course.worldVersion),replay=validateReplay(input.replay,{worldVersion:course.worldVersion});

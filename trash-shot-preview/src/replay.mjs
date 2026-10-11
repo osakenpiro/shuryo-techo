@@ -1,5 +1,5 @@
 // Recorded world poses, never a seed or a second physics simulation.
-import { ROOM_PHYSICS_WORLDS } from './physics.mjs?v=20261011-friends-1';
+import { ROOM_PHYSICS_WORLDS } from './physics.mjs?v=20261011-room-breeze-1';
 import { THROWABLE_CATALOG } from './throwables.mjs?v=20261011-store-tricks-1';
 export const REPLAY_LIMITS = Object.freeze({version:1, duration:5.1, frames:720,
   hz:60, rawBytes:180*1024, saved:5, storageBytes:900*1024, urlChars:8000,
@@ -51,10 +51,10 @@ function replayContext(context={}){
   if(Reflect.ownKeys(context).length===0)return {worldVersion:1,radius:.14,itemId:null,launchScale:1};
   const item=Object.getOwnPropertyDescriptor(context,'itemId');
   object(context,item?['worldVersion','itemId','profileVersion']:['worldVersion'],'replay context');
-  if(![1,2,3,4].includes(context.worldVersion))fail('UNSUPPORTED_VERSION','Replay world context is unsupported');
+  if(![1,2,3,4,5].includes(context.worldVersion))fail('UNSUPPORTED_VERSION','Replay world context is unsupported');
   if(!item)return {worldVersion:context.worldVersion,radius:.14,itemId:null,launchScale:1};
   if(context.profileVersion!==1||typeof context.itemId!=='string'||context.itemId==='can'
-    ||!Object.hasOwn(THROWABLE_CATALOG,context.itemId)||![2,3,4].includes(context.worldVersion))
+    ||!Object.hasOwn(THROWABLE_CATALOG,context.itemId)||![2,3,4,5].includes(context.worldVersion))
     fail('INVALID_REPLAY','Unsupported fixed item replay context');
   const profile=THROWABLE_CATALOG[context.itemId].physics;
   return {worldVersion:context.worldVersion,radius:profile.radius,itemId:context.itemId,launchScale:profile.launchScale};
@@ -66,7 +66,7 @@ function replayOrigin(worldVersion,radius,itemId){
 function binData(value,worldVersion=1){
   object(value,['center','radius','height'],'bin');const center=vector(value.center,'bin.center');
   const height=number(value.height,.5,2.5,'bin.height');
-  if(worldVersion===2||worldVersion===3||worldVersion===4){
+  if(worldVersion===2||worldVersion===3||worldVersion===4||worldVersion===5){
     const allowed=ROOM_PHYSICS_WORLDS[worldVersion].bin;
     if(center.x!==allowed.center.x||center.y!==allowed.center.y||center.z!==allowed.center.z
       ||value.radius!==allowed.radius||height!==allowed.height)fail('INVALID_REPLAY',`bin: unsupported room world ${worldVersion} setup`);
@@ -149,7 +149,7 @@ export function validateReplay(input,context={}){
     return {time,phase:frame.phase,position:vector(frame.position,'position'),velocity:vector(frame.velocity,'velocity',true)};
   });
   const first=frames[0],last=frames.at(-1);
-  if(worldVersion===2||worldVersion===3||worldVersion===4){
+  if(worldVersion===2||worldVersion===3||worldVersion===4||worldVersion===5){
     const origin=replayOrigin(worldVersion,radius,itemId);
     if(['x','y','z'].some(axis=>first.position[axis]!==origin[axis]))fail('INVALID_REPLAY',`Initial pose differs from room world ${worldVersion} origin`);
   }
@@ -171,7 +171,7 @@ export function createRecorder(startSnapshot,controls,camera,context={}){
   const {worldVersion,radius,itemId}=replayContext(context),codecContext=itemId?{...context}:{worldVersion};
   const first=frameData(startSnapshot,radius);
   if(first.time!==0||first.phase!=='flying')fail('INVALID_REPLAY','Recorder starts immediately after launch');
-  if((worldVersion===2||worldVersion===3||worldVersion===4)&&['x','y','z'].some(axis=>first.position[axis]!==replayOrigin(worldVersion,radius,itemId)[axis]))fail('INVALID_REPLAY',`Recorder origin differs from room world ${worldVersion}`);
+  if((worldVersion===2||worldVersion===3||worldVersion===4||worldVersion===5)&&['x','y','z'].some(axis=>first.position[axis]!==replayOrigin(worldVersion,radius,itemId)[axis]))fail('INVALID_REPLAY',`Recorder origin differs from room world ${worldVersion}`);
   const bin=binData(startSnapshot.bin,worldVersion),initialControls=controlData(controls),initialCamera=cameraData(camera);
   const frames=[first];let closed=false,lastObserved=0,dropped=0,finished=null;
   const unchanged=snapshot=>{

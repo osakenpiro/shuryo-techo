@@ -5,7 +5,7 @@ export const STAGES=Object.freeze({
   first:Object.freeze({label:'1-1：部屋のゴミ箱',environment:'room',worldVersion:2,distance:4,height:.7,power:6.2,elevation:48,yaw:0}),
   'desk-over':Object.freeze({label:'1-2：机を越えて',number:'1-2',environment:'room',worldVersion:3,course:'desk-over',distance:4.8,height:.7,power:7.2,elevation:48,yaw:Math.atan2(2.5,4.8)*180/Math.PI}),
   'desk-side':Object.freeze({label:'1-3：本棚の向こうへ',number:'1-3',environment:'room',worldVersion:4,course:'desk-side',distance:4.4,height:.7,power:6.9,elevation:60,yaw:Math.atan2(.5,4.4)*180/Math.PI}),
-  'room-extra':Object.freeze({label:'1-4：扇風機と猫',environment:'room',worldVersion:2,gimmick:'fan',distance:4,height:.7,power:6.2,elevation:48,yaw:-2}),
+  'room-extra':Object.freeze({label:'1-4：扇風機と猫',environment:'room',worldVersion:5,gimmick:'fan',distance:4,height:.7,power:6.2,elevation:48,yaw:0}),
   side:Object.freeze({label:'脇道：横からぽいっ（2D）',projection:'side',distance:8,height:1.3,power:9,elevation:48,yaw:0})
 });
 export function createStageProgress(){
