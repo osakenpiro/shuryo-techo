@@ -1,4 +1,4 @@
-import { stepGame, ROOM_PHYSICS_WORLDS } from './physics.mjs?v=20261011-play-ui-1';
+import { stepGame, ROOM_PHYSICS_WORLDS } from './physics.mjs?v=20261011-desk-over-1';
 
 const TICK = 1 / 240, EPS = 1e-9, SLOP = 1e-5;
 const AXES = ['x', 'y', 'z'];
@@ -33,8 +33,12 @@ const COURSES_2=freeze({
   'desk-over':{stageId:'desk-over',worldVersion:2,desk:desk(0,smallDesk)},
   'desk-side':{stageId:'desk-side',worldVersion:2,desk:desk(-1.45,smallDesk)},
 });
+const COURSES_3=freeze({
+  'desk-over':{stageId:'desk-over',worldVersion:3,
+    desk:desk(1.9,{z:3.5,width:1.8,depth:1.7,topY:.8,topThickness:.08,legWidth:.14})},
+});
 const ROOM_STAGES=['first','desk-over','desk-side','room-extra'];
-const WORLDS=freeze(Object.fromEntries([1,2].map(worldVersion=>[worldVersion,Object.fromEntries(ROOM_STAGES.map(stageId=>{
+const LEGACY_WORLDS=Object.fromEntries([1,2].map(worldVersion=>[worldVersion,Object.fromEntries(ROOM_STAGES.map(stageId=>{
   const physics=ROOM_PHYSICS_WORLDS[worldVersion],courses=worldVersion===1?ROOM_COURSES:COURSES_2;
   return [stageId,{stageId,worldVersion,physics,origin:physics.origin,bin:physics.bin,
     room:worldVersion===1?{minX:-4.8,maxX:4.8,minZ:-2,maxZ:9.2,height:3.65}:{minX:-3.2,maxX:3.2,minZ:-1.5,maxZ:5.8,height:3.05},
@@ -42,16 +46,25 @@ const WORLDS=freeze(Object.fromEntries([1,2].map(worldVersion=>[worldVersion,Obj
     desk:courses[stageId]?.desk??null,
     view:worldVersion===1?{target:{x:0,y:.45,z:2.82},distance:13.6}:{target:{x:0,y:.75,z:2},distance:8},
     launch:worldVersion===1?{power:7.8,elevation:48,yaw:0}:{power:6.2,elevation:48,yaw:stageId==='room-extra'?-2:0}}];
-}))])));
+}))]));
+// 1-2 gets its own immutable layout; saved world 1/2 shots retain their exact
+// desk, shelf, bin and camera descriptors rather than being silently moved.
+const WORLDS=freeze({...LEGACY_WORLDS,3:{'desk-over':{
+  ...LEGACY_WORLDS[2]['desk-over'],worldVersion:3,
+  physics:ROOM_PHYSICS_WORLDS[3],origin:ROOM_PHYSICS_WORLDS[3].origin,bin:ROOM_PHYSICS_WORLDS[3].bin,
+  desk:COURSES_3['desk-over'].desk,shelfOffsetX:-1,plantOffsetZ:-1.35,
+  view:{target:{x:.65,y:.75,z:2.3},distance:8.6},
+  launch:{power:7.2,elevation:48,yaw:Math.atan2(2.5,4.8)*180/Math.PI},
+}}});
 
 // Old callers keep world 1. New live play and replay explicitly choose a world;
 // no mutable imported geometry can redefine a saved course.
 export function roomCourse(stageId,worldVersion=1) {
-  const courses=worldVersion===1?ROOM_COURSES:worldVersion===2?COURSES_2:null;
+  const courses=worldVersion===1?ROOM_COURSES:worldVersion===2?COURSES_2:worldVersion===3?COURSES_3:null;
   return courses&&Object.hasOwn(courses,stageId)?courses[stageId]:null;
 }
 export function roomWorld(stageId,worldVersion=2) {
-  const worlds=worldVersion===1||worldVersion===2?WORLDS[worldVersion]:null;
+  const worlds=worldVersion===1||worldVersion===2||worldVersion===3?WORLDS[worldVersion]:null;
   return worlds&&Object.hasOwn(worlds,stageId)?worlds[stageId]:null;
 }
 

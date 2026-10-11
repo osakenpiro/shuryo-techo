@@ -1,5 +1,5 @@
-import { predictArc } from './physics.mjs?v=20261011-play-ui-1';
-import { roomScene,roomMotionShapes,roomMonitorQuad,paintScreenQuad } from './room-scene.mjs?v=20261011-play-ui-1';
+import { predictArc } from './physics.mjs?v=20261011-desk-over-1';
+import { roomScene,roomMotionShapes,roomMonitorQuad,paintScreenQuad } from './room-scene.mjs?v=20261011-desk-over-1';
 import {drawPixelText} from './pixel-type.mjs?v=20261011-play-ui-1';
 
 const add = (a,b) => ({ x:a.x+b.x, y:a.y+b.y, z:a.z+b.z });
@@ -25,7 +25,7 @@ export function createRenderer(canvas) {
     const distance=(worldView?.view.distance??(10+sceneDistance*.6))*orbitState.zoom*revealDistance;
     camera={x:target.x+Math.sin(orbitState.azimuth)*Math.cos(orbitState.elevation)*distance,y:target.y+Math.sin(orbitState.elevation)*distance,z:target.z-Math.cos(orbitState.azimuth)*Math.cos(orbitState.elevation)*distance};
     forward=unit(sub(target,camera)); right=unit(cross({x:0,y:1,z:0},forward)); up=cross(forward,right);
-    const portraitRoom=worldView?.worldVersion===2&&width<600;
+    const portraitRoom=(worldView?.worldVersion===2||worldView?.worldVersion===3)&&width<600;
     focal=Math.min(width*(portraitRoom?1.48:width<450?1.13:.92),height*1.45);
   };
   const worldToCamera = point => {const p=sub(point,camera); return {x:dot(p,right),y:dot(p,up),z:dot(p,forward)};};
@@ -39,7 +39,7 @@ export function createRenderer(canvas) {
   function orbit(azimuth,elevation){if(projection==='side')return;orbitState.azimuth=((orbitState.azimuth+azimuth)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);orbitState.elevation=clamp(orbitState.elevation+elevation,.15,1.43);configureCamera();}
   function zoom(factor){if(projection==='side'){sideZoom=clamp(sideZoom*factor,.62,1.8);return;}orbitState.zoom=clamp(orbitState.zoom*factor,.62,1.8);configureCamera();}
   function restoreCamera(snapshot){orbitState={azimuth:snapshot.azimuth,elevation:clamp(snapshot.elevation,.15,1.43),zoom:clamp(snapshot.zoom,.62,1.8)};configureCamera();}
-  function resetCamera(){if(projection==='side'){sideZoom=1;return;}orbitState=worldView?.worldVersion===2?{azimuth:.18,elevation:.40,zoom:1}:{...defaultOrbit};configureCamera();}
+  function resetCamera(){if(projection==='side'){sideZoom=1;return;}orbitState=worldView?.worldVersion===2||worldView?.worldVersion===3?{azimuth:.18,elevation:.40,zoom:1}:{...defaultOrbit};configureCamera();}
   function resize() {
     const rect=canvas.getBoundingClientRect();
     const changed=width!==Math.max(1,rect.width)||height!==Math.max(1,rect.height);
@@ -287,7 +287,7 @@ export function createRenderer(canvas) {
     if(projection==='side'){drawSide(game,controls,view);return;}
     const room=environment==='room',backgroundDepth=room?drawRoom(game,view.aim||controls,view):null;
     if(!room)drawFloor();drawDistance(game,view.numericLabels!==false);
-    if(room&&view.monitorCanvas){ctx.save();ctx.globalAlpha=roomCutaway.includes(worldView?.worldVersion===2?'source-desk':'desk') ? .23 : 1;paintScreenQuad(ctx,view.monitorCanvas,monitorQuad());ctx.restore();}
+    if(room&&view.monitorCanvas){ctx.save();ctx.globalAlpha=roomCutaway.includes(worldView?.worldVersion===2||worldView?.worldVersion===3?'source-desk':'desk') ? .23 : 1;paintScreenQuad(ctx,view.monitorCanvas,monitorQuad());ctx.restore();}
     shadow(game.bin.center,game.bin.radius*1.35,game.bin.radius*1.14,.11);
     shadow(game.can.position,.2+Math.max(0,game.can.position.y)*.035,.2,.13/(1+Math.max(0,game.can.position.y)*.8));
     if(view.prediction&&(!view.course||Array.isArray(view.windArc))&&(game.phase==='ready'||game.phase==='success'||game.phase==='miss'))drawArc(game,view.aim||controls,view.windArc);

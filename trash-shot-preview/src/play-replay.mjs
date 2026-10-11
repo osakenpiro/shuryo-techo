@@ -1,9 +1,9 @@
 // A versioned room-contact envelope around the unchanged V1 pose recording.
 // Legacy V1/V2 records retain their own codecs and interpretation.
-import * as legacy from './course-replay.mjs?v=20261011-play-ui-1';
-import {validateReplay,createReplayPlayer,ReplayError} from './replay.mjs?v=20261011-play-ui-1';
-import {roomWorld} from './room-course.mjs?v=20261011-play-ui-1';
-import {roomContactColliders} from './room-contact.mjs?v=20261011-play-analysis-1';
+import * as legacy from './course-replay.mjs?v=20261011-desk-over-1';
+import {validateReplay,createReplayPlayer,ReplayError} from './replay.mjs?v=20261011-desk-over-1';
+import {roomWorld} from './room-course.mjs?v=20261011-desk-over-1';
+import {roomContactColliders} from './room-contact.mjs?v=20261011-desk-over-1';
 
 export const PLAY_REPLAY_STORAGE_KEY='trash-shot-room-replays-v3';
 export const COURSE_REPLAY_LIMITS=Object.freeze({...legacy.COURSE_REPLAY_LIMITS,
@@ -74,10 +74,10 @@ export function validateCourseReplay(input){
   if(input.kind!=='room-contacts')fail('UNSUPPORTED_VERSION','Room replay kind is unsupported');
   object(input.course,['worldVersion','contactModel','stageId','roomHits','contacts','fanEnabled'],'course');
   const course=input.course;
-  if(course.worldVersion!==2||course.contactModel!==1||!STAGES.has(course.stageId)
+  if(![2,3].includes(course.worldVersion)||course.worldVersion===3&&course.stageId!=='desk-over'||course.contactModel!==1||!STAGES.has(course.stageId)
     ||typeof course.fanEnabled!=='boolean'||course.stageId!=='room-extra'&&course.fanEnabled)
     fail('INVALID_REPLAY','Unsupported fixed room contact world');
-  const world=roomWorld(course.stageId,2),replay=validateReplay(input.replay,{worldVersion:2});
+  const world=roomWorld(course.stageId,course.worldVersion),replay=validateReplay(input.replay,{worldVersion:course.worldVersion});
   if(AXES.some(axis=>replay.bin.center[axis]!==world.bin.center[axis])
     ||replay.bin.height!==world.bin.height||replay.bin.radius!==world.bin.radius)
     fail('INVALID_REPLAY','Room replay bin differs from its fixed world');
@@ -93,7 +93,7 @@ export function validateCourseReplay(input){
       fail('INVALID_REPLAY','Room contacts are out of shot order');
     previousByCollider.set(value.colliderId,value.time);
   }
-  const record={version:3,kind:'room-contacts',course:{worldVersion:2,contactModel:1,stageId:course.stageId,roomHits,contacts,fanEnabled:course.fanEnabled},replay};
+  const record={version:3,kind:'room-contacts',course:{worldVersion:course.worldVersion,contactModel:1,stageId:course.stageId,roomHits,contacts,fanEnabled:course.fanEnabled},replay};
   if(encoder.encode(JSON.stringify(record)).byteLength>COURSE_REPLAY_LIMITS.rawBytes)fail('REPLAY_TOO_LARGE','Room replay exceeds raw byte limit');
   return freeze(record);
 }
@@ -130,7 +130,8 @@ export function courseReplayResult(record){
 }
 export function createCourseReplayPlayer(record){
   if(version(record)!==3)return legacy.createCourseReplayPlayer(record);
-  return createReplayPlayer(validateCourseReplay(record).replay,{worldVersion:2});
+  const valid=validateCourseReplay(record);
+  return createReplayPlayer(valid.replay,{worldVersion:valid.course.worldVersion});
 }
 export function courseReplayToJSON(record){
   if(version(record)!==3)return legacy.courseReplayToJSON(record);

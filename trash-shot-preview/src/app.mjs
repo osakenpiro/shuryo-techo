@@ -1,19 +1,19 @@
-import { STAGES, createStageProgress } from './stages.mjs?v=20261011-play-ui-1';
+import { STAGES, createStageProgress } from './stages.mjs?v=20261011-desk-over-1';
 import { sideAim } from './side-aim.mjs?v=20261011-play-ui-1';
-import {createPixelIntro} from './pixel-intro.mjs?v=20261011-play-ui-1';
-import {createRoomWindStepper} from './room-gimmicks.mjs?v=20261011-play-ui-1';
+import {createPixelIntro} from './pixel-intro.mjs?v=20261011-desk-over-1';
+import {createRoomWindStepper} from './room-gimmicks.mjs?v=20261011-desk-over-1';
 import {CHAPTER_IDS,createChapterProgress,loadProgress,saveProgress,restoreProgress,encodeProgressCode,decodeProgressCode} from './progress-save.mjs?v=20261011-play-ui-1';
-import {roomCourse,roomWorld,createRoomCourseStepper} from './room-course.mjs?v=20261011-play-ui-1';
-import {createPlayRoomStepper,predictPlayRoomArc} from './play-room.mjs?v=20261011-play-analysis-1';
-import {COURSE_REPLAY_LIMITS,createCourseReplay,validateCourseReplay,coursePayload,courseReplayResult,createCourseReplayPlayer,courseReplayToJSON,parseCourseReplayJSON,decodeCourseReplay,buildCourseReplayURL,interpretPlayContacts,loadPlayReplays,savePlayReplay,deletePlayReplay} from './play-replay.mjs?v=20261011-play-analysis-1';
+import {roomCourse,roomWorld,createRoomCourseStepper} from './room-course.mjs?v=20261011-desk-over-1';
+import {createPlayRoomStepper,predictPlayRoomArc} from './play-room.mjs?v=20261011-desk-over-1';
+import {COURSE_REPLAY_LIMITS,createCourseReplay,validateCourseReplay,coursePayload,courseReplayResult,createCourseReplayPlayer,courseReplayToJSON,parseCourseReplayJSON,decodeCourseReplay,buildCourseReplayURL,interpretPlayContacts,loadPlayReplays,savePlayReplay,deletePlayReplay} from './play-replay.mjs?v=20261011-desk-over-1';
 import {createPullScale,mapScaledPull} from './pull-scale.mjs?v=20261011-room-contact-1';
 import {createPlayCue,playCueMarkup,pullHandleMarkup} from './play-cue.mjs?v=20261011-play-analysis-1';
 import {launchSummary,impactSummary} from './shot-summary.mjs?v=20261011-play-analysis-1';
-import { createGame, setSetup, setRoomWorld, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261011-play-ui-1';
-import { createRenderer } from './render.mjs?v=20261011-play-analysis-1';
+import { createGame, setSetup, setRoomWorld, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261011-desk-over-1';
+import { createRenderer } from './render.mjs?v=20261011-desk-over-1';
 import { createShotAnalytics } from './shot-analytics.mjs?v=20261011-play-ui-1';
-import { createRecorder, loadReplays, saveReplay, deleteReplay } from './replay.mjs?v=20261011-play-ui-1';
-import {createGameShell} from './game-shell.mjs?v=20261011-game-shell-1';
+import { createRecorder, loadReplays, saveReplay, deleteReplay } from './replay.mjs?v=20261011-desk-over-1';
+import {createGameShell} from './game-shell.mjs?v=20261011-desk-over-1';
 
 const $=id=>document.getElementById(id);
 const canvas=$('scene');
@@ -27,7 +27,7 @@ let chapterProgress=createChapterProgress(loadedProgress.data??undefined),chapte
 let trainingMode=true,trainingReturnStage='first',trainingStats={attempts:0,successes:0},shotContext=null;
 let angleCueUntil=0;
 let playStepper=null,lastShotAnalysis=null,lastPresentedAim=null,lastReleasedAim=null,cueSnapshot={visible:false},trainingPreview=[];
-const liveWorld=()=>CHAPTER_IDS.includes(stageProgress.snapshot().id)?roomWorld(stageProgress.snapshot().id,2):null;
+const liveWorld=()=>CHAPTER_IDS.includes(stageProgress.snapshot().id)?roomWorld(stageProgress.snapshot().id,STAGES[stageProgress.snapshot().id].worldVersion):null;
 const liveCourse=()=>roomCourse(stageProgress.snapshot().id,liveWorld()?.worldVersion??1);
 const pullInput=()=>chapterProgress.snapshot().inputScheme==='pull';
 const chapterStage=()=>CHAPTER_IDS.includes(stageProgress.snapshot().id);
@@ -126,7 +126,7 @@ function updateHint(){
 function pullStateHint(gesture){return gesture.scale&&!gesture.scale.ready?gesture.scale.reasonText:gesture.aim?.risk>0?'力み · 少し戻すと安定。':gesture.aim?.rawDistance>.28?'ゴム抵抗 · 矢印の長さが強さ。':'矢印の向きが方向、長さが強さ。金色の弧が角度。';}
 function actualLiveResult(){
   const result=analytics.snapshot().result;if(!result?.success)return result;
-  if(shotContext?.worldVersion===2&&playStepper)return interpretPlayContacts(result,playStepper.snapshot().contacts);
+  if([2,3].includes(shotContext?.worldVersion)&&playStepper)return interpretPlayContacts(result,playStepper.snapshot().contacts);
   const deskHits=liveCourse()?courseStepper.snapshot().contacts.filter(c=>c.time<result.finalEntryTime+1e-8).length:0;
   return {...result,deskHits,roles:deskHits?[...result.roles.filter(r=>r.id!=='direct'),{id:'desk-bank',label:'机当て'}]:result.roles};
 }
@@ -225,7 +225,7 @@ function selectStage(id,{fromIntro=false,allowPractice=false,fromEntry=false,tra
   if(stageProgress.snapshot().id==='free')freeSetup={distance:game.bin.center.z,height:game.bin.height};
   cancelGesture('stage-change');pointers.clear();if(fromIntro)shotRecorder=null;else clearCurrentShot();stageProgress.select(id);
   roomWind.reset();courseStepper.reset();if(id==='room-extra')fanEnabled=true;
-  const setup=id==='free'?freeSetup:STAGES[id];if(CHAPTER_IDS.includes(id))setRoomWorld(game,2);else setSetup(game,setup);renderer.setWorldView(liveWorld());
+  const setup=id==='free'?freeSetup:STAGES[id];if(CHAPTER_IDS.includes(id))setRoomWorld(game,setup.worldVersion);else setSetup(game,setup);renderer.setWorldView(liveWorld());
   playStepper=liveWorld()?createPlayRoomStepper(liveWorld(),{extra:id==='room-extra'}):null;
   $('distance').value=String(setup.distance);$('height').value=String(setup.height);
   if(willBeSide&&!wasSide){previous3DMode=view.mode;view.mode='throw';}
@@ -296,7 +296,7 @@ function fire(source='numeric'){
   cancelGesture('other-throw');
   if(sideStage()){controls.yaw=0;updateControlLabels();}
   const accepted=throwCan(game,controls);
-  if(accepted){if(trainingMode)trainingStats.attempts++;else stageProgress.launch(game.attempts);clearCurrentShot();roomWind.reset();courseStepper.reset();playStepper?.reset();shotContext={id:stageProgress.snapshot().id,shotId:game.attempts,training:trainingMode,worldVersion:liveWorld()?.worldVersion??1,fanEnabled,finished:false,launch:launchSummary(controls),initialVelocity:{...game.can.velocity}};lastShotAnalysis=null;lastReleasedAim={parameters:{...controls},initialVelocity:{...game.can.velocity},presented:source==='gesture'&&lastPresentedAim?structuredClone(lastPresentedAim):null};chapterShot=!trainingMode&&chapterStage()?{...shotContext,eligible:!chapterPractice}:null;if(chapterShot?.eligible){chapterProgress.recordAttempt();persistChapter();}try{shotRecorder=createRecorder(getSnapshot(game),controls,renderer.cameraSnapshot(),liveWorld()?{worldVersion:2}:{});}catch{replayMessage('この一投の録画を開始できません。プレイの結果は記録します。');}lastInput={type:'throw',source,training:trainingMode,parameters:{...controls}};previousTime=performance.now();updateUI(true);if(source!=='gesture')canvas.scrollIntoView({block:'center',behavior:'instant'});}
+  if(accepted){if(trainingMode)trainingStats.attempts++;else stageProgress.launch(game.attempts);clearCurrentShot();roomWind.reset();courseStepper.reset();playStepper?.reset();shotContext={id:stageProgress.snapshot().id,shotId:game.attempts,training:trainingMode,worldVersion:liveWorld()?.worldVersion??1,fanEnabled,finished:false,launch:launchSummary(controls),initialVelocity:{...game.can.velocity}};lastShotAnalysis=null;lastReleasedAim={parameters:{...controls},initialVelocity:{...game.can.velocity},presented:source==='gesture'&&lastPresentedAim?structuredClone(lastPresentedAim):null};chapterShot=!trainingMode&&chapterStage()?{...shotContext,eligible:!chapterPractice}:null;if(chapterShot?.eligible){chapterProgress.recordAttempt();persistChapter();}try{shotRecorder=createRecorder(getSnapshot(game),controls,renderer.cameraSnapshot(),liveWorld()?{worldVersion:liveWorld().worldVersion}:{});}catch{replayMessage('この一投の録画を開始できません。プレイの結果は記録します。');}lastInput={type:'throw',source,training:trainingMode,parameters:{...controls}};previousTime=performance.now();updateUI(true);if(source!=='gesture')canvas.scrollIntoView({block:'center',behavior:'instant'});}
   return accepted;
 }
 $('throw-button').addEventListener('click',()=>fire());
@@ -472,7 +472,7 @@ function captureShot(){
     const result=actualLiveResult();
     // Misses have no successful replay or entry-relative bounce totals. Keep
     // their actual launch, with complete witnessed contacts separately named.
-    const analyticsTrace=analytics.snapshot(),roomContacts=shotContext.worldVersion===2?playStepper?.snapshot().contacts??[]:[];
+    const analyticsTrace=analytics.snapshot(),roomContacts=[2,3].includes(shotContext.worldVersion)?playStepper?.snapshot().contacts??[]:[];
     lastShotAnalysis={shotId:game.attempts,success:game.phase==='success',launch:{...shotContext.launch},initialVelocity:{...shotContext.initialVelocity},result:result?structuredClone(result):null,
       witnessedContacts:{core:analyticsTrace.contacts.length,room:roomContacts.length},finalEntryTime:game.phase==='success'?result?.finalEntryTime??null:null};
     updateAnalysisUI();
@@ -718,7 +718,7 @@ function setupInputCheck(){
   const [entry,panel,copy,close,text,message]=['input-check-open','input-check-panel','input-check-copy','input-check-close','input-check-text','input-check-message'].map($);
   // A new app can be loaded by an older cached HTML page without these nodes.
   if(![entry,panel,copy,close,text,message].every(Boolean))return;
-  const version='20261011-game-shell-1',limit=24,maxBytes=12000;
+  const version='20261011-desk-over-1',limit=24,maxBytes=12000;
   let session=null,removeListeners=[];
   const clone=value=>value?(typeof structuredClone==='function'?structuredClone(value):JSON.parse(JSON.stringify(value))):null;
   const geometry=()=>{

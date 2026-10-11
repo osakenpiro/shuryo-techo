@@ -1,5 +1,5 @@
 // Recorded world poses, never a seed or a second physics simulation.
-import { ROOM_PHYSICS_WORLDS } from './physics.mjs?v=20261011-play-ui-1';
+import { ROOM_PHYSICS_WORLDS } from './physics.mjs?v=20261011-desk-over-1';
 export const REPLAY_LIMITS = Object.freeze({version:1, duration:5.1, frames:720,
   hz:60, rawBytes:180*1024, saved:5, storageBytes:900*1024, urlChars:8000,
   contacts:2400, precision:1e-5, storageKey:'trash-shot.replays.v1'});
@@ -49,16 +49,16 @@ function replayWorld(context={}){
     fail('INVALID_REPLAY','replay context: plain object required');
   if(Reflect.ownKeys(context).length===0)return 1;
   object(context,['worldVersion'],'replay context');
-  if(context.worldVersion!==1&&context.worldVersion!==2)fail('UNSUPPORTED_VERSION','Replay world context is unsupported');
+  if(![1,2,3].includes(context.worldVersion))fail('UNSUPPORTED_VERSION','Replay world context is unsupported');
   return context.worldVersion;
 }
 function binData(value,worldVersion=1){
   object(value,['center','radius','height'],'bin');const center=vector(value.center,'bin.center');
   const height=number(value.height,.5,2.5,'bin.height');
-  if(worldVersion===2){
-    const allowed=ROOM_PHYSICS_WORLDS[2].bin;
+  if(worldVersion===2||worldVersion===3){
+    const allowed=ROOM_PHYSICS_WORLDS[worldVersion].bin;
     if(center.x!==allowed.center.x||center.y!==allowed.center.y||center.z!==allowed.center.z
-      ||value.radius!==allowed.radius||height!==allowed.height)fail('INVALID_REPLAY','bin: unsupported room world 2 setup');
+      ||value.radius!==allowed.radius||height!==allowed.height)fail('INVALID_REPLAY',`bin: unsupported room world ${worldVersion} setup`);
     return {center,radius:allowed.radius,height};
   }
   if(center.x!==0||Math.abs(center.y-height/2)>1e-8||center.z<3||center.z>10||value.radius!==.7)
@@ -138,9 +138,9 @@ export function validateReplay(input,context={}){
     return {time,phase:frame.phase,position:vector(frame.position,'position'),velocity:vector(frame.velocity,'velocity',true)};
   });
   const first=frames[0],last=frames.at(-1);
-  if(worldVersion===2){
-    const origin=ROOM_PHYSICS_WORLDS[2].origin;
-    if(['x','y','z'].some(axis=>first.position[axis]!==origin[axis]))fail('INVALID_REPLAY','Initial pose differs from room world 2 origin');
+  if(worldVersion===2||worldVersion===3){
+    const origin=ROOM_PHYSICS_WORLDS[worldVersion].origin;
+    if(['x','y','z'].some(axis=>first.position[axis]!==origin[axis]))fail('INVALID_REPLAY',`Initial pose differs from room world ${worldVersion} origin`);
   }
   if(first.time!==0||first.phase!=='flying'||last.time!==duration||last.phase!=='success'
       ||Math.hypot(last.position.x-bin.center.x,last.position.z-bin.center.z)>bin.radius-.14+1e-5
@@ -154,7 +154,7 @@ export function createRecorder(startSnapshot,controls,camera,context={}){
   const worldVersion=replayWorld(context),codecContext={worldVersion};
   const first=frameData(startSnapshot);
   if(first.time!==0||first.phase!=='flying')fail('INVALID_REPLAY','Recorder starts immediately after launch');
-  if(worldVersion===2&&['x','y','z'].some(axis=>first.position[axis]!==ROOM_PHYSICS_WORLDS[2].origin[axis]))fail('INVALID_REPLAY','Recorder origin differs from room world 2');
+  if((worldVersion===2||worldVersion===3)&&['x','y','z'].some(axis=>first.position[axis]!==ROOM_PHYSICS_WORLDS[worldVersion].origin[axis]))fail('INVALID_REPLAY',`Recorder origin differs from room world ${worldVersion}`);
   const bin=binData(startSnapshot.bin,worldVersion),initialControls=controlData(controls),initialCamera=cameraData(camera);
   const frames=[first];let closed=false,lastObserved=0,dropped=0,finished=null;
   const unchanged=snapshot=>{

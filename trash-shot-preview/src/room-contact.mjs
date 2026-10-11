@@ -1,8 +1,8 @@
 // Shared room-contact adapter. The established simulation still owns gravity,
 // the hollow bin, floor contact, the five-second result, and save compatibility.
-import {createGame, setRoomWorld, throwCan, stepGame} from './physics.mjs?v=20261011-play-ui-1';
-import {sweepSphereAABB} from './room-course.mjs?v=20261011-play-ui-1';
-import {roomSolidColliders} from './room-solids.mjs?v=20261011-room-contact-1';
+import {createGame, setRoomWorld, throwCan, stepGame} from './physics.mjs?v=20261011-desk-over-1';
+import {sweepSphereAABB} from './room-course.mjs?v=20261011-desk-over-1';
+import {roomSolidColliders} from './room-solids.mjs?v=20261011-desk-over-1';
 
 const TICK = 1 / 240, GRAVITY = 9.81, EPS = 1e-9, CORE_EPS = 1.000001e-7, SLOP = 1e-5;
 const AXES = ['x', 'y', 'z'], ACTIVE = new Set(['flying', 'settling']);
@@ -195,7 +195,7 @@ export function createRoomContactStepper(world,{onContact,extra=false}={}) {
 /** Fresh lab simulation sampled from exactly the same fixed contact stepper. */
 export function predictRoomContactArc(game,input,world,{sampleEvery=1/60,maxSeconds=5,extra=false}={}) {
   const copyGame=createGame();
-  if(world?.worldVersion===2)setRoomWorld(copyGame,world.worldVersion);
+  if(world?.worldVersion===2||world?.worldVersion===3)setRoomWorld(copyGame,world.worldVersion);
   else throw new RangeError('A supported room world is required');
   copyGame.bin={...game.bin,center:copy(game.bin.center)};
   throwCan(copyGame,input);
