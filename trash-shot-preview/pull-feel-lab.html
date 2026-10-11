@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f4ead5">
+  <title>ごみシュート · 引っぱりくらべ</title>
+  <link rel="stylesheet" href="./pull-feel-lab.css?v=20261011-pull-feel-1">
+</head>
+<body>
+<main>
+  <header><a href="./?v=20261011-play-ui-1">← ごみシュート</a><span>操作の比較室</span></header>
+  <h1>引っぱり、くらべてみよう。</h1>
+  <p class="lead">いつもの一投から、ゴムの手応えと力みすぎを比べる試作。</p>
+  <nav class="modes" aria-label="引っぱりの方式">
+    <button data-feel="A" aria-pressed="false"><b>A</b> いまの引っぱり<small>長さで強さ、上限で止まる</small></button>
+    <button data-feel="B" aria-pressed="false"><b>B</b> ゴムの手応え<small>奥ほど伸びにくくなる</small></button>
+    <button data-feel="C" aria-pressed="true"><b>C</b> ゴム ＋ 力み<small>引きすぎると、向きが揺れる</small></button>
+  </nav>
+  <section class="play" aria-label="シュート画面">
+    <div class="scene-wrap">
+      <canvas id="lab-scene" tabindex="0" aria-label="引っぱって離すとシュート。3Dでは下へ、2Dでは左下へ引っぱります。"></canvas>
+      <svg id="lab-overlay" aria-hidden="true"></svg>
+      <div class="scene-label"><b id="mode-label">C · ゴム ＋ 力み</b><span id="status">画面の上寄りから、下へ引っぱって離す。</span></div>
+      <div class="force-panel" aria-hidden="true"><div class="force-head"><b id="force-label">引っぱり</b><span id="force-state">安定</span></div><div class="force-track"><i class="soft-mark"></i><i class="risk-mark"></i><i class="force-fill" id="force-fill"></i><i class="force-tip" id="force-tip"></i></div><div class="force-legend"><span>ふだんの一投</span><span>ゴム抵抗</span><span>力み</span></div></div>
+      <button id="cancel-pull" class="cancel" hidden>引っぱりを戻す</button>
+    </div>
+    <div class="toolbar">
+      <button id="observe" aria-pressed="false">見回す</button>
+      <span class="arc-tools"><button id="arc-down" aria-label="弧の角度を3度下げる">弧 −</button><output id="arc-value">48°</output><button id="arc-up" aria-label="弧の角度を3度上げる">弧 ＋</button></span>
+      <button id="projection" aria-pressed="false">2Dで比べる</button>
+      <button id="reset-view">視点を戻す</button>
+    </div>
+    <p id="instruction" class="instruction">下へ引いて、離すと一投。右ボタン保持＋ドラッグで見回し。ホイール／弧−＋で角度。</p>
+    <p class="result" id="result" role="status">破線は中心の狙い、実線は実際に飛ぶ向き。引っぱりを少し戻すと安定します。</p>
+  </section>
+  <details><summary>この比較の見方</summary><p>A/B/Cは同じ部屋・缶・ごみ箱です。Cでは限界近くで左右が最大3°揺れ、離した瞬間の実線の向きで飛びます。2Dでは角度だけが最大2.5°揺れます。強さはBと同じで、離した後に乱数で曲がることはありません。</p><p>バーは指で引いた量です。投げる強さそのものの百分率ではありません。青い破線は中心の狙い、橙色の幅は揺れる範囲。長く持つだけで揺れ幅は増えません。</p><p>試作用の仮調整です。プレイ記録・セーブ・本編の成績には入りません。</p><output id="diagnostic"></output></details>
+</main>
+<script type="module" src="./src/pull-feel-lab.mjs?v=20261011-pull-feel-1"></script>
+</body>
+</html>
