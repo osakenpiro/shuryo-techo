@@ -1,13 +1,20 @@
 // All reused simulation modules share the production query and ESM instance.
-import {createGame, setRoomWorld, throwCan, resetShot, stepGame, getSnapshot} from './physics.mjs?v=20261011-play-ui-1';
+import {createGame, setRoomWorld, throwCan, resetShot, getSnapshot} from './physics.mjs?v=20261011-play-ui-1';
 import {createRenderer} from './render.mjs?v=20261011-play-ui-1';
 import {roomWorld} from './room-course.mjs?v=20261011-play-ui-1';
-import {pullAim, PULL_FEEL} from './pull-feel.mjs?v=20261011-pull-feel-1';
+import {PULL_FEEL} from './pull-feel.mjs?v=20261011-pull-feel-1';
+import {createPullScale,mapScaledPull} from './pull-scale.mjs?v=20261011-room-contact-1';
+import {createRoomContactStepper, predictRoomContactArc} from './room-contact.mjs?v=20261011-room-contact-1';
+import {roomSolidColliders} from './room-solids.mjs?v=20261011-room-contact-1';
+import {projectCueSegments,projectCuePolygon,cueDirectionPoint} from './pull-cue.mjs?v=20261011-room-contact-1';
 
 const $ = id => document.getElementById(id), canvas = $('lab-scene'), overlay = $('lab-overlay');
 const game = createGame(), world = roomWorld('first', 2), renderer = createRenderer(canvas);
 setRoomWorld(game, 2); renderer.setWorldView(world); renderer.resetCamera();
-const controls = {...world.launch}, pointers = new Set(), names = {A:'いまの引っぱり', B:'ゴムの手応え', C:'ゴム ＋ 力み'};
+const contactStepper=createRoomContactStepper(world),predictionCache=new Map(),predictionSeconds=1.5;
+const sideSolids=roomSolidColliders(world).filter(c=>c.min.x<=game.can.radius&&c.max.x>=-game.can.radius);
+let predictionComputations=0,cueSnapshot={visible:false,reason:'not-aiming',segments:0},sideRoomSnapshot={visible:false};
+const controls = {...world.launch}, pointers = new Set(), names = {A:'抵抗なし', B:'ゴムの手応え', C:'ゴム ＋ 力み'};
 let mode = 'C', projection = '3d', observing = false, gesture = null, lastThrow = null, cancellations = 0,
   lastCancellation = null, previousTime = performance.now(), wheelPixels = 0, cueUntil = 0;
 const busy = () => game.phase === 'flying' || game.phase === 'settling';
@@ -19,7 +26,7 @@ function sameLayout(g) {
     r.width === g.rect.width && r.height === g.rect.height && r.left === g.rect.left && r.top === g.rect.top;
 }
 function aimAt(g, now) {
-  return pullAim({right: g.startX-g.lastX, up: g.lastY-g.startY, size:Math.max(1, Math.min(g.rect.width,g.rect.height)),
+  return mapScaledPull({scale:g.scale,right:g.startX-g.lastX,up:g.lastY-g.startY,
     mode, projection, elevation:controls.elevation, elapsedSeconds:(now-g.started)/1000});
 }
 function releaseCapture(g) { if (g && canvas.hasPointerCapture(g.id)) canvas.releasePointerCapture(g.id); }
@@ -44,8 +51,8 @@ function updateUI() {
   $('arc-value').textContent=`${Math.round((gesture?.aim?.actual.elevation??controls.elevation)*10)/10}°`;
   $('cancel-pull').hidden=gesture?.kind!=='throw';
   canvas.dataset.observe=String(observing||gesture?.kind==='observe');
-  $('instruction').textContent=projection==='2d'?'左下へ引いて、向きで角度、長さで強さ。離すと一投。':'下へ引いて、離すと一投。右ボタン保持＋ドラッグで見回し。ホイール／弧−＋で角度。';
-  $('status').textContent=busy()?'缶の行方を見届けよう。':gesture?.kind==='observe'?'ドラッグで見回し。':observing?'ドラッグで見回し。「見回す」を戻すとシュート。':projection==='2d'?'画面の右上寄りから、左下へ引っぱって離す。':'画面の上寄りから、下へ引っぱって離す。';
+  $('instruction').textContent=projection==='2d'?'左下へ引いて、向きで角度、長さで強さ。離すと一投。':'下へ引くと奥へ、左へ引くと右へ。見回しても奥・左右は部屋基準。右ボタン保持＋ドラッグで見回し、ホイール／弧−＋で角度。';
+  $('status').textContent=busy()?'缶の行方を見届けよう。':gesture?.kind==='observe'?'ドラッグで見回し。':gesture?.scale&&!gesture.scale.ready?gesture.scale.reasonText:observing?'ドラッグで見回し。「見回す」を戻すとシュート。':projection==='2d'?'左下へ引っぱって離す。':'下へ引っぱって離す。';
 }
 document.addEventListener('pointerdown', event => {
   pointers.add(event.pointerId);
@@ -58,12 +65,13 @@ canvas.addEventListener('pointerdown',event=>{
   if (event.button!==0&&event.button!==2) return;
   const kind=(event.button===2||observing)?'observe':'throw';
   if (kind==='throw'&&busy()||kind==='observe'&&projection==='2d') return;
-  if(kind==='throw'&&game.phase!=='ready')resetShot(game);
+  if(kind==='throw'&&game.phase!=='ready'){resetShot(game);contactStepper.reset();}
   event.preventDefault(); canvas.focus({preventScroll:true});
   const rect=canvas.getBoundingClientRect();
   gesture={id:event.pointerId,kind,pointerType:event.pointerType,button:event.button,rect,
     viewport:{width:innerWidth,height:innerHeight},startX:event.clientX,startY:event.clientY,
-    lastX:event.clientX,lastY:event.clientY,started:performance.now(),aim:null,presentationTime:0};
+    lastX:event.clientX,lastY:event.clientY,started:performance.now(),aim:null,presentationTime:0,
+    scale:kind==='throw'?createPullScale({rect,startX:event.clientX,startY:event.clientY,projection,stagePower:world.launch.power,projectileProfile:{id:'can',radius:game.can.radius}}):null};
   if(kind==='throw') {gesture.presentationTime=gesture.started;gesture.aim=aimAt(gesture,gesture.presentationTime);present(gesture.aim);}
   canvas.setPointerCapture(event.pointerId); updateUI();
 });
@@ -91,12 +99,14 @@ canvas.addEventListener('pointerup',event=>{
   if(aim?.valid&&!busy()) {
     Object.assign(controls,aim.actual);
     if(throwCan(game,aim.actual)) {
+      contactStepper.reset();
       lastThrow={mode,projection,aim:structuredClone(aim),parameters:{...aim.actual},attempt:game.attempts,
-        presentedAim:{...aim.actual},releasedAim:{...aim.actual},visibleAtRelease,initialVelocity:{...game.can.velocity},presentedElapsedSeconds:(g.presentationTime-g.started)/1000};
+        presentedAim:{...aim.actual},releasedAim:{...aim.actual},visibleAtRelease,initialVelocity:{...game.can.velocity},presentedElapsedSeconds:(g.presentationTime-g.started)/1000,
+        visiblePrediction:structuredClone(cueSnapshot.prediction??[]),scale:structuredClone(g.scale)};
       previousTime=performance.now();
       $('result').textContent=`${mode} · ${aim.risk>0?'力み域':'安定域'}で離した。実際の向き ${projection==='2d'?`${aim.actual.elevation.toFixed(1)}°`:`左右 ${aim.actual.yaw.toFixed(1)}°`}、強さ ${aim.actual.power.toFixed(2)}。`;
     }
-  } else if(g.kind==='throw') {cancellations++;lastCancellation='short-or-invalid-release';}
+  } else if(g.kind==='throw') {cancellations++;lastCancellation='short-or-invalid-release';$('result').textContent=!g.scale.ready?g.scale.reasonText:projection==='2d'?'向き調整中でした。左下へもう少し引いて離すと投げられます。':'向き調整中でした。もう少し下へ引いて離すと投げられます。';}
   updateUI();
 });
 for(const type of ['pointercancel','lostpointercapture']) canvas.addEventListener(type,event=>{if(gesture?.id===event.pointerId)cancel(type);});
@@ -127,20 +137,77 @@ for(const b of document.querySelectorAll('[data-feel]')) b.addEventListener('cli
 });
 
 const svgPoint=p=>`${p.x.toFixed(2)},${p.y.toFixed(2)}`;
-function directionPoint(aim){const a=aim.elevation*Math.PI/180,y=aim.yaw*Math.PI/180;return renderer.project({x:world.origin.x+Math.sin(y)*Math.cos(a)*.66,y:world.origin.y+Math.sin(a)*.66,z:world.origin.z+Math.cos(y)*Math.cos(a)*.66});}
+function directionPoint(aim){return cueDirectionPoint(world.origin,aim);}
+function predictionFor(parameters) {
+  const key=`${parameters.power}|${parameters.elevation}|${parameters.yaw}`;
+  if(predictionCache.has(key)){const value=predictionCache.get(key);predictionCache.delete(key);predictionCache.set(key,value);return value;}
+  const value=predictRoomContactArc(game,parameters,world,{sampleEvery:1/60,maxSeconds:predictionSeconds});
+  predictionComputations++;predictionCache.set(key,value);
+  if(predictionCache.size>96)predictionCache.delete(predictionCache.keys().next().value);
+  return value;
+}
+function segmentPath(segments){return segments.map(s=>`M ${svgPoint(s.from)} L ${svgPoint(s.to)}`).join(' ');}
+function labelPosition(anchor,rect,width=134,height=22) {
+  const obstacles=[...document.querySelectorAll('.scene-label,.force-panel,#cancel-pull')].filter(e=>!e.hidden).map(e=>{
+    const r=e.getBoundingClientRect();return {x:r.left-rect.left,y:r.top-rect.top,width:r.width,height:r.height};
+  });
+  const candidates=[[anchor.x+8,anchor.y-28],[anchor.x-width-8,anchor.y-28],[anchor.x+8,anchor.y+8],[anchor.x-width-8,anchor.y+8]];
+  for(const [cx,cy] of candidates){const x=clamp(cx,5,Math.max(5,rect.width-width-5)),y=clamp(cy,5,Math.max(5,rect.height-height-5));
+    if(!obstacles.some(r=>x<r.x+r.width+3&&x+width>r.x-3&&y<r.y+r.height+3&&y+height>r.y-3))return {x,y,width,height};
+  }
+  return null;
+}
+function roomSectionMarkup(rect) {
+  if(projection!=='2d'){sideRoomSnapshot={visible:false};return '';}
+  const r=world.room,project=point=>renderer.project(point),path=points=>projectCueSegments(points,project,rect.width,rect.height),at=(y,z)=>({x:0,y,z});
+  const front=path([at(0,r.minZ),at(r.height,r.minZ)]),back=path([at(0,r.maxZ),at(r.height,r.maxZ)]),ceiling=path([at(r.height,r.minZ),at(r.height,r.maxZ)]);
+  let html=`<g data-cue="room-section"><path d="${segmentPath([...front.segments,...back.segments,...ceiling.segments])}" fill="none" stroke="#829a86" stroke-width="2"/>`;
+  let furnitureSegments=0;
+  for(const c of sideSolids){const shape=path([at(c.min.y,c.min.z),at(c.max.y,c.min.z),at(c.max.y,c.max.z),at(c.min.y,c.max.z),at(c.min.y,c.min.z)]);furnitureSegments+=shape.segments.length;
+    html+=`<path data-solid="${c.id}" d="${segmentPath(shape.segments)}" fill="none" stroke="#9b9478" stroke-width="1.2"/>`;
+  }
+  for(const [text,z,lines] of [['手前の壁',r.minZ,front],['奥の壁',r.maxZ,back]]){
+    const p=project(at(r.height*.62,z)),outside=p.x<0||p.x>rect.width,label=outside?(p.x<0?`← ${text}`:`${text} →`):text;
+    const x=clamp(p.x+(p.x<rect.width/2?7:-69),7,Math.max(7,rect.width-84)),y=clamp(p.y,24,rect.height-24);
+    html+=`<text x="${x}" y="${y}" font-size="10" fill="#637c69">${label}</text>`;
+  }
+  const deskLabel=project(at(world.sourceDesk.topY-.13,world.sourceDesk.center.z));
+  if(deskLabel.x>=0&&deskLabel.x<rect.width&&deskLabel.y>=0&&deskLabel.y<rect.height)html+=`<text x="${deskLabel.x+5}" y="${deskLabel.y}" font-size="10" fill="#80775d">机</text>`;
+  html+='</g>';sideRoomSnapshot={visible:true,solids:sideSolids.length,furnitureSegments,frontSegments:front.segments.length,backSegments:back.segments.length,ceilingSegments:ceiling.segments.length};
+  return html;
+}
 function paintCue(aim) {
   const rect=canvas.getBoundingClientRect();overlay.setAttribute('viewBox',`0 0 ${rect.width} ${rect.height}`);
-  if(!aim||!aim.valid||busy()){overlay.innerHTML='';return;}
+  const roomSection=roomSectionMarkup(rect);
+  if(!aim||busy()){overlay.innerHTML=roomSection;cueSnapshot={visible:false,reason:busy()?'flying':'not-aiming',segments:0};$('cue-feedback').textContent='矢印は向きと強さ、青い破線は中心、橙の点線は直後の弾道。';return;}
   const origin=renderer.project(world.origin),base=directionPoint(aim.base),actual=directionPoint(aim.actual);
   const low=directionPoint({...aim.base,...(projection==='2d'?{elevation:clamp(aim.base.elevation-aim.riskAmplitude,5,85)}:{yaw:clamp(aim.base.yaw-aim.riskAmplitude,-60,60)})});
   const high=directionPoint({...aim.base,...(projection==='2d'?{elevation:clamp(aim.base.elevation+aim.riskAmplitude,5,85)}:{yaw:clamp(aim.base.yaw+aim.riskAmplitude,-60,60)})});
-  let html=`<path d="M ${svgPoint(origin)} L ${svgPoint(low)} L ${svgPoint(high)} Z" fill="#e982382c" stroke="#e9823870" stroke-width="1"/><line x1="${origin.x}" y1="${origin.y}" x2="${base.x}" y2="${base.y}" stroke="#438f88" stroke-width="2" stroke-dasharray="4 4"/><line x1="${origin.x}" y1="${origin.y}" x2="${actual.x}" y2="${actual.y}" stroke="#b56b2e" stroke-width="3"/><circle cx="${actual.x}" cy="${actual.y}" r="3.5" fill="#b56b2e"/>`;
+  const project=point=>renderer.project(point),projectPath=points=>projectCueSegments(points,project,rect.width,rect.height);
+  const nominal=projectPath([world.origin,base]),initial=projectPath([world.origin,actual]),prediction=predictionFor(aim.actual),arc=projectPath(prediction);
+  const anglePoints=Array.from({length:13},(_,index)=>directionPoint({...aim.actual,elevation:aim.actual.elevation*index/12})),angleArc=projectPath(anglePoints),angleSector=projectCuePolygon([world.origin,...anglePoints],project,rect.width,rect.height),flat=projectPath([world.origin,anglePoints[0]]);
+  const wedge=[origin,project(low),project(high)],wedgeVisible=wedge.every(p=>p.visible&&Number.isFinite(p.x)&&Number.isFinite(p.y)&&p.x>=0&&p.x<=rect.width&&p.y>=0&&p.y<=rect.height);
+  let html=roomSection+(angleSector.length>=3?`<path data-cue="angle-fan" d="M ${angleSector.map(svgPoint).join(' L ')} Z" fill="#daad4b2e"/>`:'');
+  html+=`<path data-cue="angle-arc" d="${segmentPath(angleArc.segments)}" fill="none" stroke="#c49942" stroke-width="1.4"/><path data-cue="angle-flat" d="${segmentPath(flat.segments)}" fill="none" stroke="#8f997ba6" stroke-width="1"/>`;
+  html+=wedgeVisible&&aim.riskAmplitude>0?`<path d="M ${wedge.map(svgPoint).join(' L ')} Z" fill="#e982382c" stroke="#e9823870" stroke-width="1"/>`:'';
+  html+=`<path data-cue="prediction" d="${segmentPath(arc.segments)}" fill="none" stroke="#fffaf0" stroke-width="5" stroke-linecap="round"/><path data-cue="prediction-line" d="${segmentPath(arc.segments)}" fill="none" stroke="#b56b2e" stroke-width="2.5" stroke-dasharray="2 6" stroke-linecap="round"/><path data-cue="center" d="${segmentPath(nominal.segments)}" fill="none" stroke="#438f88" stroke-width="2" stroke-dasharray="4 4"/><path data-cue="initial" d="${segmentPath(initial.segments)}" fill="none" stroke="#b56b2e" stroke-width="3" stroke-linecap="round"/>`;
+  const tip=initial.segments.at(-1)?.to;
+  if(tip&&initial.length>=8){const from=initial.segments.at(-1).from,angle=Math.atan2(tip.y-from.y,tip.x-from.x),wing=7;
+    const left={x:tip.x-Math.cos(angle)*wing+Math.sin(angle)*4,y:tip.y-Math.sin(angle)*wing-Math.cos(angle)*4},right={x:tip.x-Math.cos(angle)*wing-Math.sin(angle)*4,y:tip.y-Math.sin(angle)*wing+Math.cos(angle)*4};
+    html+=`<path data-cue="arrowhead" d="M ${svgPoint(tip)} L ${svgPoint(left)} L ${svgPoint(right)} Z" fill="#b56b2e"/>`;
+  }
+  const anchor=initial.length>=12?tip:arc.segments.find(s=>Math.hypot(s.to.x-origin.x,s.to.y-origin.y)>24)?.to;
+  const label=anchor&&labelPosition(anchor,rect),side=aim.actual.yaw<0?'左':'右';
+  if(label)html+=`<g data-cue="angle-label"><rect x="${label.x}" y="${label.y}" width="${label.width}" height="${label.height}" rx="4" fill="#fffaf0ee"/><text x="${label.x+6}" y="${label.y+15}" font-size="12" fill="#365f5a">弧 ${aim.actual.elevation.toFixed(1)}° · ${side} ${Math.abs(aim.actual.yaw).toFixed(1)}°</text></g>`;
+  cueSnapshot={visible:arc.segments.length>0||initial.segments.length>0,throwReady:aim.valid,reason:arc.segments.length===0?'outside-view':initial.length<12?'foreshortened':'visible',segments:arc.segments.length,
+    initialLength:initial.length,arrowWorldLength:aim.actual.power*.1,angleFan:{visible:angleSector.length>=3||angleArc.segments.length>0,segments:angleArc.segments.length,length:angleArc.length},parameters:{...aim.actual},prediction,previewSeconds:predictionSeconds,predictionComputations,cacheEntries:predictionCache.size};
+  $('cue-feedback').textContent=gesture?.scale&&!gesture.scale.ready?gesture.scale.reasonText:!aim.valid?(projection==='2d'?'向き調整中 · 左下へもう少し引くと投げられます。':'向き調整中 · もう少し下へ引くと投げられます。'):cueSnapshot.reason==='outside-view'?'狙いが視野外です。「視点を戻す」で缶と弾道を見られます。':cueSnapshot.reason==='foreshortened'?'今の視点では飛び出す向きが短く見えます。点線が実際の弾道です。':'矢印は向きと強さ、青い破線は中心、橙の点線は直後の弾道。';
   if(gesture?.kind==='throw') {
-    const g=gesture,size=Math.min(g.rect.width,g.rect.height),ox=g.startX-g.rect.left,oy=g.startY-g.rect.top;
+    const g=gesture,size=g.scale.ready?g.scale.size:1,ox=g.startX-g.rect.left,oy=g.startY-g.rect.top;
     const right=g.startX-g.lastX,up=g.lastY-g.startY;
     const angle=projection==='2d'?aim.actual.elevation*Math.PI/180:Math.atan2(up,right);
     const length=projection==='2d'?aim.effectiveDistance*size:Math.hypot(right,aim.effectiveDistance*size);
-    const tx=projection==='2d'?ox-Math.cos(angle)*length:ox-right-aim.delta.yaw/60*size;
+    const tx=projection==='2d'?ox-Math.cos(angle)*length:ox-right-aim.delta.yaw/60*(g.scale.yawSize??size);
     const ty=projection==='2d'?oy+Math.sin(angle)*length:oy+aim.effectiveDistance*size;
     html+=`<line x1="${ox}" y1="${oy}" x2="${ox-right}" y2="${oy+up}" stroke="#438f8870" stroke-width="2" stroke-dasharray="3 5"/><line x1="${ox}" y1="${oy}" x2="${tx}" y2="${ty}" stroke="${aim.risk?'#e98238':'#438f88'}" stroke-width="4" stroke-linecap="round"/><circle cx="${ox}" cy="${oy}" r="5" fill="#fffaf0" stroke="#438f88" stroke-width="2"/><circle cx="${tx}" cy="${ty}" r="6" fill="${aim.risk?'#e98238':'#438f88'}"/>`;
   }
@@ -152,26 +219,31 @@ function updateForce(aim) {
   // Wobble is the same released angular delta, not an unrelated random animation.
   $('force-tip').style.transform=`translateX(${(projection==='2d'?aim?.delta.elevation??0:aim?.delta.yaw??0)*2}px)`;
   document.querySelector('.force-panel').dataset.risk=String(risk>0);
-  $('force-state').textContent=risk>0?'力み · 戻すと安定':d>PULL_FEEL.softStart&&mode!=='A'?'ゴム抵抗':'安定';
+  $('force-state').textContent=gesture?.scale&&!gesture.scale.ready?'引く余白不足':risk>0?'力み · 戻すと安定':d>PULL_FEEL.softStart&&mode!=='A'?'ゴム抵抗':'安定';
   const a=aim?.actual??controls,b=aim?.base??controls;
-  $('diagnostic').textContent=`指の引っぱり ${d.toFixed(3)} / 抵抗後 ${(aim?.effectiveDistance??0).toFixed(3)}\n強さ ${a.power.toFixed(2)} · 中心 左右 ${b.yaw.toFixed(1)}° / 弧 ${b.elevation.toFixed(1)}°\n実際 左右 ${a.yaw.toFixed(1)}° / 弧 ${a.elevation.toFixed(1)}° · 揺れ幅 ${(aim?.riskAmplitude??0).toFixed(1)}°`;
+  const scale=gesture?.scale;
+  $('diagnostic').textContent=`指の引っぱり ${d.toFixed(3)} / 抵抗後 ${(aim?.effectiveDistance??0).toFixed(3)}\n強さ ${a.power.toFixed(2)} · 中心 左右 ${b.yaw.toFixed(1)}° / 弧 ${b.elevation.toFixed(1)}°\n実際 左右 ${a.yaw.toFixed(1)}° / 弧 ${a.elevation.toFixed(1)}° · 揺れ幅 ${(aim?.riskAmplitude??0).toFixed(1)}°${scale?.ready?`\n今回の引く長さ ${(aim?.physicalDistance??0).toFixed(1)}px · ふだん ${scale.normalPx.toFixed(1)}px / ゴム ${scale.softPx.toFixed(1)}px / 力み ${scale.riskPx.toFixed(1)}px`:''}`;
 }
 let lastPhase=game.phase;
 function present(aim,now=performance.now()){
-  renderer.render(game,controls,{environment:'room',world,prediction:false,angleCue:projection==='3d'&&(Boolean(aim)||now<cueUntil),aim:aim?.valid?{...aim.actual,valid:true}:null,reducedMotion:matchMedia('(prefers-reduced-motion:reduce)').matches});
+  // The SVG owns the direction arrow in both projections. The established
+  // renderer also uses a flight path for room cutaways; supply the same
+  // contact-resolved path rather than implying travel through solid furniture.
+  const roomPath=aim?predictionFor(aim.actual):busy()?lastThrow?.visiblePrediction??[]:[];
+  renderer.render(game,aim?.actual??controls,{environment:'room',world,windArc:roomPath,prediction:false,angleCue:projection==='3d'&&!aim&&now<cueUntil,aim:null,reducedMotion:matchMedia('(prefers-reduced-motion:reduce)').matches});
   paintCue(aim);updateForce(aim);if(aim)$('arc-value').textContent=`${aim.actual.elevation.toFixed(1)}°`;
 }
 function frame(now){
   const dt=Math.min(.1,Math.max(0,(now-previousTime)/1000));previousTime=now;
-  if(busy())stepGame(game,dt);
-  if(game.phase!==lastPhase){lastPhase=game.phase;updateUI();if(game.phase==='success'||game.phase==='miss')$('result').textContent=`${game.phase==='success'?'入った！':'もう一投。'} ${lastThrow?.mode??mode} · ${lastThrow?.aim.risk>0?'力み域':'安定域'}で離した · 強さ ${lastThrow?.parameters.power.toFixed(2)??'—'} · ${projection==='2d'?'弧':'左右'} ${Number(projection==='2d'?lastThrow?.parameters.elevation:lastThrow?.parameters.yaw).toFixed(1)}°。同じ引っぱりを別の方式でも比べてみよう。`;}
+  if(busy())contactStepper.step(game,dt);
+  if(game.phase!==lastPhase){lastPhase=game.phase;updateUI();if(game.phase==='success'||game.phase==='miss')$('result').textContent=`${game.phase==='success'?'入った！':'もう一投。'} ${lastThrow?.mode??mode} · ${lastThrow?.aim.risk>0?'力み域':'安定域'}で離した · 強さ ${lastThrow?.parameters.power.toFixed(2)??'—'} · ${projection==='2d'?'弧':'左右'} ${Number(projection==='2d'?lastThrow?.parameters.elevation:lastThrow?.parameters.yaw).toFixed(1)}°。${contactStepper.snapshot().contactCount?'壁・家具で跳ね返った。':''} 同じ引っぱりを別の方式でも比べてみよう。`;}
   let aim=null;if(gesture?.kind==='throw'){gesture.presentationTime=now;aim=gesture.aim=aimAt(gesture,now);}
   present(aim,now);
   requestAnimationFrame(frame);
 }
 Object.defineProperty(window,'__pullFeelLab',{value:Object.freeze({
-  snapshot:()=>structuredClone({mode,projection,observing,busy:busy(),worldVersion:2,prediction:false,
-    gesture:gesture?{kind:gesture.kind,id:gesture.id,aim:gesture.aim}:null,activePointers:pointers.size,cancellations,lastCancellation,lastThrow,controls,game:getSnapshot(game)}),
+  snapshot:()=>structuredClone({mode,projection,observing,busy:busy(),worldVersion:2,prediction:'room-contact-short-arc',predictionSeconds,
+    originScreen:renderer.project(world.origin),availableScale:gesture?.scale??null,gesture:gesture?{kind:gesture.kind,id:gesture.id,start:{x:gesture.startX-gesture.rect.left,y:gesture.startY-gesture.rect.top},scale:gesture.scale,aim:gesture.aim}:null,activePointers:pointers.size,cancellations,lastCancellation,lastThrow,controls,game:getSnapshot(game),cue:cueSnapshot,roomSection:sideRoomSnapshot,roomContacts:contactStepper.snapshot()}),
   cameraSnapshot:()=>structuredClone(renderer.cameraSnapshot()),
   parameters:()=>({...PULL_FEEL}),
 }),writable:false,configurable:false});
