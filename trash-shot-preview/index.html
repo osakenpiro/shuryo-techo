@@ -4,23 +4,44 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f4f1e8">
-  <title>ごみシュート / 第1章</title>
+  <title>TRASHOOT / 第1章</title>
   <meta name="description" content="引いて、離して、箱へ。ドットのチュートリアルから自分の部屋の4面へ。第1章公開中、2-1以降は製作中。">
-  <link rel="stylesheet" href="./style.css?v=20261011-friends-1">
-  <script type="module" src="./src/app.mjs?v=20261011-friends-1"></script>
+  <link rel="stylesheet" href="./style.css?v=20261011-title-1">
+  <script type="module" src="./src/app.mjs?v=20261011-title-1"></script>
 </head>
 <body class="chapter-game">
   <main class="game-shell chapter-shell">
     <header class="masthead">
-      <a class="wordmark" href="./" aria-label="ごみシュート ホーム"><span class="brand-mark" aria-hidden="true">↗</span> ごみシュート</a>
+      <a class="wordmark" href="./" aria-label="TRASHOOT ホーム"><span class="brand-mark" aria-hidden="true">↗</span> TRASHOOT</a>
       <div class="masthead-actions"><span class="edition">第1章 · 自分の部屋</span><button id="game-menu-open" class="invite-button" type="button" aria-expanded="false" aria-controls="game-menu">メニュー</button></div>
     </header>
 
-    <h1 id="game-title" class="sr-only">ごみシュート</h1>
+    <h1 id="game-title" class="sr-only">TRASHOOT</h1>
+    <section id="title-screen" class="title-screen" aria-labelledby="title-logo" aria-describedby="title-tagline" tabindex="-1" hidden inert aria-hidden="true">
+      <div class="title-room-art" aria-hidden="true"></div>
+      <div class="title-room-light" aria-hidden="true"></div>
+      <div class="title-content">
+        <p class="title-prelude">ひとつの部屋から、はじまる。</p>
+        <div class="title-brand">
+          <svg class="title-flight" viewBox="0 0 600 150" aria-hidden="true" focusable="false"><path d="M22 127C115 11 331 -5 549 92"/><path class="title-flight-head" d="m529 68 22 26-33 4"/><circle cx="18" cy="131" r="9"/></svg>
+          <h1 id="title-logo" class="title-logo">TRASHOOT</h1>
+          <span class="title-reading">トラッシュート</span>
+        </div>
+        <p id="title-tagline" class="title-tagline">引いて、離して、いいところへ。</p>
+        <div class="title-chapter"><span>CHAPTER 1</span><strong>自分の部屋</strong><span id="title-stage" class="title-stage">1-2</span></div>
+        <p id="title-record" class="title-record" hidden></p>
+        <div class="title-actions">
+          <button id="title-continue" class="title-primary" type="button"><span id="title-continue-label">1-2へ進む</span><span aria-hidden="true">↗</span></button>
+          <div class="title-secondary-actions"><button id="title-stage-select" type="button">ステージを選ぶ</button><button id="title-invite" type="button">友だちに渡す ↗</button></div>
+        </div>
+        <div class="title-footnotes"><p>続きは、このブラウザに自動保存。</p><p>2-1以降は製作中。</p></div>
+      </div>
+      <span class="title-edition" aria-hidden="true">A LITTLE THROW. A BIG WORLD.</span>
+    </section>
     <section id="chapter-top" class="chapter-top" aria-labelledby="chapter-top-title" hidden>
       <div class="home-art" role="presentation"><span class="home-art-tag">ひとつの部屋から、はじまる。</span></div>
       <div class="home-content">
-        <div class="home-heading"><p class="chapter-kicker">小さなひと投げが、遊びになる。</p><h2 class="home-game-name">ごみシュート</h2><h3 id="chapter-top-title">自分の部屋</h3><p id="home-equipped-item" class="home-equipped-item"></p></div>
+        <div class="home-heading"><p class="chapter-kicker">小さなひと投げが、遊びになる。</p><h2 class="home-game-name">TRASHOOT</h2><h3 id="chapter-top-title">自分の部屋</h3><p id="home-equipped-item" class="home-equipped-item"></p></div>
         <div class="home-progress"><div id="home-face-progress" class="home-face-progress" aria-label="第1章のクリア状況"></div><p id="chapter-top-record"></p></div>
         <div class="home-actions"><button id="chapter-continue" class="shell-primary" type="button">続きから</button><button id="chapter-menu" class="shell-secondary" type="button">ステージを選ぶ</button></div>
         <p class="home-save-note">続きは、このブラウザに自動保存。</p><p class="home-save-note">第1章の4面を公開中。2-1以降は製作中。</p>
@@ -29,7 +50,7 @@
     <p id="first-throw-tip" class="first-throw-tip">下へ引いて、離すと一投。</p>
 
     <div class="play-layout">
-      <section class="scene-card" aria-label="ごみシュートのプレイ画面">
+      <section class="scene-card" aria-label="TRASHOOTのプレイ画面">
         <div class="scene-meta"><strong id="hud-stage">1-1 · 部屋のゴミ箱</strong><span id="hud-attempts">この面 0投</span><span id="setup-description" hidden>距離 6 m · 高さ 1.3 m</span></div>
         <div class="canvas-wrap"><canvas id="scene" tabindex="0" aria-label="缶と箱の立体画面" aria-describedby="interaction-hint camera-help"></canvas><svg id="play-cue" aria-hidden="true" focusable="false"></svg><div id="gesture-feedback" class="gesture-feedback" aria-hidden="true" hidden><span id="gesture-line"></span><span id="gesture-origin"></span><span id="gesture-tip"></span></div></div>
         <div class="scene-toolbar" role="group" aria-label="画面の操作を選ぶ"><button id="mode-throw" type="button" aria-pressed="true">↗ 手で投げる</button><button id="mode-observe" type="button" aria-pressed="false">◎ 見回す</button><button id="camera-reset" type="button">視点を戻す</button><div class="arc-controls" role="group" aria-label="投球の弧の角度"><button id="arc-lower" type="button" aria-label="弧を低くする">弧 −</button><output id="arc-value" aria-live="polite" hidden></output><button id="arc-higher" type="button" aria-label="弧を高くする">弧 ＋</button></div></div>
@@ -99,7 +120,7 @@
 
         </section>
       </div>
-      <div class="menu-bottom"><button id="store-open" class="shell-secondary" type="button">投げるもののお店</button><button id="chapter-home-open" class="shell-secondary" type="button">ゲームトップ</button><button id="invite-game" class="shell-secondary" type="button">友だちに渡す ↗</button><a id="browser-open" class="invite-button browser-open" href="https://osakenpiro.github.io/shuryo-techo/trash-shot-preview/?v=20261011-friends-1" target="_blank" rel="noopener noreferrer">ブラウザで開く ↗</a></div>
+      <div class="menu-bottom"><button id="store-open" class="shell-secondary" type="button">投げるもののお店</button><button id="chapter-home-open" class="shell-secondary" type="button">ゲームトップ</button><button id="title-open" class="shell-secondary" type="button" hidden disabled>タイトルへ</button><button id="invite-game" class="shell-secondary" type="button">友だちに渡す ↗</button><a id="browser-open" class="invite-button browser-open" href="https://osakenpiro.github.io/shuryo-techo/trash-shot-preview/?v=20261011-title-1" target="_blank" rel="noopener noreferrer">ブラウザで開く ↗</a></div>
     </details>
     <dialog id="chapter-result" class="chapter-result" aria-labelledby="chapter-result-title"><div class="result-inner">
       <div class="result-stamp"><canvas id="result-clear-pixel" aria-hidden="true" data-pixel-text="CLEAR"></canvas><span id="chapter-result-kind">STAGE CLEAR</span></div>
@@ -120,7 +141,7 @@
       <div class="store-body"><div class="store-intro"><p id="store-description">次のひと投げに、気分を変えて。</p><p class="store-wallet-label">持っているコイン <strong id="store-wallet">0</strong></p></div><p class="store-note">コインは本編の成功ショットで集まります。</p><div id="store-items" class="store-items"></div><section class="store-achievements-section" aria-labelledby="store-achievements-title"><h3 id="store-achievements-title">集めた実績</h3><ul id="store-achievements" class="store-achievements"></ul><p id="store-achievements-empty">成功ショットで見つけた入り方が、ここに並びます。</p></section><p id="store-status" class="store-status" role="status" aria-live="polite"></p></div>
     </dialog>
     <dialog id="replay-dialog" aria-labelledby="replay-title">
-      <header class="replay-header"><div><h2 id="replay-title">成功した一投</h2><p id="replay-source"></p><a class="browser-open" href="./?v=20261011-friends-1">自分も遊ぶ ↗</a></div><button id="replay-close" type="button" aria-label="リプレイを閉じる">閉じる ×</button></header>
+      <header class="replay-header"><div><h2 id="replay-title">成功した一投</h2><p id="replay-source"></p><a class="browser-open" href="./?v=20261011-title-1">自分も遊ぶ ↗</a></div><button id="replay-close" type="button" aria-label="リプレイを閉じる">閉じる ×</button></header>
       <div class="replay-canvas-wrap"><canvas id="replay-scene" tabindex="0" aria-label="成功した一投のリプレイ。ドラッグまたは矢印キーで見回し、ホイールでズーム。"></canvas></div>
       <div class="replay-body"><p id="replay-role-title"></p><p id="replay-launch-analysis" class="launch-analysis"></p><div class="memory-actions"><button id="replay-play" type="button">一時停止</button><button id="replay-restart" type="button">最初から</button><button id="replay-camera-reset" type="button">視点を戻す</button></div><label class="replay-timeline" for="replay-seek"><span id="replay-time">0.00 秒</span><input id="replay-seek" type="range" min="0" max="5" step="any" value="0" aria-label="リプレイの再生位置"></label><p class="memory-copy">ドラッグで見回し、ホイールでズーム。元の投球や記録は変わりません。</p><div class="memory-actions"><button id="save-viewed-replay" type="button">この一投を保存</button><button id="share-viewed-replay" type="button">この一投を共有</button><button id="download-viewed-replay" type="button">リプレイのファイル</button><button id="record-replay-video" type="button">動画にする</button><button id="save-replay-video" type="button" disabled>動画を保存</button><button id="share-replay-video" type="button" disabled>動画を共有</button></div><div id="replay-share-controls" hidden><label for="replay-share-link">この一投を開くリンク</label><input id="replay-share-link" type="text" readonly><button id="copy-viewed-replay-link" type="button">リンクをコピー</button></div><p id="replay-view-message" role="status" aria-live="polite"></p></div>
     </dialog>
@@ -128,7 +149,7 @@
       <header class="replay-header"><h2 id="invite-title">友だちも、ひと投げ。</h2><button id="invite-close" type="button">閉じる ×</button></header>
       <div class="invite-body"><p id="invite-description">第1章を遊べるリンクです。初めてならドットのチュートリアルから、記録があれば続きから。2-1以降は製作中。</p><label for="invite-link">ゲームを開くリンク</label><input id="invite-link" type="text" readonly><div class="memory-actions"><button id="invite-copy" class="invite-button" type="button">リンクをコピー</button><button id="invite-share" class="invite-button" type="button" hidden>共有先を選ぶ</button></div><p id="invite-message" role="status" aria-live="polite"></p></div>
     </dialog>
-    <footer class="page-footer"><span>小さなひと投げを、何度でも。</span><span>ごみシュート / FIRST THROW</span></footer>
+    <footer class="page-footer"><span>小さなひと投げを、何度でも。</span><span>TRASHOOT / FIRST THROW</span></footer>
   </main>
 </body>
 </html>

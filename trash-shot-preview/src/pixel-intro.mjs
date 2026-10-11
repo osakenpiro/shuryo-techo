@@ -33,7 +33,7 @@ export function createPixelIntro(canvas,{onReveal=()=>{},onDone=()=>{},reducedMo
   function line(a,b,color){let x=Math.round(a.x),y=Math.round(a.y),tx=Math.round(b.x),ty=Math.round(b.y),dx=Math.abs(tx-x),dy=-Math.abs(ty-y),sx=x<tx?1:-1,sy=y<ty?1:-1,error=dx+dy;ink.fillStyle=color;for(let i=0;i<512;i++){ink.fillRect(x,y,1,1);if(x===tx&&y===ty)break;const e=error*2;if(e>=dy){error+=dy;x+=sx;}if(e<=dx){error+=dx;y+=sy;}}}
   function paint(){
     ink.fillStyle='#f4ead5';ink.fillRect(0,0,256,144);
-    drawPixelText(ink,'TRASH SHOT',128,13,{scale:2,color:'#286864',align:'center'});
+    drawPixelText(ink,'TRASHOOT',128,13,{scale:2,color:'#286864',align:'center'});
     line({x:25,y:117},{x:228,y:117},'#aaa087');
     const b=game.bin,r=Math.round(b.radius*35),h=Math.round(b.height*35),x=40+b.center.z*35;
     ink.fillStyle='#438f88';ink.fillRect(x-r-3,116-h,3,h+3);ink.fillRect(x+r,116-h,3,h+3);ink.fillRect(x-r,116,2*r,3);
