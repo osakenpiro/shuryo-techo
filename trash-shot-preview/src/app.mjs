@@ -1,12 +1,16 @@
 import { STAGES, createStageProgress } from './stages.mjs?v=20261011-play-ui-1';
 import { sideAim } from './side-aim.mjs?v=20261011-play-ui-1';
 import {createPixelIntro} from './pixel-intro.mjs?v=20261011-play-ui-1';
-import {createRoomWindStepper,predictWindArc} from './room-gimmicks.mjs?v=20261011-play-ui-1';
+import {createRoomWindStepper} from './room-gimmicks.mjs?v=20261011-play-ui-1';
 import {CHAPTER_IDS,createChapterProgress,loadProgress,saveProgress,restoreProgress,encodeProgressCode,decodeProgressCode} from './progress-save.mjs?v=20261011-play-ui-1';
 import {roomCourse,roomWorld,createRoomCourseStepper} from './room-course.mjs?v=20261011-play-ui-1';
-import {COURSE_REPLAY_LIMITS,createCourseReplay,validateCourseReplay,coursePayload,courseReplayResult,createCourseReplayPlayer,courseReplayToJSON,parseCourseReplayJSON,decodeCourseReplay,buildCourseReplayURL} from './course-replay.mjs?v=20261011-play-ui-1';
+import {createPlayRoomStepper,predictPlayRoomArc} from './play-room.mjs?v=20261011-play-analysis-1';
+import {COURSE_REPLAY_LIMITS,createCourseReplay,validateCourseReplay,coursePayload,courseReplayResult,createCourseReplayPlayer,courseReplayToJSON,parseCourseReplayJSON,decodeCourseReplay,buildCourseReplayURL,interpretPlayContacts,loadPlayReplays,savePlayReplay,deletePlayReplay} from './play-replay.mjs?v=20261011-play-analysis-1';
+import {createPullScale,mapScaledPull} from './pull-scale.mjs?v=20261011-room-contact-1';
+import {createPlayCue,playCueMarkup,pullHandleMarkup} from './play-cue.mjs?v=20261011-play-analysis-1';
+import {launchSummary,impactSummary} from './shot-summary.mjs?v=20261011-play-analysis-1';
 import { createGame, setSetup, setRoomWorld, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261011-play-ui-1';
-import { createRenderer } from './render.mjs?v=20261011-play-ui-1';
+import { createRenderer } from './render.mjs?v=20261011-play-analysis-1';
 import { createShotAnalytics } from './shot-analytics.mjs?v=20261011-play-ui-1';
 import { createRecorder, loadReplays, saveReplay, deleteReplay } from './replay.mjs?v=20261011-play-ui-1';
 
@@ -21,6 +25,7 @@ const loadedProgress=loadProgress(storage());
 let chapterProgress=createChapterProgress(loadedProgress.data??undefined),chapterPractice=false,chapterShot=null,chapterResult=null;
 let trainingMode=true,trainingReturnStage='first',trainingStats={attempts:0,successes:0},shotContext=null;
 let angleCueUntil=0;
+let playStepper=null,lastShotAnalysis=null,lastPresentedAim=null,lastReleasedAim=null,cueSnapshot={visible:false},trainingPreview=[];
 const liveWorld=()=>CHAPTER_IDS.includes(stageProgress.snapshot().id)?roomWorld(stageProgress.snapshot().id,2):null;
 const liveCourse=()=>roomCourse(stageProgress.snapshot().id,liveWorld()?.worldVersion??1);
 const pullInput=()=>chapterProgress.snapshot().inputScheme==='pull';
@@ -34,7 +39,7 @@ const inputs=['power','elevation','yaw','distance','height'].map($);
 const pointers=new Set();
 const view={mode:'throw',prediction:false,gesture:null};
 let pixelIntro=null,introHasRun=false;
-const roomWind=createRoomWindStepper();let fanEnabled=true,windArcKey='',windArc=[],environmentTime=0;
+const roomWind=createRoomWindStepper();let fanEnabled=true,environmentTime=0;
 const courseStepper=createRoomCourseStepper();
 const extraRoom=()=>stageProgress.snapshot().id==='room-extra';
 let lastUIKey='',previousTime=performance.now(),lastInput=null,cancellations=0,wheelAnglePixels=0;
@@ -86,13 +91,14 @@ function updateHint(){
   const motion=pullInput()?'左下へ引いて':'右上へなぞって',straight=pullInput()?'下へ引いて':'上へドラッグ／スワイプして';
   canvas.dataset.mode=view.mode;canvas.dataset.dragging=String(Boolean(view.gesture));
   canvas.dataset.projection=sideStage()?'side':'perspective';canvas.dataset.training=String(trainingMode);
-  if($('arc-value'))$('arc-value').textContent=`${controls.elevation}°`;
+  if($('arc-value')){$('arc-value').hidden=!trainingMode;$('arc-value').textContent=trainingMode?`${view.gesture?.aim?.actual?.elevation??controls.elevation}°`:'';}
   $('mode-throw').setAttribute('aria-pressed',String(view.mode==='throw'));
   $('mode-observe').setAttribute('aria-pressed',String(view.mode==='observe'));
   $('cancel-gesture').hidden=!view.gesture||view.gesture.kind!=='throw';
   if(sideStage()){
     $('interaction-hint').textContent=busy()?'横から、缶の行方を見届けよう。':view.gesture?.aim?.valid?'離すと一投。Esc または下のボタンで取消。':`${motion}、離すと一投。`;
-    $('input-detail').textContent=view.gesture?`角度 ${view.gesture.aim.elevation}° · 強さ ${view.gesture.aim.power.toFixed(2).replace(/0$/,'')} · 向きで角度、長さで強さ`:`${motion}、向きで角度、長さで強さ。${trainingMode?'つまみでも練習できます。':'低くも高くも自由に。'}`;
+    const aim=view.gesture?.aim?.actual;
+    $('input-detail').textContent=aim&&trainingMode?`弧 ${aim.elevation.toFixed(1)}° · 初速 ${aim.power.toFixed(2)} m/s · 向きで角度、長さで強さ`:view.gesture?pullStateHint(view.gesture):`${motion}、向きで角度、長さで強さ。${trainingMode?'つまみでも練習できます。':'金色の弧で角度、矢印の長さで強さ。'}`;
     canvas.setAttribute('aria-label',`横から見た2D投球画面。${motion}、離すと一投。向きで角度、長さで強さ。箱へ向かう平面内で投げます。${trainingMode?'練習では数値でも投げられます。':''}`);
     return;
   }
@@ -106,18 +112,20 @@ function updateHint(){
     $('interaction-hint').textContent='缶の行方を見届けよう。右クリック／「見回す」で視点を変えられます。';
     $('input-detail').textContent='投球が落ち着いたら、もう一投。';
   }else if(view.gesture){
-    const aim=view.gesture.aim;
+    const mapped=view.gesture.aim,aim=mapped.actual;
     const outsideEmbeddedMouse=view.gesture.pointerType==='mouse'&&window.self!==window.top&&!inside({clientX:view.gesture.lastX,clientY:view.gesture.lastY},view.gesture.rect);
-    $('interaction-hint').textContent=aim.valid?(outsideEmbeddedMouse?'外で離したら、カーソルを画面へ戻すと一投。Esc で取消。':'離すと一投。取り消しは Esc または下のボタン。'):`もう少し${pullInput()?'下':'上'}へ動かすと、投げられます。`;
-    $('input-detail').textContent=`強さ ${aim.power.toFixed(1)} · ${aim.yaw===0?'箱へまっすぐ':`${aim.yaw<0?'左':'右'} ${Math.abs(aim.yaw)}°`} · 角度 ${controls.elevation}°`;
+    $('interaction-hint').textContent=!view.gesture.scale?.ready&&pullInput()?view.gesture.scale.reasonText:mapped.valid?(outsideEmbeddedMouse?'画面の外で離すと取り消します。':'離すと一投。取り消しは Esc または下のボタン。'):`もう少し${pullInput()?'下':'上'}へ動かすと、投げられます。`;
+    $('input-detail').textContent=trainingMode?launchSummary(aim).text:pullStateHint(view.gesture);
   }else{
     $('interaction-hint').textContent=game.phase==='miss'?`もう一投。${straight}、離してみよう。`:`${straight}、離すと一投。`;
-    $('input-detail').textContent=`右ボタンを押したままドラッグで見回す。ホイール：弧を高く／低く。スマホ：弧 −／＋。見回し中のホイールはズーム。`;
+    $('input-detail').textContent='矢印の向きが方向、長さが強さ。金色の弧が角度。ホイール／弧 −・＋で調整。右ドラッグで見回す。左右は部屋の奥を基準。';
   }
   canvas.setAttribute('aria-label',view.mode==='observe'?'缶と箱を観察する立体画面。ドラッグか矢印キーでカメラ回転。ホイールかプラスとマイナスでズーム。右クリックで手投げに切替。':`缶を投げる立体画面。${straight}、離すと一投。ホイールまたは弧のボタンで投球角度を調整。右ボタンを押したままドラッグで見回せます。${trainingMode?'練習では数値でも投げられます。':''}`);
 }
+function pullStateHint(gesture){return gesture.scale&&!gesture.scale.ready?gesture.scale.reasonText:gesture.aim?.risk>0?'力み · 少し戻すと安定。':gesture.aim?.rawDistance>.28?'ゴム抵抗 · 矢印の長さが強さ。':'矢印の向きが方向、長さが強さ。金色の弧が角度。';}
 function actualLiveResult(){
   const result=analytics.snapshot().result;if(!result?.success)return result;
+  if(shotContext?.worldVersion===2&&playStepper)return interpretPlayContacts(result,playStepper.snapshot().contacts);
   const deskHits=liveCourse()?courseStepper.snapshot().contacts.filter(c=>c.time<result.finalEntryTime+1e-8).length:0;
   return {...result,deskHits,roles:deskHits?[...result.roles.filter(r=>r.id!=='direct'),{id:'desk-bank',label:'机当て'}]:result.roles};
 }
@@ -137,10 +145,12 @@ function updateScoreSummary(){
   if(game.phase==='success'&&result?.success){
     for(const role of result.roles){const chip=document.createElement('span');chip.className='shot-role-chip';chip.textContent=role.label;roles.append(chip);}
     roles.hidden=!result.roles.length;
-    detail=result.roles.some(role=>role.id==='direct')?'床・ふち・側面で跳ね返らず、そのまま箱へ。':`入るまでの跳ね返り：外の床 ${result.floorBounces} 回 · ふち ${result.rimHits} 回 · 側面 ${result.sideHits} 回${result.deskHits?` · 机 ${result.deskHits} 回`:''}。`;
+    detail=impactSummary(result);
   }
   $('live-shot-detail').textContent=detail;
+  updateAnalysisUI();
 }
+function updateAnalysisUI(){const element=$('live-shot-analysis');if(!element)return;const settled=['success','miss'].includes(game.phase)&&lastShotAnalysis?.shotId===game.attempts;element.hidden=!settled;element.textContent=settled?lastShotAnalysis.launch.text:'';}
 function updateUI(force=false){
   const key=[game.phase,game.lastEvent,game.attempts,game.successes,game.bin.center.z,game.bin.height,pixelIntro?.active===true,fanEnabled].join('|');
   if(key===lastUIKey&&!force)return;
@@ -205,19 +215,21 @@ function selectStage(id,{fromIntro=false,allowPractice=false,fromEntry=false,tra
   if(busy()||!STAGES[id]||$('chapter-result')?.open||replayDialog.open)return false;
   if(!unlockedStage(id)&&!allowPractice)return false;
   trainingMode=training===true;trainingStats={attempts:0,successes:0};shotContext=null;chapterPractice=CHAPTER_IDS.includes(id)&&!unlockedStage(id);chapterShot=null;
+  view.prediction=false;$('prediction-toggle').checked=false;trainingPreview=[];lastShotAnalysis=null;
   if(CHAPTER_IDS.includes(id)&&!chapterPractice&&!trainingMode){chapterProgress.chooseStage(id);if(!fromEntry)persistChapter();}
   if($('chapter-top'))$('chapter-top').hidden=true;
   chapterResult=null;
   const wasSide=sideStage(),willBeSide=STAGES[id].projection==='side';
   if(stageProgress.snapshot().id==='free')freeSetup={distance:game.bin.center.z,height:game.bin.height};
   cancelGesture('stage-change');pointers.clear();if(fromIntro)shotRecorder=null;else clearCurrentShot();stageProgress.select(id);
-  roomWind.reset();courseStepper.reset();windArcKey='';if(id==='room-extra')fanEnabled=true;
+  roomWind.reset();courseStepper.reset();if(id==='room-extra')fanEnabled=true;
   const setup=id==='free'?freeSetup:STAGES[id];if(CHAPTER_IDS.includes(id))setRoomWorld(game,2);else setSetup(game,setup);renderer.setWorldView(liveWorld());
+  playStepper=liveWorld()?createPlayRoomStepper(liveWorld(),{extra:id==='room-extra'}):null;
   $('distance').value=String(setup.distance);$('height').value=String(setup.height);
   if(willBeSide&&!wasSide){previous3DMode=view.mode;view.mode='throw';}
   else if(wasSide&&!willBeSide)view.mode=previous3DMode;
   renderer.setProjection(willBeSide?'side':'perspective');
-  $('power').min=willBeSide?'.5':'4';$('power').max=willBeSide?'14':'13';
+  $('power').min='.5';$('power').max='14';
   $('elevation').min=willBeSide?'5':'15';$('elevation').max=willBeSide?'85':'75';$('elevation').step=willBeSide?'.5':'1';
   if(id!=='free'){Object.assign(controls,liveWorld()?.launch??{power:setup.power,elevation:setup.elevation,yaw:setup.yaw});if(willBeSide||!wasSide)renderer.resetCamera();}
   if(!willBeSide){controls.power=clamp(controls.power,4,13);controls.elevation=Math.round(clamp(controls.elevation,15,75));}
@@ -242,8 +254,8 @@ function updateStageUI(){
   if($('tutorial-motion'))$('tutorial-motion').textContent=`${straight}、離すと一投。`;
   if($('input-scheme')){$('input-scheme').value=chapterProgress.snapshot().inputScheme;$('input-scheme').disabled=busy()||pixelIntro?.active===true;}
   if($('stage-help')){$('stage-help').hidden=!side;$('stage-help').textContent=`本編とは別の2D脇道。${motion}向きで角度、長さで強さを決めて、8 m先の箱へ。記録は3Dで見回せます。`;}
-  if(course?.desk&&$('stage-help')){$('stage-help').hidden=false;$('stage-help').textContent=state.id==='desk-over'?'箱の手前に机。高い弧で越えても、机で跳ね返って入っても成功。机のある面では練習用の予測線を表示しません。':'机の横に開いた投球路。左右と弧を合わせて箱へ。机と4本の脚には実際に当たります。机のある面では予測線を表示しません。';}
-  $('prediction-toggle').disabled=!trainingMode||Boolean(course?.desk);if(!trainingMode||course?.desk){view.prediction=false;$('prediction-toggle').checked=false;}
+  if(course?.desk&&$('stage-help')){$('stage-help').hidden=false;$('stage-help').textContent=state.id==='desk-over'?'箱の手前に机。高い弧で越えても、机で跳ね返って入っても成功。':'机の横に開いた投球路。左右と弧を合わせて箱へ。机と4本の脚には実際に当たります。';}
+  $('prediction-toggle').disabled=!trainingMode;if(!trainingMode){view.prediction=false;$('prediction-toggle').checked=false;}
   if(extraRoom()&&$('stage-help')){$('stage-help').hidden=false;$('stage-help').textContent='1-4のおまけ。箱の手前だけ、扇風機が右へ風を送ります。猫は部屋の住人。風は投げる前に切り替えられます。記録はこの部屋の3D画面で見回せます。';}
   if($('fan-controls')){$('fan-controls').hidden=!extraRoom();$('fan-toggle').checked=fanEnabled;$('fan-toggle').disabled=busy();$('fan-state').textContent=fanEnabled?'風 ON · 箱の手前だけ右へ':'風 OFF';}
   if(state.id!=='free'||!trainingMode)for(const id of ['distance','height'])$(id).disabled=true;
@@ -256,7 +268,7 @@ function updateStageUI(){
   if($('setup-description'))$('setup-description').hidden=!trainingMode;
   if($('hud-stage'))$('hud-stage').textContent=(trainingMode?'トレーニング · ':'')+STAGES[state.id].label;
   if($('hud-attempts'))$('hud-attempts').textContent=trainingMode?`練習 ${trainingStats.attempts}投`:chapterPractice?'プレビュー練習':`この面 ${state.attempts}投`;
-  if($('arc-value'))$('arc-value').textContent=`${controls.elevation}°`;
+  if($('arc-value')){$('arc-value').hidden=!trainingMode;$('arc-value').textContent=trainingMode?`${controls.elevation}°`:'';}
   for(const id of ['arc-lower','arc-higher'])if($(id))$(id).disabled=busy()||pixelIntro?.active===true||side;
   if($('arc-value'))$('arc-value').parentElement.hidden=side;
   if(!$('stage-select'))return;
@@ -276,29 +288,27 @@ function fire(source='numeric'){
   cancelGesture('other-throw');
   if(sideStage()){controls.yaw=0;updateControlLabels();}
   const accepted=throwCan(game,controls);
-  if(accepted){if(trainingMode)trainingStats.attempts++;else stageProgress.launch(game.attempts);clearCurrentShot();roomWind.reset();courseStepper.reset();shotContext={id:stageProgress.snapshot().id,shotId:game.attempts,training:trainingMode,worldVersion:liveWorld()?.worldVersion??1,fanEnabled,finished:false};chapterShot=!trainingMode&&chapterStage()?{...shotContext,eligible:!chapterPractice}:null;if(chapterShot?.eligible){chapterProgress.recordAttempt();persistChapter();}try{shotRecorder=createRecorder(getSnapshot(game),controls,renderer.cameraSnapshot(),liveWorld()?{worldVersion:2}:{});}catch{replayMessage('この一投の録画を開始できません。プレイの結果は記録します。');}lastInput={type:'throw',source,training:trainingMode,parameters:{...controls}};previousTime=performance.now();updateUI(true);if(source!=='gesture')canvas.scrollIntoView({block:'center',behavior:'instant'});}
+  if(accepted){if(trainingMode)trainingStats.attempts++;else stageProgress.launch(game.attempts);clearCurrentShot();roomWind.reset();courseStepper.reset();playStepper?.reset();shotContext={id:stageProgress.snapshot().id,shotId:game.attempts,training:trainingMode,worldVersion:liveWorld()?.worldVersion??1,fanEnabled,finished:false,launch:launchSummary(controls),initialVelocity:{...game.can.velocity}};lastShotAnalysis=null;lastReleasedAim={parameters:{...controls},initialVelocity:{...game.can.velocity},presented:source==='gesture'&&lastPresentedAim?structuredClone(lastPresentedAim):null};chapterShot=!trainingMode&&chapterStage()?{...shotContext,eligible:!chapterPractice}:null;if(chapterShot?.eligible){chapterProgress.recordAttempt();persistChapter();}try{shotRecorder=createRecorder(getSnapshot(game),controls,renderer.cameraSnapshot(),liveWorld()?{worldVersion:2}:{});}catch{replayMessage('この一投の録画を開始できません。プレイの結果は記録します。');}lastInput={type:'throw',source,training:trainingMode,parameters:{...controls}};previousTime=performance.now();updateUI(true);if(source!=='gesture')canvas.scrollIntoView({block:'center',behavior:'instant'});}
   return accepted;
 }
 $('throw-button').addEventListener('click',()=>fire());
-$('reset-button').addEventListener('click',()=>{cancelGesture('reset');if(resetShot(game)){clearCurrentShot();updateUI(true);}});
-if($('fan-toggle'))$('fan-toggle').addEventListener('change',()=>{if(busy()||!extraRoom()){$('fan-toggle').checked=fanEnabled;return;}cancelGesture('fan-toggle');fanEnabled=$('fan-toggle').checked;windArcKey='';updateUI(true);});
+$('reset-button').addEventListener('click',()=>{cancelGesture('reset');if(resetShot(game)){clearCurrentShot();playStepper?.reset();shotContext=null;updateUI(true);}});
+if($('fan-toggle'))$('fan-toggle').addEventListener('change',()=>{if(busy()||!extraRoom()){$('fan-toggle').checked=fanEnabled;return;}cancelGesture('fan-toggle');fanEnabled=$('fan-toggle').checked;updateUI(true);});
 function inside(event,rect){return event.clientX>=rect.left&&event.clientX<=rect.right&&event.clientY>=rect.top&&event.clientY<=rect.bottom;}
 function sameLayout(gesture){const rect=canvas.getBoundingClientRect();return gesture.viewport.width===innerWidth&&gesture.viewport.height===innerHeight&&rect.width===gesture.rect.width&&rect.height===gesture.rect.height&&rect.left===gesture.rect.left&&rect.top===gesture.rect.top;}
-function gestureAim(gesture,event){
+function gestureAim(gesture,event,time=gesture.presentationTime??gesture.started){
   const size=Math.max(1,Math.min(gesture.rect.width,gesture.rect.height));
   const sign=pullInput()?-1:1;
-  if(sideStage())return sideAim((event.clientX-gesture.startX)*sign,(gesture.startY-event.clientY)*sign,size);
+  if(pullInput())return mapScaledPull({scale:gesture.scale,right:(event.clientX-gesture.startX)*sign,up:(gesture.startY-event.clientY)*sign,mode:'C',projection:sideStage()?'2d':'3d',elevation:controls.elevation,baseYaw:liveWorld()?.launch.yaw??0,elapsedSeconds:Math.max(0,(time-gesture.started)/1000)});
+  // The previously selected swipe scheme retains its established mapping.
+  if(sideStage()){const actual=sideAim((event.clientX-gesture.startX)*sign,(gesture.startY-event.clientY)*sign,size);return {...actual,actual:{power:actual.power,elevation:actual.elevation,yaw:0},base:{...actual},rawDistance:Math.hypot(event.clientX-gesture.startX,event.clientY-gesture.startY)/size,effectiveDistance:Math.hypot(event.clientX-gesture.startX,event.clientY-gesture.startY)/size,risk:0,delta:{yaw:0,elevation:0}};}
   const upward=(gesture.startY-event.clientY)*sign/size,sideways=(event.clientX-gesture.startX)*sign/size;
-  return {power:Math.round(clamp(4+upward*18,4,13)*20)/20,yaw:sideStage()?0:Math.round(clamp(sideways*60+(liveWorld()?.launch.yaw??0),-60,60)*2)/2,valid:upward>=.10};
+  const actual={power:Math.round(clamp(4+upward*18,4,13)*20)/20,elevation:controls.elevation,yaw:Math.round(clamp(sideways*60+(liveWorld()?.launch.yaw??0),-60,60)*2)/2};
+  return {actual,base:{...actual},valid:upward>=.10,rawDistance:upward,effectiveDistance:upward,risk:0,delta:{yaw:0,elevation:0}};
 }
-function showGesture(gesture,event){
-  const x=gesture.startX-gesture.rect.left,y=gesture.startY-gesture.rect.top;
-  const sign=pullInput()?-1:1,dx=(event.clientX-gesture.startX)*sign,dy=(event.clientY-gesture.startY)*sign;
-  $('gesture-feedback').hidden=false;
-  $('gesture-origin').style.left=`${x}px`;$('gesture-origin').style.top=`${y}px`;
-  $('gesture-tip').style.left=`${x+dx}px`;$('gesture-tip').style.top=`${y+dy}px`;
-  const line=$('gesture-line');line.style.left=`${x}px`;line.style.top=`${y}px`;line.style.width=`${Math.hypot(dx,dy)}px`;line.style.transform=`rotate(${Math.atan2(dy,dx)}rad)`;
-  updateControlLabels(gesture.aim);
+function showGesture(gesture){
+  $('gesture-feedback').hidden=true;
+  updateControlLabels(gesture.aim.actual);
   updateHint();
 }
 document.addEventListener('pointerdown',event=>{if(view.gesture?.releasedCapture)cancelGesture('lostpointercapture');pointers.add(event.pointerId);if(pointers.size>1)cancelGesture('second-pointer');},true);
@@ -310,7 +320,7 @@ for(const type of ['pointerup','pointercancel'])document.addEventListener(type,e
 document.addEventListener('pointermove',event=>{
   const gesture=view.gesture;if(!gesture?.releasedCapture||gesture.id!==event.pointerId)return;
   if(event.isTrusted&&event.pointerType==='mouse'&&event.buttons===0&&pointers.size===0&&document.hasFocus()&&!document.hidden){
-    releaseGesture(gesture,gesture.aim);
+    if(pullInput()&&!inside({clientX:gesture.lastX,clientY:gesture.lastY},gesture.rect))cancelGesture('outside-canvas');else releaseGesture(gesture,gesture.aim);
   }else cancelGesture('lostpointercapture');
 },true);
 canvas.addEventListener('pointerdown',event=>{
@@ -321,11 +331,13 @@ canvas.addEventListener('pointerdown',event=>{
     view.gesture={kind:'observe',temporaryObserve:true,id:event.pointerId,pointerType:event.pointerType,rect,viewport:{width:innerWidth,height:innerHeight},startX:event.clientX,startY:event.clientY,lastX:event.clientX,lastY:event.clientY,started:performance.now(),moved:false};
     canvas.setPointerCapture(event.pointerId);updateHint();return;
   }
-  if(event.button!==0||pointers.size!==1||view.gesture||(view.mode==='throw'&&busy()))return;
+  if(event.button!==0||pointers.size!==1||view.gesture||$('chapter-result')?.open||replayDialog.open||(view.mode==='throw'&&busy()))return;
   const rect=canvas.getBoundingClientRect();
   if(!inside(event,rect))return;
   event.preventDefault();canvas.focus({preventScroll:true});
-  view.gesture={kind:view.mode,id:event.pointerId,pointerType:event.pointerType,rect,viewport:{width:innerWidth,height:innerHeight},startX:event.clientX,startY:event.clientY,lastX:event.clientX,lastY:event.clientY};
+  if(view.mode==='throw'&&game.phase!=='ready'){resetShot(game);clearCurrentShot();playStepper?.reset();shotContext=null;updateUI(true);}
+  const started=performance.now();
+  view.gesture={kind:view.mode,id:event.pointerId,pointerType:event.pointerType,rect,viewport:{width:innerWidth,height:innerHeight},startX:event.clientX,startY:event.clientY,lastX:event.clientX,lastY:event.clientY,started,presentationTime:started,scale:createPullScale({rect,startX:event.clientX,startY:event.clientY,projection:sideStage()?'2d':'3d',stagePower:liveWorld()?.launch.power??STAGES[stageProgress.snapshot().id]?.power??7.8,projectileProfile:{id:'can',radius:game.can.radius}})};
   if(view.mode==='throw')view.gesture.aim=gestureAim(view.gesture,event);
   canvas.setPointerCapture(event.pointerId);updateHint();
 });
@@ -354,16 +366,16 @@ canvas.addEventListener('pointermove',event=>{
   if(!sameLayout(gesture)){cancelGesture('layout-change');return;}
   // A throw owns its pointer from the canvas press through release. A fast
   // swipe may finish beyond the canvas; leaving its edge is not cancellation.
-  if(gesture.kind!=='throw'&&!inside(event,gesture.rect)){cancelGesture('outside-canvas');return;}
+  if((gesture.kind!=='throw'||pullInput())&&!inside(event,gesture.rect)){cancelGesture('outside-canvas');return;}
   if(gesture.kind==='observe')renderer.orbit(-(event.clientX-gesture.lastX)/gesture.rect.width*3.6,(event.clientY-gesture.lastY)/gesture.rect.height*2.4);
   else{gesture.aim=gestureAim(gesture,event);showGesture(gesture,event);}
   gesture.lastX=event.clientX;gesture.lastY=event.clientY;
 });
 function releaseGesture(gesture,aim){
-  const accepted=aim?.valid&&sameLayout(gesture)&&!busy();
+  const accepted=aim?.valid&&sameLayout(gesture)&&!busy()&&(!pullInput()||inside({clientX:gesture.lastX,clientY:gesture.lastY},gesture.rect));
   view.gesture=null;wheelAnglePixels=0;$('gesture-feedback').hidden=true;
   if(canvas.hasPointerCapture(gesture.id))canvas.releasePointerCapture(gesture.id);
-  if(accepted){controls.power=aim.power;controls.yaw=aim.yaw;if(sideStage())controls.elevation=aim.elevation;updateControlLabels();fire('gesture');}
+  if(accepted){Object.assign(controls,aim.actual);updateControlLabels();fire('gesture');}
   else{if(gesture.kind==='throw'){lastInput={type:'cancel',reason:'short-or-invalid-release'};cancellations++;}updateControlLabels();updateHint();}
 }
 canvas.addEventListener('pointerup',event=>{
@@ -371,7 +383,10 @@ canvas.addEventListener('pointerup',event=>{
   event.preventDefault();
   if(gesture.temporaryObserve){finishRightObserve(event);return;}
   if(gesture.releasedCapture){cancelGesture('lostpointercapture');return;}
-  releaseGesture(gesture,gesture.kind==='throw'?gestureAim(gesture,event):null);
+  if(pullInput()&&!inside(event,gesture.rect)){cancelGesture('outside-canvas');return;}
+  gesture.lastX=event.clientX;gesture.lastY=event.clientY;
+  if(gesture.kind==='throw'){gesture.aim=gestureAim(gesture,event,gesture.presentationTime);presentLive(gesture.presentationTime);}
+  releaseGesture(gesture,gesture.kind==='throw'?gesture.aim:null);
 });
 canvas.addEventListener('lostpointercapture',event=>{
   const gesture=view.gesture;
@@ -411,7 +426,8 @@ canvas.addEventListener('wheel',event=>{
   const lower=sideStage()?5:15,upper=sideStage()?85:75;
   controls.elevation=clamp(controls.elevation+degrees,lower,upper);if(degrees)angleCueUntil=performance.now()+1800;
   if((controls.elevation===upper&&wheelAnglePixels>0)||(controls.elevation===lower&&wheelAnglePixels<0))wheelAnglePixels=0;
-  updateControlLabels(view.gesture?.aim);updateHint();
+  if(view.gesture?.kind==='throw'){view.gesture.aim=gestureAim(view.gesture,{clientX:view.gesture.lastX,clientY:view.gesture.lastY});presentLive(view.gesture.presentationTime);}
+  updateControlLabels(view.gesture?.aim?.actual);updateHint();
 },{passive:false});
 document.addEventListener('keydown',event=>{
   if($('replay-dialog').open)return;
@@ -443,16 +459,26 @@ function replayMessage(text,viewer=false,code=''){
 function roleText(replay){return courseReplayResult(replay).roles.map(role=>role.label).join(' · ');}
 function clearCurrentShot(){shotRecorder=null;lastReplay=null;$('shot-result').hidden=true;$('shot-roles').textContent='';$('shot-role-detail').textContent='';$('share-controls').hidden=true;$('share-link').value='';replayMessage('');}
 function captureShot(){
+  if(['success','miss'].includes(game.phase)&&shotContext?.shotId===game.attempts&&lastShotAnalysis?.shotId!==game.attempts){
+    const result=actualLiveResult();
+    // Misses have no successful replay or entry-relative bounce totals. Keep
+    // their actual launch, with complete witnessed contacts separately named.
+    const analyticsTrace=analytics.snapshot(),roomContacts=shotContext.worldVersion===2?playStepper?.snapshot().contacts??[]:[];
+    lastShotAnalysis={shotId:game.attempts,success:game.phase==='success',launch:{...shotContext.launch},initialVelocity:{...shotContext.initialVelocity},result:result?structuredClone(result):null,
+      witnessedContacts:{core:analyticsTrace.contacts.length,room:roomContacts.length},finalEntryTime:game.phase==='success'?result?.finalEntryTime??null:null};
+    updateAnalysisUI();
+  }
   if(!shotRecorder){if(game.phase==='success')completeChapterShot();return;}
   try{
     const snapshot=getSnapshot(game);shotRecorder.record(snapshot);
     if(snapshot.phase!=='success'&&snapshot.phase!=='miss')return;
     const result=analytics.snapshot().result;lastReplay=shotRecorder.finish(snapshot,result||{});shotRecorder=null;
     if(!lastReplay)return;
-    if(shotContext&&CHAPTER_IDS.includes(shotContext.id))lastReplay=createCourseReplay(lastReplay,shotContext.id,liveCourse()?courseStepper.snapshot().contacts:[],{worldVersion:shotContext.worldVersion,fanEnabled:shotContext.id==='room-extra'&&shotContext.fanEnabled});
+    if(shotContext&&CHAPTER_IDS.includes(shotContext.id))lastReplay=createCourseReplay(lastReplay,shotContext.id,playStepper?.snapshot().contacts??[],{worldVersion:shotContext.worldVersion,fanEnabled:shotContext.id==='room-extra'&&shotContext.fanEnabled});
     const actual=courseReplayResult(lastReplay);
     $('shot-roles').textContent=(shotContext?.training?'練習の一投 · ':'')+roleText(lastReplay);
-    $('shot-role-detail').textContent=`最後に入るまでの跳ね返り。外の床 ${actual.floorBounces} 回 · ふち ${actual.rimHits} 回 · 側面 ${actual.sideHits} 回${actual.deskHits?` · 机 ${actual.deskHits} 回`:''}。箱の底での反発は床の回数に含めません。`;
+    $('shot-role-detail').textContent=impactSummary(actual)+' 箱の底での反発は床の回数に含めません。';
+    if($('shot-launch-analysis'))$('shot-launch-analysis').textContent=shotContext.launch.text;
     $('shot-result').hidden=false;prepareReplayLink(lastReplay);
   }catch(error){shotRecorder=null;lastReplay=null;replayMessage('この一投のリプレイを作成できませんでした。プレイの結果は記録します。',false,error.code||'RECORD_FAILED');}
   finally{if(game.phase==='success')completeChapterShot(lastReplay);}
@@ -476,12 +502,14 @@ function completeChapterShot(replay=null){
   const actual=actualLiveResult();chapterShot=null;const attempts=stageProgress.snapshot().attempts,roles=actual?.roles??[];
   const eligible=shot.eligible&&chapterProgress.clear(shot.id,attempts);
   if(eligible){const next=CHAPTER_IDS[CHAPTER_IDS.indexOf(shot.id)+1];if(next)chapterProgress.chooseStage(next);persistChapter();}
-  chapterResult={stageId:shot.id,attempts,roles:roles.map(r=>({...r})),best:eligible?chapterProgress.snapshot().stageBestAttempts[shot.id]:null,practice:!eligible,replay};
+  chapterResult={stageId:shot.id,attempts,roles:roles.map(r=>({...r})),best:eligible?chapterProgress.snapshot().stageBestAttempts[shot.id]:null,practice:!eligible,replay,analysis:lastShotAnalysis?structuredClone(lastShotAnalysis):{launch:{...shot.launch}}};
   const dialog=$('chapter-result');if(!dialog)return;
   cancelGesture('chapter-result');$('chapter-result-kind').textContent=eligible?'STAGE CLEAR':'PRACTICE CLEAR';$('chapter-result-title').textContent=STAGES[shot.id].label;
   $('chapter-result-attempts').textContent=`この挑戦 ${attempts} 投で成功`;$('chapter-result-best').textContent=eligible?`ベスト ${chapterResult.best} 投`:'練習の結果です。第1章の記録は変わりません。';
   $('chapter-result-roles').replaceChildren(...roles.map(role=>{const chip=document.createElement('span');chip.className='shot-role-chip';chip.textContent=role.label;return chip;}));
-  $('chapter-result-detail').textContent=actual?.deskHits?'机との実接触で跳ね返って、箱に入りました。':'缶が箱の中で落ち着いて、成功。';
+  $('chapter-result-detail').textContent='缶が箱の中で落ち着いて、成功。';
+  if($('chapter-launch-analysis'))$('chapter-launch-analysis').textContent=shot.launch.text;
+  if($('chapter-impact-analysis'))$('chapter-impact-analysis').textContent=impactSummary(actual);
   for(const id of ['chapter-result-replay','chapter-result-save'])if($(id))$(id).hidden=!replay;
   const next=CHAPTER_IDS[CHAPTER_IDS.indexOf(shot.id)+1];$('chapter-result-next').textContent=!eligible?'練習を終える':next?`${STAGES[next].label}へ`:'第1章クリア · トップへ';
   if(eligible&&!next){$('chapter-result-kind').textContent='CHAPTER CLEAR';$('chapter-result-detail').textContent='第1章クリア！ 各面のベスト：'+CHAPTER_IDS.map(id=>`${STAGES[id].number??(id==='first'?'1-1':'1-4')} ${chapterProgress.snapshot().stageBestAttempts[id]}投`).join(' / ');}
@@ -519,7 +547,7 @@ function writeCourseRecords(records){
   try{store.setItem(courseStorageKey,text);if(store.getItem(courseStorageKey)!==text)throw new Error('Readback failed');}catch(error){try{if(old===null)store.removeItem(courseStorageKey);else store.setItem(courseStorageKey,old);}catch{}throw error;}
 }
 function refreshSaved(){
-  const result=loadReplays(storage());let courses=[];try{courses=loadCourseRecords();}catch{replayMessage('第1章の保存記録を読み込めません。元の保存は残しています。');}savedReplays=[...courses,...result.replays];renderSaved();
+  const result=loadReplays(storage());let courses=[],roomRecords=[];try{courses=loadCourseRecords();}catch{replayMessage('以前の第1章の保存記録を読み込めません。元の保存は残しています。');}try{roomRecords=loadPlayReplays(storage());}catch{replayMessage('部屋の保存記録を読み込めません。元の保存は残しています。');}savedReplays=[...roomRecords,...courses,...result.replays];renderSaved();
   if(!result.ok)replayMessage('このブラウザの保存したリプレイを読み込めませんでした。',false,result.error?.code||'STORAGE_UNAVAILABLE');
   else if(result.discarded)replayMessage('開けない保存記録を除いて読み込みました。');
 }
@@ -529,12 +557,13 @@ function renderSaved(){
     const row=document.createElement('li'),label=document.createElement('span'),play=document.createElement('button'),remove=document.createElement('button');
     const payload=coursePayload(replay);label.textContent=`${replay.course?STAGES[replay.course.stageId].label+' · ':''}${roleText(replay)} · ${payload.duration.toFixed(2)} 秒`;play.textContent='再生';remove.textContent='削除';play.type=remove.type='button';play.dataset.replayId=remove.dataset.replayId=payload.id;
     play.addEventListener('click',()=>openReplay(replay,'saved'));
-    remove.addEventListener('click',()=>{if(replay.version===2){try{writeCourseRecords(loadCourseRecords().filter(record=>coursePayload(record).id!==payload.id));refreshSaved();replayMessage('保存記録を削除しました。');}catch{replayMessage('保存記録を削除できませんでした。');}}else{const result=deleteReplay(storage(),payload.id);if(result.ok){refreshSaved();replayMessage('保存記録を削除しました。');}else replayMessage('保存記録を削除できませんでした。',false,result.error?.code||'STORAGE_FAILED');}});
+    remove.addEventListener('click',()=>{if(replay.version===3){try{deletePlayReplay(storage(),payload.id);refreshSaved();replayMessage('保存記録を削除しました。');}catch{replayMessage('保存記録を削除できませんでした。');}}else if(replay.version===2){try{writeCourseRecords(loadCourseRecords().filter(record=>coursePayload(record).id!==payload.id));refreshSaved();replayMessage('保存記録を削除しました。');}catch{replayMessage('保存記録を削除できませんでした。');}}else{const result=deleteReplay(storage(),payload.id);if(result.ok){refreshSaved();replayMessage('保存記録を削除しました。');}else replayMessage('保存記録を削除できませんでした。',false,result.error?.code||'STORAGE_FAILED');}});
     row.append(label,play,remove);$('saved-replays').append(row);
   }
 }
 function persistReplay(replay,viewer=false){
   if(!replay)return;
+  if(replay.version===3){try{savePlayReplay(storage(),replay);refreshSaved();replayMessage('部屋の一投をこのブラウザに保存しました。',viewer);return true;}catch{replayMessage('保存できませんでした。リプレイのファイルで保存できます。',viewer,'STORAGE_FAILED');return false;}}
   if(replay.version===2){try{const valid=validateCourseReplay(replay),id=coursePayload(valid).id;writeCourseRecords([valid,...loadCourseRecords().filter(record=>coursePayload(record).id!==id)].slice(0,5));refreshSaved();replayMessage('第1章の一投をこのブラウザに保存しました。',viewer);return true;}catch{replayMessage('保存できませんでした。リプレイのファイルで保存できます。',viewer,'STORAGE_FAILED');return false;}}
   const result=saveReplay(storage(),replay);
   if(result.ok){refreshSaved();replayMessage('このブラウザに保存しました。再読み込み後も再生できます。',viewer);return true;}
@@ -586,6 +615,7 @@ function openReplay(input,source){
     $('replay-title').textContent=source==='shared'?'共有された成功リプレイ':'成功した一投';
     $('replay-source').textContent=replay.course?'保存した軌道を、その面の部屋で見回せます。プレイヤーの進行は変わりません。':'記録は共通の3D画面で見回せます。';
     $('replay-role-title').textContent=roleText(replay);$('replay-seek').max=payload.duration;$('replay-share-controls').hidden=true;$('replay-share-link').value='';replayMessage('',true);
+    if($('replay-launch-analysis'))$('replay-launch-analysis').textContent=launchSummary(payload.controls)?.text??'';
     if(!replayDialog.open)replayDialog.showModal();replayRenderer.resize();restoreReplayCamera();prepareReplayLink(replay);renderReplay(0);replayCanvas.focus({preventScroll:true});
   }catch(error){replayMessage('このリプレイを開けませんでした。',false,error.code||'INVALID_REPLAY');}
 }
@@ -599,7 +629,7 @@ $('replay-seek').addEventListener('input',()=>{if(videoState)return;replayPlayin
 function renderReplay(dt){
   if(!replayDialog.open||!replayPlayer)return;
   if(replayPlaying){replayTime=Math.min(replayPlayer.duration,replayTime+dt);if(replayTime>=replayPlayer.duration)replayPlaying=false;}
-  const course=viewedReplay.course;replayRenderer.render(replayPlayer.sample(replayTime),viewedPayload.controls,{prediction:false,environment:course?'room':null,world:course?roomWorld(course.stageId,course.worldVersion):null,course:course?roomCourse(course.stageId,course.worldVersion):null,extraRoom:course?.stageId==='room-extra',fanEnabled:course?.fanEnabled,environmentTime:replayTime,stageNumber:course?STAGES[course.stageId].number??(course.stageId==='first'?'1-1':'1-4'):null,monitorCanvas:pixelIntro?.image});
+  const course=viewedReplay.course;replayRenderer.render(replayPlayer.sample(replayTime),viewedPayload.controls,{prediction:false,numericLabels:true,windArc:[],environment:course?'room':null,world:course?roomWorld(course.stageId,course.worldVersion):null,course:course?roomCourse(course.stageId,course.worldVersion):null,extraRoom:course?.stageId==='room-extra',fanEnabled:course?.fanEnabled,environmentTime:replayTime,stageNumber:course?STAGES[course.stageId].number??(course.stageId==='first'?'1-1':'1-4'):null,monitorCanvas:pixelIntro?.image});
   $('replay-play').textContent=replayPlaying?'一時停止':replayTime>=replayPlayer.duration?'もう一度':'再生';
   $('replay-seek').value=replayTime;$('replay-time').textContent=`${replayTime.toFixed(2)} / ${replayPlayer.duration.toFixed(2)} 秒`;
   if(videoState&&!replayPlaying&&videoState.recorder.state==='recording'&&!videoState.stopping){const state=videoState;state.stopping=true;setTimeout(()=>{if(videoState===state)stopVideo(false);},180);}
@@ -644,7 +674,7 @@ async function loadSharedReplay(){
 }
 window.addEventListener('hashchange',loadSharedReplay);
 loadSharedReplay();
-window.__trashShot={game,controls,stageSnapshot:()=>({...stageProgress.snapshot(),completed:[...stageProgress.snapshot().completed.filter(id=>!CHAPTER_IDS.includes(id)),...chapterProgress.snapshot().completedIDs]}),chapterSnapshot:()=>({...chapterProgress.snapshot(),training:trainingMode,practice:chapterPractice,currentStage:stageProgress.snapshot().id,result:chapterResult?{stageId:chapterResult.stageId,attempts:chapterResult.attempts,roles:structuredClone(chapterResult.roles),best:chapterResult.best,practice:chapterResult.practice}:null}),courseSnapshot:()=>courseStepper.snapshot(),snapshot:()=>getSnapshot(game),cameraSnapshot:()=>renderer.cameraSnapshot(),introSnapshot:()=>pixelIntro?.snapshot()??null,gimmickSnapshot:()=>({active:extraRoom(),fanEnabled,...roomWind.snapshot(),windArc:windArc.map(p=>({...p}))}),inputSnapshot:()=>({scheme:chapterProgress.snapshot().inputScheme,training:trainingMode,trainingStats:{...trainingStats},worldVersion:liveWorld()?.worldVersion??1,mode:view.mode,prediction:view.prediction,activeGesture:view.gesture?.kind||null,heldAim:view.gesture?.kind==='throw'?{...view.gesture.aim}:null,activePointers:pointers.size,cancellations,lastInput:lastInput?structuredClone(lastInput):null}),analyticsSnapshot:()=>({...analytics.snapshot(),result:actualLiveResult()}),replaySnapshot:()=>({active:replayDialog.open,playing:replayPlaying,time:replayTime,duration:replayPlayer?.duration||0,sourceId:viewedPayload?.id||null,sourceType:replaySource,recordedFrames:viewedPayload?.frames.length||0,current:replayPlayer?structuredClone(replayPlayer.sample(replayTime)):null,result:viewedResult?structuredClone(viewedResult):null,course:viewedReplay?.course?structuredClone(viewedReplay.course):null,savedCount:savedReplays.length,latestId:lastReplay?coursePayload(lastReplay).id:null,recording:Boolean(videoState),video:videoBlob?{size:videoBlob.size,mime:videoBlob.type}:null})};
+window.__trashShot={game,controls,stageSnapshot:()=>({...stageProgress.snapshot(),completed:[...stageProgress.snapshot().completed.filter(id=>!CHAPTER_IDS.includes(id)),...chapterProgress.snapshot().completedIDs]}),chapterSnapshot:()=>({...chapterProgress.snapshot(),training:trainingMode,practice:chapterPractice,currentStage:stageProgress.snapshot().id,result:chapterResult?{stageId:chapterResult.stageId,attempts:chapterResult.attempts,roles:structuredClone(chapterResult.roles),best:chapterResult.best,practice:chapterResult.practice,analysis:structuredClone(chapterResult.analysis)}:null}),courseSnapshot:()=>playStepper?.snapshot()??courseStepper.snapshot(),playSnapshot:()=>structuredClone({roomContacts:playStepper?.snapshot()??null,cue:cueSnapshot,trainingPreview:trainingPreview??[],frozenScale:view.gesture?.scale??null,presentedAim:lastPresentedAim,releasedAim:lastReleasedAim,resultAnalysis:lastShotAnalysis,numericLabels:trainingMode,predictionVisible:trainingMode&&view.prediction}),snapshot:()=>getSnapshot(game),cameraSnapshot:()=>renderer.cameraSnapshot(),introSnapshot:()=>pixelIntro?.snapshot()??null,gimmickSnapshot:()=>({active:extraRoom(),fanEnabled,...(playStepper?.snapshot()??roomWind.snapshot()),windArc:(trainingPreview??[]).map(p=>({...p}))}),inputSnapshot:()=>({scheme:chapterProgress.snapshot().inputScheme,training:trainingMode,trainingStats:{...trainingStats},worldVersion:liveWorld()?.worldVersion??1,mode:view.mode,prediction:view.prediction,activeGesture:view.gesture?.kind||null,heldAim:view.gesture?.kind==='throw'?{...view.gesture.aim.actual,valid:view.gesture.aim.valid,risk:view.gesture.aim.risk,rawDistance:view.gesture.aim.rawDistance}:null,lastPaintedPhase:view.gesture?.kind==='throw'?(view.gesture.presentationTime-view.gesture.started)/1000:null,activePointers:pointers.size,cancellations,lastInput:lastInput?structuredClone(lastInput):null}),analyticsSnapshot:()=>({...analytics.snapshot(),result:actualLiveResult()}),replaySnapshot:()=>({active:replayDialog.open,playing:replayPlaying,time:replayTime,duration:replayPlayer?.duration||0,sourceId:viewedPayload?.id||null,sourceType:replaySource,recordedFrames:viewedPayload?.frames.length||0,current:replayPlayer?structuredClone(replayPlayer.sample(replayTime)):null,result:viewedResult?structuredClone(viewedResult):null,course:viewedReplay?.course?structuredClone(viewedReplay.course):null,savedCount:savedReplays.length,latestId:lastReplay?coursePayload(lastReplay).id:null,recording:Boolean(videoState),video:videoBlob?{size:videoBlob.size,mime:videoBlob.type}:null})};
 updateControlLabels();updateUI(true);
 // Explicit stages and shared records bypass the fresh pixel introduction.
 const entryStage=new URLSearchParams(location.search).get('stage');
@@ -655,7 +685,7 @@ function updateIntroUI(){
   if(!pixelIntro)return;
   const state=pixelIntro.snapshot(),panel=$('pixel-intro-controls');if(panel)panel.hidden=!state.active;
   document.body.classList.toggle('pixel-intro-active',state.active);
-  if($('pixel-intro-aim'))$('pixel-intro-aim').textContent=state.gesture?.valid?`角度 ${state.gesture.elevation}° · 強さ ${state.gesture.power.toFixed(2)}`:state.mode==='pullback'?'部屋へ…':`${pullInput()?'左下へ引く':'右上へなぞる'}。向きで角度、長さで強さ。離して一投。`;
+  if($('pixel-intro-aim'))$('pixel-intro-aim').textContent=state.gesture?.valid?'離して一投。向きで角度、長さで強さ。':state.mode==='pullback'?'部屋へ…':`${pullInput()?'左下へ引く':'右上へなぞる'}。向きで角度、長さで強さ。離して一投。`;
   if($('pixel-intro-skip'))$('pixel-intro-skip').disabled=state.mode==='pullback';
   if($('pixel-intro-retry'))$('pixel-intro-retry').hidden=state.world.phase!=='miss';
 }
@@ -678,7 +708,7 @@ function setupInputCheck(){
   const [entry,panel,copy,close,text,message]=['input-check-open','input-check-panel','input-check-copy','input-check-close','input-check-text','input-check-message'].map($);
   // A new app can be loaded by an older cached HTML page without these nodes.
   if(![entry,panel,copy,close,text,message].every(Boolean))return;
-  const version='20261011-play-ui-1',limit=24,maxBytes=12000;
+  const version='20261011-play-analysis-1',limit=24,maxBytes=12000;
   let session=null,removeListeners=[];
   const clone=value=>value?(typeof structuredClone==='function'?structuredClone(value):JSON.parse(JSON.stringify(value))):null;
   const geometry=()=>{
@@ -773,14 +803,49 @@ function setupInputCheck(){
 }
 setupInputCheck();
 
+const predictionCache=new Map();
+function previewFor(aim){
+  if(!trainingMode||!view.prediction||busy())return [];
+  const world=liveWorld(),key=[stageProgress.snapshot().id,game.bin.center.z,game.bin.height,aim.power,aim.elevation,aim.yaw,fanEnabled].join('/');
+  if(predictionCache.has(key)){const arc=predictionCache.get(key);predictionCache.delete(key);predictionCache.set(key,arc);return arc;}
+  // Free / side use their unchanged renderer predictor. Chapter training uses
+  // exactly the same room + optional wind integrator as the accepted shot.
+  const arc=world?predictPlayRoomArc(game,aim,world,{extra:extraRoom(),fanEnabled,maxSeconds:5}):null;
+  if(arc){predictionCache.set(key,arc);if(predictionCache.size>96)predictionCache.delete(predictionCache.keys().next().value);}
+  return arc;
+}
+function paintPlayCue(aim){
+  const overlay=$('play-cue');if(!overlay)return;
+  const rect=canvas.getBoundingClientRect();overlay.setAttribute('viewBox',`0 0 ${rect.width} ${rect.height}`);
+  if(!aim||busy()||pixelIntro?.active||$('chapter-result')?.open||replayDialog.open){overlay.replaceChildren();cueSnapshot={visible:false,numericLabels:trainingMode,predictionVisible:trainingMode&&view.prediction&&!busy(),predictionPoints:trainingPreview?.length??0};return;}
+  const origin=liveWorld()?.origin??{x:0,y:1.05,z:0};
+  const cue=createPlayCue(origin,aim,renderer.project,rect.width,rect.height);
+  const gesture=view.gesture?.kind==='throw'?view.gesture:null;
+  overlay.innerHTML=playCueMarkup(cue,{risk:gesture?.aim?.risk>0})+(gesture?pullHandleMarkup(gesture,gesture.aim,sideStage(),pullInput()?-1:1):'');
+  cueSnapshot={visible:cue.visible,numericLabels:trainingMode,predictionVisible:trainingMode&&view.prediction,predictionPoints:trainingPreview?.length??0,arrowWorldLength:cue.arrowWorldLength,arrowScreenLength:cue.initial.length,
+    angleFan:{visible:cue.sector.length>=3,segments:cue.angleArc.segments.length},parameters:{...aim},risk:gesture?.aim?.risk??0};
+  lastPresentedAim={parameters:{...aim},elapsedSeconds:gesture?(gesture.presentationTime-gesture.started)/1000:null,scale:gesture?.scale?structuredClone(gesture.scale):null};
+}
+function presentLive(now){
+  const stage=STAGES[stageProgress.snapshot().id],preloadRoom=pixelIntro?.active;
+  const mapped=view.gesture?.kind==='throw'?view.gesture.aim:null,effectiveAim=mapped?.actual??controls;
+  trainingPreview=preloadRoom?[]:previewFor(effectiveAim);
+  // An empty room fade path supplies no unseen future flight in normal play.
+  const roomPath=preloadRoom?undefined:trainingMode&&view.prediction?(trainingPreview??undefined):[];
+  renderer.render(game,controls,{environment:preloadRoom?'room':stage?.environment,world:preloadRoom?roomWorld('first',2):liveWorld(),course:liveCourse(),angleCue:false,customCue:!preloadRoom,numericLabels:trainingMode&&!preloadRoom,
+    extraRoom:extraRoom(),fanEnabled,environmentTime,reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,windArc:roomPath,
+    stageNumber:stage?.number??(stageProgress.snapshot().id==='first'?'1-1':extraRoom()?'1-4':null),monitorCanvas:pixelIntro?.image,revealProgress:pixelIntro?.cameraProgress,
+    prediction:trainingMode&&view.prediction&&!preloadRoom,aim:mapped?.actual??null});
+  paintPlayCue(!preloadRoom&&(mapped||now<angleCueUntil)?effectiveAim:null);
+}
 function frame(now){
   const dt=Math.max(0,Math.min((now-previousTime)/1000,.045));previousTime=now;
   pixelIntro?.advance(dt);updateIntroUI();
-  if(!pixelIntro?.active){if(liveCourse())courseStepper.step(game,dt,stageProgress.snapshot().id,captureShot,liveWorld()?.worldVersion??1);else if(extraRoom())roomWind.step(game,dt,fanEnabled,captureShot);else{stepGame(game,dt);captureShot();}}updateUI();environmentTime+=dt;
-  const stage=STAGES[stageProgress.snapshot().id],preloadRoom=pixelIntro?.active;
-  const effectiveAim=view.gesture?.kind==='throw'?{...controls,...view.gesture.aim}:controls;
-  if(extraRoom()){const key=[effectiveAim.power,effectiveAim.elevation,effectiveAim.yaw,fanEnabled,game.bin.center.z,game.bin.height].join('/');if(windArcKey!==key){windArcKey=key;windArc=predictWindArc(game,effectiveAim,fanEnabled);}}
-  renderer.render(game,controls,{environment:preloadRoom?'room':stage?.environment,world:preloadRoom?roomWorld('first',2):liveWorld(),course:liveCourse(),angleCue:!pixelIntro?.active&&(now<angleCueUntil||Boolean(view.gesture?.kind==='throw')),extraRoom:extraRoom(),fanEnabled,environmentTime,reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,windArc:extraRoom()?windArc:null,stageNumber:stage?.number??(stageProgress.snapshot().id==='first'?'1-1':extraRoom()?'1-4':null),monitorCanvas:pixelIntro?.image,revealProgress:pixelIntro?.cameraProgress,prediction:view.prediction&&!pixelIntro?.active,aim:view.gesture?.kind==='throw'?{...controls,...view.gesture.aim}:null});
+  if(!pixelIntro?.active){if(playStepper)playStepper.step(game,dt,fanEnabled,captureShot);else if(liveCourse())courseStepper.step(game,dt,stageProgress.snapshot().id,captureShot,liveWorld()?.worldVersion??1);else if(extraRoom())roomWind.step(game,dt,fanEnabled,captureShot);else{stepGame(game,dt);captureShot();}}updateUI();environmentTime+=dt;
+  if(view.gesture?.kind==='throw'){
+    const gesture=view.gesture;if(!sameLayout(gesture))cancelGesture('layout-change');else{gesture.presentationTime=now;gesture.aim=gestureAim(gesture,{clientX:gesture.lastX,clientY:gesture.lastY},now);showGesture(gesture);}
+  }
+  presentLive(now);
   pixelIntro?.render(renderer.monitorQuad());
   renderReplay(dt);
   requestAnimationFrame(frame);

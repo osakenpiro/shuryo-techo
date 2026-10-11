@@ -1,4 +1,4 @@
-// This is a lab-only adapter. The established simulation still owns gravity,
+// Shared room-contact adapter. The established simulation still owns gravity,
 // the hollow bin, floor contact, the five-second result, and save compatibility.
 import {createGame, setRoomWorld, throwCan, stepGame} from './physics.mjs?v=20261011-play-ui-1';
 import {sweepSphereAABB} from './room-course.mjs?v=20261011-play-ui-1';
@@ -55,6 +55,9 @@ function solidGeometry(world,extra) {
   }
   return result;
 }
+
+// V3 production records validate against the exact same immutable geometry.
+export function roomContactColliders(world,{extra=false}={}) { return solidGeometry(world,extra); }
 
 function potentiallyReached(start,end,radius,c) {
   const padding=radius+EPS;

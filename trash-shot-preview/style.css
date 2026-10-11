@@ -77,3 +77,6 @@
 @media(max-height:500px){.canvas-wrap{height:max(180px,calc(100svh - 184px))}.masthead{min-height:52px}.scene-bottom{padding-bottom:8px}.pixel-intro-active .canvas-wrap{height:max(180px,calc(100svh - 150px))}}
 
 .arc-controls[hidden]{display:none}
+
+/* Spatial launch cues have no aiming telemetry in normal play. */
+#play-cue{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:hidden}.pixel-intro-active #play-cue{display:none}.arc-controls output[hidden]{display:none}.launch-analysis{font-size:12px;line-height:1.8;color:#365f5a;font-variant-numeric:tabular-nums}.launch-analysis[hidden]{display:none}.result-analysis{margin:12px 0 16px;padding:12px 14px;border:1px solid #d9dfcd;border-radius:8px;background:#fff8e9}.result-analysis h3{margin:0 0 6px;font-size:12px}.result-analysis p{margin:4px 0;font-size:12px}

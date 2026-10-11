@@ -82,11 +82,11 @@ export function createRenderer(canvas) {
     line({x:-5,y:0,z:-2},{x:-5,y:0,z:11},'rgba(128,147,107,.14)');
     line({x:5,y:0,z:-2},{x:5,y:0,z:11},'rgba(128,147,107,.14)');
   }
-  function drawDistance(game) {
+  function drawDistance(game,numericLabels=true) {
     const x=-1.55, z=game.bin.center.z;
     line({x,y:.012,z:0},{x,y:.012,z},'rgba(135,154,111,.45)',.9);
     for(const end of [0,z])line({x:x-.12,y:.014,z:end},{x:x+.12,y:.014,z:end},'rgba(135,154,111,.6)',1);
-    const p=project({x:x-.3,y:.06,z:z/2});if(p.visible){ctx.fillStyle='#637554';ctx.font='10px system-ui,sans-serif';ctx.textAlign='center';ctx.fillText(`${z} m`,p.x,p.y);}
+    const p=project({x:x-.3,y:.06,z:z/2});if(numericLabels&&p.visible){ctx.fillStyle='#637554';ctx.font='10px system-ui,sans-serif';ctx.textAlign='center';ctx.fillText(`${z} m`,p.x,p.y);}
     const origin=circle({x:0,z:0},.39,.01);path(origin);ctx.strokeStyle='rgba(184,135,52,.45)';ctx.setLineDash([3,4]);ctx.lineWidth=1;ctx.stroke();ctx.setLineDash([]);
   }
   function drawArc(game,controls,override=null) {
@@ -102,7 +102,7 @@ export function createRenderer(canvas) {
     if(trail.length<2)return;
     for(let i=1;i<trail.length;i++)line(trail[i-1],trail[i],`rgba(184,135,52,${.12+.3*i/trail.length})`,1.7);
   }
-  function drawAngleCue(game,aim){
+  function drawAngleCue(game,aim,numericLabels=true){
     const origin=worldView?.origin??{x:0,y:1.05,z:0},angle=aim.elevation*Math.PI/180,heading=aim.yaw*Math.PI/180,radius=.66;
     const at=a=>({x:origin.x+Math.sin(heading)*Math.cos(a)*radius,y:origin.y+Math.sin(a)*radius,z:origin.z+Math.cos(heading)*Math.cos(a)*radius});
     const arc=Array.from({length:13},(_,i)=>at(angle*i/12));polygon([origin,...arc],'rgba(218,173,75,.18)');
@@ -111,7 +111,7 @@ export function createRenderer(canvas) {
     const o=project(origin),tip=project(arc.at(-1));if(!tip.visible||!o.visible)return;
     const direction=Math.atan2(tip.y-o.y,tip.x-o.x);ctx.beginPath();ctx.moveTo(tip.x,tip.y);for(const offset of [-.45,.45])ctx.lineTo(tip.x-Math.cos(direction+offset)*9,tip.y-Math.sin(direction+offset)*9);ctx.closePath();ctx.fillStyle='#bc852f';ctx.fill();
     const text=`弧 ${aim.elevation}°${aim.yaw?` · ${aim.yaw<0?'左':'右'} ${Math.abs(aim.yaw)}°`:''}`,x=clamp(tip.x+10,12,width-142),y=clamp(tip.y-14,42,height-18);
-    ctx.font='600 12px system-ui,sans-serif';ctx.textAlign='left';const textWidth=ctx.measureText(text).width;ctx.fillStyle='rgba(255,248,233,.94)';ctx.fillRect(x-5,y-15,textWidth+10,23);ctx.fillStyle='#286864';ctx.fillText(text,x,y);
+    if(numericLabels){ctx.font='600 12px system-ui,sans-serif';ctx.textAlign='left';const textWidth=ctx.measureText(text).width;ctx.fillStyle='rgba(255,248,233,.94)';ctx.fillRect(x-5,y-15,textWidth+10,23);ctx.fillStyle='#286864';ctx.fillText(text,x,y);}
     angleCueSnapshot={origin:{...origin},elevation:aim.elevation,yaw:aim.yaw,tip:arc.at(-1),screenOrigin:o,screenTip:tip};
   }
   function shapesForBin(game,room=false) {
@@ -215,8 +215,10 @@ export function createRenderer(canvas) {
   function drawRoom(game,controls,view){
     ctx.fillStyle='#f4ead5';ctx.fillRect(0,0,width,height);
     const flightKey=[worldView?.worldVersion,game.bin.radius,worldView?.origin.y,game.attempts,game.bin.center.z,game.bin.height,controls.power,controls.elevation,controls.yaw].join('/');
-    if(roomFlightKey!==flightKey){roomFlightKey=flightKey;roomFlight=predictArc(game,controls,80);}
-    const room=roomScene(camera,game.bin.center.z,[...(view.windArc||roomFlight),...(game.trail||[])],view.extraRoom,view.course,worldView);
+    // An explicit empty path is intentional: normal aiming must not use a
+    // hidden future trajectory to fade walls or furniture.
+    if(!Array.isArray(view.windArc)&&roomFlightKey!==flightKey){roomFlightKey=flightKey;roomFlight=predictArc(game,controls,80);}
+    const room=roomScene(camera,game.bin.center.z,[...(Array.isArray(view.windArc)?view.windArc:roomFlight),...(game.trail||[])],view.extraRoom,view.course,worldView);
     const key=[worldView?.worldVersion,game.bin.radius,width,height,depthWidth,depthHeight,sceneDistance,camera.x,camera.y,camera.z,orbitState.azimuth,orbitState.elevation,orbitState.zoom,view.extraRoom===true,view.course?.stageId,...room.cutaway].join('/');
     if(!roomCache||roomCache.key!==key){
       const opaque=room.shapes.filter(s=>s.depthWrite!==false),faded=room.shapes.filter(s=>s.depthWrite===false);
@@ -234,7 +236,7 @@ export function createRenderer(canvas) {
     const trail=game.trail||[],points=[game.can.position,...trail];
     let prediction=[];
     if(view.prediction&&['ready','success','miss'].includes(game.phase)){
-      const arc=predictArc(game,{...(view.aim||controls),yaw:0},64),end=arc.findIndex((p,i)=>i>1&&p.y<.03);
+      const arc=view.windArc??predictArc(game,{...(view.aim||controls),yaw:0},64),end=arc.findIndex((p,i)=>i>1&&p.y<.03);
       prediction=end<0?arc:arc.slice(0,end+1);
       points.push(...prediction);
     }
@@ -249,11 +251,11 @@ export function createRenderer(canvas) {
     ctx.fillStyle='#dde5cf';ctx.fillRect(0,floor,width,height-floor);
     stroke({z:minZ,y:0},{z:maxZ,y:0},'#829570',1.5);
     ctx.textAlign='center';ctx.font='10px system-ui,sans-serif';ctx.fillStyle='#536b49';
-    for(let z=0;z<=game.bin.center.z;z+=2){const p=project({z,y:0});ctx.beginPath();ctx.moveTo(p.x,floor);ctx.lineTo(p.x,floor+5);ctx.strokeStyle='#829570';ctx.stroke();ctx.fillText(`${z} m`,p.x,floor+20);}
+    if(view.numericLabels!==false)for(let z=0;z<=game.bin.center.z;z+=2){const p=project({z,y:0});ctx.beginPath();ctx.moveTo(p.x,floor);ctx.lineTo(p.x,floor+5);ctx.strokeStyle='#829570';ctx.stroke();ctx.fillText(`${z} m`,p.x,floor+20);}
     ctx.textAlign='left';ctx.font='600 12px system-ui,sans-serif';ctx.fillStyle='#36553f';ctx.fillText('脇道 · 横からぽいっ（2D）',14,22);
     if(prediction.length){ctx.fillStyle='#ac7728';for(let i=0;i<prediction.length;i+=2){const p=project(prediction[i]);if(prediction[i].y>=0){ctx.beginPath();ctx.arc(p.x,p.y,1.7,0,Math.PI*2);ctx.fill();}}}
     for(let i=1;i<trail.length;i++)stroke(trail[i-1],trail[i],`rgba(167,112,33,${.25+.4*i/trail.length})`,2);
-    if(view.aim?.valid){
+    if(view.aim?.valid&&!view.customCue){
       const angle=view.aim.elevation*Math.PI/180,length=.6+view.aim.power*.06,origin=game.phase==='ready'?game.can.position:{y:1.05,z:0};
       const end={z:origin.z+Math.cos(angle)*length,y:origin.y+Math.sin(angle)*length},a=project(origin),b=project(end),heading=Math.atan2(b.y-a.y,b.x-a.x);
       stroke(origin,end,'#a86d25',2.5);ctx.beginPath();ctx.moveTo(b.x,b.y);ctx.lineTo(b.x-8*Math.cos(heading-.45),b.y-8*Math.sin(heading-.45));ctx.lineTo(b.x-8*Math.cos(heading+.45),b.y-8*Math.sin(heading+.45));ctx.closePath();ctx.fillStyle='#a86d25';ctx.fill();
@@ -284,13 +286,13 @@ export function createRenderer(canvas) {
     ctx.setTransform(pixelRatio,0,0,pixelRatio,0,0);ctx.clearRect(0,0,width,height);
     if(projection==='side'){drawSide(game,controls,view);return;}
     const room=environment==='room',backgroundDepth=room?drawRoom(game,view.aim||controls,view):null;
-    if(!room)drawFloor();drawDistance(game);
+    if(!room)drawFloor();drawDistance(game,view.numericLabels!==false);
     if(room&&view.monitorCanvas){ctx.save();ctx.globalAlpha=roomCutaway.includes(worldView?.worldVersion===2?'source-desk':'desk') ? .23 : 1;paintScreenQuad(ctx,view.monitorCanvas,monitorQuad());ctx.restore();}
     shadow(game.bin.center,game.bin.radius*1.35,game.bin.radius*1.14,.11);
     shadow(game.can.position,.2+Math.max(0,game.can.position.y)*.035,.2,.13/(1+Math.max(0,game.can.position.y)*.8));
-    if(view.prediction&&!view.course&&(game.phase==='ready'||game.phase==='success'||game.phase==='miss'))drawArc(game,view.aim||controls,view.windArc);
+    if(view.prediction&&(!view.course||Array.isArray(view.windArc))&&(game.phase==='ready'||game.phase==='success'||game.phase==='miss'))drawArc(game,view.aim||controls,view.windArc);
     if(game.phase!=='ready')drawTrail(game);
-    if(view.aim){const heading=view.aim.yaw*Math.PI/180,p=game.phase==='ready'?game.can.position:(worldView?.origin??{x:0,y:1.05,z:0});line(p,{x:p.x+Math.sin(heading)*.75,y:p.y,z:p.z+Math.cos(heading)*.75},'#bd8632',2);}
+    if(view.aim&&!view.customCue){const heading=view.aim.yaw*Math.PI/180,p=game.phase==='ready'?game.can.position:(worldView?.origin??{x:0,y:1.05,z:0});line(p,{x:p.x+Math.sin(heading)*.75,y:p.y,z:p.z+Math.cos(heading)*.75},'#bd8632',2);}
     const shapes=[...(room&&view.extraRoom?roomMotionShapes(view.environmentTime||0,view.fanEnabled,view.reducedMotion,worldView):[]),...shapesForBin(game,room),...shapesForCan(game,room)];
     drawDepthShapes(shapes,backgroundDepth);
     if(room&&view.extraRoom){
@@ -299,7 +301,7 @@ export function createRenderer(canvas) {
       for(const z of [1.8,4.2])line({x:-1.5,y:.026,z},{x:1.5,y:.026,z},'rgba(104,153,145,.4)',1);
       if(view.fanEnabled){for(let i=0;i<3;i++){const drift=view.reducedMotion ? .3 : (view.environmentTime*.6+i*.29)%1,x=-1.45+drift*2.7,z=2.2+i*.72;line({x,y:1.45,z},{x:x+.19,y:1.45,z},'rgba(104,153,145,.3)',1.2);}}
     }
-    if(view.angleCue&&['ready','success','miss'].includes(game.phase))drawAngleCue(game,view.aim||controls);
+    if(view.angleCue&&!view.customCue&&['ready','success','miss'].includes(game.phase))drawAngleCue(game,view.aim||controls,view.numericLabels!==false);
     if(view.stageNumber)drawPixelText(ctx,view.stageNumber,16,16,{scale:3,color:'#286864',shadow:{color:'#f4ead5',dx:1,dy:1}});
     const c=game.bin.center,h=game.bin.height;
     if(game.phase==='success'){
