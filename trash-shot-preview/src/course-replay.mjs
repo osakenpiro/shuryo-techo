@@ -1,9 +1,9 @@
-import { validateReplay, replayToJSON, parseReplayJSON, encodeReplay, decodeReplay, buildReplayURL, createReplayPlayer, ReplayError } from './replay.mjs?v=20261011-first-chapter-1';
-import { roomCourse } from './room-course.mjs?v=20261011-first-chapter-1';
+import { validateReplay, replayToJSON, parseReplayJSON, encodeReplay, decodeReplay, buildReplayURL, createReplayPlayer, ReplayError } from './replay.mjs?v=20261011-play-ui-1';
+import { roomCourse, roomWorld } from './room-course.mjs?v=20261011-play-ui-1';
 
 // V1 remains the immutable pose codec. Its legacy "direct" role is not a
 // statement about an outer course's desk; the outer result owns that distinction.
-export const COURSE_REPLAY_LIMITS = Object.freeze({ version: 2, worldVersion: 1,
+export const COURSE_REPLAY_LIMITS = Object.freeze({ version: 2, worldVersion: 2,
   rawBytes: 1024 * 1024, contacts: 2400, urlChars: 8000 });
 const STAGES = new Set(['first', 'desk-over', 'desk-side', 'room-extra']);
 const encoder = new TextEncoder(), decoder = new TextDecoder('utf-8', { fatal: true });
@@ -56,21 +56,23 @@ export function validateCourseReplay(input) {
   if (input.version !== 2 || input.kind !== 'room-course') fail('UNSUPPORTED_VERSION', 'Course replay version is unsupported');
   object(input.course, ['worldVersion', 'stageId', 'deskHits', 'contacts', 'fanEnabled'], 'course');
   const value = input.course;
-  if (value.worldVersion !== 1 || !STAGES.has(value.stageId) || typeof value.fanEnabled !== 'boolean'
+  if (![1,2].includes(value.worldVersion) || !STAGES.has(value.stageId) || typeof value.fanEnabled !== 'boolean'
       || value.stageId !== 'room-extra' && value.fanEnabled) fail('INVALID_REPLAY', 'Unsupported fixed course world');
-  const replay = validateReplay(input.replay), world = roomCourse(value.stageId);
-  if (replay.bin.center.z !== 6 || replay.bin.height !== 1.3) fail('INVALID_REPLAY', 'Course bin differs from its fixed world');
+  const replay = validateReplay(input.replay,{worldVersion:value.worldVersion}), world = roomCourse(value.stageId,value.worldVersion);
+  const descriptor=roomWorld(value.stageId,value.worldVersion);
+  if (replay.bin.center.z !== descriptor.bin.center.z || replay.bin.height !== descriptor.bin.height || replay.bin.radius!==descriptor.bin.radius)
+    fail('INVALID_REPLAY', 'Course bin differs from its fixed world');
   const contacts = contactArray(value.contacts).map(contact => validateContact(contact, world, replay.duration));
   const deskHits = number(value.deskHits, 0, COURSE_REPLAY_LIMITS.contacts, 'course.deskHits', true);
   if (deskHits !== contacts.length) fail('INVALID_REPLAY', 'Desk count and contact trace disagree');
   for (let i = 1; i < contacts.length; i++) if (contacts[i].time < contacts[i - 1].time || contacts[i].shotId !== contacts[0].shotId) fail('INVALID_REPLAY', 'Course contacts are out of shot order');
-  const record = { version: 2, kind: 'room-course', course: { worldVersion: 1, stageId: value.stageId, deskHits, contacts, fanEnabled: value.fanEnabled }, replay };
+  const record = { version: 2, kind: 'room-course', course: { worldVersion: value.worldVersion, stageId: value.stageId, deskHits, contacts, fanEnabled: value.fanEnabled }, replay };
   if (encoder.encode(JSON.stringify(record)).byteLength > COURSE_REPLAY_LIMITS.rawBytes) fail('REPLAY_TOO_LARGE', 'Course replay exceeds raw byte limit');
   return freeze(record);
 }
-export function createCourseReplay(coreV1, stageId, deskContacts = [], { fanEnabled = false } = {}) {
+export function createCourseReplay(coreV1, stageId, deskContacts = [], { fanEnabled = false,worldVersion=1 } = {}) {
   contactArray(deskContacts);
-  return validateCourseReplay({ version: 2, kind: 'room-course', course: { worldVersion: 1, stageId, deskHits: deskContacts.length, contacts: deskContacts, fanEnabled }, replay: coreV1 });
+  return validateCourseReplay({ version: 2, kind: 'room-course', course: { worldVersion, stageId, deskHits: deskContacts.length, contacts: deskContacts, fanEnabled }, replay: coreV1 });
 }
 export function coursePayload(record) { const valid = validateCourseReplay(record); return valid.version === 1 ? valid : valid.replay; }
 export function courseReplayResult(record) {
@@ -80,7 +82,10 @@ export function courseReplayResult(record) {
   if (deskHits) { result.roles = result.roles.filter(role => role.id !== 'direct'); result.roles.push({ id: 'desk-bank', label: '机当て' }); }
   return { ...result, deskHits };
 }
-export function createCourseReplayPlayer(record) { return createReplayPlayer(coursePayload(record)); }
+export function createCourseReplayPlayer(record) {
+  const valid=validateCourseReplay(record),worldVersion=valid.version===1?1:valid.course.worldVersion;
+  return createReplayPlayer(valid.version===1?valid:valid.replay,{worldVersion});
+}
 export function courseReplayToJSON(record) { const valid = validateCourseReplay(record); return valid.version === 1 ? replayToJSON(valid) : JSON.stringify(valid); }
 export function parseCourseReplayJSON(text) {
   if (typeof text !== 'string') fail('INVALID_REPLAY', 'Course replay JSON must be text');

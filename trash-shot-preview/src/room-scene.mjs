@@ -3,6 +3,8 @@
 export const ROOM_PALETTE=Object.freeze({cream:'#f4ead5',teal:'#438f88',darkTeal:'#286864',wood:'#c89357',gold:'#e8b54e',orange:'#e98238'});
 export const ROOM_LANE=Object.freeze({minX:-1.65,maxX:1.65,minZ:-1,maxZ:7.6});
 export const ROOM_MONITOR_QUAD=Object.freeze([{x:3.12,y:2.22,z:4.28},{x:4.1,y:2.22,z:4.28},{x:4.1,y:1.66,z:4.28},{x:3.12,y:1.66,z:4.28}].map(Object.freeze));
+const COMPACT_MONITOR_QUAD=Object.freeze([{x:-.60,y:1.30,z:-.558},{x:-.07,y:1.30,z:-.558},{x:-.07,y:1,z:-.558},{x:-.60,y:1,z:-.558}].map(Object.freeze));
+export function roomMonitorQuad(world){return world?.worldVersion===2?COMPACT_MONITOR_QUAD:ROOM_MONITOR_QUAD;}
 const p=(x,y,z)=>({x,y,z});
 const face=(points,fill,stroke=null)=>({points,fill,stroke});
 const groups=[];
@@ -109,9 +111,56 @@ group('fan',{minX:-2.8,maxX:-1.82,minZ:2.55,maxZ:3.55},s=>{
   for(let i=0;i<n;i++){const a=i/n*Math.PI*2,b=(i+1)/n*Math.PI*2;s.push(face([p(x,y+Math.cos(a)*.48,z+Math.sin(a)*.48),p(x,y+Math.cos(b)*.48,z+Math.sin(b)*.48),p(x,y+Math.cos(b)*.41,z+Math.sin(b)*.41),p(x,y+Math.cos(a)*.41,z+Math.sin(a)*.41)],'#51978d'));}
   for(const angle of [0,Math.PI/4,Math.PI/2,Math.PI*.75])s.push({points:[p(x+.014,y+Math.cos(angle)*.41,z+Math.sin(angle)*.41),p(x+.014,y-Math.cos(angle)*.41,z-Math.sin(angle)*.41)],line:true,stroke:'#ccd5bf'});
 },true);
+let compactCache=null;
+function compactRoom(world){
+  const key=JSON.stringify([world.room,world.sourceDesk]);if(compactCache?.key===key)return compactCache.groups;
+  const list=[],r=world.room;
+  const g=(id,bounds,build,extra=false)=>{const shapes=[];build(shapes);list.push({id,bounds,shapes,extra});};
+  g('floor',null,s=>{
+    s.push(face([p(r.minX,-.02,r.minZ),p(r.maxX,-.02,r.minZ),p(r.maxX,-.02,r.maxZ),p(r.minX,-.02,r.maxZ)],'#d0ad7d'));
+    for(let x=r.minX;x<r.maxX-.01;x+=.42)for(let z=r.minZ;z<r.maxZ-.01;z+=.96){const w=Math.min(.415,r.maxX-x),d=Math.min(.955,r.maxZ-z);s.push(face([p(x,0,z),p(x+w,0,z),p(x+w,0,z+d),p(x,0,z+d)],['#d6b789','#d1b184','#d8ba8e'][Math.abs(Math.round(x*7+z*3))%3]));}
+    s.push(face([p(-.98,.011,.18),p(.98,.011,.18),p(.98,.011,3.88),p(-.98,.011,3.88)],'#e7dec6'));
+    for(let z=.25;z<3.8;z+=.35)s.push(face([p(-.93,.013,z),p(.93,.013,z),p(.93,.013,z+.085),p(-.93,.013,z+.085)],'#d2dacb'));
+    s.push({...face([p(-1.28,.018,3.7),p(.9,.018,3.7),p(2.0,.018,1.7),p(.55,.018,1.7)],'rgba(255,238,179,.18)'),depthWrite:false});
+  });
+  g('back-wall',null,s=>{
+    for(const [x,w] of [[r.minX,-1.25-r.minX],[1.25,r.maxX-1.25]])box(s,x,0,r.maxZ,w,r.height,.09,'#e9ddbe');
+    box(s,-1.25,0,r.maxZ,2.5,1.04,.09,'#e9ddbe');box(s,-1.25,2.5,r.maxZ,2.5,r.height-2.5,.09,'#e9ddbe');
+    box(s,-1.25,1.04,r.maxZ+.02,2.5,1.46,.03,'#a7d3d1');box(s,-1.28,1.0,r.maxZ-.04,2.56,.08,.16,'#c29f6f');
+    for(const x of [-1.25,-.025,1.2])box(s,x,1.05,r.maxZ-.05,.05,1.44,.08,'#fff4d9');box(s,-1.25,1.7,r.maxZ-.05,2.5,.05,.08,'#fff4d9');
+    box(s,-1.36,2.53,r.maxZ-.04,2.72,.04,.17,'#ba9765');
+  });
+  g('left-wall',null,s=>{box(s,r.minX-.08,0,r.minZ,.08,r.height,r.maxZ-r.minZ,'#e4d8bb');box(s,r.minX+.003,0,-.55,.035,2.05,1.0,'#518b80');box(s,r.minX+.044,.94,.3,.055,.06,.04,'#d1aa4e');});
+  g('right-wall',null,s=>box(s,r.maxX,0,r.minZ,.08,r.height,r.maxZ-r.minZ,'#efe4c8'));
+  g('front-wall',null,s=>box(s,r.minX,0,r.minZ-.08,r.maxX-r.minX,r.height,.08,'#e6dabe'));
+  g('bed',{minX:-2.98,maxX:-1.78,minY:0,maxY:1.1,minZ:3.2,maxZ:5.4},s=>{
+    beveledTop(s,-2.98,.16,3.28,1.14,.23,2.05,'#c69863');beveledTop(s,-2.98,.39,3.28,1.14,.17,2.02,'#f7efd9');
+    beveledTop(s,-2.98,.56,3.28,1.14,.075,1.3,'#71a8a1');beveledTop(s,-2.92,.56,4.76,1.0,.12,.42,'#fff7e5');box(s,-3.02,.23,5.27,1.22,.7,.08,'#b89060');
+    for(const x of [-2.89,-1.99])for(const z of [3.39,5.14])box(s,x,0,z,.1,.17,.1,'#b28a58');
+  });
+  g('shelf',{minX:1.9,maxX:3.04,minY:0,maxY:1.85,minZ:4.65,maxZ:5.14},s=>{
+    box(s,1.92,0,4.77,.08,1.82,.37,'#438f88');box(s,2.94,0,4.77,.08,1.82,.37,'#438f88');box(s,1.98,0,5.1,1.0,1.82,.045,'#5a9990');
+    for(const y of [0,.45,.89,1.33,1.76])box(s,1.98,y,4.72,1.02,.065,.46,'#438f88');
+    for(let row=0;row<4;row++)for(let i=0;i<6;i++)box(s,2.03+i*.145,.07+row*.44,4.83,.1,.22+(i%3)*.07,.22,['#dba94c','#ede6d0','#a4b690','#82b1ad'][i%4]);
+    cylinder(s,2.7,1.82,4.98,.07,.12,'#d8b578');
+  });
+  g('floor-plant',{minX:1.96,maxX:2.82,minY:0,maxY:.95,minZ:2.65,maxZ:3.4},s=>plant(s,2.37,0,3.02,.7));
+  const d=world.sourceDesk;
+  g('source-desk',{minX:d.center.x-d.width/2,maxX:d.center.x+d.width/2,minY:0,maxY:d.topY,minZ:d.center.z-d.depth/2,maxZ:d.center.z+d.depth/2},s=>{
+    const x=d.center.x-d.width/2,z=d.center.z-d.depth/2;beveledTop(s,x,d.topY-d.topThickness,z,d.width,d.topThickness,d.depth,'#c49b68');
+    for(const lx of [x+.09,x+d.width-.09-d.legWidth])for(const lz of [z+.08,z+d.depth-.08-d.legWidth])box(s,lx,0,lz,d.legWidth,d.topY-d.topThickness,d.legWidth,'#c7ad87');
+    box(s,-.64,.96,-.54,.61,.38,.045,'#397e76');box(s,-.60,1,-.559,.53,.30,.008,'#f4ead5');box(s,-.4,.82,-.5,.12,.14,.08,'#397e76');beveledTop(s,-.55,.8,-.64,.44,.025,.3,'#4e9189');
+    cylinder(s,.51,.8,-.59,.07,.12,'#d7b57f');
+  });
+  g('chair',{minX:.05,maxX:.61,minY:0,maxY:.9,minZ:-1.45,maxZ:-.91},s=>{beveledTop(s,.05,.4,-1.4,.55,.07,.49,'#bd9562');box(s,.05,.47,-1.44,.55,.42,.055,'#c59e6d');for(const x of [.1,.51])for(const z of [-1.35,-1.02])box(s,x,0,z,.055,.4,.055,'#d1b690');});
+  const fan=groups.find(q=>q.id==='fan');const transform=q=>({x:q.x*.8,y:q.y*.78,z:q.z*.83});
+  list.push({id:'fan',extra:true,bounds:{minX:-2.24,maxX:-1.456,minY:0,maxY:1.58,minZ:2.1165,maxZ:2.9465},shapes:fan.shapes.map(shape=>({...shape,points:shape.points.map(transform)}))});
+  compactCache={key,groups:list};return list;
+}
 function intersectsSight(bounds,camera,target){
   let lo=0,hi=1;
-  for(const axis of ['X','Z']){
+  for(const axis of ['X','Y','Z']){
+    if(!Number.isFinite(bounds['min'+axis])||!Number.isFinite(bounds['max'+axis]))continue;
     const key=axis.toLowerCase(),delta=target[key]-camera[key];
     if(Math.abs(delta)<1e-7){if(camera[key]<bounds['min'+axis]||camera[key]>bounds['max'+axis])return false;continue;}
     let a=(bounds['min'+axis]-.1-camera[key])/delta,b=(bounds['max'+axis]+.1-camera[key])/delta;
@@ -119,24 +168,25 @@ function intersectsSight(bounds,camera,target){
   }
   return hi>0&&lo<1;
 }
-export function roomScene(camera,binZ=6,flight=[],extra=false,course=null){
+export function roomScene(camera,binZ=6,flight=[],extra=false,course=null,world=null){
   const shapes=[],cutaway=[];
-  for(const g of groups){
+  const source=world?.worldVersion===2?compactRoom(world):groups,r=world?.worldVersion===2?world.room:null;
+  for(const g of source){
     if(g.extra&&!extra)continue;
-    if(g.id==='back-wall'&&camera.z>8.9||g.id==='front-wall'&&camera.z<-.8||g.id==='left-wall'&&camera.x<-4.5||g.id==='right-wall'&&camera.x>4.5)continue;
+    if(g.id==='back-wall'&&camera.z>(r?r.maxZ-.1:8.9)||g.id==='front-wall'&&camera.z<(r?r.minZ+.1:-.8)||g.id==='left-wall'&&camera.x<(r?r.minX+.1:-4.5)||g.id==='right-wall'&&camera.x>(r?r.maxX-.1:4.5))continue;
     const maxY={bed:1.5,shelf:3.15,desk:2.45,'floor-plant':1.6,fan:2.05}[g.id];
-    const reached=g.bounds&&flight.some(q=>q.y<=maxY+.14&&q.x>=g.bounds.minX-.14&&q.x<=g.bounds.maxX+.14&&q.z>=g.bounds.minZ-.14&&q.z<=g.bounds.maxZ+.14);
-    const wallReached=g.id==='back-wall'&&flight.some(q=>q.z>=9.06&&q.y<3.8)||g.id==='front-wall'&&flight.some(q=>q.z<=-1.86&&q.y<3.8)||g.id==='left-wall'&&flight.some(q=>q.x<=-4.66&&q.y<3.8)||g.id==='right-wall'&&flight.some(q=>q.x>=4.66&&q.y<3.8);
-    const faded=reached||wallReached||g.bounds&&[p(0,1,0),p(0,1,binZ)].some(q=>intersectsSight(g.bounds,camera,q));
+    const reached=g.bounds&&flight.some(q=>(g.id!=='source-desk'||q.z<-.08)&&q.y<=(g.bounds.maxY??maxY)+.14&&q.x>=g.bounds.minX-.14&&q.x<=g.bounds.maxX+.14&&q.z>=g.bounds.minZ-.14&&q.z<=g.bounds.maxZ+.14);
+    const wallReached=g.id==='back-wall'&&flight.some(q=>q.z>=(r?r.maxZ-.14:9.06)&&q.y<(r?r.height+.14:3.8))||g.id==='front-wall'&&flight.some(q=>q.z<=(r?r.minZ+.14:-1.86)&&q.y<(r?r.height+.14:3.8))||g.id==='left-wall'&&flight.some(q=>q.x<=(r?r.minX+.14:-4.66)&&q.y<(r?r.height+.14:3.8))||g.id==='right-wall'&&flight.some(q=>q.x>=(r?r.maxX-.14:4.66)&&q.y<(r?r.height+.14:3.8));
+    const faded=reached||wallReached||g.bounds&&[world?.origin??p(0,1,0),p(0,world?.bin.height??1,binZ)].some(q=>intersectsSight(g.bounds,camera,q));
     if(faded){cutaway.push(g.id);const dim=c=>c?`rgba(${parseInt(c.slice(1,3),16)},${parseInt(c.slice(3,5),16)},${parseInt(c.slice(5,7),16)},.23)`:null;for(const s of g.shapes)shapes.push({...s,fill:dim(s.fill),stroke:dim(s.stroke),depthWrite:false});}
     else shapes.push(...g.shapes);
   }
   // Physical desk surfaces come directly from the collider descriptor. They
   // remain visibly solid; only the peripheral bedroom furniture cuts away.
   if(course?.desk)for(const collider of course.desk.colliders){const a=collider.min,b=collider.max;box(shapes,a.x,a.y,a.z,b.x-a.x,b.y-a.y,b.z-a.z,collider.id==='desk-top'?'#b58959':'#bda079');}
-  return {shapes,cutaway,groups:groups.filter(g=>!g.extra||extra).map(g=>({id:g.id,bounds:g.bounds})),course:course?.stageId??null};
+  return {shapes,cutaway,groups:source.filter(g=>!g.extra||extra).map(g=>({id:g.id,bounds:g.bounds})),course:course?.stageId??null,worldVersion:world?.worldVersion??1};
 }
-export function roomMotionShapes(time,fanEnabled=true,reducedMotion=false){
+export function roomMotionShapes(time,fanEnabled=true,reducedMotion=false,world=null){
   const shapes=[],t=reducedMotion?0:time,head={x:-2.13,y:1.53,z:3.05};
   for(let i=0;i<3;i++){
     const a=t*(fanEnabled?10:0)+i/3*Math.PI*2;
@@ -150,7 +200,7 @@ export function roomMotionShapes(time,fanEnabled=true,reducedMotion=false){
   for(const ex of [x+.06,x+.43])for(const ez of [z+.04,z+.21])box(shapes,ex,.05+Math.max(0,Math.sin(t*4+(ex===x+.06?0:Math.PI)))*.07,ez,.075,.24,.065,'#caa572');
   box(shapes,x-.11,.32,z+.1,.09,.46,.075,'#cea971');box(shapes,x-.18,.7,z+.1,.14,.075,.075,'#cea971');
   box(shapes,x+.58,.59,z-.025,.035,.025,.013,'#545c48');box(shapes,x+.55,.49,z-.04,.06,.034,.022,'#bc8d73');
-  return shapes;
+  return world?.worldVersion===2?shapes.map(shape=>({...shape,points:shape.points.map(q=>({x:q.x*.8,y:q.y*.78,z:q.z*.83}))})):shapes;
 }
 // Two clipped affine triangles preserve the monitor's projected screen quad.
 export function paintScreenQuad(ctx,source,quad){

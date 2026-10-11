@@ -1,6 +1,6 @@
-import { predictArc } from './physics.mjs?v=20261011-first-chapter-1';
-import { roomScene,roomMotionShapes,ROOM_MONITOR_QUAD,paintScreenQuad } from './room-scene.mjs?v=20261011-first-chapter-1';
-import {drawPixelText} from './pixel-type.mjs?v=20261011-first-chapter-1';
+import { predictArc } from './physics.mjs?v=20261011-play-ui-1';
+import { roomScene,roomMotionShapes,roomMonitorQuad,paintScreenQuad } from './room-scene.mjs?v=20261011-play-ui-1';
+import {drawPixelText} from './pixel-type.mjs?v=20261011-play-ui-1';
 
 const add = (a,b) => ({ x:a.x+b.x, y:a.y+b.y, z:a.z+b.z });
 const sub = (a,b) => ({ x:a.x-b.x, y:a.y-b.y, z:a.z-b.z });
@@ -17,25 +17,29 @@ export function createRenderer(canvas) {
   const defaultOrbit={azimuth:.581,elevation:.42,zoom:1};
   let orbitState={...defaultOrbit},sceneDistance=6;
   let projection='perspective',sideZoom=1,sideFrame={scale:40,left:40,floor:height-42};
+  let worldView=null;
   let environment=null,roomCache=null,roomBuilds=0,roomCutaway=[],roomFlightKey='',roomFlight=[],revealProgress=null,revealDistance=1;
   const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
-  let forward, right, up, focal;
+  let forward, right, up, focal,angleCueSnapshot=null;
   const configureCamera = () => {
-    const distance=(10+sceneDistance*.6)*orbitState.zoom*revealDistance;
+    const distance=(worldView?.view.distance??(10+sceneDistance*.6))*orbitState.zoom*revealDistance;
     camera={x:target.x+Math.sin(orbitState.azimuth)*Math.cos(orbitState.elevation)*distance,y:target.y+Math.sin(orbitState.elevation)*distance,z:target.z-Math.cos(orbitState.azimuth)*Math.cos(orbitState.elevation)*distance};
     forward=unit(sub(target,camera)); right=unit(cross({x:0,y:1,z:0},forward)); up=cross(forward,right);
-    focal=Math.min(width*(width<450?1.13:.92),height*1.45);
+    const portraitRoom=worldView?.worldVersion===2&&width<600;
+    focal=Math.min(width*(portraitRoom?1.48:width<450?1.13:.92),height*1.45);
   };
   const worldToCamera = point => {const p=sub(point,camera); return {x:dot(p,right),y:dot(p,up),z:dot(p,forward)};};
   const cameraToScreen = point => ({x:width/2+point.x*focal/point.z,y:height*.47-point.y*focal/point.z,depth:point.z,visible:point.z>.1});
   const project = point => projection==='side'?{x:sideFrame.left+point.z*sideFrame.scale,y:sideFrame.floor-point.y*sideFrame.scale,depth:1,visible:true}:cameraToScreen(worldToCamera(point));
   // The legal 3D orbit is retained for V1 replays; side zoom never changes it.
-  function cameraSnapshot(){return {azimuth:orbitState.azimuth,elevation:orbitState.elevation,zoom:orbitState.zoom,projection,sideZoom,environment,roomBuilds,roomCutaway:[...roomCutaway],position:{...camera},target:{...target},viewport:{width,height}};}
+  function cameraSnapshot(){return {azimuth:orbitState.azimuth,elevation:orbitState.elevation,zoom:orbitState.zoom,projection,sideZoom,environment,worldVersion:worldView?.worldVersion??0,angleCue:angleCueSnapshot?structuredClone(angleCueSnapshot):null,roomBuilds,roomCutaway:[...roomCutaway],position:{...camera},target:{...target},viewport:{width,height}};}
   function setProjection(mode){projection=mode==='side'?'side':'perspective';}
-  function monitorQuad(){return ROOM_MONITOR_QUAD.map(project);}
+  function setWorldView(world){if(worldView?.worldVersion!==world?.worldVersion)roomCache=null;worldView=world??null;}
+  function monitorQuad(){return roomMonitorQuad(worldView).map(project);}
   function orbit(azimuth,elevation){if(projection==='side')return;orbitState.azimuth=((orbitState.azimuth+azimuth)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);orbitState.elevation=clamp(orbitState.elevation+elevation,.15,1.43);configureCamera();}
   function zoom(factor){if(projection==='side'){sideZoom=clamp(sideZoom*factor,.62,1.8);return;}orbitState.zoom=clamp(orbitState.zoom*factor,.62,1.8);configureCamera();}
-  function resetCamera(){if(projection==='side'){sideZoom=1;return;}orbitState={...defaultOrbit};configureCamera();}
+  function restoreCamera(snapshot){orbitState={azimuth:snapshot.azimuth,elevation:clamp(snapshot.elevation,.15,1.43),zoom:clamp(snapshot.zoom,.62,1.8)};configureCamera();}
+  function resetCamera(){if(projection==='side'){sideZoom=1;return;}orbitState=worldView?.worldVersion===2?{azimuth:.18,elevation:.40,zoom:1}:{...defaultOrbit};configureCamera();}
   function resize() {
     const rect=canvas.getBoundingClientRect();
     const changed=width!==Math.max(1,rect.width)||height!==Math.max(1,rect.height);
@@ -97,6 +101,18 @@ export function createRenderer(canvas) {
     const trail=game.trail||[];
     if(trail.length<2)return;
     for(let i=1;i<trail.length;i++)line(trail[i-1],trail[i],`rgba(184,135,52,${.12+.3*i/trail.length})`,1.7);
+  }
+  function drawAngleCue(game,aim){
+    const origin=worldView?.origin??{x:0,y:1.05,z:0},angle=aim.elevation*Math.PI/180,heading=aim.yaw*Math.PI/180,radius=.66;
+    const at=a=>({x:origin.x+Math.sin(heading)*Math.cos(a)*radius,y:origin.y+Math.sin(a)*radius,z:origin.z+Math.cos(heading)*Math.cos(a)*radius});
+    const arc=Array.from({length:13},(_,i)=>at(angle*i/12));polygon([origin,...arc],'rgba(218,173,75,.18)');
+    for(let i=1;i<arc.length;i++)line(arc[i-1],arc[i],'#c49942',1.4);
+    line(origin,arc[0],'rgba(143,153,123,.65)',1);line(origin,arc.at(-1),'#bc852f',2.2);
+    const o=project(origin),tip=project(arc.at(-1));if(!tip.visible||!o.visible)return;
+    const direction=Math.atan2(tip.y-o.y,tip.x-o.x);ctx.beginPath();ctx.moveTo(tip.x,tip.y);for(const offset of [-.45,.45])ctx.lineTo(tip.x-Math.cos(direction+offset)*9,tip.y-Math.sin(direction+offset)*9);ctx.closePath();ctx.fillStyle='#bc852f';ctx.fill();
+    const text=`弧 ${aim.elevation}°${aim.yaw?` · ${aim.yaw<0?'左':'右'} ${Math.abs(aim.yaw)}°`:''}`,x=clamp(tip.x+10,12,width-142),y=clamp(tip.y-14,42,height-18);
+    ctx.font='600 12px system-ui,sans-serif';ctx.textAlign='left';const textWidth=ctx.measureText(text).width;ctx.fillStyle='rgba(255,248,233,.94)';ctx.fillRect(x-5,y-15,textWidth+10,23);ctx.fillStyle='#286864';ctx.fillText(text,x,y);
+    angleCueSnapshot={origin:{...origin},elevation:aim.elevation,yaw:aim.yaw,tip:arc.at(-1),screenOrigin:o,screenTip:tip};
   }
   function shapesForBin(game,room=false) {
     // The visible aperture equals the physical wall radius; decorative thickness grows outward.
@@ -198,10 +214,10 @@ export function createRenderer(canvas) {
   }
   function drawRoom(game,controls,view){
     ctx.fillStyle='#f4ead5';ctx.fillRect(0,0,width,height);
-    const flightKey=[game.attempts,game.bin.center.z,game.bin.height,controls.power,controls.elevation,controls.yaw].join('/');
+    const flightKey=[worldView?.worldVersion,game.bin.radius,worldView?.origin.y,game.attempts,game.bin.center.z,game.bin.height,controls.power,controls.elevation,controls.yaw].join('/');
     if(roomFlightKey!==flightKey){roomFlightKey=flightKey;roomFlight=predictArc(game,controls,80);}
-    const room=roomScene(camera,game.bin.center.z,[...(view.windArc||roomFlight),...(game.trail||[])],view.extraRoom,view.course);
-    const key=[width,height,depthWidth,depthHeight,sceneDistance,camera.x,camera.y,camera.z,orbitState.azimuth,orbitState.elevation,orbitState.zoom,view.extraRoom===true,view.course?.stageId,...room.cutaway].join('/');
+    const room=roomScene(camera,game.bin.center.z,[...(view.windArc||roomFlight),...(game.trail||[])],view.extraRoom,view.course,worldView);
+    const key=[worldView?.worldVersion,game.bin.radius,width,height,depthWidth,depthHeight,sceneDistance,camera.x,camera.y,camera.z,orbitState.azimuth,orbitState.elevation,orbitState.zoom,view.extraRoom===true,view.course?.stageId,...room.cutaway].join('/');
     if(!roomCache||roomCache.key!==key){
       const opaque=room.shapes.filter(s=>s.depthWrite!==false),faded=room.shapes.filter(s=>s.depthWrite===false);
       faded.sort((a,b)=>dot(sub(b.points[0],camera),forward)-dot(sub(a.points[0],camera),forward));
@@ -256,25 +272,26 @@ export function createRenderer(canvas) {
   function render(game,controls,view={}) {
     // Layout adapts the target only. The user's orbit survives every phase and resize.
     const distance=game.bin.center.z;
-    sceneDistance=distance;
+    setWorldView(view.world??null);sceneDistance=distance;angleCueSnapshot=null;
     revealProgress=typeof view.revealProgress==='number'?clamp(view.revealProgress,0,1):null;
     revealDistance=revealProgress===null?1:.28+.72*revealProgress;
     environment=projection==='perspective'&&view.environment==='room'?'room':null;
     if(!environment){roomCache=null;roomCutaway=[];}
     resizeDepthLayer();
-    target=revealProgress===null?{x:0,y:.45,z:distance*.47}:{x:3.61*(1-revealProgress),y:1.94+(.45-1.94)*revealProgress,z:4.28+(distance*.47-4.28)*revealProgress};
+    const baseTarget=worldView?.view.target??{x:0,y:.45,z:distance*.47},quad=roomMonitorQuad(worldView),monitorCenter=quad.reduce((v,q)=>add(v,scale(q,.25)),{x:0,y:0,z:0});
+    target=revealProgress===null?{...baseTarget}:add(scale(monitorCenter,1-revealProgress),scale(baseTarget,revealProgress));
     configureCamera();
     ctx.setTransform(pixelRatio,0,0,pixelRatio,0,0);ctx.clearRect(0,0,width,height);
     if(projection==='side'){drawSide(game,controls,view);return;}
     const room=environment==='room',backgroundDepth=room?drawRoom(game,view.aim||controls,view):null;
     if(!room)drawFloor();drawDistance(game);
-    if(room&&view.monitorCanvas){ctx.save();ctx.globalAlpha=roomCutaway.includes('desk') ? .23 : 1;paintScreenQuad(ctx,view.monitorCanvas,monitorQuad());ctx.restore();}
-    shadow(game.bin.center,.97,.8,.11);
+    if(room&&view.monitorCanvas){ctx.save();ctx.globalAlpha=roomCutaway.includes(worldView?.worldVersion===2?'source-desk':'desk') ? .23 : 1;paintScreenQuad(ctx,view.monitorCanvas,monitorQuad());ctx.restore();}
+    shadow(game.bin.center,game.bin.radius*1.35,game.bin.radius*1.14,.11);
     shadow(game.can.position,.2+Math.max(0,game.can.position.y)*.035,.2,.13/(1+Math.max(0,game.can.position.y)*.8));
     if(view.prediction&&!view.course&&(game.phase==='ready'||game.phase==='success'||game.phase==='miss'))drawArc(game,view.aim||controls,view.windArc);
     if(game.phase!=='ready')drawTrail(game);
-    if(view.aim){const heading=view.aim.yaw*Math.PI/180,p=game.phase==='ready'?game.can.position:{x:0,y:1.05,z:0};line(p,{x:p.x+Math.sin(heading)*.75,y:p.y,z:p.z+Math.cos(heading)*.75},'#bd8632',2);}
-    const shapes=[...(room&&view.extraRoom?roomMotionShapes(view.environmentTime||0,view.fanEnabled,view.reducedMotion):[]),...shapesForBin(game,room),...shapesForCan(game,room)];
+    if(view.aim){const heading=view.aim.yaw*Math.PI/180,p=game.phase==='ready'?game.can.position:(worldView?.origin??{x:0,y:1.05,z:0});line(p,{x:p.x+Math.sin(heading)*.75,y:p.y,z:p.z+Math.cos(heading)*.75},'#bd8632',2);}
+    const shapes=[...(room&&view.extraRoom?roomMotionShapes(view.environmentTime||0,view.fanEnabled,view.reducedMotion,worldView):[]),...shapesForBin(game,room),...shapesForCan(game,room)];
     drawDepthShapes(shapes,backgroundDepth);
     if(room&&view.extraRoom){
       // The wind vane marks a local area, not a predicted landing point.
@@ -282,6 +299,7 @@ export function createRenderer(canvas) {
       for(const z of [1.8,4.2])line({x:-1.5,y:.026,z},{x:1.5,y:.026,z},'rgba(104,153,145,.4)',1);
       if(view.fanEnabled){for(let i=0;i<3;i++){const drift=view.reducedMotion ? .3 : (view.environmentTime*.6+i*.29)%1,x=-1.45+drift*2.7,z=2.2+i*.72;line({x,y:1.45,z},{x:x+.19,y:1.45,z},'rgba(104,153,145,.3)',1.2);}}
     }
+    if(view.angleCue&&['ready','success','miss'].includes(game.phase))drawAngleCue(game,view.aim||controls);
     if(view.stageNumber)drawPixelText(ctx,view.stageNumber,16,16,{scale:3,color:'#286864',shadow:{color:'#f4ead5',dx:1,dy:1}});
     const c=game.bin.center,h=game.bin.height;
     if(game.phase==='success'){
@@ -290,5 +308,5 @@ export function createRenderer(canvas) {
     }
   }
   resize();
-  return {resize,render,project,orbit,zoom,resetCamera,cameraSnapshot,setProjection,monitorQuad};
+  return {resize,render,project,orbit,zoom,resetCamera,cameraSnapshot,setProjection,setWorldView,restoreCamera,monitorQuad};
 }

@@ -1,14 +1,14 @@
-import { STAGES, createStageProgress } from './stages.mjs?v=20261011-first-chapter-1';
-import { sideAim } from './side-aim.mjs?v=20261011-first-chapter-1';
-import {createPixelIntro} from './pixel-intro.mjs?v=20261011-first-chapter-1';
-import {createRoomWindStepper,predictWindArc} from './room-gimmicks.mjs?v=20261011-first-chapter-1';
-import {CHAPTER_IDS,createChapterProgress,loadProgress,saveProgress,restoreProgress,encodeProgressCode,decodeProgressCode} from './progress-save.mjs?v=20261011-first-chapter-1';
-import {roomCourse,createRoomCourseStepper} from './room-course.mjs?v=20261011-first-chapter-1';
-import {COURSE_REPLAY_LIMITS,createCourseReplay,validateCourseReplay,coursePayload,courseReplayResult,createCourseReplayPlayer,courseReplayToJSON,parseCourseReplayJSON,decodeCourseReplay,buildCourseReplayURL} from './course-replay.mjs?v=20261011-first-chapter-1';
-import { createGame, setSetup, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261011-first-chapter-1';
-import { createRenderer } from './render.mjs?v=20261011-first-chapter-1';
-import { createShotAnalytics } from './shot-analytics.mjs?v=20261011-first-chapter-1';
-import { createRecorder, loadReplays, saveReplay, deleteReplay } from './replay.mjs?v=20261011-first-chapter-1';
+import { STAGES, createStageProgress } from './stages.mjs?v=20261011-play-ui-1';
+import { sideAim } from './side-aim.mjs?v=20261011-play-ui-1';
+import {createPixelIntro} from './pixel-intro.mjs?v=20261011-play-ui-1';
+import {createRoomWindStepper,predictWindArc} from './room-gimmicks.mjs?v=20261011-play-ui-1';
+import {CHAPTER_IDS,createChapterProgress,loadProgress,saveProgress,restoreProgress,encodeProgressCode,decodeProgressCode} from './progress-save.mjs?v=20261011-play-ui-1';
+import {roomCourse,roomWorld,createRoomCourseStepper} from './room-course.mjs?v=20261011-play-ui-1';
+import {COURSE_REPLAY_LIMITS,createCourseReplay,validateCourseReplay,coursePayload,courseReplayResult,createCourseReplayPlayer,courseReplayToJSON,parseCourseReplayJSON,decodeCourseReplay,buildCourseReplayURL} from './course-replay.mjs?v=20261011-play-ui-1';
+import { createGame, setSetup, setRoomWorld, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261011-play-ui-1';
+import { createRenderer } from './render.mjs?v=20261011-play-ui-1';
+import { createShotAnalytics } from './shot-analytics.mjs?v=20261011-play-ui-1';
+import { createRecorder, loadReplays, saveReplay, deleteReplay } from './replay.mjs?v=20261011-play-ui-1';
 
 const $=id=>document.getElementById(id);
 const canvas=$('scene');
@@ -19,12 +19,16 @@ const analytics=createShotAnalytics();
 const stageProgress=createStageProgress();
 const loadedProgress=loadProgress(storage());
 let chapterProgress=createChapterProgress(loadedProgress.data??undefined),chapterPractice=false,chapterShot=null,chapterResult=null;
+let trainingMode=true,trainingReturnStage='first',trainingStats={attempts:0,successes:0},shotContext=null;
+let angleCueUntil=0;
+const liveWorld=()=>CHAPTER_IDS.includes(stageProgress.snapshot().id)?roomWorld(stageProgress.snapshot().id,2):null;
+const liveCourse=()=>roomCourse(stageProgress.snapshot().id,liveWorld()?.worldVersion??1);
 const pullInput=()=>chapterProgress.snapshot().inputScheme==='pull';
 const chapterStage=()=>CHAPTER_IDS.includes(stageProgress.snapshot().id);
 const unlockedStage=id=>{const i=CHAPTER_IDS.indexOf(id);return i<0||i===0||chapterProgress.snapshot().completedIDs.includes(CHAPTER_IDS[i-1]);};
 let freeSetup={distance:6,height:1.3};
 let previous3DMode='throw';
-observeGame(game,event=>stageProgress.result(event,{recordClear:!chapterPractice}));
+observeGame(game,event=>{if(event.type==='result'&&shotContext?.shotId===event.shotId&&shotContext.training){if(!shotContext.finished){shotContext.finished=true;if(event.success)trainingStats.successes++;}return;}stageProgress.result(event,{recordClear:!chapterPractice});});
 observeGame(game,event=>analytics.observe(event));
 const inputs=['power','elevation','yaw','distance','height'].map($);
 const pointers=new Set();
@@ -81,14 +85,15 @@ function updateControlLabels(aim=null){
 function updateHint(){
   const motion=pullInput()?'左下へ引いて':'右上へなぞって',straight=pullInput()?'下へ引いて':'上へドラッグ／スワイプして';
   canvas.dataset.mode=view.mode;canvas.dataset.dragging=String(Boolean(view.gesture));
-  canvas.dataset.projection=sideStage()?'side':'perspective';
+  canvas.dataset.projection=sideStage()?'side':'perspective';canvas.dataset.training=String(trainingMode);
+  if($('arc-value'))$('arc-value').textContent=`${controls.elevation}°`;
   $('mode-throw').setAttribute('aria-pressed',String(view.mode==='throw'));
   $('mode-observe').setAttribute('aria-pressed',String(view.mode==='observe'));
   $('cancel-gesture').hidden=!view.gesture||view.gesture.kind!=='throw';
   if(sideStage()){
     $('interaction-hint').textContent=busy()?'横から、缶の行方を見届けよう。':view.gesture?.aim?.valid?'離すと一投。Esc または下のボタンで取消。':`${motion}、離すと一投。`;
-    $('input-detail').textContent=view.gesture?`角度 ${view.gesture.aim.elevation}° · 強さ ${view.gesture.aim.power.toFixed(2).replace(/0$/,'')} · 向きで角度、長さで強さ`:`${motion}、向きで角度、長さで強さ。低くも高くも自由に。角度・強さのつまみも使えます。`;
-    canvas.setAttribute('aria-label',`横から見た2D投球画面。${motion}、離すと一投。向きで角度、長さで強さ。箱へ向かう平面内で投げます。数値で投げるボタンも使えます。`);
+    $('input-detail').textContent=view.gesture?`角度 ${view.gesture.aim.elevation}° · 強さ ${view.gesture.aim.power.toFixed(2).replace(/0$/,'')} · 向きで角度、長さで強さ`:`${motion}、向きで角度、長さで強さ。${trainingMode?'つまみでも練習できます。':'低くも高くも自由に。'}`;
+    canvas.setAttribute('aria-label',`横から見た2D投球画面。${motion}、離すと一投。向きで角度、長さで強さ。箱へ向かう平面内で投げます。${trainingMode?'練習では数値でも投げられます。':''}`);
     return;
   }
   if(view.gesture?.temporaryObserve){
@@ -106,14 +111,14 @@ function updateHint(){
     $('interaction-hint').textContent=aim.valid?(outsideEmbeddedMouse?'外で離したら、カーソルを画面へ戻すと一投。Esc で取消。':'離すと一投。取り消しは Esc または下のボタン。'):`もう少し${pullInput()?'下':'上'}へ動かすと、投げられます。`;
     $('input-detail').textContent=`強さ ${aim.power.toFixed(1)} · ${aim.yaw===0?'箱へまっすぐ':`${aim.yaw<0?'左':'右'} ${Math.abs(aim.yaw)}°`} · 角度 ${controls.elevation}°`;
   }else{
-    $('interaction-hint').textContent=`${straight}、離すと一投。`;
-    $('input-detail').textContent=`長く動かすほど強く。ホイール上で高い弧（${controls.elevation}°）。右ドラッグで見回す。短い右クリックで切替。`;
+    $('interaction-hint').textContent=game.phase==='miss'?`もう一投。${straight}、離してみよう。`:`${straight}、離すと一投。`;
+    $('input-detail').textContent=`右ボタンを押したままドラッグで見回す。ホイール：弧を高く／低く。スマホ：弧 −／＋。見回し中のホイールはズーム。`;
   }
-  canvas.setAttribute('aria-label',view.mode==='observe'?'缶と箱を観察する立体画面。ドラッグか矢印キーでカメラ回転。ホイールかプラスとマイナスでズーム。右クリックで手投げに切替。':`缶を投げる立体画面。${straight}、離すと一投。ホイール上で高い弧。右ドラッグで見回す。数値でも投げられます。`);
+  canvas.setAttribute('aria-label',view.mode==='observe'?'缶と箱を観察する立体画面。ドラッグか矢印キーでカメラ回転。ホイールかプラスとマイナスでズーム。右クリックで手投げに切替。':`缶を投げる立体画面。${straight}、離すと一投。ホイールまたは弧のボタンで投球角度を調整。右ボタンを押したままドラッグで見回せます。${trainingMode?'練習では数値でも投げられます。':''}`);
 }
 function actualLiveResult(){
   const result=analytics.snapshot().result;if(!result?.success)return result;
-  const deskHits=roomCourse(stageProgress.snapshot().id)?courseStepper.snapshot().contacts.filter(c=>c.time<result.finalEntryTime+1e-8).length:0;
+  const deskHits=liveCourse()?courseStepper.snapshot().contacts.filter(c=>c.time<result.finalEntryTime+1e-8).length:0;
   return {...result,deskHits,roles:deskHits?[...result.roles.filter(r=>r.id!=='direct'),{id:'desk-bank',label:'机当て'}]:result.roles};
 }
 function updateScoreSummary(){
@@ -183,32 +188,40 @@ $('camera-reset').addEventListener('click',()=>cameraAction(()=>renderer.resetCa
 for(const [id,x,y] of [['camera-left',-.16,0],['camera-right',.16,0],['camera-up',0,.12],['camera-down',0,-.12]])$(id).addEventListener('click',()=>cameraAction(()=>renderer.orbit(x,y)));
 $('camera-in').addEventListener('click',()=>cameraAction(()=>renderer.zoom(.88)));
 $('camera-out').addEventListener('click',()=>cameraAction(()=>renderer.zoom(1.14)));
-$('prediction-toggle').addEventListener('change',()=>{cancelGesture('prediction-change');view.prediction=$('prediction-toggle').checked;});
-for(const id of ['power','elevation','yaw'])$(id).addEventListener('input',()=>{const value=sideStage()&&id==='yaw'?0:Number($(id).value);cancelGesture('numeric-change');controls[id]=value;updateControlLabels();updateHint();});
+$('prediction-toggle').addEventListener('change',()=>{cancelGesture('prediction-change');view.prediction=trainingMode&&$('prediction-toggle').checked;});
+function changeArc(amount){if(busy()||pixelIntro?.active||$('chapter-result')?.open||replayDialog.open||sideStage())return;cancelGesture('arc-control');controls.elevation=clamp(controls.elevation+amount,15,75);angleCueUntil=performance.now()+1800;updateControlLabels();updateHint();updateStageUI();}
+$('arc-lower')?.addEventListener('click',()=>changeArc(-3));$('arc-higher')?.addEventListener('click',()=>changeArc(3));
+$('game-menu-open')?.addEventListener('click',()=>{if(pixelIntro?.active)return;cancelGesture('menu');const menu=$('game-menu');menu.open=!menu.open;$('game-menu-open').setAttribute('aria-expanded',String(menu.open));if(menu.open)menu.scrollIntoView({block:'start',behavior:'instant'});});
+$('game-menu')?.addEventListener('toggle',()=>$('game-menu-open')?.setAttribute('aria-expanded',String($('game-menu').open)));
+$('training-start')?.addEventListener('click',()=>{if(busy()||pixelIntro?.active||$('chapter-result')?.open||replayDialog.open)return;trainingReturnStage=stageProgress.snapshot().id==='free'?chapterProgress.snapshot().resumeStage:stageProgress.snapshot().id;selectStage(stageProgress.snapshot().id,{allowPractice:true,training:true});canvas.scrollIntoView({block:'center',behavior:'instant'});});
+$('training-exit')?.addEventListener('click',()=>{if(busy()||pixelIntro?.active||$('chapter-result')?.open||replayDialog.open)return;const target=stageProgress.snapshot().id==='free'?trainingReturnStage:stageProgress.snapshot().id;selectStage(target,{allowPractice:true,training:false});canvas.scrollIntoView({block:'center',behavior:'instant'});});
+for(const id of ['power','elevation','yaw'])$(id).addEventListener('input',()=>{if(!trainingMode){updateControlLabels();return;}const value=sideStage()&&id==='yaw'?0:Number($(id).value);cancelGesture('numeric-change');controls[id]=value;if(id==='elevation'||id==='yaw')angleCueUntil=performance.now()+1800;updateControlLabels();updateHint();});
 for(const id of ['distance','height'])$(id).addEventListener('change',()=>{
   if(busy()||stageProgress.snapshot().id!=='free'){$('distance').value=String(game.bin.center.z);$('height').value=String(game.bin.height);return;}
   cancelGesture('setup-change');clearCurrentShot();setSetup(game,{distance:Number($('distance').value),height:Number($('height').value)});updateUI(true);
 });
-function selectStage(id,{fromIntro=false,allowPractice=false,fromEntry=false}={}){
+function selectStage(id,{fromIntro=false,allowPractice=false,fromEntry=false,training=id==='free'}={}){
   if(pixelIntro?.active&&!fromIntro)return false;
   if(busy()||!STAGES[id]||$('chapter-result')?.open||replayDialog.open)return false;
   if(!unlockedStage(id)&&!allowPractice)return false;
-  chapterPractice=CHAPTER_IDS.includes(id)&&!unlockedStage(id);chapterShot=null;
-  if(CHAPTER_IDS.includes(id)&&!chapterPractice){chapterProgress.chooseStage(id);if(!fromEntry)persistChapter();}
+  trainingMode=training===true;trainingStats={attempts:0,successes:0};shotContext=null;chapterPractice=CHAPTER_IDS.includes(id)&&!unlockedStage(id);chapterShot=null;
+  if(CHAPTER_IDS.includes(id)&&!chapterPractice&&!trainingMode){chapterProgress.chooseStage(id);if(!fromEntry)persistChapter();}
   if($('chapter-top'))$('chapter-top').hidden=true;
+  chapterResult=null;
   const wasSide=sideStage(),willBeSide=STAGES[id].projection==='side';
   if(stageProgress.snapshot().id==='free')freeSetup={distance:game.bin.center.z,height:game.bin.height};
   cancelGesture('stage-change');pointers.clear();if(fromIntro)shotRecorder=null;else clearCurrentShot();stageProgress.select(id);
   roomWind.reset();courseStepper.reset();windArcKey='';if(id==='room-extra')fanEnabled=true;
-  const setup=id==='free'?freeSetup:STAGES[id];setSetup(game,setup);
+  const setup=id==='free'?freeSetup:STAGES[id];if(CHAPTER_IDS.includes(id))setRoomWorld(game,2);else setSetup(game,setup);renderer.setWorldView(liveWorld());
   $('distance').value=String(setup.distance);$('height').value=String(setup.height);
   if(willBeSide&&!wasSide){previous3DMode=view.mode;view.mode='throw';}
   else if(wasSide&&!willBeSide)view.mode=previous3DMode;
   renderer.setProjection(willBeSide?'side':'perspective');
   $('power').min=willBeSide?'.5':'4';$('power').max=willBeSide?'14':'13';
   $('elevation').min=willBeSide?'5':'15';$('elevation').max=willBeSide?'85':'75';$('elevation').step=willBeSide?'.5':'1';
-  if(id!=='free'){Object.assign(controls,{power:setup.power,elevation:setup.elevation,yaw:setup.yaw});if(willBeSide||!wasSide)renderer.resetCamera();}
+  if(id!=='free'){Object.assign(controls,liveWorld()?.launch??{power:setup.power,elevation:setup.elevation,yaw:setup.yaw});if(willBeSide||!wasSide)renderer.resetCamera();}
   if(!willBeSide){controls.power=clamp(controls.power,4,13);controls.elevation=Math.round(clamp(controls.elevation,15,75));}
+  if($('game-menu')){$('game-menu').open=false;$('game-menu-open')?.setAttribute('aria-expanded','false');}
   updateControlLabels();updateUI(true);return true;
 }
 if($('stage-select')){
@@ -219,7 +232,7 @@ if($('stage-select')){
 }
 function updateStageUI(){
   const state=stageProgress.snapshot();
-  const side=sideStage(),motion=pullInput()?'左下へ引く':'右上へなぞる',straight=pullInput()?'下へ引く':'上へなぞる',course=roomCourse(state.id);
+  const side=sideStage(),motion=pullInput()?'左下へ引く':'右上へなぞる',straight=pullInput()?'下へ引く':'上へなぞる',course=liveCourse();
   $('yaw').disabled=busy()||side;
   $('mode-observe').disabled=side;
   for(const id of ['camera-left','camera-right','camera-up','camera-down'])$(id).disabled=side;
@@ -230,15 +243,27 @@ function updateStageUI(){
   if($('input-scheme')){$('input-scheme').value=chapterProgress.snapshot().inputScheme;$('input-scheme').disabled=busy()||pixelIntro?.active===true;}
   if($('stage-help')){$('stage-help').hidden=!side;$('stage-help').textContent=`本編とは別の2D脇道。${motion}向きで角度、長さで強さを決めて、8 m先の箱へ。記録は3Dで見回せます。`;}
   if(course?.desk&&$('stage-help')){$('stage-help').hidden=false;$('stage-help').textContent=state.id==='desk-over'?'箱の手前に机。高い弧で越えても、机で跳ね返って入っても成功。机のある面では練習用の予測線を表示しません。':'机の横に開いた投球路。左右と弧を合わせて箱へ。机と4本の脚には実際に当たります。机のある面では予測線を表示しません。';}
-  $('prediction-toggle').disabled=Boolean(course?.desk);if(course?.desk){view.prediction=false;$('prediction-toggle').checked=false;}
-  if(extraRoom()&&$('stage-help')){$('stage-help').hidden=false;$('stage-help').textContent='1-4のおまけ。箱の手前だけ、扇風機が右へ風を送ります。猫は部屋の住人。風は投げる前に切り替えられます。記録は共通の3D画面で軌道を見回せます。';}
+  $('prediction-toggle').disabled=!trainingMode||Boolean(course?.desk);if(!trainingMode||course?.desk){view.prediction=false;$('prediction-toggle').checked=false;}
+  if(extraRoom()&&$('stage-help')){$('stage-help').hidden=false;$('stage-help').textContent='1-4のおまけ。箱の手前だけ、扇風機が右へ風を送ります。猫は部屋の住人。風は投げる前に切り替えられます。記録はこの部屋の3D画面で見回せます。';}
   if($('fan-controls')){$('fan-controls').hidden=!extraRoom();$('fan-toggle').checked=fanEnabled;$('fan-toggle').disabled=busy();$('fan-state').textContent=fanEnabled?'風 ON · 箱の手前だけ右へ':'風 OFF';}
-  if(state.id!=='free')for(const id of ['distance','height'])$(id).disabled=true;
+  if(state.id!=='free'||!trainingMode)for(const id of ['distance','height'])$(id).disabled=true;
+  for(const id of ['power','elevation','yaw'])$(id).disabled=busy()||!trainingMode||id==='yaw'&&side;
+  $('throw-button').disabled=busy()||!trainingMode;
+  if($('training-panel'))$('training-panel').hidden=!trainingMode;
+  if($('training-banner'))$('training-banner').hidden=!trainingMode;
+  if($('training-start'))$('training-start').disabled=busy()||pixelIntro?.active===true||trainingMode;
+  if($('training-exit'))$('training-exit').disabled=busy()||pixelIntro?.active===true;
+  if($('setup-description'))$('setup-description').hidden=!trainingMode;
+  if($('hud-stage'))$('hud-stage').textContent=(trainingMode?'トレーニング · ':'')+STAGES[state.id].label;
+  if($('hud-attempts'))$('hud-attempts').textContent=trainingMode?`練習 ${trainingStats.attempts}投`:chapterPractice?'プレビュー練習':`この面 ${state.attempts}投`;
+  if($('arc-value'))$('arc-value').textContent=`${controls.elevation}°`;
+  for(const id of ['arc-lower','arc-higher'])if($(id))$(id).disabled=busy()||pixelIntro?.active===true||side;
+  if($('arc-value'))$('arc-value').parentElement.hidden=side;
   if(!$('stage-select'))return;
   $('stage-select').value=state.id;$('stage-select').disabled=busy()||pixelIntro?.active===true;$('start-tutorial').disabled=busy()||pixelIntro?.active===true;
   $('tutorial-card').hidden=state.id!=='tutorial';
-  const clear=chapterStage()?!chapterPractice&&chapterProgress.snapshot().completedIDs.includes(state.id):state.completed.includes(state.id);
-  $('stage-progress').textContent=chapterPractice?'プレビュー練習 · 第1章の記録には入りません':state.id==='free'?'自由投球 · このプレイの記録':`${clear?'クリア済み · ':''}この挑戦 ${state.successes} 成功 / ${state.attempts} 投 · 箱に1回入れよう`;
+  const clear=chapterStage()?!trainingMode&&!chapterPractice&&chapterProgress.snapshot().completedIDs.includes(state.id):state.completed.includes(state.id);
+  $('stage-progress').textContent=trainingMode?'トレーニング · 本編の投数・成功・ベストには入りません':chapterPractice?'プレビュー練習 · 第1章の記録には入りません':state.id==='free'?'自由投球 · このプレイの記録':`${clear?'クリア済み · ':''}この挑戦 ${state.successes} 成功 / ${state.attempts} 投 · 箱に1回入れよう`;
   $('stage-message').textContent=busy()?'投球が落ち着いたら、ステージを変えられます。':state.id==='tutorial'&&clear?'できた！ 次は、1-1のゴミ箱へ。':chapterStage()&&clear?'クリア！ 結果を読んだら、次の面へ。':side&&clear?'脇道クリア！ 本編とは別の挑戦です。':game.phase==='miss'&&state.id!=='free'?'向きや強さを変えて、もう一投。':'';
   $('stage-next').hidden=!(state.id==='tutorial'||chapterStage())||!clear;$('stage-next').disabled=busy();
   const next=CHAPTER_IDS[CHAPTER_IDS.indexOf(state.id)+1];$('stage-next').textContent=chapterStage()?next?`${STAGES[next].label}へ`:'第1章のトップへ':'1-1へ';
@@ -246,11 +271,12 @@ function updateStageUI(){
   $('stage-retry').hidden=state.id==='free';$('stage-retry').disabled=busy();
 }
 function fire(source='numeric'){
+  if((source==='numeric'||source==='keyboard')&&!trainingMode)return false;
   if(pixelIntro?.active||$('chapter-result')?.open||replayDialog.open||$('chapter-top')&&!$('chapter-top').hidden)return false;
   cancelGesture('other-throw');
   if(sideStage()){controls.yaw=0;updateControlLabels();}
   const accepted=throwCan(game,controls);
-  if(accepted){stageProgress.launch(game.attempts);clearCurrentShot();roomWind.reset();courseStepper.reset();chapterShot={id:stageProgress.snapshot().id,shotId:game.attempts,eligible:chapterStage()&&!chapterPractice,fanEnabled};if(chapterShot.eligible){chapterProgress.recordAttempt();persistChapter();}try{shotRecorder=createRecorder(getSnapshot(game),controls,renderer.cameraSnapshot());}catch{replayMessage('この一投の録画を開始できません。プレイの結果は記録します。');}lastInput={type:'throw',source,parameters:{...controls}};previousTime=performance.now();updateUI(true);if(source!=='gesture')canvas.scrollIntoView({block:'center',behavior:'instant'});}
+  if(accepted){if(trainingMode)trainingStats.attempts++;else stageProgress.launch(game.attempts);clearCurrentShot();roomWind.reset();courseStepper.reset();shotContext={id:stageProgress.snapshot().id,shotId:game.attempts,training:trainingMode,worldVersion:liveWorld()?.worldVersion??1,fanEnabled,finished:false};chapterShot=!trainingMode&&chapterStage()?{...shotContext,eligible:!chapterPractice}:null;if(chapterShot?.eligible){chapterProgress.recordAttempt();persistChapter();}try{shotRecorder=createRecorder(getSnapshot(game),controls,renderer.cameraSnapshot(),liveWorld()?{worldVersion:2}:{});}catch{replayMessage('この一投の録画を開始できません。プレイの結果は記録します。');}lastInput={type:'throw',source,training:trainingMode,parameters:{...controls}};previousTime=performance.now();updateUI(true);if(source!=='gesture')canvas.scrollIntoView({block:'center',behavior:'instant'});}
   return accepted;
 }
 $('throw-button').addEventListener('click',()=>fire());
@@ -263,7 +289,7 @@ function gestureAim(gesture,event){
   const sign=pullInput()?-1:1;
   if(sideStage())return sideAim((event.clientX-gesture.startX)*sign,(gesture.startY-event.clientY)*sign,size);
   const upward=(gesture.startY-event.clientY)*sign/size,sideways=(event.clientX-gesture.startX)*sign/size;
-  return {power:Math.round(clamp(4+upward*18,4,13)*20)/20,yaw:sideStage()?0:Math.round(clamp(sideways*60,-60,60)*2)/2,valid:upward>=.10};
+  return {power:Math.round(clamp(4+upward*18,4,13)*20)/20,yaw:sideStage()?0:Math.round(clamp(sideways*60+(liveWorld()?.launch.yaw??0),-60,60)*2)/2,valid:upward>=.10};
 }
 function showGesture(gesture,event){
   const x=gesture.startX-gesture.rect.left,y=gesture.startY-gesture.rect.top;
@@ -383,7 +409,7 @@ canvas.addEventListener('wheel',event=>{
   const degrees=Math.trunc(wheelAnglePixels/24);
   wheelAnglePixels-=degrees*24;
   const lower=sideStage()?5:15,upper=sideStage()?85:75;
-  controls.elevation=clamp(controls.elevation+degrees,lower,upper);
+  controls.elevation=clamp(controls.elevation+degrees,lower,upper);if(degrees)angleCueUntil=performance.now()+1800;
   if((controls.elevation===upper&&wheelAnglePixels>0)||(controls.elevation===lower&&wheelAnglePixels<0))wheelAnglePixels=0;
   updateControlLabels(view.gesture?.aim);updateHint();
 },{passive:false});
@@ -391,6 +417,7 @@ document.addEventListener('keydown',event=>{
   if($('replay-dialog').open)return;
   if(event.code==='Escape'){cancelGesture('escape');return;}
   if(event.repeat||event.altKey||event.ctrlKey||event.metaKey)return;
+  if($('chapter-result')?.open||$('chapter-top')&&!$('chapter-top').hidden)return;
   if(event.target===canvas){
     const turns={ArrowLeft:[-.12,0],ArrowRight:[.12,0],ArrowUp:[0,.10],ArrowDown:[0,-.10]};
     if(turns[event.code]){event.preventDefault();cameraAction(()=>renderer.orbit(...turns[event.code]));return;}
@@ -398,7 +425,7 @@ document.addEventListener('keydown',event=>{
   }
   if(event.code!=='Space'&&event.code!=='Enter')return;
   const target=event.target;if(target instanceof HTMLElement&&(target.matches('button,input,select,textarea,summary,a')||target.isContentEditable))return;
-  event.preventDefault();if(view.mode==='throw'&&!view.gesture)fire('keyboard');
+  event.preventDefault();if(trainingMode&&view.mode==='throw'&&!view.gesture)fire('keyboard');
 });
 function resize(){if(renderer.resize())cancelGesture('resize');}
 const resizeObserver=new ResizeObserver(resize);resizeObserver.observe(canvas);
@@ -422,9 +449,9 @@ function captureShot(){
     if(snapshot.phase!=='success'&&snapshot.phase!=='miss')return;
     const result=analytics.snapshot().result;lastReplay=shotRecorder.finish(snapshot,result||{});shotRecorder=null;
     if(!lastReplay)return;
-    if(chapterShot&&CHAPTER_IDS.includes(chapterShot.id))lastReplay=createCourseReplay(lastReplay,chapterShot.id,roomCourse(chapterShot.id)?courseStepper.snapshot().contacts:[],{fanEnabled:chapterShot.id==='room-extra'&&chapterShot.fanEnabled});
+    if(shotContext&&CHAPTER_IDS.includes(shotContext.id))lastReplay=createCourseReplay(lastReplay,shotContext.id,liveCourse()?courseStepper.snapshot().contacts:[],{worldVersion:shotContext.worldVersion,fanEnabled:shotContext.id==='room-extra'&&shotContext.fanEnabled});
     const actual=courseReplayResult(lastReplay);
-    $('shot-roles').textContent=roleText(lastReplay);
+    $('shot-roles').textContent=(shotContext?.training?'練習の一投 · ':'')+roleText(lastReplay);
     $('shot-role-detail').textContent=`最後に入るまでの跳ね返り。外の床 ${actual.floorBounces} 回 · ふち ${actual.rimHits} 回 · 側面 ${actual.sideHits} 回${actual.deskHits?` · 机 ${actual.deskHits} 回`:''}。箱の底での反発は床の回数に含めません。`;
     $('shot-result').hidden=false;prepareReplayLink(lastReplay);
   }catch(error){shotRecorder=null;lastReplay=null;replayMessage('この一投のリプレイを作成できませんでした。プレイの結果は記録します。',false,error.code||'RECORD_FAILED');}
@@ -445,7 +472,7 @@ function showChapterTop(closed=false){
   panel.scrollIntoView({block:'start',behavior:'instant'});return true;
 }
 function completeChapterShot(replay=null){
-  const shot=chapterShot;if(game.phase!=='success'||!shot||!CHAPTER_IDS.includes(shot.id)||shot.shotId!==game.attempts)return;
+  const shot=chapterShot;if(trainingMode||game.phase!=='success'||!shot||!CHAPTER_IDS.includes(shot.id)||shot.shotId!==game.attempts)return;
   const actual=actualLiveResult();chapterShot=null;const attempts=stageProgress.snapshot().attempts,roles=actual?.roles??[];
   const eligible=shot.eligible&&chapterProgress.clear(shot.id,attempts);
   if(eligible){const next=CHAPTER_IDS[CHAPTER_IDS.indexOf(shot.id)+1];if(next)chapterProgress.chooseStage(next);persistChapter();}
@@ -478,7 +505,7 @@ if($('progress-export')){
   $('progress-export').addEventListener('click',()=>{$('progress-code').value=encodeProgressCode(chapterProgress.snapshot());$('progress-status').textContent='保存コードを出しました。このコードを控えておけます。';});
   $('progress-copy').addEventListener('click',async()=>{if(!$('progress-code').value)$('progress-code').value=encodeProgressCode(chapterProgress.snapshot());try{if(!navigator.clipboard?.writeText)throw new Error('unsupported');await navigator.clipboard.writeText($('progress-code').value);$('progress-status').textContent='保存コードをコピーしました。';}catch{$('progress-code').focus();$('progress-code').select();$('progress-status').textContent='コードを選択しました。手動でコピーできます。';}});
   $('progress-restore').addEventListener('click',()=>{if(busy()||pixelIntro?.active||$('chapter-result')?.open||replayDialog.open){$('progress-status').textContent='投球と結果画面を終えてから復元できます。';return;}let data;try{data=decodeProgressCode($('progress-code').value.trim());}catch{$('progress-status').textContent='コードを読み込めません。今の記録は変更していません。';return;}const saved=restoreProgress(storage(),data);cancelGesture('progress-restore');chapterProgress=createChapterProgress(data);chapterPractice=false;selectStage(data.resumeStage,{fromEntry:true});updateUI(true);showChapterTop();$('progress-status').textContent=saved.ok?saved.status==='restored-with-corrupt-backup'?'元の壊れた保存を控えて、コードから復元しました。':'コードから復元し、このブラウザに保存しました。':'コードから復元しました。このブラウザへ保存できません。コードを控えておいてください。';});
-  $('chapter-home-open').addEventListener('click',()=>showChapterTop());$('chapter-continue').addEventListener('click',()=>selectStage(chapterProgress.snapshot().resumeStage));$('chapter-menu').addEventListener('click',()=>{$('chapter-top').hidden=true;$('stage-select').scrollIntoView({block:'center',behavior:'instant'});});
+  $('chapter-home-open').addEventListener('click',()=>showChapterTop());$('chapter-continue').addEventListener('click',()=>selectStage(chapterProgress.snapshot().resumeStage));$('chapter-menu').addEventListener('click',()=>{$('chapter-top').hidden=true;if($('game-menu')){$('game-menu').open=true;$('game-menu-open')?.setAttribute('aria-expanded','true');}$('stage-select').scrollIntoView({block:'center',behavior:'instant'});});
   if(!loadedProgress.ok)$('progress-status').textContent='保存した記録を読み込めません。元の保存は残しています。保存コードでも続けられます。';
 }
 const courseStorageKey='trash-shot-course-replays-v2';
@@ -550,7 +577,7 @@ $('download-replay').addEventListener('click',()=>downloadReplay(lastReplay));
 $('save-viewed-replay').addEventListener('click',()=>persistReplay(viewedReplay,true));
 $('share-viewed-replay').addEventListener('click',()=>shareReplay(viewedReplay,true));
 $('download-viewed-replay').addEventListener('click',()=>downloadReplay(viewedReplay,true));
-function restoreReplayCamera(){replayRenderer.resetCamera();replayRenderer.orbit(viewedPayload.camera.azimuth-.581,viewedPayload.camera.elevation-.42);replayRenderer.zoom(viewedPayload.camera.zoom);}
+function restoreReplayCamera(){replayRenderer.setWorldView(viewedReplay?.course?roomWorld(viewedReplay.course.stageId,viewedReplay.course.worldVersion):null);replayRenderer.restoreCamera(viewedPayload.camera);}
 function openReplay(input,source){
   if(busy()){replayMessage('投球が落ち着いてからリプレイを開けます。');return;}
   try{
@@ -572,7 +599,7 @@ $('replay-seek').addEventListener('input',()=>{if(videoState)return;replayPlayin
 function renderReplay(dt){
   if(!replayDialog.open||!replayPlayer)return;
   if(replayPlaying){replayTime=Math.min(replayPlayer.duration,replayTime+dt);if(replayTime>=replayPlayer.duration)replayPlaying=false;}
-  const course=viewedReplay.course;replayRenderer.render(replayPlayer.sample(replayTime),viewedPayload.controls,{prediction:false,environment:course?'room':null,course:course?roomCourse(course.stageId):null,extraRoom:course?.stageId==='room-extra',fanEnabled:course?.fanEnabled,environmentTime:replayTime,stageNumber:course?STAGES[course.stageId].number??(course.stageId==='first'?'1-1':'1-4'):null,monitorCanvas:pixelIntro?.image});
+  const course=viewedReplay.course;replayRenderer.render(replayPlayer.sample(replayTime),viewedPayload.controls,{prediction:false,environment:course?'room':null,world:course?roomWorld(course.stageId,course.worldVersion):null,course:course?roomCourse(course.stageId,course.worldVersion):null,extraRoom:course?.stageId==='room-extra',fanEnabled:course?.fanEnabled,environmentTime:replayTime,stageNumber:course?STAGES[course.stageId].number??(course.stageId==='first'?'1-1':'1-4'):null,monitorCanvas:pixelIntro?.image});
   $('replay-play').textContent=replayPlaying?'一時停止':replayTime>=replayPlayer.duration?'もう一度':'再生';
   $('replay-seek').value=replayTime;$('replay-time').textContent=`${replayTime.toFixed(2)} / ${replayPlayer.duration.toFixed(2)} 秒`;
   if(videoState&&!replayPlaying&&videoState.recorder.state==='recording'&&!videoState.stopping){const state=videoState;state.stopping=true;setTimeout(()=>{if(videoState===state)stopVideo(false);},180);}
@@ -617,7 +644,7 @@ async function loadSharedReplay(){
 }
 window.addEventListener('hashchange',loadSharedReplay);
 loadSharedReplay();
-window.__trashShot={game,controls,stageSnapshot:()=>({...stageProgress.snapshot(),completed:[...stageProgress.snapshot().completed.filter(id=>!CHAPTER_IDS.includes(id)),...chapterProgress.snapshot().completedIDs]}),chapterSnapshot:()=>({...chapterProgress.snapshot(),practice:chapterPractice,currentStage:stageProgress.snapshot().id,result:chapterResult?{stageId:chapterResult.stageId,attempts:chapterResult.attempts,roles:structuredClone(chapterResult.roles),best:chapterResult.best,practice:chapterResult.practice}:null}),courseSnapshot:()=>courseStepper.snapshot(),snapshot:()=>getSnapshot(game),cameraSnapshot:()=>renderer.cameraSnapshot(),introSnapshot:()=>pixelIntro?.snapshot()??null,gimmickSnapshot:()=>({active:extraRoom(),fanEnabled,...roomWind.snapshot(),windArc:windArc.map(p=>({...p}))}),inputSnapshot:()=>({scheme:chapterProgress.snapshot().inputScheme,mode:view.mode,prediction:view.prediction,activeGesture:view.gesture?.kind||null,heldAim:view.gesture?.kind==='throw'?{...view.gesture.aim}:null,activePointers:pointers.size,cancellations,lastInput:lastInput?structuredClone(lastInput):null}),analyticsSnapshot:()=>({...analytics.snapshot(),result:actualLiveResult()}),replaySnapshot:()=>({active:replayDialog.open,playing:replayPlaying,time:replayTime,duration:replayPlayer?.duration||0,sourceId:viewedPayload?.id||null,sourceType:replaySource,recordedFrames:viewedPayload?.frames.length||0,current:replayPlayer?structuredClone(replayPlayer.sample(replayTime)):null,result:viewedResult?structuredClone(viewedResult):null,course:viewedReplay?.course?structuredClone(viewedReplay.course):null,savedCount:savedReplays.length,latestId:lastReplay?coursePayload(lastReplay).id:null,recording:Boolean(videoState),video:videoBlob?{size:videoBlob.size,mime:videoBlob.type}:null})};
+window.__trashShot={game,controls,stageSnapshot:()=>({...stageProgress.snapshot(),completed:[...stageProgress.snapshot().completed.filter(id=>!CHAPTER_IDS.includes(id)),...chapterProgress.snapshot().completedIDs]}),chapterSnapshot:()=>({...chapterProgress.snapshot(),training:trainingMode,practice:chapterPractice,currentStage:stageProgress.snapshot().id,result:chapterResult?{stageId:chapterResult.stageId,attempts:chapterResult.attempts,roles:structuredClone(chapterResult.roles),best:chapterResult.best,practice:chapterResult.practice}:null}),courseSnapshot:()=>courseStepper.snapshot(),snapshot:()=>getSnapshot(game),cameraSnapshot:()=>renderer.cameraSnapshot(),introSnapshot:()=>pixelIntro?.snapshot()??null,gimmickSnapshot:()=>({active:extraRoom(),fanEnabled,...roomWind.snapshot(),windArc:windArc.map(p=>({...p}))}),inputSnapshot:()=>({scheme:chapterProgress.snapshot().inputScheme,training:trainingMode,trainingStats:{...trainingStats},worldVersion:liveWorld()?.worldVersion??1,mode:view.mode,prediction:view.prediction,activeGesture:view.gesture?.kind||null,heldAim:view.gesture?.kind==='throw'?{...view.gesture.aim}:null,activePointers:pointers.size,cancellations,lastInput:lastInput?structuredClone(lastInput):null}),analyticsSnapshot:()=>({...analytics.snapshot(),result:actualLiveResult()}),replaySnapshot:()=>({active:replayDialog.open,playing:replayPlaying,time:replayTime,duration:replayPlayer?.duration||0,sourceId:viewedPayload?.id||null,sourceType:replaySource,recordedFrames:viewedPayload?.frames.length||0,current:replayPlayer?structuredClone(replayPlayer.sample(replayTime)):null,result:viewedResult?structuredClone(viewedResult):null,course:viewedReplay?.course?structuredClone(viewedReplay.course):null,savedCount:savedReplays.length,latestId:lastReplay?coursePayload(lastReplay).id:null,recording:Boolean(videoState),video:videoBlob?{size:videoBlob.size,mime:videoBlob.type}:null})};
 updateControlLabels();updateUI(true);
 // Explicit stages and shared records bypass the fresh pixel introduction.
 const entryStage=new URLSearchParams(location.search).get('stage');
@@ -651,7 +678,7 @@ function setupInputCheck(){
   const [entry,panel,copy,close,text,message]=['input-check-open','input-check-panel','input-check-copy','input-check-close','input-check-text','input-check-message'].map($);
   // A new app can be loaded by an older cached HTML page without these nodes.
   if(![entry,panel,copy,close,text,message].every(Boolean))return;
-  const version='20261011-first-chapter-1',limit=24,maxBytes=12000;
+  const version='20261011-play-ui-1',limit=24,maxBytes=12000;
   let session=null,removeListeners=[];
   const clone=value=>value?(typeof structuredClone==='function'?structuredClone(value):JSON.parse(JSON.stringify(value))):null;
   const geometry=()=>{
@@ -749,11 +776,11 @@ setupInputCheck();
 function frame(now){
   const dt=Math.max(0,Math.min((now-previousTime)/1000,.045));previousTime=now;
   pixelIntro?.advance(dt);updateIntroUI();
-  if(!pixelIntro?.active){if(roomCourse(stageProgress.snapshot().id))courseStepper.step(game,dt,stageProgress.snapshot().id,captureShot);else if(extraRoom())roomWind.step(game,dt,fanEnabled,captureShot);else{stepGame(game,dt);captureShot();}}updateUI();environmentTime+=dt;
+  if(!pixelIntro?.active){if(liveCourse())courseStepper.step(game,dt,stageProgress.snapshot().id,captureShot,liveWorld()?.worldVersion??1);else if(extraRoom())roomWind.step(game,dt,fanEnabled,captureShot);else{stepGame(game,dt);captureShot();}}updateUI();environmentTime+=dt;
   const stage=STAGES[stageProgress.snapshot().id],preloadRoom=pixelIntro?.active;
   const effectiveAim=view.gesture?.kind==='throw'?{...controls,...view.gesture.aim}:controls;
   if(extraRoom()){const key=[effectiveAim.power,effectiveAim.elevation,effectiveAim.yaw,fanEnabled,game.bin.center.z,game.bin.height].join('/');if(windArcKey!==key){windArcKey=key;windArc=predictWindArc(game,effectiveAim,fanEnabled);}}
-  renderer.render(game,controls,{environment:preloadRoom?'room':stage?.environment,course:roomCourse(stageProgress.snapshot().id),extraRoom:extraRoom(),fanEnabled,environmentTime,reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,windArc:extraRoom()?windArc:null,stageNumber:stage?.number??(stageProgress.snapshot().id==='first'?'1-1':extraRoom()?'1-4':null),monitorCanvas:pixelIntro?.image,revealProgress:pixelIntro?.cameraProgress,prediction:view.prediction&&!pixelIntro?.active,aim:view.gesture?.kind==='throw'?{...controls,...view.gesture.aim}:null});
+  renderer.render(game,controls,{environment:preloadRoom?'room':stage?.environment,world:preloadRoom?roomWorld('first',2):liveWorld(),course:liveCourse(),angleCue:!pixelIntro?.active&&(now<angleCueUntil||Boolean(view.gesture?.kind==='throw')),extraRoom:extraRoom(),fanEnabled,environmentTime,reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,windArc:extraRoom()?windArc:null,stageNumber:stage?.number??(stageProgress.snapshot().id==='first'?'1-1':extraRoom()?'1-4':null),monitorCanvas:pixelIntro?.image,revealProgress:pixelIntro?.cameraProgress,prediction:view.prediction&&!pixelIntro?.active,aim:view.gesture?.kind==='throw'?{...controls,...view.gesture.aim}:null});
   pixelIntro?.render(renderer.monitorQuad());
   renderReplay(dt);
   requestAnimationFrame(frame);

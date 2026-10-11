@@ -1,4 +1,4 @@
-import { stepGame } from './physics.mjs?v=20261011-first-chapter-1';
+import { stepGame, ROOM_PHYSICS_WORLDS } from './physics.mjs?v=20261011-play-ui-1';
 
 const TICK = 1 / 240, EPS = 1e-9, SLOP = 1e-5;
 const AXES = ['x', 'y', 'z'];
@@ -9,9 +9,8 @@ const freeze = value => {
   return value;
 };
 
-function desk(centerX) {
-  const center = { x: centerX, z: 3 }, width = 2.4, depth = 1.1;
-  const topY = 1.1, topThickness = .1, legWidth = .18;
+function desk(centerX, {z=3,width=2.4,depth=1.1,topY=1.1,topThickness=.1,legWidth=.18}={}) {
+  const center = { x: centerX, z };
   const minX = center.x - width / 2, maxX = center.x + width / 2;
   const minZ = center.z - depth / 2, maxZ = center.z + depth / 2;
   const colliders = [{ id: 'desk-top', min: { x: minX, y: topY - topThickness, z: minZ }, max: { x: maxX, y: topY, z: maxZ } }];
@@ -29,7 +28,32 @@ export const ROOM_COURSES = freeze({
   'desk-over': { stageId: 'desk-over', desk: desk(0) },
   'desk-side': { stageId: 'desk-side', desk: desk(-1.8) },
 });
-export function roomCourse(stageId) { return Object.hasOwn(ROOM_COURSES, stageId) ? ROOM_COURSES[stageId] : null; }
+const smallDesk={z:2,width:1.8,depth:.7,topY:.8,topThickness:.08,legWidth:.14};
+const COURSES_2=freeze({
+  'desk-over':{stageId:'desk-over',worldVersion:2,desk:desk(0,smallDesk)},
+  'desk-side':{stageId:'desk-side',worldVersion:2,desk:desk(-1.45,smallDesk)},
+});
+const ROOM_STAGES=['first','desk-over','desk-side','room-extra'];
+const WORLDS=freeze(Object.fromEntries([1,2].map(worldVersion=>[worldVersion,Object.fromEntries(ROOM_STAGES.map(stageId=>{
+  const physics=ROOM_PHYSICS_WORLDS[worldVersion],courses=worldVersion===1?ROOM_COURSES:COURSES_2;
+  return [stageId,{stageId,worldVersion,physics,origin:physics.origin,bin:physics.bin,
+    room:worldVersion===1?{minX:-4.8,maxX:4.8,minZ:-2,maxZ:9.2,height:3.65}:{minX:-3.2,maxX:3.2,minZ:-1.5,maxZ:5.8,height:3.05},
+    sourceDesk:worldVersion===1?null:{center:{x:0,z:-.45},width:1.5,depth:.9,topY:.8,topThickness:.08,legWidth:.12,physical:false},
+    desk:courses[stageId]?.desk??null,
+    view:worldVersion===1?{target:{x:0,y:.45,z:2.82},distance:13.6}:{target:{x:0,y:.75,z:2},distance:8},
+    launch:worldVersion===1?{power:7.8,elevation:48,yaw:0}:{power:6.2,elevation:48,yaw:stageId==='room-extra'?-2:0}}];
+}))])));
+
+// Old callers keep world 1. New live play and replay explicitly choose a world;
+// no mutable imported geometry can redefine a saved course.
+export function roomCourse(stageId,worldVersion=1) {
+  const courses=worldVersion===1?ROOM_COURSES:worldVersion===2?COURSES_2:null;
+  return courses&&Object.hasOwn(courses,stageId)?courses[stageId]:null;
+}
+export function roomWorld(stageId,worldVersion=2) {
+  const worlds=worldVersion===1||worldVersion===2?WORLDS[worldVersion]:null;
+  return worlds&&Object.hasOwn(worlds,stageId)?worlds[stageId]:null;
+}
 
 const validPoint = point => point && AXES.every(axis => typeof point[axis] === 'number' && Number.isFinite(point[axis]));
 function contactAt(point, box, radius) {
@@ -110,10 +134,10 @@ function insideBin(game) {
  * Desk contacts have their own telemetry, never counterfeit floor/rim roles.
  */
 export function createRoomCourseStepper({ onContact } = {}) {
-  let remainder = 0, stageId = null, shotId = null, deskHits = 0, substeps = 0, contacts = [];
+  let remainder = 0, stageId = null, shotId = null, deskHits = 0, substeps = 0, contacts = [], worldVersion=1;
   const lastImpact = new Map();
   function reset() {
-    remainder = 0; stageId = null; shotId = null; deskHits = 0; substeps = 0; contacts = []; lastImpact.clear();
+    remainder = 0; stageId = null; shotId = null; deskHits = 0; substeps = 0; contacts = []; worldVersion=1;lastImpact.clear();
   }
   function impact(game, hit, collider) {
     const velocity = game.can.velocity;
@@ -174,12 +198,12 @@ export function createRoomCourseStepper({ onContact } = {}) {
     }
     if (remaining > 1.000001e-7 && ACTIVE.has(game.phase)) stepGame(game, remaining);
   }
-  function step(game, dt, nextStageId, afterStep = () => {}) {
+  function step(game, dt, nextStageId, afterStep = () => {}, nextWorldVersion=1) {
     if (!ACTIVE.has(game?.phase) || typeof dt !== 'number' || !Number.isFinite(dt) || dt <= 0) return game;
-    const course = roomCourse(nextStageId);
+    const course = roomCourse(nextStageId,nextWorldVersion);
     if (!course) { stepGame(game, dt); afterStep(); return game; }
-    if (stageId !== nextStageId || shotId !== game.attempts || game.time === 0 && substeps) {
-      reset(); stageId = nextStageId; shotId = game.attempts;
+    if (stageId !== nextStageId || worldVersion!==nextWorldVersion || shotId !== game.attempts || game.time === 0 && substeps) {
+      reset(); stageId = nextStageId; shotId = game.attempts; worldVersion=nextWorldVersion;
     }
     remainder += Math.min(dt, .1);
     for (let count = 0; count < 25 && remainder + EPS >= TICK && ACTIVE.has(game.phase); count++) {
@@ -191,7 +215,7 @@ export function createRoomCourseStepper({ onContact } = {}) {
     }
     return game;
   }
-  return { reset, step, snapshot: () => ({ stageId, shotId, deskHits, substeps, remainder,
+  return { reset, step, snapshot: () => ({ stageId, shotId, deskHits, substeps, remainder,worldVersion,
     contacts: contacts.map(event => ({ ...event, position: copy(event.position), normal: copy(event.normal) })) }) };
 }
 

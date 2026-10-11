@@ -9,6 +9,9 @@ const EPSILON = 1e-7;
 const ACTIVE = new Set(['flying', 'settling']);
 // Observers stay outside the simulation state and never receive live references.
 const OBSERVERS = new WeakMap();
+// Only explicit room presets alter the launch origin. Ordinary setup, free play,
+// and the independent pixel introduction retain the original metre-space setup.
+const ROOM_SETUPS = new WeakMap();
 
 function freezeTree(value) {
   for (const child of Object.values(value)) {
@@ -16,6 +19,13 @@ function freezeTree(value) {
   }
   return Object.freeze(value);
 }
+
+export const ROOM_PHYSICS_WORLDS = freezeTree({
+  1: { worldVersion: 1, origin: { x: 0, y: 1.05, z: 0 },
+    bin: { center: { x: 0, y: .65, z: 6 }, radius: .7, height: 1.3 } },
+  2: { worldVersion: 2, origin: { x: 0, y: .94, z: 0 },
+    bin: { center: { x: 0, y: .35, z: 4 }, radius: .35, height: .7 } },
+});
 
 function notify(game, type, detail = {}) {
   const callbacks = OBSERVERS.get(game);
@@ -83,9 +93,10 @@ function initialVelocity(input) {
   };
 }
 
-function freshCan() {
+function freshCan(game) {
+  const origin = ROOM_PHYSICS_WORLDS[ROOM_SETUPS.get(game)]?.origin ?? { x: 0, y: 1.05, z: 0 };
   return {
-    position: { x: 0, y: 1.05, z: 0 },
+    position: { ...origin },
     velocity: { x: 0, y: 0, z: 0 },
     radius: CAN_RADIUS,
   };
@@ -94,7 +105,7 @@ function freshCan() {
 function clearShot(game, reason) {
   game.phase = 'ready';
   game.time = 0;
-  game.can = freshCan();
+  game.can = freshCan(game);
   game.lastEvent = null;
   game.events = [];
   game.trail = [{ ...game.can.position }];
@@ -135,8 +146,18 @@ export function setSetup(game, input = {}) {
   const distance = bounded(value.distance, game.bin.center.z, 3, 10);
   const height = bounded(value.height, game.bin.height, 0.5, 2.5);
   game.bin = { center: { x: 0, y: height / 2, z: distance }, radius: BIN_RADIUS, height };
+  ROOM_SETUPS.delete(game);
   return clearShot(game, 'setup');
 }
+
+export function setRoomWorld(game, worldVersion = 2) {
+  if (worldVersion !== 1 && worldVersion !== 2) throw new RangeError('Room world version must be 1 or 2');
+  const world = ROOM_PHYSICS_WORLDS[worldVersion];
+  ROOM_SETUPS.set(game, worldVersion);
+  game.bin = { ...world.bin, center: { ...world.bin.center } };
+  return clearShot(game, 'room-setup');
+}
+export function getRoomWorldVersion(game) { return ROOM_SETUPS.get(game) ?? 0; }
 
 export function resetShot(game) {
   if (ACTIVE.has(game.phase)) return false;
@@ -303,7 +324,7 @@ export function stepGame(game, dtSeconds) {
 
 export function predictArc(game, input = {}, steps = 35) {
   const count = Math.round(bounded(steps, 35, 2, 140));
-  const position = freshCan().position;
+  const position = freshCan(game).position;
   const velocity = initialVelocity(input);
   const impactTime = (velocity.y + Math.sqrt(velocity.y ** 2
     + 2 * GRAVITY * (position.y - CAN_RADIUS))) / GRAVITY;

@@ -1,4 +1,4 @@
-import {createGame,throwCan,stepGame} from './physics.mjs?v=20261011-first-chapter-1';
+import {createGame,throwCan,stepGame,setRoomWorld,getRoomWorldVersion} from './physics.mjs?v=20261011-play-ui-1';
 
 export const ROOM_WIND=Object.freeze({minX:-1.5,maxX:1.5,minY:.4,maxY:3.4,minZ:1.8,maxZ:4.2,accelerationX:1.2});
 export function windAcceleration(position,enabled=true){
@@ -30,6 +30,7 @@ export function createRoomWindStepper(){
 }
 export function predictWindArc(game,controls,enabled=true){
   const copy=createGame({distance:game.bin.center.z,height:game.bin.height}),stepper=createRoomWindStepper(),points=[];
+  const version=getRoomWorldVersion(game);if(version)setRoomWorld(copy,version);
   throwCan(copy,controls);points.push({...copy.can.position});let samples=0;
   for(let i=0;i<1201&&['flying','settling'].includes(copy.phase);i++)stepper.step(copy,1/240,enabled,()=>{if(++samples%8===0)points.push({...copy.can.position});});
   points.push({...copy.can.position});return points;
