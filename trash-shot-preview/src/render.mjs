@@ -1,4 +1,6 @@
-import { predictArc } from './physics.mjs?v=20261010-side-aim-1';
+import { predictArc } from './physics.mjs?v=20261011-first-chapter-1';
+import { roomScene,roomMotionShapes,ROOM_MONITOR_QUAD,paintScreenQuad } from './room-scene.mjs?v=20261011-first-chapter-1';
+import {drawPixelText} from './pixel-type.mjs?v=20261011-first-chapter-1';
 
 const add = (a,b) => ({ x:a.x+b.x, y:a.y+b.y, z:a.z+b.z });
 const sub = (a,b) => ({ x:a.x-b.x, y:a.y-b.y, z:a.z-b.z });
@@ -15,10 +17,11 @@ export function createRenderer(canvas) {
   const defaultOrbit={azimuth:.581,elevation:.42,zoom:1};
   let orbitState={...defaultOrbit},sceneDistance=6;
   let projection='perspective',sideZoom=1,sideFrame={scale:40,left:40,floor:height-42};
+  let environment=null,roomCache=null,roomBuilds=0,roomCutaway=[],roomFlightKey='',roomFlight=[],revealProgress=null,revealDistance=1;
   const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
   let forward, right, up, focal;
   const configureCamera = () => {
-    const distance=(10+sceneDistance*.6)*orbitState.zoom;
+    const distance=(10+sceneDistance*.6)*orbitState.zoom*revealDistance;
     camera={x:target.x+Math.sin(orbitState.azimuth)*Math.cos(orbitState.elevation)*distance,y:target.y+Math.sin(orbitState.elevation)*distance,z:target.z-Math.cos(orbitState.azimuth)*Math.cos(orbitState.elevation)*distance};
     forward=unit(sub(target,camera)); right=unit(cross({x:0,y:1,z:0},forward)); up=cross(forward,right);
     focal=Math.min(width*(width<450?1.13:.92),height*1.45);
@@ -27,8 +30,9 @@ export function createRenderer(canvas) {
   const cameraToScreen = point => ({x:width/2+point.x*focal/point.z,y:height*.47-point.y*focal/point.z,depth:point.z,visible:point.z>.1});
   const project = point => projection==='side'?{x:sideFrame.left+point.z*sideFrame.scale,y:sideFrame.floor-point.y*sideFrame.scale,depth:1,visible:true}:cameraToScreen(worldToCamera(point));
   // The legal 3D orbit is retained for V1 replays; side zoom never changes it.
-  function cameraSnapshot(){return {azimuth:orbitState.azimuth,elevation:orbitState.elevation,zoom:orbitState.zoom,projection,sideZoom,position:{...camera},target:{...target},viewport:{width,height}};}
+  function cameraSnapshot(){return {azimuth:orbitState.azimuth,elevation:orbitState.elevation,zoom:orbitState.zoom,projection,sideZoom,environment,roomBuilds,roomCutaway:[...roomCutaway],position:{...camera},target:{...target},viewport:{width,height}};}
   function setProjection(mode){projection=mode==='side'?'side':'perspective';}
+  function monitorQuad(){return ROOM_MONITOR_QUAD.map(project);}
   function orbit(azimuth,elevation){if(projection==='side')return;orbitState.azimuth=((orbitState.azimuth+azimuth)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);orbitState.elevation=clamp(orbitState.elevation+elevation,.15,1.43);configureCamera();}
   function zoom(factor){if(projection==='side'){sideZoom=clamp(sideZoom*factor,.62,1.8);return;}orbitState.zoom=clamp(orbitState.zoom*factor,.62,1.8);configureCamera();}
   function resetCamera(){if(projection==='side'){sideZoom=1;return;}orbitState={...defaultOrbit};configureCamera();}
@@ -81,8 +85,8 @@ export function createRenderer(canvas) {
     const p=project({x:x-.3,y:.06,z:z/2});if(p.visible){ctx.fillStyle='#637554';ctx.font='10px system-ui,sans-serif';ctx.textAlign='center';ctx.fillText(`${z} m`,p.x,p.y);}
     const origin=circle({x:0,z:0},.39,.01);path(origin);ctx.strokeStyle='rgba(184,135,52,.45)';ctx.setLineDash([3,4]);ctx.lineWidth=1;ctx.stroke();ctx.setLineDash([]);
   }
-  function drawArc(game,controls) {
-    const points=predictArc(game,controls,48);
+  function drawArc(game,controls,override=null) {
+    const points=override||predictArc(game,controls,48);
     const groundIndex=points.findIndex((p,i)=>i>1&&p.y<.03);
     const arc=groundIndex<0?points:points.slice(0,groundIndex+1);
     ctx.fillStyle='rgba(173,123,37,.55)';
@@ -94,43 +98,48 @@ export function createRenderer(canvas) {
     if(trail.length<2)return;
     for(let i=1;i<trail.length;i++)line(trail[i-1],trail[i],`rgba(184,135,52,${.12+.3*i/trail.length})`,1.7);
   }
-  function shapesForBin(game) {
+  function shapesForBin(game,room=false) {
     // The visible aperture equals the physical wall radius; decorative thickness grows outward.
-    const c=game.bin.center,r=game.bin.radius+.025,h=game.bin.height,n=48,inner=game.bin.radius,shapes=[];
-    const lower=circle(c,r,0,n),upper=circle(c,r,h,n),innerUpper=circle(c,inner,h,n),innerLower=circle(c,inner,0,n);
+    const c=game.bin.center,r=game.bin.radius+(room ? .065 : .025),h=game.bin.height,n=48,inner=game.bin.radius,shapes=[];
+    // A thin visual bottom sits above the decorative rug, never over the mouth.
+    const lower=circle(c,r,0,n),upper=circle(c,r,h,n),innerUpper=circle(c,inner,h,n),innerLower=circle(c,inner,room ? .026 : 0,n);
     const facing=unit({x:camera.x-c.x,y:0,z:camera.z-c.z});
-    shapes.push({points:innerLower,fill:'#304b38',stroke:'#254734'});
+    shapes.push({points:innerLower,fill:room?'#235452':'#304b38',stroke:room?'#1e4b49':'#254734'});
     for(let i=0;i<n;i++){
       const j=(i+1)%n,theta=(i+.5)/n*Math.PI*2,normal={x:Math.cos(theta),y:0,z:Math.sin(theta)},visible=dot(normal,facing)>0;
-      if(visible){const light=Math.round(49+normal.x*10-normal.z*6);shapes.push({points:[lower[i],lower[j],upper[j],upper[i]],fill:`hsl(135 19% ${light}%)`,stroke:null});}
-      else shapes.push({points:[innerLower[i],innerLower[j],innerUpper[j],innerUpper[i]],fill:'#486a4b',stroke:null});
-      shapes.push({points:[upper[i],upper[j],innerUpper[j],innerUpper[i]],fill:visible?'#b8c8a1':'#a3b990',stroke:'#69865c'});
+      if(visible){const light=Math.round((room?45:49)+normal.x*10-normal.z*6);shapes.push({points:[lower[i],lower[j],upper[j],upper[i]],fill:room?`hsl(175 32% ${light}%)`:`hsl(135 19% ${light}%)`,stroke:null});}
+      else shapes.push({points:[innerLower[i],innerLower[j],innerUpper[j],innerUpper[i]],fill:room?'#367b77':'#486a4b',stroke:null});
+      shapes.push({points:[upper[i],upper[j],innerUpper[j],innerUpper[i]],fill:room?(visible?'#eac264':'#cfa64b'):(visible?'#b8c8a1':'#a3b990'),stroke:room?'#b99547':'#69865c'});
+      if(room)shapes.push({points:[{...upper[i],y:h-.07},{...upper[j],y:h-.07},upper[j],upper[i]],fill:visible?'#dcaf51':'#bd9541'});
     }
     // Subtle vertical ribs follow the same world-space cylinder.
-    for(let i=0;i<n;i+=6){const theta=i/n*Math.PI*2;if(dot({x:Math.cos(theta),y:0,z:Math.sin(theta)},facing)>0){shapes.push({points:[lower[i],upper[i]],line:true,stroke:'rgba(32,73,45,.19)'});}}
+    for(let i=0;i<n;i+=6){const theta=i/n*Math.PI*2;if(dot({x:Math.cos(theta),y:0,z:Math.sin(theta)},facing)>0){shapes.push({points:[lower[i],{...upper[i],y:h-.08}],line:true,stroke:room?'rgba(25,87,82,.27)':'rgba(32,73,45,.19)'});}}
     return shapes;
   }
-  function shapesForCan(game) {
+  function shapesForCan(game,room=false) {
     const c=game.can.position,r=game.can.radius*.6,half=game.can.radius*.8,n=20,shapes=[];
     const flying=game.phase==='flying'||game.phase==='settling';
     const tilt=flying?Math.min(game.time*2.7,12):-.18;
     const axis=unit({x:Math.sin(tilt)*.65,y:Math.cos(tilt),z:Math.sin(tilt)*.76});
     const v=unit(cross(axis,Math.abs(axis.y)>.92?{x:1,y:0,z:0}:{x:0,y:1,z:0})),w=cross(axis,v);
-    const ring=y=>Array.from({length:n},(_,i)=>add(add(c,scale(axis,y)),add(scale(v,Math.cos(i/n*Math.PI*2)*r),scale(w,Math.sin(i/n*Math.PI*2)*r))));
+    const ring=(y,crumple=false)=>Array.from({length:n},(_,i)=>{const radius=r*(crumple?(.77+.17*Math.cos(i*2.4)) :1);return add(add(c,scale(axis,y)),add(scale(v,Math.cos(i/n*Math.PI*2)*radius),scale(w,Math.sin(i/n*Math.PI*2)*radius)));});
     const bottom=ring(-half),top=ring(half);
-    for(let i=0;i<n;i++){const j=(i+1)%n,theta=(i+.5)/n*Math.PI*2,shade=Math.round(78+Math.cos(theta)*9);shapes.push({points:[bottom[i],bottom[j],top[j],top[i]],fill:i%8<3?'#af6b39':`hsl(46 12% ${shade}%)`,stroke:null});}
+    const middle=ring(0,true);
+    for(let i=0;i<n;i++){const j=(i+1)%n,theta=(i+.5)/n*Math.PI*2,shade=Math.round(78+Math.cos(theta)*9);if(room){const color=`hsl(27 78% ${Math.round(53+Math.cos(theta)*10)}%)`;shapes.push({points:[bottom[i],bottom[j],middle[j],middle[i]],fill:color},{points:[middle[i],middle[j],top[j],top[i]],fill:i%5===0?'#eaa66b':color});}else shapes.push({points:[bottom[i],bottom[j],top[j],top[i]],fill:i%8<3?'#af6b39':`hsl(46 12% ${shade}%)`,stroke:null});}
     shapes.push({points:bottom,fill:'#afa997',stroke:'#9b978a'},{points:top,fill:'#f0ede0',stroke:'#999f8d'});
     const cap=add(c,scale(axis,half+.003));shapes.push({points:[add(cap,scale(v,-.035)),add(cap,scale(w,.035)),add(cap,scale(v,.035)),add(cap,scale(w,-.035))],fill:'#939b8a',stroke:null});
     return shapes;
   }
-  // Only the small bin/can meshes use a depth buffer. Reuse storage and cap its
-  // resolution; floor, labels and actual trails remain in the existing canvas.
+  // The same capped depth buffer handles room and gameplay meshes. Static room
+  // geometry is cached per view, while the can is always drawn at its real pose.
   const depthCanvas=document.createElement('canvas'),depthContext=depthCanvas.getContext('2d');
   const paletteCanvas=document.createElement('canvas');paletteCanvas.width=paletteCanvas.height=1;
   const paletteContext=paletteCanvas.getContext('2d',{willReadFrequently:true}),palette=new Map();
   let depthWidth=1,depthHeight=1,depthScale=1,depthPixels,depthValues;
   function resizeDepthLayer(){
-    depthScale=Math.min(1,720/width,600/height);
+    // The static room cache supersamples edges, with a bounded pixel budget.
+    // Neutral/free and replay views keep their existing resolution budget.
+    depthScale=environment==='room'?(revealProgress!==null?Math.min(1,480/width,320/height):Math.min(2,1280/width,900/height)):Math.min(1,720/width,600/height);
     const w=Math.max(1,Math.ceil(width*depthScale)),h=Math.max(1,Math.ceil(height*depthScale));
     if(depthPixels&&w===depthWidth&&h===depthHeight)return;
     depthWidth=w;depthHeight=h;depthCanvas.width=w;depthCanvas.height=h;
@@ -142,13 +151,13 @@ export function createRenderer(canvas) {
   }
   function screenPoint(point){const p=cameraToScreen(point);return {x:p.x*depthScale,y:p.y*depthScale,inverseDepth:1/point.z};}
   const edge=(a,b,x,y)=>(x-a.x)*(b.y-a.y)-(y-a.y)*(b.x-a.x);
-  function writePixel(index,color,depth){
-    depthValues[index]=depth;const offset=index*4,pixels=depthPixels.data;
+  function writePixel(index,color,depth,depthWrite=true){
+    if(depthWrite)depthValues[index]=depth;const offset=index*4,pixels=depthPixels.data;
     const alpha=color[3]/255,oldAlpha=pixels[offset+3]/255,combined=alpha+oldAlpha*(1-alpha);
     for(let c=0;c<3;c++)pixels[offset+c]=combined?(color[c]*alpha+pixels[offset+c]*oldAlpha*(1-alpha))/combined:0;
     pixels[offset+3]=combined*255;
   }
-  function triangle(a,b,c,color){
+  function triangle(a,b,c,color,depthWrite=true){
     const area=edge(a,b,c.x,c.y);if(Math.abs(area)<.001)return;
     const minX=Math.max(0,Math.floor(Math.min(a.x,b.x,c.x))),maxX=Math.min(depthWidth-1,Math.ceil(Math.max(a.x,b.x,c.x)));
     const minY=Math.max(0,Math.floor(Math.min(a.y,b.y,c.y))),maxY=Math.min(depthHeight-1,Math.ceil(Math.max(a.y,b.y,c.y)));
@@ -156,10 +165,10 @@ export function createRenderer(canvas) {
       const wa=edge(b,c,x+.5,y+.5)/area,wb=edge(c,a,x+.5,y+.5)/area,wc=1-wa-wb;
       if(wa<-.00001||wb<-.00001||wc<-.00001)continue;
       const depth=1/(wa*a.inverseDepth+wb*b.inverseDepth+wc*c.inverseDepth),index=y*depthWidth+x;
-      if(depth<depthValues[index])writePixel(index,color,depth);
+      if(depth<depthValues[index])writePixel(index,color,depth,depthWrite);
     }
   }
-  function depthLine(a,b,color){
+  function depthLine(a,b,color,depthWrite=true){
     let p=worldToCamera(a),q=worldToCamera(b);if(p.z<.08&&q.z<.08)return;
     if(p.z<.08||q.z<.08){const t=(.08-p.z)/(q.z-p.z),cut={x:p.x+(q.x-p.x)*t,y:p.y+(q.y-p.y)*t,z:.08};if(p.z<.08)p=cut;else q=cut;}
     p=screenPoint(p);q=screenPoint(q);
@@ -168,22 +177,40 @@ export function createRenderer(canvas) {
       const t=steps?i/steps:0,x=Math.floor(p.x+(q.x-p.x)*t),y=Math.floor(p.y+(q.y-p.y)*t);
       if(x<0||x>=depthWidth||y<0||y>=depthHeight)continue;
       const depth=1/(p.inverseDepth+(q.inverseDepth-p.inverseDepth)*t),index=y*depthWidth+x;
-      if(depth<=depthValues[index]+.012)writePixel(index,color,Math.min(depth,depthValues[index]));
+      if(depth<=depthValues[index]+.012)writePixel(index,color,Math.min(depth,depthValues[index]),depthWrite);
     }
   }
-  function drawDepthShapes(shapes){
-    depthPixels.data.fill(0);depthValues.fill(Infinity);
+  function rasterizeShapes(shapes){
     for(const shape of shapes){
       if(!shape.fill)continue;
       const points=clipNear(shape.points.map(worldToCamera)).map(screenPoint),color=colorBytes(shape.fill);
-      for(let i=1;i<points.length-1;i++)triangle(points[0],points[i],points[i+1],color);
+      for(let i=1;i<points.length-1;i++)triangle(points[0],points[i],points[i+1],color,shape.depthWrite!==false);
     }
     for(const shape of shapes){
       if(!shape.stroke)continue;const color=colorBytes(shape.stroke);
-      if(shape.line)depthLine(shape.points[0],shape.points[1],color);
-      else for(let i=0;i<shape.points.length;i++)depthLine(shape.points[i],shape.points[(i+1)%shape.points.length],color);
+      if(shape.line)depthLine(shape.points[0],shape.points[1],color,shape.depthWrite!==false);
+      else for(let i=0;i<shape.points.length;i++)depthLine(shape.points[i],shape.points[(i+1)%shape.points.length],color,shape.depthWrite!==false);
     }
-    depthContext.putImageData(depthPixels,0,0);ctx.drawImage(depthCanvas,0,0,width,height);
+  }
+  function drawDepthShapes(shapes,backgroundDepth=null){
+    depthPixels.data.fill(0);if(backgroundDepth)depthValues.set(backgroundDepth);else depthValues.fill(Infinity);
+    rasterizeShapes(shapes);depthContext.putImageData(depthPixels,0,0);ctx.drawImage(depthCanvas,0,0,width,height);
+  }
+  function drawRoom(game,controls,view){
+    ctx.fillStyle='#f4ead5';ctx.fillRect(0,0,width,height);
+    const flightKey=[game.attempts,game.bin.center.z,game.bin.height,controls.power,controls.elevation,controls.yaw].join('/');
+    if(roomFlightKey!==flightKey){roomFlightKey=flightKey;roomFlight=predictArc(game,controls,80);}
+    const room=roomScene(camera,game.bin.center.z,[...(view.windArc||roomFlight),...(game.trail||[])],view.extraRoom,view.course);
+    const key=[width,height,depthWidth,depthHeight,sceneDistance,camera.x,camera.y,camera.z,orbitState.azimuth,orbitState.elevation,orbitState.zoom,view.extraRoom===true,view.course?.stageId,...room.cutaway].join('/');
+    if(!roomCache||roomCache.key!==key){
+      const opaque=room.shapes.filter(s=>s.depthWrite!==false),faded=room.shapes.filter(s=>s.depthWrite===false);
+      faded.sort((a,b)=>dot(sub(b.points[0],camera),forward)-dot(sub(a.points[0],camera),forward));
+      depthPixels.data.fill(0);depthValues.fill(Infinity);rasterizeShapes([...opaque,...faded]);
+      const image=document.createElement('canvas');image.width=depthWidth;image.height=depthHeight;image.getContext('2d').putImageData(depthPixels,0,0);
+      roomCache={key,image,depth:new Float32Array(depthValues)};roomCutaway=room.cutaway;roomBuilds++;
+    }
+    ctx.drawImage(roomCache.image,0,0,width,height);
+    return roomCache.depth;
   }
   function drawSide(game,controls,view){
     // A true orthographic y/z plane: a metre has the same scale on both axes,
@@ -230,18 +257,32 @@ export function createRenderer(canvas) {
     // Layout adapts the target only. The user's orbit survives every phase and resize.
     const distance=game.bin.center.z;
     sceneDistance=distance;
-    target={x:0,y:.45,z:distance*.47};
+    revealProgress=typeof view.revealProgress==='number'?clamp(view.revealProgress,0,1):null;
+    revealDistance=revealProgress===null?1:.28+.72*revealProgress;
+    environment=projection==='perspective'&&view.environment==='room'?'room':null;
+    if(!environment){roomCache=null;roomCutaway=[];}
+    resizeDepthLayer();
+    target=revealProgress===null?{x:0,y:.45,z:distance*.47}:{x:3.61*(1-revealProgress),y:1.94+(.45-1.94)*revealProgress,z:4.28+(distance*.47-4.28)*revealProgress};
     configureCamera();
     ctx.setTransform(pixelRatio,0,0,pixelRatio,0,0);ctx.clearRect(0,0,width,height);
     if(projection==='side'){drawSide(game,controls,view);return;}
-    drawFloor();drawDistance(game);
+    const room=environment==='room',backgroundDepth=room?drawRoom(game,view.aim||controls,view):null;
+    if(!room)drawFloor();drawDistance(game);
+    if(room&&view.monitorCanvas){ctx.save();ctx.globalAlpha=roomCutaway.includes('desk') ? .23 : 1;paintScreenQuad(ctx,view.monitorCanvas,monitorQuad());ctx.restore();}
     shadow(game.bin.center,.97,.8,.11);
     shadow(game.can.position,.2+Math.max(0,game.can.position.y)*.035,.2,.13/(1+Math.max(0,game.can.position.y)*.8));
-    if(view.prediction&&(game.phase==='ready'||game.phase==='success'||game.phase==='miss'))drawArc(game,controls);
+    if(view.prediction&&!view.course&&(game.phase==='ready'||game.phase==='success'||game.phase==='miss'))drawArc(game,view.aim||controls,view.windArc);
     if(game.phase!=='ready')drawTrail(game);
     if(view.aim){const heading=view.aim.yaw*Math.PI/180,p=game.phase==='ready'?game.can.position:{x:0,y:1.05,z:0};line(p,{x:p.x+Math.sin(heading)*.75,y:p.y,z:p.z+Math.cos(heading)*.75},'#bd8632',2);}
-    const shapes=[...shapesForBin(game),...shapesForCan(game)];
-    drawDepthShapes(shapes);
+    const shapes=[...(room&&view.extraRoom?roomMotionShapes(view.environmentTime||0,view.fanEnabled,view.reducedMotion):[]),...shapesForBin(game,room),...shapesForCan(game,room)];
+    drawDepthShapes(shapes,backgroundDepth);
+    if(room&&view.extraRoom){
+      // The wind vane marks a local area, not a predicted landing point.
+      const origin={x:0,y:.035,z:3},end={x:.65,y:.035,z:3};line(origin,end,view.fanEnabled?'#80a6a0':'#b5b4a1',2);line(end,{x:.48,y:.035,z:2.87},'#80a6a0',2);line(end,{x:.48,y:.035,z:3.13},'#80a6a0',2);
+      for(const z of [1.8,4.2])line({x:-1.5,y:.026,z},{x:1.5,y:.026,z},'rgba(104,153,145,.4)',1);
+      if(view.fanEnabled){for(let i=0;i<3;i++){const drift=view.reducedMotion ? .3 : (view.environmentTime*.6+i*.29)%1,x=-1.45+drift*2.7,z=2.2+i*.72;line({x,y:1.45,z},{x:x+.19,y:1.45,z},'rgba(104,153,145,.3)',1.2);}}
+    }
+    if(view.stageNumber)drawPixelText(ctx,view.stageNumber,16,16,{scale:3,color:'#286864',shadow:{color:'#f4ead5',dx:1,dy:1}});
     const c=game.bin.center,h=game.bin.height;
     if(game.phase==='success'){
       const p=project({x:c.x,y:h+.4,z:c.z});if(!p.visible)return;ctx.fillStyle='#946c23';ctx.textAlign='center';ctx.font='600 13px system-ui,sans-serif';ctx.fillText('NICE SHOT!',p.x,p.y);
@@ -249,5 +290,5 @@ export function createRenderer(canvas) {
     }
   }
   resize();
-  return {resize,render,project,orbit,zoom,resetCamera,cameraSnapshot,setProjection};
+  return {resize,render,project,orbit,zoom,resetCamera,cameraSnapshot,setProjection,monitorQuad};
 }
