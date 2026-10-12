@@ -1,8 +1,9 @@
 // Save-code presentation only. The existing codecs validate data; the app owns
 // all player/storage writes and replay playback.
-import {encodePlayerCode,decodePlayerCode} from './player-save.mjs?v=20261011-store-tricks-1';
-import {STAGES} from './stages.mjs?v=20261011-room-breeze-1';
-import {getThrowable} from './throwables.mjs?v=20261011-store-tricks-1';
+import {encodePlayerCode,decodePlayerCode} from './player-save.mjs?v=20261012-school-window-1';
+import {CHAPTER_IDS,CHAPTERS,migrateProgress,chapterForStage} from './progress-save.mjs?v=20261012-school-window-1';
+import {STAGES} from './stages.mjs?v=20261012-school-window-1';
+import {getThrowable} from './throwables.mjs?v=20261012-school-window-1';
 
 const MAX_INPUT=16000,MAX_CODE=8200,MAX_REPLAY=8000;
 const PUBLIC_PAGE='https://osakenpiro.github.io/shuryo-techo/trash-shot-preview/';
@@ -24,8 +25,8 @@ export function classifyPlayerSaveInput(input,{pageURL}={}){
   // Wrapped copies are accepted, but arbitrary prose and hidden Unicode bytes
   // are not removed or interpreted as part of a code.
   const normalized=input.replace(/[ \t\r\n]/g,'');
-  if(!normalized)return {kind:'empty',message:'TS1- または TS2- で始まる、続き用の保存コードを貼ってください。'};
-  if(/^TS[12]-/.test(normalized)){
+  if(!normalized)return {kind:'empty',message:'TS1-・TS2-・TS3- で始まる、続き用の保存コードを貼ってください。'};
+  if(/^TS[123]-/.test(normalized)){
     if(normalized.length>MAX_CODE)return invalid('保存コードが長すぎます。元のコードを確認してください。');
     try{return {kind:'save',normalized,data:decodePlayerCode(normalized),message:'コードを確認できました。内容を見てから復元できます。'};}
     catch{return invalid('コードが欠けているか、途中の文字が変わっています。元のコードをすべてコピーして貼り直してください。今の記録は変わりません。');}
@@ -33,14 +34,14 @@ export function classifyPlayerSaveInput(input,{pageURL}={}){
   let fragment=normalized.startsWith('#')?normalized.slice(1):normalized;
   if(/^[a-z][a-z0-9+.-]*:/i.test(normalized)){
     let url;try{url=new URL(normalized);}catch{return invalid('リンクを読み取れません。続き用の保存コードを貼ってください。');}
-    if(!sameGamePage(url,pageURL))return invalid('このゲームの保存コードではありません。TS1- または TS2- で始まるコードを貼ってください。');
+    if(!sameGamePage(url,pageURL))return invalid('このゲームの保存コードではありません。TS1-・TS2-・TS3- で始まるコードを貼ってください。');
     fragment=url.hash.slice(1);
   }
-  if(/^(?:tsc[1-4]|tsr1)\.[A-Za-z0-9_-]+$/.test(fragment)){
+  if(/^(?:tsc[1-5]|tsr1)\.[A-Za-z0-9_-]+$/.test(fragment)){
     if(fragment.length+1>MAX_REPLAY)return invalid('リプレイリンクが長すぎます。元のリンクを確認してください。');
     return {kind:'replay',fragment:`#${fragment}`,message:replayMessage};
   }
-  return invalid('続き用の保存コードを読み取れません。TS1- または TS2- で始まるコードを、そのまま貼ってください。今の記録は変わりません。');
+  return invalid('続き用の保存コードを読み取れません。TS1-・TS2-・TS3- で始まるコードを、そのまま貼ってください。今の記録は変わりません。');
 }
 
 export function createPlayerSaveUI({document:doc,getPlayer,canRestore=()=>true,onRestore,onReplay,onContinue,initialStatus}={}){
@@ -60,8 +61,10 @@ export function createPlayerSaveUI({document:doc,getPlayer,canRestore=()=>true,o
   function renderPreview(){
     const host=nodes['progress-preview'];host.replaceChildren();host.hidden=classified.kind!=='save';
     if(classified.kind!=='save')return;
-    const {progress,rewards,sourceVersion}=classified.data;
-    const entries=[['再開する面',STAGES[progress.resumeStage]?.label??progress.resumeStage],['クリア',`${progress.completedIDs.length} / 4 面`]];
+    const {rewards,sourceVersion}=classified.data,progress=migrateProgress(classified.data.progress),chapter=chapterForStage(progress.resumeStage);
+    const entries=[['再開する面',STAGES[progress.resumeStage]?.label??progress.resumeStage],['章',chapter?`${chapter.number} ${chapter.label}`:''],['クリア',`${progress.completedIDs.length} / ${CHAPTER_IDS.length} 面`]];
+    for(const entry of CHAPTERS)entries.push([`${entry.number} ${entry.label}`,`${entry.ids.filter(id=>progress.completedIDs.includes(id)).length} / ${entry.ids.length} 面`]);
+    if(progress.resumeStage!==classified.data.progress.resumeStage)entries.push(['学校へ','第1章のクリアを引き継いで、2-1から再開します。']);
     if(sourceVersion===1)entries.push(['コイン・投げるもの','今のコイン・装備を保持します（TS1）']);
     else entries.push(['コイン',`${rewards.wallet} コイン`],['投げるもの',getThrowable(rewards.equipped)?.label??rewards.equipped]);
     for(const [label,value] of entries){const row=doc.createElement('div'),dt=doc.createElement('dt'),dd=doc.createElement('dd');dt.textContent=label;dd.textContent=value;row.append(dt,dd);host.append(row);}
@@ -77,7 +80,7 @@ export function createPlayerSaveUI({document:doc,getPlayer,canRestore=()=>true,o
     nodes['progress-continue'].disabled=!allowed||typeof onContinue!=='function';
   }
   function update({status:message}={}){
-    try{const current=getPlayer();nodes['progress-current'].textContent=`${STAGES[current.progress.resumeStage]?.label??current.progress.resumeStage}から · ${current.progress.completedIDs.length} / 4 面クリア`;
+    try{const current=getPlayer();nodes['progress-current'].textContent=`${STAGES[current.progress.resumeStage]?.label??current.progress.resumeStage}から · ${current.progress.completedIDs.length} / ${CHAPTER_IDS.length} 面クリア`;
       // An already displayed code must follow new progress too, so manual
       // selection/copy never quietly carries an older save. Keep input intact.
       if(output.value)output.value=encodePlayerCode(current);
@@ -87,7 +90,7 @@ export function createPlayerSaveUI({document:doc,getPlayer,canRestore=()=>true,o
     refreshInput();
   }
   function exportCode(){
-    try{const code=encodePlayerCode(getPlayer());output.value=code;showStatus('今の続き用コードを出しました。復元するときは、この TS2- コードを使います。','success');return code;}
+    try{const code=encodePlayerCode(getPlayer());output.value=code;showStatus(`今の続き用コードを出しました。復元するときは、この ${code.slice(0,4)} コードを使います。`,'success');return code;}
     catch{showStatus('今の記録から保存コードを作れませんでした。復元欄と記録は変更していません。','error');return null;}
   }
   on(nodes['progress-export'],'click',exportCode);

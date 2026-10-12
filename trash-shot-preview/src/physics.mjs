@@ -1,6 +1,7 @@
 // World-space simulation. One metre is one unit; rendering never affects physics.
 import {throwableRadius,throwableInitialVelocity,beginThrowableShot,applyThrowableAir,
-  throwableRestitution,throwableFriction,throwableContact,getThrowableProfile,cloneThrowable} from './throwable-physics.mjs?v=20261011-store-tricks-1';
+  throwableRestitution,throwableFriction,throwableContact,getThrowableProfile,cloneThrowable} from './throwable-physics.mjs?v=20261012-school-window-1';
+import {SCHOOL_PHYSICS_WORLDS} from './school-world.mjs?v=20261012-school-window-1';
 const GRAVITY = 9.81;
 const SUBSTEP = 1 / 240;
 const MAX_FRAME = 0.1;
@@ -105,7 +106,8 @@ function initialVelocity(input) {
 }
 
 function freshCan(game) {
-  const origin = ROOM_PHYSICS_WORLDS[ROOM_SETUPS.get(game)]?.origin ?? { x: 0, y: 1.05, z: 0 };
+  const version=ROOM_SETUPS.get(game);
+  const origin = (ROOM_PHYSICS_WORLDS[version]??SCHOOL_PHYSICS_WORLDS[version])?.origin ?? { x: 0, y: 1.05, z: 0 };
   const radius=throwableRadius(game,CAN_RADIUS);
   return {
     position: getThrowableProfile(game)?{...origin,y:origin.y+radius-CAN_RADIUS}:{...origin},
@@ -164,8 +166,8 @@ export function setSetup(game, input = {}) {
 }
 
 export function setRoomWorld(game, worldVersion = 2) {
-  if (worldVersion !== 1 && worldVersion !== 2 && worldVersion !== 3 && worldVersion !== 4 && worldVersion !== 5) throw new RangeError('Room world version must be 1, 2, 3, 4 or 5');
-  const world = ROOM_PHYSICS_WORLDS[worldVersion];
+  if (!Number.isInteger(worldVersion)||worldVersion<1||worldVersion>10) throw new RangeError('Room world version must be an integer from 1 through 10');
+  const world = ROOM_PHYSICS_WORLDS[worldVersion]??SCHOOL_PHYSICS_WORLDS[worldVersion];
   ROOM_SETUPS.set(game, worldVersion);
   game.bin = { ...world.bin, center: { ...world.bin.center } };
   return clearShot(game, 'room-setup');
@@ -246,6 +248,16 @@ function finish(game, success) {
   if (success) game.successes += 1;
   record(game, success ? 'success' : 'miss');
   notify(game, 'result', { success });
+}
+
+// A visible school pedestrian is a terminal obstruction, never a rebound or a
+// trick reward. Route it through the established result observer and counters.
+export function stopBlockedShot(game,reason='student') {
+  if(!ACTIVE.has(game?.phase))return false;
+  record(game,reason==='student'?'student-blocked':'blocked');
+  notify(game,'shot-blocked',{reason});
+  finish(game,false);
+  return true;
 }
 
 function collideFloor(game, dt) {

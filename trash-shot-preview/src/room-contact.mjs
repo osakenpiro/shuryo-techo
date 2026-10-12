@@ -1,9 +1,9 @@
 // Shared room-contact adapter. The established simulation still owns gravity,
 // the hollow bin, floor contact, the five-second result, and save compatibility.
-import {createGame, setRoomWorld, throwCan, stepGame} from './physics.mjs?v=20261011-room-breeze-1';
-import {sweepSphereAABB} from './room-course.mjs?v=20261011-room-breeze-1';
-import {roomSolidColliders} from './room-solids.mjs?v=20261011-room-breeze-1';
-import {applyThrowableAir,throwableRestitution,throwableFriction,throwableContact,cloneThrowable} from './throwable-physics.mjs?v=20261011-store-tricks-1';
+import {createGame, setRoomWorld, throwCan, stepGame} from './physics.mjs?v=20261012-school-window-1';
+import {sweepSphereAABB} from './room-course.mjs?v=20261012-school-window-1';
+import {roomSolidColliders} from './room-solids.mjs?v=20261012-school-window-1';
+import {applyThrowableAir,throwableRestitution,throwableFriction,throwableContact,cloneThrowable} from './throwable-physics.mjs?v=20261012-school-window-1';
 
 const TICK = 1 / 240, GRAVITY = 9.81, EPS = 1e-9, CORE_EPS = 1.000001e-7, SLOP = 1e-5;
 const AXES = ['x', 'y', 'z'], ACTIVE = new Set(['flying', 'settling']);
@@ -88,8 +88,12 @@ function findSupport(game,colliders) {
  * Every caller cadence is accumulated into the same 1/240 s sequence. Nothing
  * in this module changes production replays or the established physics module.
  */
-export function createRoomContactStepper(world,{onContact,extra=false}={}) {
-  const colliders=solidGeometry(world,extra),lastImpact=new Map();
+export function createRoomContactStepper(world,{onContact,extra=false,solids,dynamicColliders,onBlockingContact}={}) {
+  // Explicit geometry is used only by the school adapter; the historical room
+  // path above retains its exact immutable furniture and arithmetic.
+  if(solids!==undefined&&(!Array.isArray(solids)||solids.some(c=>!finitePoint(c?.min)||!finitePoint(c?.max)||AXES.some(axis=>c.min[axis]>c.max[axis]))))throw new TypeError('Explicit solid bounds must be finite');
+  if(dynamicColliders!==undefined&&typeof dynamicColliders!=='function')throw new TypeError('Dynamic colliders must be a function');
+  const colliders=solids??solidGeometry(world,extra),lastImpact=new Map();
   let remainder=0,shotId=null,substeps=0,contactCount=0,contacts=[],boundedStops=0;
   function reset() {
     remainder=0;shotId=null;substeps=0;contactCount=0;contacts=[];boundedStops=0;lastImpact.clear();
@@ -145,18 +149,31 @@ export function createRoomContactStepper(world,{onContact,extra=false}={}) {
       if(!supported) support=null;
       const end={x:start.x+v.x*remaining,y:supported?start.y:start.y+v.y*remaining-GRAVITY*remaining**2/2,z:start.z+v.z*remaining};
       let selected=null;
-      for(const collider of colliders) {
+      const moving=dynamicColliders?dynamicColliders(game.time,remaining):[];
+      for(const collider of moving)if(!finitePoint(collider?.min)||!finitePoint(collider?.max)||!finitePoint(collider?.delta)||AXES.some(axis=>collider.min[axis]>collider.max[axis]))throw new TypeError('Moving solid bounds and delta must be finite');
+      for(const collider of moving.length?[...colliders,...moving]:colliders) {
         if(supported && collider===support) continue;
-        if(!potentiallyReached(start,end,game.can.radius,collider))continue;
-        const hit=sweepSphereAABB(start,end,game.can.radius,collider);if(!hit)continue;
+        const delta=collider.delta;
+        const relativeEnd=delta?Object.fromEntries(AXES.map(axis=>[axis,end[axis]-delta[axis]])):end;
+        if(!potentiallyReached(start,relativeEnd,game.can.radius,collider))continue;
+        const hit=sweepSphereAABB(start,relativeEnd,game.can.radius,collider);if(!hit)continue;
+        if(delta)hit.position=Object.fromEntries(AXES.map(axis=>[axis,hit.position[axis]+delta[axis]*hit.time]));
         const atVelocity={...v,y:supported?0:v.y-GRAVITY*remaining*hit.time};
-        if(dot(atVelocity,hit.normal)>=-EPS && hit.penetration<=EPS)continue;
+        const relativeVelocity=delta?Object.fromEntries(AXES.map(axis=>[axis,atVelocity[axis]-delta[axis]/remaining])):atVelocity;
+        if(dot(relativeVelocity,hit.normal)>=-EPS && hit.penetration<=EPS)continue;
         if(!selected || hit.time<selected.hit.time-EPS)selected={hit,collider};
       }
       if(!selected){coreAdvance(game,remaining,support);return;}
       const {hit,collider}=selected,elapsed=remaining*hit.time;
       coreAdvance(game,elapsed,support);remaining-=elapsed;
       if(!active(game))return;
+      if(collider.blocking&&typeof onBlockingContact==='function'){
+        const before=copy(game.can.velocity),relative=collider.delta?Object.fromEntries(AXES.map(axis=>[axis,before[axis]-collider.delta[axis]/(remaining+elapsed)])):before;
+        game.can.position=copy(hit.position);
+        if(game.trail.length)game.trail[game.trail.length-1]=copy(game.can.position);
+        recordContact(game,hit,collider,before,{x:0,y:0,z:0},Math.max(0,-dot(relative,hit.normal)));
+        onBlockingContact(game,hit,collider);return;
+      }
       const nextSupport=impact(game,hit,collider);
       if(nextSupport)support=nextSupport;
       // A zero-time overlap is separated before the next sweep, so corners and

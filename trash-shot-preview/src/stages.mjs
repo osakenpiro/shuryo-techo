@@ -6,6 +6,10 @@ export const STAGES=Object.freeze({
   'desk-over':Object.freeze({label:'1-2：机を越えて',number:'1-2',environment:'room',worldVersion:3,course:'desk-over',distance:4.8,height:.7,power:7.2,elevation:48,yaw:Math.atan2(2.5,4.8)*180/Math.PI}),
   'desk-side':Object.freeze({label:'1-3：本棚の向こうへ',number:'1-3',environment:'room',worldVersion:4,course:'desk-side',distance:4.4,height:.7,power:6.9,elevation:60,yaw:Math.atan2(.5,4.4)*180/Math.PI}),
   'room-extra':Object.freeze({label:'1-4：扇風機と猫',environment:'room',worldVersion:5,gimmick:'fan',distance:4,height:.7,power:6.2,elevation:48,yaw:0}),
+  'school-classroom':Object.freeze({label:'2-1：教室の隅から',number:'2-1',environment:'school',worldVersion:6,distance:7.615,height:.7,power:8.5,elevation:45,yaw:Math.atan2(5.05,5.7)*180/Math.PI}),
+  'school-vending':Object.freeze({label:'2-2：自販機の小さな入口',number:'2-2',environment:'school',worldVersion:7,distance:3.2,height:.78,power:5.5,elevation:48,yaw:0}),
+  'school-passage':Object.freeze({label:'2-3：向かいの教室へ',number:'2-3',environment:'school',worldVersion:10,gimmick:'student',distance:7.603,height:.7,power:9.4,elevation:27,yaw:Math.atan2(.2,7.6)*180/Math.PI}),
+  'school-rooftop':Object.freeze({label:'2-4：屋上から中庭へ',number:'2-4',environment:'school',worldVersion:9,gimmick:'breeze',distance:7.910,height:.7,power:6.1,elevation:40,yaw:-1}),
   side:Object.freeze({label:'脇道：横からぽいっ（2D）',projection:'side',distance:8,height:1.3,power:9,elevation:48,yaw:0})
 });
 export function createStageProgress(){

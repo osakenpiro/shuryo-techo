@@ -1,7 +1,7 @@
 // Presentation only. Chapter progress and stage changes stay owned by app.mjs.
-import { STAGES } from './stages.mjs?v=20261011-room-breeze-1';
-import { CHAPTER_IDS } from './progress-save.mjs?v=20261011-play-ui-1';
-import { drawPixelText, measurePixelText } from './pixel-type.mjs?v=20261011-play-ui-1';
+import { STAGES } from './stages.mjs?v=20261012-school-window-1';
+import { CHAPTER_IDS, CHAPTERS, chapterForStage } from './progress-save.mjs?v=20261012-school-window-1';
+import { drawPixelText, measurePixelText } from './pixel-type.mjs?v=20261012-school-window-1';
 
 const $ = id => document.getElementById(id);
 const FACE_HELP = Object.freeze({
@@ -9,6 +9,10 @@ const FACE_HELP = Object.freeze({
   'desk-over': '机の上を越えるひと投げ。',
   'desk-side': '本棚を越すか、横の壁で跳ね返そう。',
   'room-extra': '扇風機の風と、気ままな猫。',
+  'school-classroom': '教室の机列を、高い弧で越えよう。',
+  'school-vending': '小さな入口へ、力を抑えて正確に。',
+  'school-passage': '二つの窓の向こうへ。廊下を行き交う生徒の間を狙おう。',
+  'school-rooftop': '屋上から、中庭の箱へ。風も読もう。',
 });
 
 function paintLabel(canvas, text, { scale = 3, color = '#286864', padding = 2 } = {}) {
@@ -51,11 +55,19 @@ export function createGameShell({ getState, selectStage }) {
     listeners.push(() => node.removeEventListener(type, callback));
   };
   for (const [index, id] of CHAPTER_IDS.entries()) {
-    const number = `1-${index + 1}`;
-    const name = STAGES[id].label.replace(/^1-\d[：:]\s*/, '');
+    const chapter = chapterForStage(id), number = STAGES[id].number ?? `${chapter.number}-${chapter.ids.indexOf(id)+1}`;
+    const name = STAGES[id].label.replace(/^\d+-\d+[：:]\s*/, '');
+    if (chapter.ids[0] === id) {
+      const heading = document.createElement('h3');
+      heading.className = 'chapter-stage-heading';
+      heading.dataset.chapter = String(chapter.number);
+      heading.textContent = `${chapter.number} ${chapter.label}`;
+      cardHost?.append(heading);
+    }
     const card = document.createElement('button');
     card.type = 'button';
-    card.className = `chapter-stage-card stage-art-${index + 1}`;
+    card.className = `chapter-stage-card stage-art-${index + 1}${chapter.number===2?' chapter-school-card stage-'+id:''}`;
+    card.dataset.chapter = String(chapter.number);
     card.dataset.stageId = id;
     const thumbnail = document.createElement('span');
     thumbnail.className = 'stage-thumbnail';
@@ -118,8 +130,8 @@ export function createGameShell({ getState, selectStage }) {
 
   function paintResult() {
     paintLabel($('result-clear-pixel'), 'CLEAR', { scale: 4, color: '#fff8e9' });
-    const resultIndex = CHAPTER_IDS.indexOf(getState()?.result?.stageId);
-    const number = resultIndex >= 0 ? `1-${resultIndex + 1}` : $('chapter-result-title')?.textContent.match(/^1-[1-4]/)?.[0];
+    const resultStage = getState()?.result?.stageId, chapter = chapterForStage(resultStage);
+    const number = chapter ? STAGES[resultStage].number ?? `${chapter.number}-${chapter.ids.indexOf(resultStage)+1}` : $('chapter-result-title')?.textContent.match(/^\d+-[1-4]/)?.[0];
     if (number) paintLabel($('result-face-pixel'), number, { scale: 4 });
   }
 
@@ -127,12 +139,18 @@ export function createGameShell({ getState, selectStage }) {
     const state = getState();
     if (!state?.progress) return;
     const fingerprint = JSON.stringify([state.progress, state.stageId, state.busy,
-      state.introActive, state.trainingMode, state.result?.stageId, home?.hidden]);
+      state.introActive, state.trainingMode, state.result?.stageId, home?.hidden,state.homeChapterNumber]);
     if (fingerprint === lastFingerprint) return;
     lastFingerprint = fingerprint;
     const { progress } = state;
     const completed = new Set(progress.completedIDs);
     const blocked = Boolean(state.busy || state.introActive);
+    const activeChapter = (!home?.hidden&&CHAPTERS.find(chapter=>chapter.number===state.homeChapterNumber)) || chapterForStage(progress.resumeStage) || CHAPTERS[0];
+    const menuChapter = chapterForStage(state.stageId) || activeChapter;
+    const menuKicker = menu?.querySelector('.menu-heading .chapter-kicker');
+    const menuTitle = menu?.querySelector('.menu-heading h2');
+    if (menuKicker) menuKicker.textContent = `CHAPTER ${menuChapter.number}`;
+    if (menuTitle) menuTitle.textContent = menuChapter.label;
     for (const [index, id] of CHAPTER_IDS.entries()) {
       const unlocked = index === 0 || completed.has(CHAPTER_IDS[index - 1]);
       const clear = completed.has(id);
@@ -148,11 +166,12 @@ export function createGameShell({ getState, selectStage }) {
       entry.status.textContent = status;
       entry.record.textContent = clear && Number.isInteger(best) && best > 0 ? `ベスト ${best} 投` : unlocked ? 'この面を遊ぶ →' : '前の面をクリアして開放';
       entry.card.setAttribute('aria-label', `${entry.number} ${entry.name}、${status}${clear ? `、ベスト ${best} 投` : ''}`);
+      marker.mark.hidden = !activeChapter.ids.includes(id);
       marker.mark.dataset.state = clear ? 'clear' : unlocked ? 'available' : 'locked';
       marker.stateText.textContent = clear ? 'クリア' : progress.resumeStage === id ? '続き' : unlocked ? '遊べる' : '未開放';
       marker.mark.setAttribute('aria-label', `${marker.number} ${marker.stateText.textContent}`);
     }
-    if ($('chapter-top-record')) $('chapter-top-record').textContent = `${completed.size} / 4 面クリア · 合計 ${progress.cumulativeAttempts} 投、${progress.cumulativeSuccesses} 成功`;
+    if ($('chapter-top-record')) $('chapter-top-record').textContent = `${activeChapter.number} ${activeChapter.label} ${activeChapter.ids.filter(id=>completed.has(id)).length} / ${activeChapter.ids.length} 面クリア · 全体 ${completed.size} / ${CHAPTER_IDS.length} 面 · 合計 ${progress.cumulativeAttempts} 投、${progress.cumulativeSuccesses} 成功`;
     if ($('chapter-continue')) $('chapter-continue').disabled = blocked;
     paintResult();
   }

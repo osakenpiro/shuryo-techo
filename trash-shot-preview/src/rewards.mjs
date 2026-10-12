@@ -1,7 +1,7 @@
 // Local rewards are earned from a live, issued shot; portable saves are not authentication.
-import {CHAPTER_IDS} from './progress-save.mjs?v=20261011-play-ui-1';
-import {SHOT_ROLES} from './shot-analytics.mjs?v=20261011-play-ui-1';
-import {THROWABLE_CATALOG,DEFAULT_THROWABLE_ID} from './throwables.mjs?v=20261011-store-tricks-1';
+import {CHAPTER_IDS,FIRST_CHAPTER_IDS} from './progress-save.mjs?v=20261012-school-window-1';
+import {SHOT_ROLES} from './shot-analytics.mjs?v=20261012-school-window-1';
+import {THROWABLE_CATALOG,DEFAULT_THROWABLE_ID} from './throwables.mjs?v=20261012-school-window-1';
 
 export {THROWABLE_CATALOG as ITEM_CATALOG};
 const ITEMS=Object.keys(THROWABLE_CATALOG),MAX_SHOTS=1000000,MAX_CONTACTS=2400;
@@ -69,6 +69,15 @@ export function validateRewards(value){
   }
   if(recordedClears!==clears)fail('Inconsistent item clear history');
   return {version:1,totalPoints:value.totalPoints,totalCoinsEarned:value.totalCoinsEarned,wallet:value.wallet,achievements,purchased,equipped:value.equipped,issuedShots:value.issuedShots,lastAwardedShot:value.lastAwardedShot,awardedClears:clears,pendingShot,itemRecords};
+}
+
+// Keep TS2's original four-stage envelope strict even as live rewards gain
+// append-only school identifiers. No wallet, item or achievement migration.
+export function validateLegacyRewards(value){
+  const data=validateRewards(value);
+  if((data.pendingShot&&!FIRST_CHAPTER_IDS.includes(data.pendingShot.stageId))
+    ||Object.values(data.itemRecords).some(records=>Object.keys(records).some(id=>!FIRST_CHAPTER_IDS.includes(id))))fail('School rewards require TS3');
+  return data;
 }
 
 export function scoreSuccessfulShot({attempts,result}={}){

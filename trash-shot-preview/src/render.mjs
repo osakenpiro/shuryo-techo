@@ -1,8 +1,9 @@
-import { predictArc } from './physics.mjs?v=20261011-room-breeze-1';
-import { roomScene,roomMotionShapes,roomMonitorQuad,paintScreenQuad } from './room-scene.mjs?v=20261011-room-breeze-1';
-import {drawPixelText} from './pixel-type.mjs?v=20261011-play-ui-1';
-import {getThrowable} from './throwables.mjs?v=20261011-store-tricks-1';
-import {getThrowableId,throwablePose} from './throwable-physics.mjs?v=20261011-store-tricks-1';
+import { predictArc } from './physics.mjs?v=20261012-school-window-1';
+import { roomScene,roomMotionShapes,roomMonitorQuad,paintScreenQuad } from './room-scene.mjs?v=20261012-school-window-1';
+import {schoolScene,schoolMotionShapes,schoolCameraConfig} from './school-scene.mjs?v=20261012-school-window-1';
+import {drawPixelText} from './pixel-type.mjs?v=20261012-school-window-1';
+import {getThrowable} from './throwables.mjs?v=20261012-school-window-1';
+import {getThrowableId,throwablePose} from './throwable-physics.mjs?v=20261012-school-window-1';
 
 const add = (a,b) => ({ x:a.x+b.x, y:a.y+b.y, z:a.z+b.z });
 const sub = (a,b) => ({ x:a.x-b.x, y:a.y-b.y, z:a.z-b.z });
@@ -27,7 +28,7 @@ export function createRenderer(canvas) {
     const distance=(worldView?.view.distance??(10+sceneDistance*.6))*orbitState.zoom*revealDistance;
     camera={x:target.x+Math.sin(orbitState.azimuth)*Math.cos(orbitState.elevation)*distance,y:target.y+Math.sin(orbitState.elevation)*distance,z:target.z-Math.cos(orbitState.azimuth)*Math.cos(orbitState.elevation)*distance};
     forward=unit(sub(target,camera)); right=unit(cross({x:0,y:1,z:0},forward)); up=cross(forward,right);
-    const portraitRoom=([2,3,4,5].includes(worldView?.worldVersion))&&width<600;
+    const portraitRoom=([2,3,4,5].includes(worldView?.worldVersion)||worldView?.environment==='school')&&width<600;
     focal=Math.min(width*(portraitRoom?1.48:width<450?1.13:.92),height*1.45);
   };
   const worldToCamera = point => {const p=sub(point,camera); return {x:dot(p,right),y:dot(p,up),z:dot(p,forward)};};
@@ -41,7 +42,7 @@ export function createRenderer(canvas) {
   function orbit(azimuth,elevation){if(projection==='side')return;orbitState.azimuth=((orbitState.azimuth+azimuth)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);orbitState.elevation=clamp(orbitState.elevation+elevation,.15,1.43);configureCamera();}
   function zoom(factor){if(projection==='side'){sideZoom=clamp(sideZoom*factor,.62,1.8);return;}orbitState.zoom=clamp(orbitState.zoom*factor,.62,1.8);configureCamera();}
   function restoreCamera(snapshot){orbitState={azimuth:snapshot.azimuth,elevation:clamp(snapshot.elevation,.15,1.43),zoom:clamp(snapshot.zoom,.62,1.8)};configureCamera();}
-  function resetCamera(){if(projection==='side'){sideZoom=1;return;}orbitState=[2,3,4,5].includes(worldView?.worldVersion)?{azimuth:.18,elevation:.40,zoom:1}:{...defaultOrbit};configureCamera();}
+  function resetCamera(){if(projection==='side'){sideZoom=1;return;}orbitState=worldView?.environment==='school'?schoolCameraConfig(worldView):[2,3,4,5].includes(worldView?.worldVersion)?{azimuth:.18,elevation:.40,zoom:1}:{...defaultOrbit};configureCamera();}
   function resize() {
     const rect=canvas.getBoundingClientRect();
     const changed=width!==Math.max(1,rect.width)||height!==Math.max(1,rect.height);
@@ -71,8 +72,8 @@ export function createRenderer(canvas) {
   }
   function polygon(points,fill,stroke,lineWidth=.6) {path(points);if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lineWidth;ctx.stroke();}}
   function line(a,b,color,lineWidth=1) {let p=worldToCamera(a),q=worldToCamera(b);if(p.z<.08&&q.z<.08)return;if(p.z<.08||q.z<.08){const t=(.08-p.z)/(q.z-p.z),cut={x:p.x+(q.x-p.x)*t,y:p.y+(q.y-p.y)*t,z:.08};if(p.z<.08)p=cut;else q=cut;}p=cameraToScreen(p);q=cameraToScreen(q);ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle=color;ctx.lineWidth=lineWidth;ctx.stroke();}
-  function shadow(center,rx,rz,opacity) {
-    const points=Array.from({length:48},(_,i)=>({x:center.x+Math.cos(i/48*Math.PI*2)*rx,y:.007,z:center.z+Math.sin(i/48*Math.PI*2)*rz}));
+  function shadow(center,rx,rz,opacity,groundY=0) {
+    const points=Array.from({length:48},(_,i)=>({x:center.x+Math.cos(i/48*Math.PI*2)*rx,y:groundY+.007,z:center.z+Math.sin(i/48*Math.PI*2)*rz}));
     polygon(points,`rgba(62,78,46,${opacity})`);
   }
   function drawFloor() {
@@ -194,7 +195,7 @@ export function createRenderer(canvas) {
   function resizeDepthLayer(){
     // The static room cache supersamples edges, with a bounded pixel budget.
     // Neutral/free and replay views keep their existing resolution budget.
-    depthScale=environment==='room'?(revealProgress!==null?Math.min(1,480/width,320/height):Math.min(2,1280/width,900/height)):Math.min(1,720/width,600/height);
+    depthScale=environment==='room'||environment==='school'?(revealProgress!==null?Math.min(1,480/width,320/height):Math.min(2,1280/width,900/height)):Math.min(1,720/width,600/height);
     const w=Math.max(1,Math.ceil(width*depthScale)),h=Math.max(1,Math.ceil(height*depthScale));
     if(depthPixels&&w===depthWidth&&h===depthHeight)return;
     depthWidth=w;depthHeight=h;depthCanvas.width=w;depthCanvas.height=h;
@@ -269,6 +270,20 @@ export function createRenderer(canvas) {
     ctx.drawImage(roomCache.image,0,0,width,height);
     return roomCache.depth;
   }
+  function drawSchool(game,view){
+    const wash=ctx.createLinearGradient(0,0,0,height);
+    wash.addColorStop(0,worldView.schoolType==='rooftop'||worldView.schoolType==='passage'?'#bddbd5':'#f4ead5');wash.addColorStop(1,'#f0e4c9');ctx.fillStyle=wash;ctx.fillRect(0,0,width,height);
+    const scene=schoolScene(camera,worldView);
+    const key=['school',worldView.worldVersion,width,height,depthWidth,depthHeight,camera.x,camera.y,camera.z,orbitState.azimuth,orbitState.elevation,orbitState.zoom,...scene.cutaway].join('/');
+    if(!roomCache||roomCache.key!==key){
+      const opaque=scene.shapes.filter(s=>s.depthWrite!==false),faded=scene.shapes.filter(s=>s.depthWrite===false);
+      faded.sort((a,b)=>dot(sub(b.points[0],camera),forward)-dot(sub(a.points[0],camera),forward));
+      depthPixels.data.fill(0);depthValues.fill(Infinity);rasterizeShapes([...opaque,...faded]);
+      const image=document.createElement('canvas');image.width=depthWidth;image.height=depthHeight;image.getContext('2d').putImageData(depthPixels,0,0);
+      roomCache={key,image,depth:new Float32Array(depthValues)};roomCutaway=scene.cutaway;roomBuilds++;
+    }
+    ctx.drawImage(roomCache.image,0,0,width,height);return roomCache.depth;
+  }
   function drawSide(game,controls,view){
     // A true orthographic y/z plane: a metre has the same scale on both axes,
     // independent of depth. Fit the actual flight without hiding the bin.
@@ -326,7 +341,7 @@ export function createRenderer(canvas) {
     setWorldView(view.world??null);sceneDistance=distance;angleCueSnapshot=null;
     revealProgress=typeof view.revealProgress==='number'?clamp(view.revealProgress,0,1):null;
     revealDistance=revealProgress===null?1:.28+.72*revealProgress;
-    environment=projection==='perspective'&&view.environment==='room'?'room':null;
+    environment=projection==='perspective'?(view.environment==='school'||worldView?.environment==='school'?'school':view.environment==='room'?'room':null):null;
     if(!environment){roomCache=null;roomCutaway=[];}
     resizeDepthLayer();
     const baseTarget=worldView?.view.target??{x:0,y:.45,z:distance*.47},quad=roomMonitorQuad(worldView),monitorCenter=quad.reduce((v,q)=>add(v,scale(q,.25)),{x:0,y:0,z:0});
@@ -334,15 +349,16 @@ export function createRenderer(canvas) {
     configureCamera();
     ctx.setTransform(pixelRatio,0,0,pixelRatio,0,0);ctx.clearRect(0,0,width,height);
     if(projection==='side'){drawSide(game,controls,view);return;}
-    const room=environment==='room',backgroundDepth=room?drawRoom(game,view.aim||controls,view):null;
-    if(!room)drawFloor();drawDistance(game,view.numericLabels!==false);
+    const room=environment==='room',school=environment==='school',backgroundDepth=room?drawRoom(game,view.aim||controls,view):school?drawSchool(game,view):null;
+    if(!room&&!school)drawFloor();if(!school)drawDistance(game,view.numericLabels!==false);
     if(room&&view.monitorCanvas){ctx.save();ctx.globalAlpha=roomCutaway.includes([2,3,4,5].includes(worldView?.worldVersion)?'source-desk':'desk') ? .23 : 1;paintScreenQuad(ctx,view.monitorCanvas,monitorQuad());ctx.restore();}
     shadow(game.bin.center,game.bin.radius*1.35,game.bin.radius*1.14,.11);
-    shadow(game.can.position,.2+Math.max(0,game.can.position.y)*.035,.2,.13/(1+Math.max(0,game.can.position.y)*.8));
+    const schoolGround=school?worldView.solids.filter(s=>['desk-top','roof'].includes(s.kind)&&s.max.y<=game.can.position.y&&game.can.position.x>=s.min.x-game.can.radius&&game.can.position.x<=s.max.x+game.can.radius&&game.can.position.z>=s.min.z-game.can.radius&&game.can.position.z<=s.max.z+game.can.radius):[],canGround=Math.max(0,...schoolGround.map(s=>s.max.y));
+    shadow(game.can.position,.2+Math.max(0,game.can.position.y-canGround)*.035,.2,.13/(1+Math.max(0,game.can.position.y-canGround)*.8),canGround);
     if(view.prediction&&(!view.course||Array.isArray(view.windArc))&&(game.phase==='ready'||game.phase==='success'||game.phase==='miss'))drawArc(game,view.aim||controls,view.windArc);
     if(game.phase!=='ready')drawTrail(game);
     if(view.aim&&!view.customCue){const heading=view.aim.yaw*Math.PI/180,p=game.phase==='ready'?game.can.position:(worldView?.origin??{x:0,y:1.05,z:0});line(p,{x:p.x+Math.sin(heading)*.75,y:p.y,z:p.z+Math.cos(heading)*.75},'#bd8632',2);}
-    const shapes=[...(room&&view.extraRoom?roomMotionShapes(view.environmentTime||0,view.fanEnabled,view.reducedMotion,worldView):[]),...shapesForBin(game,room),...shapesForCan(game,room)];
+    const shapes=[...(room&&view.extraRoom?roomMotionShapes(view.environmentTime||0,view.fanEnabled,view.reducedMotion,worldView):[]),...(school?schoolMotionShapes(view.environmentTime||0,worldView,view.reducedMotion):[]),...shapesForBin(game,room||school),...shapesForCan(game,room||school)];
     drawDepthShapes(shapes,backgroundDepth);
     if(room&&view.extraRoom){
       // The wind vane marks a local area, not a predicted landing point.

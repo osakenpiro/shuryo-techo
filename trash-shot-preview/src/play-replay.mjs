@@ -1,12 +1,15 @@
 // A versioned room-contact envelope around the unchanged V1 pose recording.
 // Legacy V1/V2 records retain their own codecs and interpretation.
-import * as legacy from './course-replay.mjs?v=20261011-room-breeze-1';
-import {validateReplay,createReplayPlayer,ReplayError} from './replay.mjs?v=20261011-room-breeze-1';
-import {roomWorld} from './room-course.mjs?v=20261011-room-breeze-1';
-import {roomContactColliders} from './room-contact.mjs?v=20261011-room-breeze-1';
+import * as legacy from './course-replay.mjs?v=20261012-school-window-1';
+import {validateReplay,createReplayPlayer,ReplayError} from './replay.mjs?v=20261012-school-window-1';
+import {roomWorld} from './room-course.mjs?v=20261012-school-window-1';
+import {roomContactColliders} from './room-contact.mjs?v=20261012-school-window-1';
 import {validateItemReplay,createItemReplay,itemPayload,createItemReplayPlayer,itemReplayToJSON,
-  parseItemReplayJSON,encodeItemReplay,decodeItemReplay,buildItemReplayURL} from './item-replay.mjs?v=20261011-room-breeze-1';
-export {ITEM_REPLAY_LIMITS,ITEM_REPLAY_STORAGE_KEY,loadItemReplays,saveItemReplay,deleteItemReplay} from './item-replay.mjs?v=20261011-room-breeze-1';
+  parseItemReplayJSON,encodeItemReplay,decodeItemReplay,buildItemReplayURL} from './item-replay.mjs?v=20261012-school-window-1';
+export {ITEM_REPLAY_LIMITS,ITEM_REPLAY_STORAGE_KEY,loadItemReplays,saveItemReplay,deleteItemReplay} from './item-replay.mjs?v=20261012-school-window-1';
+import {validateSchoolReplay,createSchoolReplay,schoolPayload,createSchoolReplayPlayer,schoolReplayToJSON,
+  parseSchoolReplayJSON,encodeSchoolReplay,decodeSchoolReplay,buildSchoolReplayURL} from './school-replay.mjs?v=20261012-school-window-1';
+export {SCHOOL_REPLAY_LIMITS,SCHOOL_REPLAY_STORAGE_KEY,loadSchoolReplays,saveSchoolReplay,deleteSchoolReplay} from './school-replay.mjs?v=20261012-school-window-1';
 
 export const PLAY_REPLAY_STORAGE_KEY='trash-shot-room-replays-v3';
 export const COURSE_REPLAY_LIMITS=Object.freeze({...legacy.COURSE_REPLAY_LIMITS,
@@ -72,6 +75,7 @@ function contact(value,colliders,duration){
 }
 
 export function validateCourseReplay(input){
+  if(version(input)===5)return validateSchoolReplay(input);
   if(version(input)===4)return validateItemReplay(input);
   if(version(input)!==3)return legacy.validateCourseReplay(input);
   object(input,['version','kind','course','replay'],'room replay');
@@ -103,12 +107,14 @@ export function validateCourseReplay(input){
   if(encoder.encode(JSON.stringify(record)).byteLength>COURSE_REPLAY_LIMITS.rawBytes)fail('REPLAY_TOO_LARGE','Room replay exceeds raw byte limit');
   return freeze(record);
 }
-export function createCourseReplay(coreV1,stageId,contacts=[],{fanEnabled=false,worldVersion=2,itemId='can',profileVersion=1}={}){
+export function createCourseReplay(coreV1,stageId,contacts=[],{fanEnabled=false,worldVersion=2,itemId='can',profileVersion=1,startTime=0}={}){
+  if([6,7,8,9,10].includes(worldVersion))return createSchoolReplay(coreV1,stageId,contacts,{worldVersion,itemId,profileVersion,startTime});
   if(itemId!=='can')return createItemReplay(coreV1,stageId,contacts,{fanEnabled,worldVersion,itemId,profileVersion});
   array(contacts,COURSE_REPLAY_LIMITS.contacts,'contacts');
   return validateCourseReplay({version:3,kind:'room-contacts',course:{worldVersion,contactModel:1,stageId,roomHits:contacts.length,contacts,fanEnabled},replay:coreV1});
 }
 export function coursePayload(record){
+  if(version(record)===5)return schoolPayload(record);
   if(version(record)===4)return itemPayload(record);
   if(version(record)!==3)return legacy.coursePayload(record);
   return validateCourseReplay(record).replay;
@@ -120,9 +126,11 @@ export function interpretPlayContacts(coreResult,contacts=[]){
   const result=clone(coreResult);
   const beforeEntry=array(contacts,COURSE_REPLAY_LIMITS.contacts,'contacts')
     .filter(value=>!Number.isFinite(result.finalEntryTime)||value.time<result.finalEntryTime+1e-8).map(clone);
-  const counts={roomHits:beforeEntry.length,deskHits:0,wallHits:0,ceilingHits:0,furnitureHits:0};
-  for(const value of beforeEntry){
-    const key={desk:'deskHits',wall:'wallHits',ceiling:'ceilingHits',furniture:'furnitureHits'}[value.surface];
+  const studentHits=beforeEntry.filter(value=>value.surface==='student').length;
+  const bankContacts=beforeEntry.filter(value=>value.surface!=='student');
+  const counts={roomHits:bankContacts.length,deskHits:0,wallHits:0,ceilingHits:0,furnitureHits:0};
+  for(const value of bankContacts){
+    const key={desk:'deskHits',wall:'wallHits',ceiling:'ceilingHits',furniture:'furnitureHits',roof:'furnitureHits',rail:'furnitureHits'}[value.surface];
     if(key)counts[key]++;
   }
   if(counts.roomHits){
@@ -130,20 +138,23 @@ export function interpretPlayContacts(coreResult,contacts=[]){
     for(const [key,id,label]of [['deskHits','desk-bank','机当て'],['wallHits','wall-bank','壁当て'],['ceilingHits','ceiling-bank','天井当て'],['furnitureHits','furniture-bank','家具当て']])
       if(counts[key])result.roles.push({id,label});
   }
-  return {...result,...counts,roomContacts:beforeEntry};
+  return {...result,...counts,...(studentHits?{studentHits}:{}),roomContacts:bankContacts};
 }
 export function courseReplayResult(record){
+  if(version(record)===5){const valid=validateSchoolReplay(record),result=interpretPlayContacts(valid.replay.result,valid.course.contacts);return {...result,schoolHits:result.roomHits};}
   if(version(record)===4){const valid=validateItemReplay(record);return interpretPlayContacts(valid.replay.result,valid.course.contacts);}
   if(version(record)!==3)return legacy.courseReplayResult(record);
   const valid=validateCourseReplay(record);return interpretPlayContacts(valid.replay.result,valid.course.contacts);
 }
 export function createCourseReplayPlayer(record){
+  if(version(record)===5)return createSchoolReplayPlayer(record);
   if(version(record)===4)return createItemReplayPlayer(record);
   if(version(record)!==3)return legacy.createCourseReplayPlayer(record);
   const valid=validateCourseReplay(record);
   return createReplayPlayer(valid.replay,{worldVersion:valid.course.worldVersion});
 }
 export function courseReplayToJSON(record){
+  if(version(record)===5)return schoolReplayToJSON(record);
   if(version(record)===4)return itemReplayToJSON(record);
   if(version(record)!==3)return legacy.courseReplayToJSON(record);
   return JSON.stringify(validateCourseReplay(record));
@@ -153,7 +164,7 @@ export function parseCourseReplayJSON(text){
   if(text.length>COURSE_REPLAY_LIMITS.rawBytes||encoder.encode(text).byteLength>COURSE_REPLAY_LIMITS.rawBytes)
     fail('REPLAY_TOO_LARGE','Room replay exceeds JSON byte limit');
   let record;try{record=JSON.parse(text);}catch{fail('INVALID_REPLAY','Malformed room replay JSON');}
-  return version(record)===4?parseItemReplayJSON(text):version(record)===3?validateCourseReplay(record):legacy.parseCourseReplayJSON(text);
+  return version(record)===5?parseSchoolReplayJSON(text):version(record)===4?parseItemReplayJSON(text):version(record)===3?validateCourseReplay(record):legacy.parseCourseReplayJSON(text);
 }
 
 // The existing bounded gzip/base64url recipe, with an explicit new fragment.
@@ -175,6 +186,7 @@ function unbase64url(text){
   const bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));if(base64url(bytes)!==text)fail('INVALID_ENCODING','Noncanonical base64url room replay');return bytes;
 }
 export async function encodeCourseReplay(record){
+  if(version(record)===5)return encodeSchoolReplay(record);
   if(version(record)===4)return encodeItemReplay(record);
   if(version(record)!==3)return legacy.encodeCourseReplay(record);
   const json=courseReplayToJSON(record);
@@ -188,6 +200,7 @@ export async function encodeCourseReplay(record){
 export async function decodeCourseReplay(fragment){
   if(typeof fragment!=='string'||fragment.length>COURSE_REPLAY_LIMITS.urlChars)fail('SHARE_TOO_LARGE','Room replay fragment exceeds URL limit');
   const text=fragment.startsWith('#')?fragment.slice(1):fragment;
+  if(text.startsWith('tsc5.'))return decodeSchoolReplay(fragment);
   if(text.startsWith('tsc4.'))return decodeItemReplay(fragment);
   if(!text.startsWith('tsc3.'))return legacy.decodeCourseReplay(fragment);
   const bytes=unbase64url(text.slice(5));
@@ -198,6 +211,7 @@ export async function decodeCourseReplay(fragment){
   const record=parseCourseReplayJSON(json);if(record.version!==3)fail('UNSUPPORTED_VERSION','Room fragment cannot carry an older replay');return record;
 }
 export async function buildCourseReplayURL(record,url){
+  if(version(record)===5)return buildSchoolReplayURL(record,url);
   if(version(record)===4)return buildItemReplayURL(record,url);
   if(version(record)!==3)return legacy.buildCourseReplayURL(record,url);
   let result;try{result=new URL(url);}catch{fail('INVALID_URL','Room replay URL base is invalid');}

@@ -1,4 +1,5 @@
-import { stepGame, ROOM_PHYSICS_WORLDS } from './physics.mjs?v=20261011-room-breeze-1';
+import {schoolWorld} from './school-world.mjs?v=20261012-school-window-1';
+import { stepGame, ROOM_PHYSICS_WORLDS } from './physics.mjs?v=20261012-school-window-1';
 
 const TICK = 1 / 240, EPS = 1e-9, SLOP = 1e-5;
 const AXES = ['x', 'y', 'z'];
@@ -80,6 +81,7 @@ export function roomCourse(stageId,worldVersion=1) {
   return courses&&Object.hasOwn(courses,stageId)?courses[stageId]:null;
 }
 export function roomWorld(stageId,worldVersion=2) {
+  if(worldVersion>=6&&worldVersion<=10)return schoolWorld(stageId,worldVersion);
   const worlds=worldVersion===1||worldVersion===2||worldVersion===3||worldVersion===4||worldVersion===5?WORLDS[worldVersion]:null;
   return worlds&&Object.hasOwn(worlds,stageId)?worlds[stageId]:null;
 }
