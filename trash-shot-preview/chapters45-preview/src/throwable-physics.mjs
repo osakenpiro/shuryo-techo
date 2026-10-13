@@ -1,6 +1,6 @@
 // Profiles extend the existing fixed-step simulation; the default can takes
 // every original arithmetic path. No item changes gravitational acceleration.
-import {DEFAULT_THROWABLE_ID,getThrowable} from './throwables.mjs?v=20261013-chapters45-1';
+import {DEFAULT_THROWABLE_ID,getThrowable} from './throwables.mjs?v=20261013-contact-shrine-1';
 const ITEMS=new WeakMap(),EPS=1e-9,MAX_RESTITUTION=.8;
 const FIXED_POSES=new WeakMap();
 const active=game=>game?.phase==='flying'||game?.phase==='settling';

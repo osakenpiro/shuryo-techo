@@ -30,6 +30,16 @@ export const THROWABLE_CATALOG=freeze({
     physics:{...physics(.07,.135,.4,.000015,0,2,.00003),version:2,terminalContact:'splat'}},
   'firework-ball':{id:'firework-ball',label:'花火玉',price:0,acquisition:'stage-clear',stageId:'outdoor-river',traits:['夜の川を越える','筒へ落とす'],shape:'firework-ball',color:'#bc8e5c',
     physics:{...physics(.12,.16,.4,.000015,.6,1.1,.00015),version:2}},
+  arrow:{id:'arrow',label:'矢',price:0,acquisition:'stage-clear',stageId:'eccentric-boar',traits:['細い先端をねらう','飛ぶ向きに姿勢が合う'],shape:'arrow',color:'#d8ba81',
+    physics:{...physics(.02,.035,.52,.00001,.15,1.2,.000005),version:3,alignToVelocity:true}},
+  basketball:{id:'basketball',label:'バスケットボール',price:0,acquisition:'stage-clear',stageId:'eccentric-basket',traits:['リングへ弧を描く','大きく弾む'],shape:'basketball',color:'#d68a45',
+    physics:{...physics(.62,.12,.4,.00002,3.6,.62,.0005),version:3}},
+  dandelion:{id:'dandelion',label:'たんぽぽの綿毛',price:0,acquisition:'stage-clear',stageId:'eccentric-dandelion',traits:['落下がゆっくり','風に大きく流される'],shape:'dandelion',color:'#f4eed6',
+    physics:{...physics(.00006,.05,.55,.000035,0,2,.00000001),version:3,verticalAirDrag:.00032,windResponse:12}},
+  'playing-card':{id:'playing-card',label:'トランプ',price:0,acquisition:'stage-clear',stageId:'eccentric-card',traits:['狙った面に刺さる','薄く回転する'],shape:'playing-card',color:'#f5ead5',
+    physics:{...physics(.0018,.04,.58,.000016,.16,1.2,.000005,0,.02),version:3,alignToVelocity:true}},
+  cannonball:{id:'cannonball',label:'大砲の弾',price:0,acquisition:'stage-clear',stageId:'eccentric-cannon',traits:['重い一撃','跳ねにくい'],shape:'cannonball',color:'#546863',
+    physics:{...physics(1.2,.18,.4,.000012,.12,1.4,.00005),version:3}},
 });
 export function getThrowable(id=DEFAULT_THROWABLE_ID){
   return typeof id==='string'&&Object.hasOwn(THROWABLE_CATALOG,id)?THROWABLE_CATALOG[id]:null;

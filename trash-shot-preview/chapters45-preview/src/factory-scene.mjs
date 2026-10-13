@@ -1,6 +1,6 @@
 // Shared metre-space primitives keep the approved paper/wood/teal art family.
 // Canonical world solids own every gameplay surface; trim is decorative.
-import {factoryWorld,factorySolids,factoryGoals,factoryMotion,factoryDynamicSolids} from './factory-world.mjs?v=20261013-chapters45-1';
+import {factoryWorld,factorySolids,factoryGoals,factoryMotion,factoryDynamicSolids} from './factory-world.mjs?v=20261013-contact-shrine-1';
 export const FACTORY_PALETTE=Object.freeze({cream:'#f4ead5',wall:'#eee2c6',wood:'#c89b61',teal:'#4a948b',darkTeal:'#286864',gold:'#e8b54e',orange:'#e98238',steel:'#8da69c',floor:'#d7c9ad'});
 const p=(x,y,z)=>({x,y,z});
 const face=(points,fill,stroke=null,meta={})=>({points,fill,stroke,...meta});
@@ -55,16 +55,16 @@ function opening(s,goal,{colour=FACTORY_PALETTE.gold,depth=.18,pocket=true,net=f
 export const scenePrimitives=Object.freeze({p,face,shade,add,scale,cross,unit,box,physicalBox,cylinder,ellipsoid,line,flat,limb,basis,opening});
 const cache=new Map();
 function requireWorld(world){const saved=factoryWorld(world?.stageId,world?.worldVersion);if(!saved)throw new RangeError('A frozen factory world is required');return saved;}
-const colourOf=c=>c.kind==='conveyor'?'#477e77':c.kind==='bank-rail'?'#9caf98':c.kind==='pressure-plate'?'#c3a266':c.kind==='collection-bin'?FACTORY_PALETTE.teal:FACTORY_PALETTE.steel;
+const colourOf=c=>c.kind==='factory-wall'?FACTORY_PALETTE.wall:['factory-pillar','factory-beam'].includes(c.kind)?'#86a195':c.kind==='machine-frame'?c.max.y-c.min.y>.5?'#587f77':'#748e80':c.kind==='conveyor-leg'?'#64887a':c.kind==='conveyor'?'#477e77':c.kind==='bank-rail'?'#9caf98':c.kind==='pressure-plate'?'#c3a266':c.kind==='collection-bin'?FACTORY_PALETTE.teal:FACTORY_PALETTE.steel;
 function factoryDecor(s,world){
-  const r=world.room,meta={decoration:true};flat(s,r.minX,.008,r.minZ,r.maxX-r.minX,r.maxZ-r.minZ,FACTORY_PALETTE.floor,meta);
+  const r=world.room,meta={decoration:true},revised=world.worldVersion>=26;flat(s,r.minX,.008,r.minZ,r.maxX-r.minX,r.maxZ-r.minZ,FACTORY_PALETTE.floor,meta);
   for(let x=r.minX+.25;x<r.maxX;x+=.8)line(s,p(x,.012,r.minZ),p(x,.012,r.maxZ),'#cbbd9f',meta);
   for(let z=r.minZ+.4;z<r.maxZ;z+=.8)line(s,p(r.minX,.012,z),p(r.maxX,.012,z),'#cbbd9f',meta);
-  // The facade is beyond the physical play boundary, so it cannot look like
-  // an unrecorded barrier on a legal throw route.
-  box(s,r.minX-.25,0,r.maxZ+.2,r.maxX-r.minX+.5,5.8,.15,FACTORY_PALETTE.wall,meta);
+  // Released world15–18 keeps its decorative facade for old replay meaning.
+  // Revised live worlds draw the same visible wall from its actual collider.
+  if(!revised)box(s,r.minX-.25,0,r.maxZ+.2,r.maxX-r.minX+.5,5.8,.15,FACTORY_PALETTE.wall,meta);
   for(const x of [-3.25,1.75]){box(s,x,2.5,r.maxZ+.175,1.5,1.4,.025,'#a9c3b6',meta);for(const dx of [.45,.95])box(s,x+dx,2.5,r.maxZ+.15,.035,1.4,.025,'#ede1c5',meta);box(s,x,3.15,r.maxZ+.15,1.5,.035,.025,'#ede1c5',meta);}
-  for(const z of [2.5,7.6]){box(s,r.minX-.13,0,z,.16,5.6,.20,'#86a195',meta);box(s,r.maxX-.03,0,z,.16,5.6,.20,'#86a195',meta);box(s,r.minX-.13,5.48,z,r.maxX-r.minX+.26,.14,.20,'#86a195',meta);}
+  if(!revised)for(const z of [2.5,7.6]){box(s,r.minX-.13,0,z,.16,5.6,.20,'#86a195',meta);box(s,r.maxX-.03,0,z,.16,5.6,.20,'#86a195',meta);box(s,r.minX-.13,5.48,z,r.maxX-r.minX+.26,.14,.20,'#86a195',meta);}
   box(s,-1.12,5.10,r.maxZ+.155,2.24,.43,.035,'#396f68',meta);
   for(let x=-.85;x<1;x+=.42)box(s,x,5.24,r.maxZ+.14,.23,.07,.014,'#eddaaa',meta);
   const z=world.origin.z;flat(s,world.origin.x-.35,.021,z-.31,.7,.54,'#dbb776',meta);
@@ -73,11 +73,11 @@ function factoryDecor(s,world){
     const x=side<0?r.minX+.28:r.maxX-.61,z=1.05+i*.46;
     s.push(face([p(x,.016,z),p(x+.30,.016,z+.15),p(x+.30,.016,z+.28),p(x,.016,z+.13)],i%2?'#bfad87':'#e3c779',null,meta));
   }
-  if(world.factoryType==='shutter'||world.factoryType==='relay'){
+  if(!revised&&(world.factoryType==='shutter'||world.factoryType==='relay')){
     const q=world.mechanism;for(const x of [q.min.x-.16,q.max.x+.04])box(s,x,0,q.min.z-.06,.12,5.5,.32,'#587f77',{machineTrim:q.id});
     box(s,q.min.x-.16,5.18,q.min.z-.08,q.max.x-q.min.x+.32,.25,.36,'#748e80',{machineTrim:q.id});
   }
-  if(world.factoryType==='conveyor'){
+  if(!revised&&world.factoryType==='conveyor'){
     const belt=factorySolids(world).find(c=>c.kind==='conveyor');for(const x of [belt.min.x+.08,belt.max.x-.13])for(const z of [belt.min.z+.20,belt.max.z-.33])box(s,x,.02,z,.05,belt.min.y-.02,.10,'#64887a',{beltLeg:true});
   }
   if(world.factoryType==='relay'){
@@ -86,7 +86,7 @@ function factoryDecor(s,world){
   }
 }
 export function factoryStaticMeshes(world){
-  world=requireWorld(world);const key=world.stageId;if(cache.has(key))return cache.get(key);
+  world=requireWorld(world);const key=`${world.stageId}:${world.worldVersion}`;if(cache.has(key))return cache.get(key);
   const shapes=[];for(const solid of factorySolids(world))physicalBox(shapes,solid,colourOf(solid));
   factoryDecor(shapes,world);for(const goal of factoryGoals(world,0))opening(shapes,goal);
   cache.set(key,shapes);return shapes;

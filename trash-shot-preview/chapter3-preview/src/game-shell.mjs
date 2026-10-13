@@ -1,7 +1,7 @@
 // Presentation only. Chapter progress and stage changes stay owned by app.mjs.
-import { STAGES } from './stages.mjs?v=20261012-outdoor-chapter-1';
-import { CHAPTER_IDS, CHAPTERS, chapterForStage, canChooseStage, outdoorSnapshot, OUTDOOR_CHAPTER_IDS } from './progress-save.mjs?v=20261012-outdoor-chapter-1';
-import { drawPixelText, measurePixelText } from './pixel-type.mjs?v=20261012-outdoor-chapter-1';
+import { STAGES } from './stages.mjs?v=20261013-contact-shrine-1';
+import { CHAPTER_IDS, CHAPTERS, chapterForStage, canChooseStage, outdoorSnapshot, OUTDOOR_CHAPTER_IDS, BRANCH_CHAPTER_IDS, FACTORY_CHAPTER_IDS, ECCENTRIC_CHAPTER_IDS } from './progress-save.mjs?v=20261013-contact-shrine-1';
+import { drawPixelText, measurePixelText } from './pixel-type.mjs?v=20261013-contact-shrine-1';
 
 const $ = id => document.getElementById(id);
 const FACE_HELP = Object.freeze({
@@ -17,6 +17,17 @@ const FACE_HELP = Object.freeze({
   'outdoor-baseball': 'ホームランの一球を、観客のミットへ。',
   'outdoor-mall': '吹き抜けから、子供のコーンへアイスを落とそう。',
   'outdoor-river': '船の灯りを読んで、向こう岸の花火筒へ。',
+  'factory-shutter': '開閉するシャッターの、開いた瞬間を狙おう。',
+  'factory-conveyor': 'ベルトに乗せて、流れの先の箱へ。',
+  'factory-bank': '左右の壁を使って、二つのバウンドをつなごう。',
+  'factory-relay': '最初の球で仕掛けを動かし、次の球を箱へ。',
+  'eccentric-tower': 'タワーの上から、街の箱へ大きなひと投げ。',
+  'eccentric-train': '電車の上から、動く足場のタイミングを読もう。',
+  'eccentric-boar': '森で狙いを定めて、矢を的へ。',
+  'eccentric-basket': 'バスケットゴールに、気持ちよくシュート。',
+  'eccentric-dandelion': '軽い綿毛を、風に乗せて届けよう。',
+  'eccentric-card': 'トランプを狙って投げ、的に刺そう。',
+  'eccentric-cannon': '大砲から、砦の扉を狙おう。',
 });
 
 function paintLabel(canvas, text, { scale = 3, color = '#286864', padding = 2 } = {}) {
@@ -70,7 +81,7 @@ export function createGameShell({ getState, selectStage, onRouteVisit }) {
     }
     const card = document.createElement('button');
     card.type = 'button';
-    card.className = `chapter-stage-card stage-art-${index + 1}${chapter.number===2?' chapter-school-card stage-'+id:chapter.number===3?' chapter-outdoor-card stage-'+id:''}`;
+    card.className = `chapter-stage-card stage-art-${index + 1}${chapter.number===2?' chapter-school-card stage-'+id:chapter.number===3?' chapter-outdoor-card stage-'+id:chapter.number===4?' chapter-factory-card stage-'+id:chapter.number===5?' chapter-eccentric-card stage-'+id:''}`;
     card.dataset.chapter = String(chapter.number);
     card.dataset.stageId = id;
     const thumbnail = document.createElement('span');
@@ -115,7 +126,7 @@ export function createGameShell({ getState, selectStage, onRouteVisit }) {
     marks.set(id, { mark, stateText, number });
   }
   const routeMap=createRouteMap();
-  function previewFace(state,id){return state?.previewChapter3===true&&OUTDOOR_CHAPTER_IDS.includes(id)&&!canChooseStage(state.progress,id);}
+  function previewFace(state,id){return ((state?.previewChapter3===true&&OUTDOOR_CHAPTER_IDS.includes(id))||(state?.previewChapters45===true&&BRANCH_CHAPTER_IDS.includes(id)))&&!canChooseStage(state.progress,id);}
   function accessibleFace(state,id){return canChooseStage(state.progress,id)||previewFace(state,id);}
   function visitFace(id){
     const state=getState(),selected=previewFace(state,id)?selectStage(id,{allowPractice:true}):selectStage(id);
@@ -145,7 +156,8 @@ export function createGameShell({ getState, selectStage, onRouteVisit }) {
       const status=document.createElement('p');status.className='outdoor-route-status';
       const revisit=document.createElement('button');revisit.type='button';revisit.textContent='3章の別解を探し直す';on(revisit,'click',()=>{const progress=getState()?.progress,outdoor=outdoorSnapshot(progress);const id=OUTDOOR_CHAPTER_IDS.find(stage=>!outdoor.altIDs.includes(stage)&&accessibleFace(getState(),stage))??OUTDOOR_CHAPTER_IDS[0];visitFace(id);});
       const detour=document.createElement('button');detour.type='button';detour.textContent='色物への寄り道を開く';detour.className='outdoor-route-detour';on(detour,'click',()=>{if(typeof onRouteVisit==='function'&&onRouteVisit(5)===true)update();});
-      card.append(heading,condition,status,revisit,detour);routes.append(card);routeCards.set(number,{card,status,revisit,detour});
+      const play=document.createElement('button');play.type='button';play.className='outdoor-route-play';play.textContent=number===4?'工場を遊ぶ':'色物を遊ぶ';on(play,'click',()=>visitFace(number===4?FACTORY_CHAPTER_IDS[0]:ECCENTRIC_CHAPTER_IDS[0]));
+      card.append(heading,condition,status,play,revisit,detour);routes.append(card);routeCards.set(number,{card,status,play,revisit,detour});
     }
     section.append(title,count,decision,faces,routes);cardHost?.append(section);return {section,count,decision,rows,routeCards};
   }
@@ -171,7 +183,7 @@ export function createGameShell({ getState, selectStage, onRouteVisit }) {
     const state = getState();
     if (!state?.progress) return;
     const fingerprint = JSON.stringify([state.progress, state.stageId, state.busy,
-      state.introActive, state.trainingMode, state.result?.stageId, home?.hidden,state.homeChapterNumber,state.previewChapter3]);
+      state.introActive, state.trainingMode, state.result?.stageId, home?.hidden,state.homeChapterNumber,state.previewChapter3,state.previewChapters45]);
     if (fingerprint === lastFingerprint) return;
     lastFingerprint = fingerprint;
     const { progress } = state;
@@ -207,11 +219,11 @@ export function createGameShell({ getState, selectStage, onRouteVisit }) {
     if ($('chapter-top-record')) $('chapter-top-record').textContent = `${activeChapter.number} ${activeChapter.label} ${activeChapter.ids.filter(id=>completed.has(id)).length} / ${activeChapter.ids.length} 面クリア · 全体 ${completed.size} / ${CHAPTER_IDS.length} 面 · 合計 ${progress.cumulativeAttempts} 投、${progress.cumulativeSuccesses} 成功`;
     if ($('chapter-continue')) $('chapter-continue').disabled = blocked;
     const outdoor=outdoorSnapshot(progress);
-    routeMap.section.hidden=!accessibleFace(state,OUTDOOR_CHAPTER_IDS[0]);
+    routeMap.section.hidden=!accessibleFace(state,OUTDOOR_CHAPTER_IDS[0])&&state.previewChapters45!==true;
     routeMap.count.textContent=`別解 ${outdoor.altCount} / 4 面 · 2面以上で工場の道`;
     routeMap.decision.textContent=outdoor.firstRoute===null?'3-4をクリアしたときの別解数で、最初の道が決まります。':`最初の道：${outdoor.firstRoute===4?'4 工場・動く系':'5 色物'}（別解${outdoor.forkAltCount}面）。見つけた別解と開いた道は、戻っても残ります。`;
     for(const [id,{row,flags,revisit}]of routeMap.rows){const played=outdoor.playedIDs.includes(id),normal=outdoor.normalIDs.includes(id),alt=outdoor.altIDs.includes(id);row.dataset.played=String(played);row.dataset.normal=String(normal);row.dataset.alternative=String(alt);flags.textContent=`${played?'プレイ済み':'未プレイ'} · ${normal?'○ 通常達成':'○ 通常未達'} · ${alt?'◆ 別解発見':'◇ 別解未発見'}`;revisit.disabled=blocked||!accessibleFace(state,id);}
-    for(const [number,{card,status,revisit,detour}]of routeMap.routeCards){const unlocked=outdoor.unlockedRoutes.includes(number),first=outdoor.firstRoute===number;card.dataset.unlocked=String(unlocked);card.dataset.firstRoute=String(first);status.textContent=`製作中 · ${first?'最初に進む道':unlocked?'開いた寄り道':'まだ開いていない道'}`;revisit.disabled=blocked||!accessibleFace(state,OUTDOOR_CHAPTER_IDS[0]);detour.hidden=number!==5||!outdoor.complete||outdoor.firstRoute!==4||unlocked||typeof onRouteVisit!=='function';detour.disabled=blocked;}
+    for(const [number,{card,status,play,revisit,detour}]of routeMap.routeCards){const unlocked=outdoor.unlockedRoutes.includes(number),first=outdoor.firstRoute===number;card.dataset.unlocked=String(unlocked);card.dataset.firstRoute=String(first);status.textContent=`${first?'最初に進む道':unlocked?'開いた寄り道':'まだ開いていない道'}${state.previewChapters45===true&&!unlocked?' · プレビュー練習':''}`;play.disabled=blocked||!accessibleFace(state,number===4?FACTORY_CHAPTER_IDS[0]:ECCENTRIC_CHAPTER_IDS[0]);revisit.disabled=blocked||!accessibleFace(state,OUTDOOR_CHAPTER_IDS[0]);detour.hidden=number!==5||!outdoor.complete||outdoor.firstRoute!==4||unlocked||typeof onRouteVisit!=='function';detour.disabled=blocked;}
     paintResult();
   }
   update();

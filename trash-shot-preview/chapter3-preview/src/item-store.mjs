@@ -15,7 +15,7 @@ export function createStoreUI({ document: doc, getState, onBuy, onEquip, catalog
   const pretty = value => Number.isSafeInteger(value) && value >= 0 ? value.toLocaleString('ja-JP') : '—';
   const shapeFor = item => item.shape || ({ can: 'can', paper: 'paper', 'rubber-ball': 'ball', 'heavy-ball': 'heavy', carton: 'carton' }[item.id] || 'can');
   const stageClearItem = item => item.acquisition === 'stage-clear';
-  const faceNumber = item => ({'outdoor-shrine':'3-1','outdoor-baseball':'3-2','outdoor-mall':'3-3','outdoor-river':'3-4'}[item.stageId] || 'その面');
+  const faceNumber = item => ({'outdoor-shrine':'3-1','outdoor-baseball':'3-2','outdoor-mall':'3-3','outdoor-river':'3-4','eccentric-boar':'5-3','eccentric-basket':'5-4','eccentric-dandelion':'5-5','eccentric-card':'5-6','eccentric-cannon':'5-7'}[item.stageId] || 'その面');
   for (const item of normalized) {
     const card = doc.createElement('article');
     card.className = 'store-item';

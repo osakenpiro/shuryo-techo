@@ -11,6 +11,10 @@ export const FACTORY_PHYSICS_WORLDS=freeze({
   16:{worldVersion:16,origin:p(0,1.65,0),bin:{center:p(0,.4,6.3),radius:.72,height:.8}},
   17:{worldVersion:17,origin:p(0,2.45,0),bin:{center:p(0,.5,5.5),radius:.8,height:1}},
   18:{worldVersion:18,origin:p(0,1.3,0),bin:{center:p(1.15,.55,6.7),radius:.72,height:1.1}},
+  26:{worldVersion:26,origin:p(0,1.25,0),bin:{center:p(0,.55,6.6),radius:.68,height:1.1}},
+  27:{worldVersion:27,origin:p(0,1.65,0),bin:{center:p(0,.4,6.3),radius:.72,height:.8}},
+  28:{worldVersion:28,origin:p(0,2.45,0),bin:{center:p(0,.5,5.5),radius:.8,height:1}},
+  29:{worldVersion:29,origin:p(0,1.3,0),bin:{center:p(1.15,.55,6.7),radius:.72,height:1.1}},
 });
 const binSolids=(g)=>[
   box(`${g.id}-body`,'collection-bin',p(g.center.x-g.radius,0,g.center.z-g.radius),p(g.center.x+g.radius,g.center.y-.25,g.center.z+g.radius)),
@@ -23,7 +27,9 @@ const shutterGoal=goal('factory-shutter-bin',p(0,1.1,6.6),.68);
 const conveyorGoal=goal('factory-conveyor-bin',p(0,.8,6.3),.72);
 const bankGoal=goal('factory-bank-bin',p(0,1,5.5),.8);
 const relayGoal=goal('factory-relay-bin',p(1.15,1.1,6.7),.72);
-export const FACTORY_WORLDS=freeze({
+// Keep the released V7 geometry fixed. New live stages choose their revised
+// version by default, while recorded world15–18 selects these exact solids.
+export const FACTORY_LEGACY_WORLDS=freeze({
   'factory-shutter':make('factory-shutter',15,'shutter','can',[shutterGoal],binSolids(shutterGoal),{power:8,elevation:45,yaw:0},
     {id:'factory-shutter-door',kind:'shutter',min:p(-3.2,0,3.4),max:p(3.2,4.5,3.6),period:8,lift:4.6}),
   'factory-conveyor':make('factory-conveyor',16,'conveyor','can',[conveyorGoal],[...binSolids(conveyorGoal),
@@ -38,7 +44,30 @@ export const FACTORY_WORLDS=freeze({
     {id:'factory-relay-gate',kind:'relay',min:p(-3.2,0,4.4),max:p(3.2,4.2,4.6),lift:4.5,
       plateId:'factory-relay-plate',plateCenter:p(-1.5,.78,3.3),setupLaunch:{power:7.7,elevation:42,yaw:-24},goalLaunch:{power:11.1,elevation:38,yaw:10}}),
 });
-export function factoryWorld(stageId,worldVersion){const world=typeof stageId==='string'&&Object.hasOwn(FACTORY_WORLDS,stageId)?FACTORY_WORLDS[stageId]:null;return world&&(worldVersion===undefined||worldVersion===world.worldVersion)?world:null;}
+function buildingSolids(world){
+  const r=world.room,solids=[box('factory-back-wall','factory-wall',p(r.minX-.25,0,r.maxZ+.2),p(r.maxX+.25,5.8,r.maxZ+.35),'wall',.35)];
+  for(const [index,z] of [2.5,7.6].entries()){
+    solids.push(box(`factory-building-left-pillar-${index+1}`,'factory-pillar',p(r.minX-.13,0,z),p(r.minX+.03,5.6,z+.2),'wall',.35));
+    solids.push(box(`factory-building-right-pillar-${index+1}`,'factory-pillar',p(r.maxX-.03,0,z),p(r.maxX+.13,5.6,z+.2),'wall',.35));
+    solids.push(box(`factory-building-beam-${index+1}`,'factory-beam',p(r.minX-.13,5.48,z),p(r.maxX+.13,5.62,z+.2),'ceiling',.22));
+  }
+  if(world.factoryType==='shutter'||world.factoryType==='relay'){
+    const q=world.mechanism;for(const [side,x] of [['left',q.min.x-.16],['right',q.max.x+.04]])solids.push(box(`${q.id}-${side}-frame`,'machine-frame',p(x,0,q.min.z-.06),p(x+.12,5.5,q.min.z+.26),'wall',.35));
+    solids.push(box(`${q.id}-top-frame`,'machine-frame',p(q.min.x-.16,5.18,q.min.z-.08),p(q.max.x+.16,5.43,q.min.z+.28),'ceiling',.22));
+  }
+  if(world.factoryType==='conveyor'){
+    const belt=world.solids.find(c=>c.kind==='conveyor');let index=0;
+    for(const x of [belt.min.x+.08,belt.max.x-.13])for(const z of [belt.min.z+.2,belt.max.z-.33])solids.push(box(`factory-belt-leg-${++index}`,'conveyor-leg',p(x,.02,z),p(x+.05,belt.min.y,z+.1),'furniture',.28));
+  }
+  return solids;
+}
+export const FACTORY_WORLDS=freeze(Object.fromEntries(Object.entries(FACTORY_LEGACY_WORLDS).map(([id,old],index)=>{
+  const version=26+index,physics=FACTORY_PHYSICS_WORLDS[version];
+  return [id,{...old,worldVersion:version,physics,origin:physics.origin,bin:physics.bin,solids:[...old.solids,...buildingSolids(old)]}];
+})));
+const WORLD_BY_VERSION=freeze(Object.fromEntries([...Object.values(FACTORY_LEGACY_WORLDS),...Object.values(FACTORY_WORLDS)].map(w=>[w.worldVersion,w])));
+export function factoryWorldByVersion(worldVersion){return Number.isInteger(worldVersion)&&Object.hasOwn(WORLD_BY_VERSION,worldVersion)?WORLD_BY_VERSION[worldVersion]:null;}
+export function factoryWorld(stageId,worldVersion){const world=worldVersion===undefined?typeof stageId==='string'&&Object.hasOwn(FACTORY_WORLDS,stageId)?FACTORY_WORLDS[stageId]:null:factoryWorldByVersion(worldVersion);return world?.stageId===stageId?world:null;}
 function requireWorld(world){const saved=factoryWorld(world?.stageId,world?.worldVersion);if(!saved)throw new RangeError('A supported factory world is required');return saved;}
 export function factorySolids(world){return requireWorld(world).solids;}
 export function factoryGoals(world,time=0,session){world=requireWorld(world);if(!Number.isFinite(time))throw new TypeError('Factory time must be finite');return world.goals.map(value=>({...value,center:{...value.center}}));}

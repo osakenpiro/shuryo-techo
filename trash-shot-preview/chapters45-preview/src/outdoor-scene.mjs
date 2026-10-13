@@ -1,8 +1,8 @@
 // Outdoor places continue the approved room/school paper, wood and teal visual
 // language. Physical mesh endpoints come from the world descriptors; painted
 // trim and floor markings are decoration, not additional collision surfaces.
-import {outdoorSolids,outdoorMotion,outdoorDynamicSolids} from './outdoor-world.mjs?v=20261013-chapters45-1';
-import {outdoorEffectShapes,outdoorLightColor,outdoorLampShapes} from './outdoor-effects.mjs?v=20261013-chapters45-1';
+import {outdoorSolids,outdoorMotion,outdoorDynamicSolids} from './outdoor-world.mjs?v=20261013-contact-shrine-1';
+import {outdoorEffectShapes,outdoorLightColor,outdoorLampShapes} from './outdoor-effects.mjs?v=20261013-contact-shrine-1';
 export const OUTDOOR_PALETTE=Object.freeze({cream:'#f4ead5',wall:'#eee2c6',wood:'#c89b61',teal:'#4a948b',darkTeal:'#286864',gold:'#e8b54e',orange:'#e98238',sky:'#bfdedb',green:'#8caf7d',night:'#172e3d',water:'#244c60'});
 const p=(x,y,z)=>({x,y,z});
 const face=(points,fill,stroke=null,metadata={})=>({points,fill,stroke,...metadata});
@@ -36,6 +36,8 @@ function surfaceColor(c,world){
   if(c.color)return c.color;
   const id=`${c.kind??''} ${c.object??''} ${c.id}`;
   if(c.id==='shrine-back-wall')return '#b4875b';
+  if(c.id==='shrine-left-post'||c.id==='shrine-right-post')return '#bc925f';
+  if(c.kind==='offering-box'||c.object==='shrine-offering')return '#ad8557';
   if(typeOf(world)==='river')return /bank|ground/.test(id)?'#6c796e':/boat|deck/.test(id)?'#9b805d':/chimney|tube/.test(id)?'#456966':'#657f7e';
   if(/grass/.test(id))return OUTDOOR_PALETTE.green;
   if(/floor|slab|step|ground|walkway|bank/.test(id))return /mall/.test(world.stageId)?'#e4d8bb':'#c4b28d';
@@ -50,34 +52,86 @@ function tree(s,x,y,z,scale=1){
   ellipsoid(s,x-.32*scale,y+1.62*scale,z+.11*scale,.48*scale,.56*scale,.5*scale,'#aac38b');
 }
 function shrineDetails(s,world){
-  const r=roomOf(world),goal=world.goals?.find(g=>g.role==='normal')??world.goals?.[0],c=goal?.center??goal?.position??world.bin?.center??p(0,1,7),z=c.z;
-  // A stone path leads to the shared offering-box geometry. The temple itself
-  // sits behind the play boundary, with no decorative wall on the throw route.
-  flat(s,-1.45,.012,r.minZ,2.9,Math.max(1,z-r.minZ-.6),'#e2d7b9');
-  for(let depth=r.minZ+.15;depth<z-.6;depth+=.72)line(s,p(-1.42,.014,depth),p(1.42,.014,depth),'#c9c0a4');
-  const temple=world.solids.find(c=>c.id==='shrine-back-wall'),back=temple?temple.min.z-.018:r.maxZ+.7,roofY=temple?.max.y??3.1;
-  // The visible wooden facade is paint/trim on the real back wall, so it
-  // cannot disappear behind a duplicate, nonphysical temple building.
-  box(s,-3.48,roofY-.18,back-.14,6.96,.25,1.76,'#678e7c');
-  // Faceted pitched roof and warm wooden shutters retain the toy scale.
-  s.push(face([p(-3.8,roofY+.07,back-.36),p(0,roofY+1.08,back+.67),p(3.8,roofY+.07,back-.36)],'#557e6e'));
-  s.push(face([p(-3.8,roofY+.07,back-.36),p(-3.8,roofY+.07,back+1.8),p(0,roofY+1.08,back+1.8),p(0,roofY+1.08,back+.67)],'#628d79'));
-  s.push(face([p(0,roofY+1.08,back+.67),p(0,roofY+1.08,back+1.8),p(3.8,roofY+.07,back+1.8),p(3.8,roofY+.07,back-.36)],'#476e63'));
-  for(const x of [-2.9,-1.5,1.3,2.7])box(s,x,.22,back-.015,.22,roofY-.45,.035,'#c39767');
-  box(s,-1.13,.26,back-.014,2.26,roofY-.6,.014,'#7b674c');
-  for(let x=-1.05;x<1.12;x+=.16)line(s,p(x,.29,back-.018),p(x,roofY-.34,back-.018),'#b79a71');
-  // Two stone lanterns and trees stay out of the main throwing corridor.
+  const r=roomOf(world),goal=world.goals.find(g=>g.kind==='offering-box'),c=goal.center,z=c.z,temple=world.solids.find(c=>c.id==='shrine-back-wall'),back=temple.min.z-.018,roofY=temple.max.y;
+  const trim=part=>({shrinePart:part,decoration:true});
+  flat(s,-1.45,.012,r.minZ,2.9,z-r.minZ-.6,'#e2d7b9',trim('stone-path'));
+  for(let depth=r.minZ+.15;depth<z-.6;depth+=.72){line(s,p(-1.42,.016,depth),p(1.42,.016,depth),'#c9c0a4',trim('stone-path'));line(s,p(0,.016,depth),p(0,.016,Math.min(depth+.72,z-.6)),'#d2c7aa',trim('stone-path'));}
+  // Low stone cladding sits behind the receiving box, outside the main route.
+  // This is visual trim; the frozen contact world and its open goal stay exact.
+  for(let i=0;i<3;i++)box(s,-2.70,.025+i*.065,7.45+i*.23,5.40,.065,.72-i*.17,['#b4b7a2','#c0c1aa','#cbcbb2'][i],trim('stone-steps'));
+  box(s,-3.42,.22,back-.04,6.84,.17,.05,'#a87849',trim('sill'));
+  box(s,-3.40,3.52,back-.11,6.80,.22,.11,'#a87c4c',trim('lintel'));
+  // Panelled timber and actual inset lattice occupy the real facade plane.
   for(const side of [-1,1]){
-    cylinder(s,side*3.1,0,z-.55,.16,.74,'#acb4a0',8);box(s,side*3.1-.24,.74,z-.79,.48,.45,.48,'#c8cbb3');
-    box(s,side*3.1-.32,1.19,z-.87,.64,.09,.64,'#a6b19b');box(s,side*3.1-.15,.85,z-.803,.3,.23,.012,'#e7c373');
-    tree(s,side*(Math.max(4,r.maxX-.7)),0,back-.25,1.1);
+    const x=side<0?-3.24:1.40;box(s,x,.51,back-.05,1.84,2.86,.055,'#8f714c',trim('wall-panel'));
+    for(let xx=x+.12;xx<x+1.8;xx+=.32)box(s,xx,.55,back-.071,.043,2.76,.022,'#c59b66',trim('wall-join'));
+    for(const yy of [1.19,2.03,2.86])box(s,x+.07,yy,back-.088,1.7,.045,.025,'#b38b58',trim('wall-join'));
   }
-  // The visible bell assembly is separate from its real rope collider. A rope
-  // is added later from the descriptor, never guessed from this facade.
-  const rope=world.rope??world.bellRope??(()=>{const c=world.solids.find(c=>c.kind==='bell-rope');return c?{center:p((c.min.x+c.max.x)/2,(c.min.y+c.max.y)/2,(c.min.z+c.max.z)/2),top:c.max.y}:null;})();
-  if(rope){const q=rope.center??rope.position??p(0,2,z-1),top=rope.top??rope.maxY??q.y+1.3;
-    cylinder(s,q.x,top,q.z,.22,.27,'#d7b162',10);oval(s,q.x,top-.012,q.z,.23,.23,'#8d7753');
-    box(s,q.x-.12,top+.27,q.z-.09,.24,.08,.18,'#bc9561');}
+  box(s,-1.25,.47,back-.115,2.50,2.90,.055,'#665f44',trim('wood-lattice'));
+  for(let x=-1.22;x<=1.22;x+=.155)box(s,x,.48,back-.15,.045,2.88,.048,'#c5a371',trim('wood-lattice'));
+  for(let y=.57;y<3.34;y+=.34)box(s,-1.25,y,back-.161,2.50,.045,.06,'#b18d5c',trim('wood-lattice'));
+  for(const x of [-3.38,-1.35,1.15,3.18]){box(s,x,.25,back-.24,.19,3.87,.24,'#c59b66',trim('facade-column'));box(s,x-.055,.25,back-.27,.30,.15,.30,'#d3b37c',trim('column-foot'));}
+  // Front porch beams connect the two canonical physical pillars. Brackets,
+  // end grain and the underside of the roof give the eaves real depth.
+  const posts=world.solids.filter(q=>q.id==='shrine-left-post'||q.id==='shrine-right-post');
+  for(const post of posts){
+    const x=(post.min.x+post.max.x)/2,zz=(post.min.z+post.max.z)/2;
+    box(s,post.min.x-.035,post.max.y-.15,post.min.z-.035,post.max.x-post.min.x+.07,.16,post.max.z-post.min.z+.07,'#d1ac73',trim('pillar-cap'));
+    box(s,post.min.x-.035,.055,post.min.z-.035,post.max.x-post.min.x+.07,.11,post.max.z-post.min.z+.07,'#b9b9a1',trim('pillar-stone'));
+    for(const yy of [3.68,3.92])box(s,x-.22,yy,zz-.17,.44,.10,.45,'#a77e4e',trim('eave-bracket'));
+  }
+  box(s,-2.62,3.94,6.77,5.24,.20,.32,'#b78a55',trim('porch-beam'));
+  box(s,-3.62,roofY-.10,6.47,7.24,.19,2.28,'#826e4c',trim('eave-underside'));
+  // A gently lifted edge, three sloping bands, thick fascia and a capped
+  // ridge replace the flat triangular roof. Tile seams use lines, not dense
+  // individual meshes, retaining the toy diorama scale and face budget.
+  const xx=[-3.90,-3.18,-1.60,0,1.60,3.18,3.90],yy=[roofY+.09,roofY+.02,roofY+.39,roofY+.92,roofY+.39,roofY+.02,roofY+.09],front=6.46,far=9.30;
+  for(let i=0;i<xx.length-1;i++){
+    s.push(face([p(xx[i],yy[i],front),p(xx[i+1],yy[i+1],front),p(xx[i+1],yy[i+1],far),p(xx[i],yy[i],far)],i<3?'#68917c':'#537e6e',null,trim('roof-slope')));
+    s.push(face([p(xx[i],yy[i]-.12,front-.025),p(xx[i+1],yy[i+1]-.12,front-.025),p(xx[i+1],yy[i+1],front),p(xx[i],yy[i],front)],'#416d61',null,trim('roof-fascia')));
+    for(let zz=front+.16;zz<far;zz+=.27)line(s,p(xx[i],yy[i]+.005,zz),p(xx[i+1],yy[i+1]+.005,zz),'#4a7969',trim('roof-tiles'));
+  }
+  for(let x=-3.2;x<=3.2;x+=.54)box(s,x,roofY-.13,front+.08,.065,.09,1.74,'#b69665',trim('roof-rafter'));
+  box(s,-.075,roofY+.905,front-.12,.15,.13,far-front+.24,'#87a38b',trim('roof-ridge'));
+  s.push(face([p(-3.11,roofY+.025,front+.11),p(0,roofY+.815,front+.11),p(3.11,roofY+.025,front+.11)],'#b89a68',null,trim('roof-gable')));
+  for(const side of [-1,1])line(s,p(side*2.86,roofY+.10,front+.102),p(0,roofY+.795,front+.102),'#d0b581',trim('gable-beam'));
+  box(s,-.20,roofY+.18,front+.09,.40,.40,.027,'#6a846d',trim('gable-medallion'));
+  // The braided shrine rope and folded paper are high decorative ornaments;
+  // the playable bell rope below still uses the original physical descriptor.
+  const swag=Array.from({length:13},(_,i)=>p(-1.82+i*3.64/12,3.71-.16*Math.sin(i*Math.PI/12),6.75));
+  for(let i=1;i<swag.length;i++)limb(s,swag[i-1],swag[i],.045,i%2?'#d3bb83':'#e0cca0',trim('shimenawa'));
+  for(const x of [-1.26,-.42,.42,1.26]){
+    const top=3.56+Math.abs(x)*.06,zz=6.71,meta=trim('shide');
+    s.push(face([p(x-.058,top,zz),p(x+.056,top,zz),p(x+.10,top-.13,zz-.02),p(x-.015,top-.13,zz-.02)],'#f1e7ce',null,meta));
+    s.push(face([p(x-.015,top-.13,zz-.02),p(x+.10,top-.13,zz-.02),p(x+.035,top-.28,zz-.005),p(x-.075,top-.28,zz-.005)],'#dbd2b9',null,meta));
+  }
+  for(const side of [-1,1]){
+    const x=side*3.12,zz=z-.50,meta=trim('stone-lantern');
+    cylinder(s,x,.02,zz,.28,.14,'#a8b29f',8,meta);cylinder(s,x,.16,zz,.19,.13,'#bcc3ad',8,meta);cylinder(s,x,.29,zz,.115,.54,'#a7b39e',8,meta);
+    box(s,x-.245,.83,zz-.245,.49,.43,.49,'#c3c8b0',meta);
+    box(s,x-.15,.94,zz-.255,.30,.20,.015,'#ead297',meta);box(s,x-.04,.94,zz-.27,.032,.20,.016,'#99a58e',meta);
+    box(s,x-.28,1.26,zz-.28,.56,.07,.56,'#a1af98',meta);
+    s.push(face([p(x-.34,1.33,zz-.34),p(x+.34,1.33,zz-.34),p(x,1.49,zz)],'#b1bca3',null,meta));
+    s.push(face([p(x+.34,1.33,zz-.34),p(x+.34,1.33,zz+.34),p(x,1.49,zz)],'#98a88f',null,meta));
+    s.push(face([p(x+.34,1.33,zz+.34),p(x-.34,1.33,zz+.34),p(x,1.49,zz)],'#a9b69b',null,meta));
+    s.push(face([p(x-.34,1.33,zz+.34),p(x-.34,1.33,zz-.34),p(x,1.49,zz)],'#bdc7ae',null,meta));
+    ellipsoid(s,x,1.54,zz,.065,.07,.065,'#b9c2a7',6,2,meta);
+    tree(s,side*Math.max(4,r.maxX-.7),0,back-.25,1.1);
+  }
+  const body=world.solids.find(q=>q.id==='shrine-offering-body'),meta=trim('offering-box-detail'),frontZ=body.min.z-.009;
+  // Carved panels and gold corners decorate the real body/rim only. No slat,
+  // plaque or cap enters the horizontal accepting aperture.
+  for(const x of [-.98,.35])box(s,x,.15,frontZ,.63,.51,.018,'#906d48',meta);
+  for(let x=-1.02;x<1.06;x+=.15)box(s,x,.12,frontZ-.021,.034,.59,.021,'#c09a68',meta);
+  for(const y of [.12,.68])box(s,-1.05,y,frontZ-.028,2.10,.055,.028,'#cfad74',meta);
+  box(s,-.20,.34,frontZ-.055,.40,.28,.022,'#d5b776',meta);
+  for(const x of [-.135,-.065,.025,.095])box(s,x,.405,frontZ-.071,.028,.085,.007,'#8d7048',meta);
+  for(const side of [-1,1])box(s,side<0?-1.165:1.10,.82,6.25,.065,.30,1.10,'#d1b477',trim('offering-corner'));
+  const rope=world.solids.find(q=>q.kind==='bell-rope'),q=p((rope.min.x+rope.max.x)/2,rope.max.y,(rope.min.z+rope.max.z)/2);
+  for(let y=rope.min.y+.045;y<rope.max.y;y+=.17){const side=Math.round(y/.17)%2?1:-1;line(s,p(q.x-side*.045,y,rope.min.z-.006),p(q.x+side*.045,Math.min(y+.115,rope.max.y),rope.min.z-.006),'#e1c88d',trim('bell-rope-braid'));}
+  cylinder(s,q.x,q.y,q.z,.19,.18,'#caaa61',12,trim('bell'));cylinder(s,q.x,q.y+.18,q.z,.13,.09,'#dbbe79',10,trim('bell'));
+  oval(s,q.x,q.y-.003,q.z,.20,.20,'#806c43',trim('bell'));
+  cylinder(s,q.x,q.y+.27,q.z,.045,.10,'#a88a51',8,trim('bell-mount'));
 }
 function baseballDetails(s,world){
   const r=roomOf(world),o=world.origin;
@@ -223,6 +277,29 @@ function aperture(s,goal){
   for(let i=0;i<outer.length;i++){const j=(i+1)%outer.length;s.push(face([outer[i],outer[j],bottom[j],bottom[i]],shade(bodyColor,Math.round(Math.cos(i/outer.length*Math.PI*2)*12)),null,meta));}
   if(goal.kind==='cone')for(let i=0;i<outer.length;i+=2){const mid=add(goal.center,scale(normal,-height*.48));line(s,outer[i],add(mid,scale(basis(goal).right,.08*Math.cos(i))), '#bf935b',meta);}
 }
+function shrineRaisedHandShapes(s,goal){
+  // The original circular receiving proxy stays at its original radius and
+  // plane. A solid skin-coloured palm fully covers that proxy, so its outline
+  // reads as a hand with fingers, rather than a plate or a round slot.
+  aperture(s,goal);
+  const q=goal.center,meta={goalId:goal.id,goalRole:goal.role,goalKind:goal.kind,shrineHand:true},r=goal.radius,top=q.y,bottom=top-.045;
+  const outline=[[-r-.024,-r+.028],[-r+.036,-r-.024],[r-.036,-r-.024],[r+.024,-r+.028],[r+.024,r-.036],[r-.036,r+.024],[-r+.036,r+.024],[-r-.024,r-.036]].map(([x,z])=>p(q.x+x,top,q.z+z)),lower=outline.map(a=>({...a,y:bottom}));
+  s.push(face(outline,'#e9c9a0',null,{...meta,shrineHandPart:'palm'}));
+  for(let i=0;i<outline.length;i++){const j=(i+1)%outline.length;s.push(face([outline[i],outline[j],lower[j],lower[i]],i%2?'#d9b58d':'#e5c29b',null,{...meta,shrineHandPart:'palm-edge'}));}
+  s.push(face(lower,'#d9b58d',null,{...meta,shrineHandPart:'palm-back'}));
+  const xs=[-.211,-.071,.071,.211],lengths=[.17,.26,.285,.205];
+  for(let i=0;i<4;i++){
+    const x=q.x+xs[i],start=p(x,top-.023,q.z+r-.016),end=p(x,top-.023,q.z+r+lengths[i]),part={...meta,shrineHandPart:'finger',fingerIndex:i};
+    limb(s,start,end,.047,i%2?'#e8c79e':'#e6c49b',part);ellipsoid(s,end.x,end.y,end.z,.048,.023,.055,'#e9c9a0',8,2,part);
+    line(s,p(x-.027,top+.001,q.z+r+.046),p(x+.027,top+.001,q.z+r+.046),'#c9a880',{...meta,shrineHandPart:'finger-joint',fingerIndex:i});
+  }
+  const thumbBase=p(q.x-r-.012,top-.025,q.z-.040),thumbJoint=p(q.x-r-.132,top-.025,q.z+.022),thumbTip=p(q.x-r-.155,top-.025,q.z+.132),thumb={...meta,shrineHandPart:'thumb'};
+  limb(s,thumbBase,thumbJoint,.050,'#e4c098',thumb);limb(s,thumbJoint,thumbTip,.048,'#e9c9a0',thumb);ellipsoid(s,thumbTip.x,thumbTip.y,thumbTip.z,.052,.025,.057,'#e9c9a0',6,2,thumb);
+  limb(s,p(q.x,top-.055,q.z-r-.093),p(q.x,top-.025,q.z-r+.010),.067,'#deba92',{...meta,shrineHandPart:'wrist'});
+  // Short palm creases are anatomy on the receiving surface, never a guide
+  // for the flight direction or a numerical landing indicator.
+  line(s,p(q.x-r*.60,top+.001,q.z-r*.23),p(q.x+r*.50,top+.001,q.z-r*.31),'#cca77f',{...meta,shrineHandPart:'palm-crease'});
+}
 function actorShapes(s,actor,time,reducedMotion=false){
   const q=actor.position??actor,model=[],height=actor.height??1.68,width=actor.width??.46,depth=actor.depth??.34,young=actor.kind==='child';
   const t=reducedMotion?0:time,gait=actor.velocity&&Math.hypot(actor.velocity.x??0,actor.velocity.z??0)>.01?Math.sin(t*5.5)*.045:0,color=actor.color??(young?'#d5ac65':'#698f81');
@@ -239,6 +316,60 @@ function actorShapes(s,actor,time,reducedMotion=false){
   // the interior geometry, never the collision body's position or dimensions.
   for(const shape of model)s.push({...shape,actorId:actor.id,points:shape.points.map(a=>Object.fromEntries(['x','y','z'].map(k=>[k,min[k]+(a[k]-lo[k])/(hi[k]-lo[k])*(max[k]-min[k])])))});
   oval(s,q.x,(q.y??0)+.008,q.z,width*.65,depth*.8,'rgba(57,77,52,.14)',{actorShadow:actor.id});
+}
+function shrineWorshipperShapes(s,actor,time,reducedMotion=false){
+  const q=actor.position,model=[],color=actor.color??'#819b82',t=reducedMotion?0:time,raised=actor.kind==='raised-hand';
+  const variant=actor.id.includes('right')?1:actor.id.includes('back')?2:0,hair=['#655846','#555d48','#786449'][variant],bow=.075+(reducedMotion?0:Math.max(0,Math.sin(t*.65+variant))*.055);
+  const meta=part=>({shrineActorPart:part,shrineFacing:p(0,0,1),worshipGesture:raised?'raised-hand':'prayer'});
+  const lo=[p(-.15,.68,-.08),p(.15,.68,-.08),p(.15,.68,.085),p(-.15,.68,.085)],hi=[p(-.205,1.13,-.088),p(.205,1.13,-.088),p(.205,1.13,.105),p(-.205,1.13,.105)];
+  for(const [points,fill,part] of [[[lo[0],lo[1],hi[1],hi[0]],shade(color,-5),'coat-back'],[[lo[1],lo[2],hi[2],hi[1]],shade(color,-11),'coat-side'],[[lo[2],lo[3],hi[3],hi[2]],color,'coat-front'],[[lo[3],lo[0],hi[0],hi[3]],shade(color,5),'coat-side'],[[hi[0],hi[1],hi[2],hi[3]],shade(color,12),'coat-shoulder']])model.push(face(points,fill,null,meta(part)));
+  box(model,-.155,.60,-.082,.31,.09,.174,shade(color,-12),meta('coat-hem'));
+  // A back seam, soft collar and separate sleeves keep the rear silhouette
+  // legible. The visible front remains +z, toward the offering box.
+  line(model,p(0,.69,-.086),p(0,1.08,-.093),shade(color,-18),meta('coat-back-seam'));
+  line(model,p(-.15,.70,-.085),p(.15,.70,-.085),shade(color,14),meta('coat-hem-seam'));
+  cylinder(model,0,1.12,.015,.051,.115,'#daba94',8,meta('neck'));
+  for(const side of [-1,1]){
+    box(model,side*.074-.050,.085,-.057,.10,.50,.115,'#677b68',meta('trousers'));
+    box(model,side*.074-.059,.018,-.077,.118,.073,.175,'#666e58',meta('shoes'));
+    line(model,p(side*.074-.046,.10,.069),p(side*.074+.046,.10,.069),'#89937a',meta('shoe-edge'));
+  }
+  const head=[];ellipsoid(head,0,1.385,.012,.139,.172,.123,'#e5c7a0',8,4,meta('head-skin'));
+  ellipsoid(head,0,1.490,-.019,.145,.100,.129,hair,8,3,meta('hair-crown'));
+  ellipsoid(head,0,1.365,-.070,.143,.146,.074,hair,8,3,{...meta('hair-back'),shrineHairBack:true});
+  // Nape hair is clipped above the collar; a small sideburn and ear hint at
+  // a face on the far side instead of painting eyes onto the back of a head.
+  for(const side of [-1,1]){
+    ellipsoid(head,side*.133,1.369,.018,.024,.041,.027,'#dbb78f',6,2,meta('ear'));
+    box(head,side<0?-.125:.105,1.397,.089,.021,.057,.018,hair,meta('sideburn'));
+    box(head,side*.044-.007,1.396,.129,.014,.015,.005,'#5e6047',{...meta('face'),shrineFace:true});
+  }
+  ellipsoid(head,0,1.355,.136,.027,.022,.018,'#d9b38b',6,2,{...meta('face'),shrineFace:true});
+  const neck=p(0,1.19,.016),cb=Math.cos(bow),sb=Math.sin(bow);
+  for(const shape of head)model.push({...shape,points:shape.points.map(a=>{const dy=a.y-neck.y,dz=a.z-neck.z;return p(a.x,neck.y+dy*cb-dz*sb,neck.z+dy*sb+dz*cb);})});
+  if(!raised){
+    for(const side of [-1,1]){
+      const shoulder=p(side*.174,1.075,.008),elbow=p(side*.214,.89,.075),wrist=p(side*.035,1.018,.177);
+      limb(model,shoulder,elbow,.061,color,meta('sleeve'));limb(model,elbow,wrist,.050,shade(color,4),meta('sleeve'));
+      ellipsoid(model,side*.025,1.037,.190,.026,.053,.032,'#e2bf95',6,3,meta('praying-hands'));
+      line(model,p(side*.008,1.083,.192),p(side*.008,1.02,.203),'#c9a57e',meta('praying-fingers'));
+    }
+  }else{
+    // The raised right hand still follows the unchanged alternative-goal
+    // linkage in heldObjects. A relaxed left sleeve balances that gesture.
+    limb(model,p(-.177,1.075,.009),p(-.214,.91,.043),.060,color,meta('sleeve'));
+    limb(model,p(-.214,.91,.043),p(-.182,.78,.099),.043,shade(color,5),meta('sleeve'));
+    ellipsoid(model,-.182,.742,.099,.038,.053,.041,'#e2bf95',6,2,meta('relaxed-hand'));
+    limb(model,p(.177,1.075,.009),p(.19,1.18,.03),.055,color,meta('raised-sleeve'));
+  }
+  const low=p(Infinity,Infinity,Infinity),high=p(-Infinity,-Infinity,-Infinity);
+  for(const shape of model)for(const a of shape.points){low.x=Math.min(low.x,a.x);low.y=Math.min(low.y,a.y);low.z=Math.min(low.z,a.z);high.x=Math.max(high.x,a.x);high.y=Math.max(high.y,a.y);high.z=Math.max(high.z,a.z);}
+  const min=p(q.x-actor.width/2,q.y,q.z-actor.depth/2),max=p(q.x+actor.width/2,q.y+actor.height,q.z+actor.depth/2);
+  // The visual body remains inside, and spans, the exact frozen person box.
+  // Prayer and bowing refine its interior; collision poses never change.
+  const sx=(max.x-min.x)/(high.x-low.x),sy=(max.y-min.y)/(high.y-low.y),sz=(max.z-min.z)/(high.z-low.z);
+  for(const shape of model)s.push({...shape,actorId:actor.id,points:shape.points.map(a=>p(min.x+(a.x-low.x)*sx,min.y+(a.y-low.y)*sy,min.z+(a.z-low.z)*sz))});
+  oval(s,q.x,q.y+.008,q.z,actor.width*.65,actor.depth*.8,'rgba(57,77,52,.14)',{actorShadow:actor.id});
 }
 function boatDetails(s,boat,time,reducedMotion=false){
   const q=boat.position,w=boat.width??2,d=boat.depth??1.1,h=boat.height??.55,steam=boat.kind==='steamship',color=steam?'#cfdbcd':'#d4b878',meta={boatDetailId:boat.id};
@@ -290,7 +421,7 @@ function heldObjects(s,actors,goals){
       }
       continue;
     }
-    const q=actor.position,h=actor.height,side=goal.center.x<q.x?-1:1,start=p(q.x+side*actor.width*.34,q.y+h*.7,q.z-actor.depth*.2),end=goal.kind==='hand'?p(goal.center.x,goal.center.y-.025,goal.center.z):p(goal.center.x,goal.center.y-.18,goal.center.z+.035),middle=p((start.x+end.x)/2,(start.y+end.y)/2-.05,(start.z+end.z)/2);
+    const q=actor.position,h=actor.height,side=goal.center.x<q.x?-1:1,start=p(q.x+side*actor.width*.34,q.y+h*.7,q.z-actor.depth*.2),end=goal.kind==='hand'?p(goal.center.x,goal.center.y-.055,goal.center.z-goal.radius-.070):p(goal.center.x,goal.center.y-.18,goal.center.z+.035),middle=p((start.x+end.x)/2,(start.y+end.y)/2-.05,(start.z+end.z)/2);
     limb(s,start,middle,.045,actor.color??'#819b82',{gestureActorId:actor.id});limb(s,middle,end,.037,'#e4c49c',{gestureActorId:actor.id});
   }
 }
@@ -308,13 +439,13 @@ export function outdoorMotionShapes(time,world,options={}){
   if(typeof options==='boolean')options={reducedMotion:options};
   if(world?.environment!=='outdoor')throw new RangeError('A frozen outdoor world is required');
   const motion=outdoorMotion(world,time),shapes=[],movingFigures=['shrine','river'].includes(typeOf(world));
-  if(movingFigures)for(const actor of motion.actors??[])actorShapes(shapes,actor,time,!!options.reducedMotion);
+  if(movingFigures)for(const actor of motion.actors??[]){if(typeOf(world)==='shrine')shrineWorshipperShapes(shapes,actor,time,!!options.reducedMotion);else actorShapes(shapes,actor,time,!!options.reducedMotion);}
   const dynamic=outdoorDynamicSolids(world,time),actorIds=new Set((motion.actors??[]).map(actor=>actor.id)),actorSolidIds=new Set((motion.actors??[]).flatMap(actor=>(actor.colliders??[]).map(c=>c.id)));
   for(const solid of dynamic){if(actorIds.has(solid.object)||actorIds.has(solid.actorId)||actorSolidIds.has(solid.id)||solid.kind==='actor'||solid.kind==='person'||solid.kind==='crowd'||solid.kind==='student')continue;
     const boat=motion.boats.find(b=>b.id===solid.object),color=boat&&solid.kind==='boat-hull'?(boat.kind==='steamship'?'#587f7b':'#b29462'):surfaceColor(solid,world);
     physicalBox(shapes,solid,color);}
   for(const boat of motion.boats??[])boatDetails(shapes,boat,time,!!options.reducedMotion);
-  if(movingFigures){for(const goal of motion.goals??[])aperture(shapes,goal);heldObjects(shapes,motion.actors,motion.goals);}
+  if(movingFigures){for(const goal of motion.goals??[]){if(typeOf(world)==='shrine'&&goal.kind==='hand')shrineRaisedHandShapes(shapes,goal);else aperture(shapes,goal);}heldObjects(shapes,motion.actors,motion.goals);}
   batSwing(shapes,world,time,options);
   const lit=typeOf(world)==='river'?lightShapes(shapes,motion.lamps??[]):shapes;
   lit.push(...outdoorLampShapes(motion.lamps??[],{waterY:world.water?.y??0,waterBounds:world.water}));

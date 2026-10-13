@@ -1,7 +1,7 @@
 // Two owned local keys with verified paired writes and rollback. TS2/TS3 detect
-// typos, not forgery. Existing TS1/TS2 bytes and legacy validation remain strict.
-import {PROGRESS_STORAGE_KEY,PROGRESS_BACKUP_KEY,PROGRESS_BACKUP_LIMIT,CHAPTER_IDS,FIRST_CHAPTER_IDS,LEGACY_CHAPTER_IDS,validateProgress,decodeProgressCode} from './progress-save.mjs?v=20261012-outdoor-chapter-1';
-import {validateRewards,validateLegacyRewards,validateSchoolRewards} from './rewards.mjs?v=20261012-outdoor-chapter-1';
+// typos, not forgery. Existing TS1–TS4 bytes and validation remain strict.
+import {PROGRESS_STORAGE_KEY,PROGRESS_BACKUP_KEY,PROGRESS_BACKUP_LIMIT,CHAPTER_IDS,PREVIOUS_CHAPTER_IDS,FIRST_CHAPTER_IDS,LEGACY_CHAPTER_IDS,validateProgress,decodeProgressCode} from './progress-save.mjs?v=20261013-contact-shrine-1';
+import {validateRewards,validateLegacyRewards,validateSchoolRewards,validateOutdoorRewards} from './rewards.mjs?v=20261013-contact-shrine-1';
 
 export const REWARDS_STORAGE_KEY='trash-shot-player-rewards-v1';
 export const REWARDS_BACKUP_KEY='trash-shot-player-rewards-v1-corrupt-backup';
@@ -16,24 +16,25 @@ function plain(value,allowed,required=allowed){
 }
 function player(value,allowLegacy=false){
   plain(value,['version','progress','rewards','sourceVersion'],['progress','rewards']);
-  if((value.version!==undefined&&![2,3,4].includes(value.version))||(value.sourceVersion!==undefined&&![1,2,3,4].includes(value.sourceVersion)))fail('Invalid player version');
-  if((value.sourceVersion===1&&(!allowLegacy||value.rewards!==null))||([2,3,4].includes(value.sourceVersion)&&value.rewards===null))fail('Inconsistent player source version');
-  plain(value.progress,['version','introSeen','completedIDs','stageBestAttempts','cumulativeAttempts','cumulativeSuccesses','resumeStage','inputScheme',...(Object.getOwnPropertyDescriptor(value.progress,'version')?.value===3?['outdoor']:[])],['version','completedIDs','stageBestAttempts','cumulativeAttempts','cumulativeSuccesses','resumeStage','inputScheme',...(Object.getOwnPropertyDescriptor(value.progress,'version')?.value===3?['outdoor']:[])]);
-  const progress=validateProgress(value.progress),allowed=progress.version===1?FIRST_CHAPTER_IDS:progress.version===2?LEGACY_CHAPTER_IDS:CHAPTER_IDS;
+  if((value.version!==undefined&&![2,3,4,5].includes(value.version))||(value.sourceVersion!==undefined&&![1,2,3,4,5].includes(value.sourceVersion)))fail('Invalid player version');
+  if((value.sourceVersion===1&&(!allowLegacy||value.rewards!==null))||([2,3,4,5].includes(value.sourceVersion)&&value.rewards===null))fail('Inconsistent player source version');
+  plain(value.progress,['version','introSeen','completedIDs','stageBestAttempts','cumulativeAttempts','cumulativeSuccesses','resumeStage','inputScheme',...([3,4].includes(Object.getOwnPropertyDescriptor(value.progress,'version')?.value)?['outdoor']:[])],['version','completedIDs','stageBestAttempts','cumulativeAttempts','cumulativeSuccesses','resumeStage','inputScheme',...([3,4].includes(Object.getOwnPropertyDescriptor(value.progress,'version')?.value)?['outdoor']:[])]);
+  const progress=validateProgress(value.progress),allowed=progress.version===1?FIRST_CHAPTER_IDS:progress.version===2?LEGACY_CHAPTER_IDS:progress.version===3?PREVIOUS_CHAPTER_IDS:CHAPTER_IDS;
   plain(value.progress.stageBestAttempts,allowed,[]);
   const rewards=value.rewards===null&&allowLegacy?null:validateRewards(value.rewards);
   let legacyRewards=true;if(rewards!==null)try{validateLegacyRewards(rewards);}catch{legacyRewards=false;}
-  const needsOutdoor=progress.version===3||rewards?.version===2;
-  const version=value.version??(needsOutdoor?4:progress.version===2||!legacyRewards?3:2);
+  const needsBranch=progress.version===4||rewards?.version===3,needsOutdoor=progress.version===3||rewards?.version===2;
+  const version=value.version??(needsBranch?5:needsOutdoor?4:progress.version===2||!legacyRewards?3:2);
   if(version===2&&(progress.version!==1||!legacyRewards))fail('School progress and rewards require TS3');
-  if(version===3&&(needsOutdoor||(rewards!==null&&validateSchoolRewards(rewards).version!==1)))fail('Outdoor progress and rewards require TS4');
-  if(version===4&&!needsOutdoor)fail('TS4 requires outdoor data');
-  if((value.sourceVersion===1&&version!==2)||(value.sourceVersion===2&&version!==2)||(value.sourceVersion===3&&version!==3)||(value.sourceVersion===4&&version!==4))fail('Inconsistent player source version');
+  if(version===3&&(needsBranch||needsOutdoor||(rewards!==null&&validateSchoolRewards(rewards).version!==1)))fail('Outdoor progress and rewards require TS4');
+  if(version===4&&(needsBranch||!needsOutdoor||rewards!==null&&rewards.version!==1&&validateOutdoorRewards(rewards).version!==2))fail('TS4 requires outdoor data');
+  if(version===5&&!needsBranch)fail('TS5 requires branch data');
+  if((value.sourceVersion===1&&version!==2)||(value.sourceVersion===2&&version!==2)||(value.sourceVersion===3&&version!==3)||(value.sourceVersion===4&&version!==4)||(value.sourceVersion===5&&version!==5))fail('Inconsistent player source version');
   return {version,progress,rewards};
 }
-function canonical(value){const data=player(value),text=JSON.stringify(data);if(text.length>(data.version===4?MAX_BYTES:MAX_LEGACY_BYTES))fail('Payload too large');return text;}
+function canonical(value){const data=player(value),text=JSON.stringify(data);if(text.length>(data.version>=4?MAX_BYTES:MAX_LEGACY_BYTES))fail('Payload too large');return text;}
 function parseRewards(text){if(typeof text!=='string'||text.length>MAX_BYTES)fail('Rewards payload too large');const data=validateRewards(JSON.parse(text));if(data.version===1&&text.length>MAX_LEGACY_BYTES)fail('Rewards payload too large');return data;}
-function parseProgress(text){if(typeof text!=='string'||text.length>4000)fail('Progress payload too large');const data=player({progress:JSON.parse(text),rewards:null},true).progress;if(data.version!==3&&text.length>1500)fail('Progress payload too large');return data;}
+function parseProgress(text){if(typeof text!=='string'||text.length>4000)fail('Progress payload too large');const data=player({progress:JSON.parse(text),rewards:null},true).progress;if(data.version<3&&text.length>1500)fail('Progress payload too large');return data;}
 const definitions=[{key:PROGRESS_STORAGE_KEY,backup:PROGRESS_BACKUP_KEY,limit:PROGRESS_BACKUP_LIMIT,parse:parseProgress},{key:REWARDS_STORAGE_KEY,backup:REWARDS_BACKUP_KEY,limit:REWARDS_BACKUP_LIMIT,parse:parseRewards}];
 function read(storage,definition){
   try{const raw=storage.getItem(definition.key);if(raw===null)return {ok:true,status:'empty',data:null};return {ok:true,status:'loaded',data:definition.parse(raw)};}
@@ -83,16 +84,16 @@ export const restorePlayerSave=(storage,value)=>write(storage,value,true);
 function crc(text){let n=0xffffffff;for(let i=0;i<text.length;i++){n^=text.charCodeAt(i);for(let j=0;j<8;j++)n=(n>>>1)^((n&1)?0xedb88320:0);}return ((n^0xffffffff)>>>0).toString(16).padStart(8,'0');}
 export function encodePlayerCode(value){
   const data=player(value),text=canonical(data),payload=btoa(text).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-  const code=`TS${data.version}-${payload}.${crc(text)}`;if(code.length>(data.version===4?MAX_CODE:MAX_LEGACY_CODE))fail('Code too large');return code;
+  const code=`TS${data.version}-${payload}.${crc(text)}`;if(code.length>(data.version>=4?MAX_CODE:MAX_LEGACY_CODE))fail('Code too large');return code;
 }
 export function decodePlayerCode(code){
   if(typeof code!=='string'||code.length>MAX_CODE)fail('Invalid player code');
   if(code.startsWith('TS1-'))return {version:2,progress:decodeProgressCode(code),rewards:null,sourceVersion:1};
-  if(!/^TS[234]-[A-Za-z0-9_-]+\.[0-9a-f]{8}$/.test(code))fail('Invalid player code');
-  const version=Number(code[2]);if(code.length>(version===4?MAX_CODE:MAX_LEGACY_CODE))fail('Invalid player code');
+  if(!/^TS[2345]-[A-Za-z0-9_-]+\.[0-9a-f]{8}$/.test(code))fail('Invalid player code');
+  const version=Number(code[2]);if(code.length>(version>=4?MAX_CODE:MAX_LEGACY_CODE))fail('Invalid player code');
   const [payload,sum]=code.slice(4).split('.');let text;
   try{text=atob(payload.replace(/-/g,'+').replace(/_/g,'/'));}catch{fail('Invalid base64');}
-  if(text.length>(version===4?MAX_BYTES:MAX_LEGACY_BYTES)||crc(text)!==sum)fail('Payload too large or checksum mismatch');
+  if(text.length>(version>=4?MAX_BYTES:MAX_LEGACY_BYTES)||crc(text)!==sum)fail('Payload too large or checksum mismatch');
   const value=JSON.parse(text);plain(value,['version','progress','rewards']);
   const data=player(value);if(data.version!==version)fail('Player prefix/version mismatch');if(encodePlayerCode(data)!==code)fail('Noncanonical code');
   return {...data,sourceVersion:version};

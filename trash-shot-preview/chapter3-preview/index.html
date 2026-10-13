@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#f4f1e8">
   <title>TRASHOOT / 部屋から、外の世界へ</title>
   <meta name="description" content="引いて、離して、箱へ。ドットのチュートリアルから自分の部屋の4面へ。部屋の4面から、学校の4面へ。">
-  <link rel="stylesheet" href="./style.css?v=20261012-outdoor-chapter-1">
-  <script type="module" src="./src/app.mjs?v=20261012-outdoor-chapter-1"></script>
+  <link rel="stylesheet" href="./style.css?v=20261013-contact-shrine-1">
+  <script type="module" src="./src/app.mjs?v=20261013-contact-shrine-1"></script>
 </head>
 <body class="chapter-game">
   <main class="game-shell chapter-shell">
@@ -34,7 +34,7 @@
           <button id="title-continue" class="title-primary" type="button"><span id="title-continue-label">1-2へ進む</span><span aria-hidden="true">↗</span></button>
           <div class="title-secondary-actions"><button id="title-stage-select" type="button">ステージを選ぶ</button><button id="title-invite" type="button">友だちに渡す ↗</button></div>
         </div>
-        <div class="title-footnotes"><p>続きは、このブラウザに自動保存。</p><p>第4章以降は製作中。</p></div>
+        <div class="title-footnotes"><p>続きは、このブラウザに自動保存。</p><p>第6章以降は製作中。</p></div>
       </div>
       <span class="title-edition" aria-hidden="true">A LITTLE THROW. A BIG WORLD.</span>
     </section>
@@ -45,7 +45,7 @@
         <div class="home-progress"><div id="home-face-progress" class="home-face-progress" aria-label="現在の章のクリア状況"></div><p id="chapter-top-record"></p></div>
         <div class="home-actions"><button id="chapter-continue" class="shell-primary" type="button">続きから</button><button id="chapter-menu" class="shell-secondary" type="button">ステージを選ぶ</button></div>
         <p id="chapter-save-status" class="chapter-save-status" role="status" aria-live="polite" hidden></p>
-        <p class="home-save-note">続きは、このブラウザに自動保存。</p><p class="home-save-note">部屋・学校・外、各4面。第4章以降は製作中。</p>
+        <p class="home-save-note">続きは、このブラウザに自動保存。</p><p class="home-save-note">部屋・学校・外・工場と、色物7面。第6章以降は製作中。</p>
       </div>
     </section>
     <p id="chapter3-preview-note" class="chapter3-preview-note" hidden>第3章プレビュー。まだ開放していない面も練習で試せます。続きを保存する場所は公開版と別です。</p>
@@ -96,7 +96,7 @@
           <p id="stage-message" role="status" aria-live="polite"></p>
           <div class="stage-actions stage-followup"><button id="stage-next" type="button" hidden>次のステージへ</button><button id="stage-retry" type="button" hidden>このステージをもう一度</button></div>
         </div>
-        <p class="menu-coming-next">つぎの世界へ。 <span>4 工場 · 5 色物 · 製作中</span></p>
+        <p class="menu-coming-next">つぎの世界へ。 <span>6 リミックス · 7 エクストラ · 製作中</span></p>
       </section>
       <section id="menu-panel-play" class="menu-panel menu-notebook" role="tabpanel" data-menu-panel="play" aria-labelledby="menu-tab-play" tabindex="0" hidden inert aria-hidden="true">
         <div class="menu-settings" aria-labelledby="menu-settings-title"><h2 id="menu-settings-title">ひと投げのコツ</h2>
@@ -108,7 +108,7 @@
         <details class="stage-other-routes"><summary>練習・ドット・2Dの脇道</summary><div class="stage-choice"><label for="stage-select">遊ぶステージ</label><select id="stage-select"><option value="first">1-1：部屋のゴミ箱</option><option value="desk-over">1-2：机を越えて</option><option value="desk-side">1-3：本棚の向こうへ</option><option value="room-extra">1-4：扇風機と猫</option><option value="school-classroom">2-1：教室の隅から</option><option value="school-vending">2-2：自販機の小さな入口</option><option value="school-passage">2-3：向かいの教室へ</option><option value="school-rooftop">2-4：屋上から中庭へ</option><option value="outdoor-shrine">3-1：人混み越しのお賽銭</option><option value="outdoor-baseball">3-2：観客席のミットへ</option><option value="outdoor-mall">3-3：吹き抜けのアイス</option><option value="outdoor-river">3-4：川向こうの花火</option><option value="free">自由トレーニング</option><option value="tutorial">はじめの一投</option><option value="side">脇道：横からぽいっ（2D）</option></select></div><div class="stage-actions"><button id="training-start" type="button">この面でトレーニング</button><button id="intro-replay" type="button">ドットの入口をもう一度</button><button id="start-tutorial" type="button">はじめの一投へ</button></div><p>トレーニングでは数値と予測線を確認できます。</p></details>
           <details class="menu-diagnostics"><summary>操作に困ったとき</summary>
         <div class="input-check-entry"><button id="input-check-open" type="button" aria-expanded="false" aria-controls="input-check-panel">投げられないとき</button></div>
-        <section id="input-check-panel" class="input-check-panel" aria-label="投げる操作の記録" hidden><p>ここを開いている間の操作を記録します。一度投げてからコピーし、この会話へ貼ってください。</p><div class="input-check-actions"><button id="input-check-copy" type="button">記録をコピー</button><button id="input-check-close" type="button">記録を閉じる</button></div><p id="input-check-message" role="status" aria-live="polite"></p><textarea id="input-check-text" aria-label="操作の記録。すべて選択してコピーできます" readonly hidden></textarea></section>          <p class="menu-browser-note"><a id="browser-open" href="https://osakenpiro.github.io/shuryo-techo/trash-shot-preview/?v=20261012-outdoor-chapter-1" target="_blank" rel="noopener noreferrer">別のブラウザで開く ↗</a></p>
+        <section id="input-check-panel" class="input-check-panel" aria-label="投げる操作の記録" hidden><p>ここを開いている間の操作を記録します。一度投げてからコピーし、この会話へ貼ってください。</p><div class="input-check-actions"><button id="input-check-copy" type="button">記録をコピー</button><button id="input-check-close" type="button">記録を閉じる</button></div><p id="input-check-message" role="status" aria-live="polite"></p><textarea id="input-check-text" aria-label="操作の記録。すべて選択してコピーできます" readonly hidden></textarea></section>          <p class="menu-browser-note"><a id="browser-open" href="https://osakenpiro.github.io/shuryo-techo/trash-shot-preview/?v=20261013-contact-shrine-1" target="_blank" rel="noopener noreferrer">別のブラウザで開く ↗</a></p>
           </details>
         </div>
       </section>
@@ -118,7 +118,7 @@
             <div class="player-save-heading"><div><h3 id="player-save-title">続きの保存・復元</h3><p id="progress-current"></p></div><button id="progress-continue" type="button">この続きから遊ぶ ↗</button></div>
             <p id="progress-status" class="player-save-status" role="status" aria-live="polite">続きは、このブラウザに自動保存します。</p>
             <section class="player-save-export" aria-labelledby="player-save-export-title"><h4 id="player-save-export-title">今の続きを持ち出す</h4><p>別のブラウザでも遊ぶなら、今の保存コードをコピー。</p><div class="stage-actions"><button id="progress-copy" type="button">今の保存コードをコピー</button><button id="progress-export" type="button">コードを表示</button></div><label for="progress-export-code">続き用の保存コード</label><textarea id="progress-export-code" rows="2" spellcheck="false" autocomplete="off" readonly placeholder="「コードを表示」か「コピー」で、今の記録を出せます。"></textarea></section>
-            <section class="player-save-restore" aria-labelledby="player-save-restore-title"><h4 id="player-save-restore-title">保存コードから復元する</h4><p id="progress-restore-help">控えた <strong>TS1- / TS2- / TS3- / TS4-</strong> コードを、ここに貼ってください。結果・リプレイの共有リンクとは別です。</p><label for="progress-code">復元したい、続き用の保存コード</label><textarea id="progress-code" rows="3" maxlength="16000" spellcheck="false" autocomplete="off" autocapitalize="off" aria-describedby="progress-restore-help progress-input-message" placeholder="TS1- / TS2- / TS3- / TS4- の保存コードを貼る"></textarea><p id="progress-input-message" class="player-save-input-message" role="status" aria-live="polite"></p><dl id="progress-preview" class="player-save-preview" aria-label="復元する記録の内容" hidden></dl><div class="stage-actions"><button id="progress-restore" class="player-save-restore-button" type="button" disabled>この記録に復元する</button><button id="progress-open-replay" type="button" hidden>一投のリプレイを見る ▷</button></div><p class="player-save-restore-note">復元すると、現在の進行をこのコードの内容に切り替えます。</p></section>
+            <section class="player-save-restore" aria-labelledby="player-save-restore-title"><h4 id="player-save-restore-title">保存コードから復元する</h4><p id="progress-restore-help">控えた <strong>TS1- / TS2- / TS3- / TS4- / TS5-</strong> コードを、ここに貼ってください。結果・リプレイの共有リンクとは別です。</p><label for="progress-code">復元したい、続き用の保存コード</label><textarea id="progress-code" rows="3" maxlength="40000" spellcheck="false" autocomplete="off" autocapitalize="off" aria-describedby="progress-restore-help progress-input-message" placeholder="TS1- / TS2- / TS3- / TS4- / TS5- の保存コードを貼る"></textarea><p id="progress-input-message" class="player-save-input-message" role="status" aria-live="polite"></p><dl id="progress-preview" class="player-save-preview" aria-label="復元する記録の内容" hidden></dl><div class="stage-actions"><button id="progress-restore" class="player-save-restore-button" type="button" disabled>この記録に復元する</button><button id="progress-open-replay" type="button" hidden>一投のリプレイを見る ▷</button></div><p class="player-save-restore-note">復元すると、現在の進行をこのコードの内容に切り替えます。</p></section>
           </section>
     <details id="session-stats" class="record-details"><summary>このプレイの記録</summary>
         <section class="play-score" aria-label="このプレイの記録">
@@ -162,13 +162,13 @@
       <div class="store-body"><div class="store-intro"><p id="store-description">次のひと投げに、気分を変えて。</p><p class="store-wallet-label">持っているコイン <strong id="store-wallet">0</strong></p></div><p class="store-note">コインは本編の成功ショットで集まります。</p><div id="store-items" class="store-items"></div><section class="store-achievements-section" aria-labelledby="store-achievements-title"><h3 id="store-achievements-title">集めた実績</h3><ul id="store-achievements" class="store-achievements"></ul><p id="store-achievements-empty">成功ショットで見つけた入り方が、ここに並びます。</p></section><p id="store-status" class="store-status" role="status" aria-live="polite"></p></div>
     </dialog>
     <dialog id="replay-dialog" aria-labelledby="replay-title">
-      <header class="replay-header"><div><h2 id="replay-title">成功した一投</h2><p id="replay-source"></p><a class="browser-open" href="./?v=20261012-outdoor-chapter-1">自分も遊ぶ ↗</a></div><button id="replay-close" type="button" aria-label="リプレイを閉じる">閉じる ×</button></header>
+      <header class="replay-header"><div><h2 id="replay-title">成功した一投</h2><p id="replay-source"></p><a class="browser-open" href="./?v=20261013-contact-shrine-1">自分も遊ぶ ↗</a></div><button id="replay-close" type="button" aria-label="リプレイを閉じる">閉じる ×</button></header>
       <div class="replay-canvas-wrap"><canvas id="replay-scene" tabindex="0" aria-label="成功した一投のリプレイ。ドラッグまたは矢印キーで見回し、ホイールでズーム。"></canvas></div>
       <div class="replay-body"><p id="replay-role-title"></p><p id="replay-launch-analysis" class="launch-analysis"></p><div class="memory-actions"><button id="replay-play" type="button">一時停止</button><button id="replay-restart" type="button">最初から</button><button id="replay-camera-reset" type="button">視点を戻す</button></div><label class="replay-timeline" for="replay-seek"><span id="replay-time">0.00 秒</span><input id="replay-seek" type="range" min="0" max="5" step="any" value="0" aria-label="リプレイの再生位置"></label><p class="memory-copy">ドラッグで見回し、ホイールでズーム。元の投球や記録は変わりません。</p><div class="memory-actions"><button id="save-viewed-replay" type="button">一投の保存</button><button id="share-viewed-replay" type="button">一投のリプレイ共有</button><button id="download-viewed-replay" type="button">リプレイのファイル</button><button id="record-replay-video" type="button">動画にする</button><button id="save-replay-video" type="button" disabled>動画を保存</button><button id="share-replay-video" type="button" disabled>動画を共有</button></div><div id="replay-share-controls" hidden><label for="replay-share-link">この一投を開くリンク</label><input id="replay-share-link" type="text" readonly><button id="copy-viewed-replay-link" type="button">リンクをコピー</button></div><p id="replay-view-message" role="status" aria-live="polite"></p></div>
     </dialog>
     <dialog id="invite-dialog" aria-labelledby="invite-title" aria-describedby="invite-description">
       <header class="replay-header"><h2 id="invite-title">友だちも、ひと投げ。</h2><button id="invite-close" type="button">閉じる ×</button></header>
-      <div class="invite-body"><p id="invite-description">部屋・学校・外を遊べるリンクです。初めてならドットのチュートリアルから、記録があれば続きから。第4章以降は製作中。</p><label for="invite-link">ゲームを開くリンク</label><input id="invite-link" type="text" readonly><div class="memory-actions"><button id="invite-copy" class="invite-button" type="button">リンクをコピー</button><button id="invite-share" class="invite-button" type="button" hidden>共有先を選ぶ</button></div><p id="invite-message" role="status" aria-live="polite"></p></div>
+      <div class="invite-body"><p id="invite-description">部屋・学校・外・工場・色物を遊べるリンクです。初めてならドットのチュートリアルから、記録があれば続きから。第6章以降は製作中。</p><label for="invite-link">ゲームを開くリンク</label><input id="invite-link" type="text" readonly><div class="memory-actions"><button id="invite-copy" class="invite-button" type="button">リンクをコピー</button><button id="invite-share" class="invite-button" type="button" hidden>共有先を選ぶ</button></div><p id="invite-message" role="status" aria-live="polite"></p></div>
     </dialog>
     <footer class="page-footer"><span>小さなひと投げを、何度でも。</span><span>TRASHOOT / FIRST THROW</span></footer>
   </main>

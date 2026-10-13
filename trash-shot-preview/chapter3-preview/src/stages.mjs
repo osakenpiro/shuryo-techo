@@ -1,8 +1,12 @@
 // App-owned guided progress. Outdoor defaults use the same immutable geometry
 // as live contacts and replay validation, without copying tuned launch values.
-import {OUTDOOR_WORLDS} from './outdoor-world.mjs?v=20261012-outdoor-chapter-1';
+import {OUTDOOR_WORLDS} from './outdoor-world.mjs?v=20261013-contact-shrine-1';
+import {FACTORY_WORLDS} from './factory-world.mjs?v=20261013-contact-shrine-1';
+import {ECCENTRIC_WORLDS} from './eccentric-world.mjs?v=20261013-contact-shrine-1';
 const outdoorLabels={'outdoor-shrine':'3-1：人混み越しのお賽銭','outdoor-baseball':'3-2：観客席のミットへ','outdoor-mall':'3-3：吹き抜けのアイス','outdoor-river':'3-4：川向こうの花火'};
 const outdoorStages=Object.fromEntries(Object.entries(OUTDOOR_WORLDS).map(([id,w],i)=>[id,Object.freeze({label:outdoorLabels[id],number:`3-${i+1}`,environment:'outdoor',worldVersion:w.worldVersion,distance:w.bin.center.z,height:w.bin.height,...w.launch,itemId:w.itemId})]));
+const advancedLabels={'factory-shutter':'シャッターの向こう','factory-conveyor':'ベルトに乗せて','factory-bank':'左右の壁で2バウンド','factory-relay':'2球のピタゴラ装置','eccentric-tower':'東京タワーから','eccentric-train':'電車の上から','eccentric-boar':'森のイノシシ','eccentric-basket':'バスケットゴール','eccentric-dandelion':'綿毛を風に乗せて','eccentric-card':'トランプを刺せ','eccentric-cannon':'大砲で砦の扉へ'};
+const advancedStages=Object.fromEntries([[4,FACTORY_WORLDS],[5,ECCENTRIC_WORLDS]].flatMap(([chapter,worlds])=>Object.entries(worlds).map(([id,w],i)=>[id,Object.freeze({label:`${chapter}-${i+1}：${advancedLabels[id]}`,number:`${chapter}-${i+1}`,environment:w.environment,worldVersion:w.worldVersion,distance:w.bin.center.z,height:w.bin.height,...w.launch,itemId:w.itemId})])));
 export const STAGES=Object.freeze({
   free:Object.freeze({label:'自由トレーニング'}),
   tutorial:Object.freeze({label:'はじめの一投',distance:4,height:.8,power:6,elevation:48,yaw:0}),
@@ -15,7 +19,8 @@ export const STAGES=Object.freeze({
   'school-passage':Object.freeze({label:'2-3：向かいの教室へ',number:'2-3',environment:'school',worldVersion:10,gimmick:'student',distance:7.603,height:.7,power:9.4,elevation:27,yaw:Math.atan2(.2,7.6)*180/Math.PI}),
   'school-rooftop':Object.freeze({label:'2-4：屋上から中庭へ',number:'2-4',environment:'school',worldVersion:9,gimmick:'breeze',distance:7.910,height:.7,power:6.1,elevation:40,yaw:-1}),
   ...outdoorStages,
-  side:Object.freeze({label:'脇道：横からぽいっ（2D）',projection:'side',distance:8,height:1.3,power:9,elevation:48,yaw:0})
+  ...advancedStages,
+  side:Object.freeze({label:'5-S：ドットの脇道（2D）',number:'5-S',projection:'side',distance:8,height:1.3,power:9,elevation:48,yaw:0})
 });
 export function createStageProgress(){
   let id='free',run=0,active=null,attempts=0,successes=0;const completed=new Set();

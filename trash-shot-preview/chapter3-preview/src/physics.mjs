@@ -1,8 +1,11 @@
 // World-space simulation. One metre is one unit; rendering never affects physics.
 import {throwableRadius,throwableInitialVelocity,beginThrowableShot,applyThrowableAir,
-  throwableRestitution,throwableFriction,throwableContact,getThrowableProfile,cloneThrowable,throwableTerminalContact} from './throwable-physics.mjs?v=20261012-outdoor-chapter-1';
-import {SCHOOL_PHYSICS_WORLDS} from './school-world.mjs?v=20261012-outdoor-chapter-1';
-import {OUTDOOR_PHYSICS_WORLDS,OUTDOOR_WORLDS} from './outdoor-world.mjs?v=20261012-outdoor-chapter-1';
+  throwableRestitution,throwableFriction,throwableContact,getThrowableProfile,cloneThrowable,throwableTerminalContact} from './throwable-physics.mjs?v=20261013-contact-shrine-1';
+import {SCHOOL_PHYSICS_WORLDS} from './school-world.mjs?v=20261013-contact-shrine-1';
+import {OUTDOOR_PHYSICS_WORLDS,OUTDOOR_WORLDS} from './outdoor-world.mjs?v=20261013-contact-shrine-1';
+import {FACTORY_PHYSICS_WORLDS,factoryWorldByVersion} from './factory-world.mjs?v=20261013-contact-shrine-1';
+import {ECCENTRIC_PHYSICS_WORLDS,ECCENTRIC_WORLDS} from './eccentric-world.mjs?v=20261013-contact-shrine-1';
+const extendedPhysicsWorld=version=>OUTDOOR_PHYSICS_WORLDS[version]??FACTORY_PHYSICS_WORLDS[version]??ECCENTRIC_PHYSICS_WORLDS[version];
 const GRAVITY = 9.81;
 const SUBSTEP = 1 / 240;
 const MAX_FRAME = 0.1;
@@ -89,7 +92,7 @@ function bounded(value, fallback, minimum, maximum) {
 
 function launchParameters(input,game) {
   const value = options(input);
-  const limits=OUTDOOR_PHYSICS_WORLDS[ROOM_SETUPS.get(game)]?.launchLimits;
+  const limits=extendedPhysicsWorld(ROOM_SETUPS.get(game))?.launchLimits;
   return {
     power: bounded(value.power, 7.8, limits?.minPower??0.5, 14),
     elevation: bounded(value.elevation, 48, limits?.minElevation??5, 85),
@@ -111,7 +114,7 @@ function initialVelocity(input,game) {
 
 function freshCan(game) {
   const version=ROOM_SETUPS.get(game);
-  const origin = (ROOM_PHYSICS_WORLDS[version]??SCHOOL_PHYSICS_WORLDS[version]??OUTDOOR_PHYSICS_WORLDS[version])?.origin ?? { x: 0, y: 1.05, z: 0 };
+  const origin = (ROOM_PHYSICS_WORLDS[version]??SCHOOL_PHYSICS_WORLDS[version]??extendedPhysicsWorld(version))?.origin ?? { x: 0, y: 1.05, z: 0 };
   const radius=throwableRadius(game,CAN_RADIUS);
   return {
     position: getThrowableProfile(game)?{...origin,y:origin.y+radius-CAN_RADIUS}:{...origin},
@@ -171,8 +174,8 @@ export function setSetup(game, input = {}) {
 }
 
 export function setRoomWorld(game, worldVersion = 2) {
-  if (!Number.isInteger(worldVersion)||worldVersion<1||worldVersion>14) throw new RangeError('Room world version must be an integer from 1 through 14');
-  const world = ROOM_PHYSICS_WORLDS[worldVersion]??SCHOOL_PHYSICS_WORLDS[worldVersion]??OUTDOOR_PHYSICS_WORLDS[worldVersion];
+  if (!Number.isInteger(worldVersion)||worldVersion<1||worldVersion>29) throw new RangeError('Room world version must be an integer from 1 through 29');
+  const world = ROOM_PHYSICS_WORLDS[worldVersion]??SCHOOL_PHYSICS_WORLDS[worldVersion]??extendedPhysicsWorld(worldVersion);
   ROOM_SETUPS.set(game, worldVersion);
   game.bin = { ...world.bin, center: { ...world.bin.center } };
   return clearShot(game, 'room-setup');
@@ -185,12 +188,18 @@ export function resetShot(game) {
   return true;
 }
 
-export function throwCan(game, input = {}) {
+export function throwCan(game, input = {}, {launchFrame} = {}) {
   if (ACTIVE.has(game.phase)) return false;
   clearShot(game, 'next-shot');
   game.can.velocity = throwableInitialVelocity(game,initialVelocity(input,game));
-  const scale=OUTDOOR_PHYSICS_WORLDS[ROOM_SETUPS.get(game)]?.launchScale;
+  const scale=extendedPhysicsWorld(ROOM_SETUPS.get(game))?.launchScale;
   if(scale)for(const axis of ['x','y','z'])game.can.velocity[axis]*=scale;
+  if(ROOM_SETUPS.get(game)>=19&&launchFrame){
+    if(![launchFrame.origin,launchFrame.velocity].every(point=>point&&['x','y','z'].every(axis=>Number.isFinite(point[axis]))))throw new TypeError('Finite launch frame required');
+    game.can.position={...launchFrame.origin,y:launchFrame.origin.y+game.can.radius-CAN_RADIUS};
+    for(const axis of ['x','y','z'])game.can.velocity[axis]+=launchFrame.velocity[axis];
+    game.trail=[{...game.can.position}];
+  }
   beginThrowableShot(game);
   game.phase = 'flying';
   game.attempts += 1;
@@ -263,8 +272,8 @@ function finish(game, success) {
 // Only the new worlds delegate goal geometry. Legacy bin entry/settling below
 // remains unchanged, including when an earned non-terminal item is re-equipped.
 export function captureGoal(game,goal,{position=game?.can?.position,environmentTime}={}){
-  if(!ACTIVE.has(game?.phase)||!OUTDOOR_PHYSICS_WORLDS[ROOM_SETUPS.get(game)])return false;
-  const world=Object.values(OUTDOOR_WORLDS).find(w=>w.worldVersion===ROOM_SETUPS.get(game));
+  if(!ACTIVE.has(game?.phase)||!extendedPhysicsWorld(ROOM_SETUPS.get(game)))return false;
+  const world=factoryWorldByVersion(ROOM_SETUPS.get(game))??Object.values({...OUTDOOR_WORLDS,...ECCENTRIC_WORLDS}).find(w=>w.worldVersion===ROOM_SETUPS.get(game));
   const fixed=world.goals.find(g=>g.id===goal?.id);
   if(!fixed||fixed.role!==goal.role||!position||!['x','y','z'].every(axis=>Number.isFinite(position[axis])))return false;
   game.can.position={...position};game.phase='settling';
@@ -276,7 +285,7 @@ export function captureGoal(game,goal,{position=game?.can?.position,environmentT
 }
 export function setShotEnvironmentStart(game,time=0){if(!game||typeof game!=='object'||!Number.isFinite(time))throw new TypeError('Shot environment start must be finite');SHOT_ENVIRONMENT_START.set(game,time);}
 export function emitShotEffect(game,effect){
-  if(!game||!effect||!['bell-ring','ice-splat','bat-swing'].includes(effect.type))return false;
+  if(!game||!effect||!['bell-ring','ice-splat','bat-swing','gate-latched','conveyor-carry','card-stuck','door-hit','cannon-fire','boar-hit'].includes(effect.type))return false;
   const effects=SHOT_EFFECTS.get(game)??[];
   if(effects.length>=120)return false;
   const value=freezeTree({id:effect.id??`${game.attempts}:${effect.type}:${effects.length}`,type:effect.type,time:game.time,

@@ -1,18 +1,22 @@
 // A versioned room-contact envelope around the unchanged V1 pose recording.
 // Legacy V1/V2 records retain their own codecs and interpretation.
-import * as legacy from './course-replay.mjs?v=20261012-outdoor-chapter-1';
-import {validateReplay,createReplayPlayer,ReplayError} from './replay.mjs?v=20261012-outdoor-chapter-1';
-import {roomWorld} from './room-course.mjs?v=20261012-outdoor-chapter-1';
-import {roomContactColliders} from './room-contact.mjs?v=20261012-outdoor-chapter-1';
+import * as legacy from './course-replay.mjs?v=20261013-contact-shrine-1';
+import {validateReplay,createReplayPlayer,ReplayError} from './replay.mjs?v=20261013-contact-shrine-1';
+import {roomWorld} from './room-course.mjs?v=20261013-contact-shrine-1';
+import {roomContactColliders} from './room-contact.mjs?v=20261013-contact-shrine-1';
 import {validateItemReplay,createItemReplay,itemPayload,createItemReplayPlayer,itemReplayToJSON,
-  parseItemReplayJSON,encodeItemReplay,decodeItemReplay,buildItemReplayURL} from './item-replay.mjs?v=20261012-outdoor-chapter-1';
-export {ITEM_REPLAY_LIMITS,ITEM_REPLAY_STORAGE_KEY,loadItemReplays,saveItemReplay,deleteItemReplay} from './item-replay.mjs?v=20261012-outdoor-chapter-1';
+  parseItemReplayJSON,encodeItemReplay,decodeItemReplay,buildItemReplayURL} from './item-replay.mjs?v=20261013-contact-shrine-1';
+export {ITEM_REPLAY_LIMITS,ITEM_REPLAY_STORAGE_KEY,loadItemReplays,saveItemReplay,deleteItemReplay} from './item-replay.mjs?v=20261013-contact-shrine-1';
 import {validateSchoolReplay,createSchoolReplay,schoolPayload,createSchoolReplayPlayer,schoolReplayToJSON,
-  parseSchoolReplayJSON,encodeSchoolReplay,decodeSchoolReplay,buildSchoolReplayURL} from './school-replay.mjs?v=20261012-outdoor-chapter-1';
-export {SCHOOL_REPLAY_LIMITS,SCHOOL_REPLAY_STORAGE_KEY,loadSchoolReplays,saveSchoolReplay,deleteSchoolReplay} from './school-replay.mjs?v=20261012-outdoor-chapter-1';
+  parseSchoolReplayJSON,encodeSchoolReplay,decodeSchoolReplay,buildSchoolReplayURL} from './school-replay.mjs?v=20261013-contact-shrine-1';
+export {SCHOOL_REPLAY_LIMITS,SCHOOL_REPLAY_STORAGE_KEY,loadSchoolReplays,saveSchoolReplay,deleteSchoolReplay} from './school-replay.mjs?v=20261013-contact-shrine-1';
 import {validateOutdoorReplay,createOutdoorReplay,outdoorPayload,createOutdoorReplayPlayer,outdoorReplayToJSON,
-  parseOutdoorReplayJSON,encodeOutdoorReplay,decodeOutdoorReplay,buildOutdoorReplayURL} from './outdoor-replay.mjs?v=20261012-outdoor-chapter-1';
-export {OUTDOOR_REPLAY_LIMITS,OUTDOOR_REPLAY_STORAGE_KEY,loadOutdoorReplays,saveOutdoorReplay,deleteOutdoorReplay} from './outdoor-replay.mjs?v=20261012-outdoor-chapter-1';
+  parseOutdoorReplayJSON,encodeOutdoorReplay,decodeOutdoorReplay,buildOutdoorReplayURL} from './outdoor-replay.mjs?v=20261013-contact-shrine-1';
+export {OUTDOOR_REPLAY_LIMITS,OUTDOOR_REPLAY_STORAGE_KEY,loadOutdoorReplays,saveOutdoorReplay,deleteOutdoorReplay} from './outdoor-replay.mjs?v=20261013-contact-shrine-1';
+
+import {validateAdvancedReplay,createAdvancedReplay,advancedPayload,createAdvancedReplayPlayer,advancedReplayToJSON,
+  parseAdvancedReplayJSON,encodeAdvancedReplay,decodeAdvancedReplay,buildAdvancedReplayURL} from './advanced-replay.mjs?v=20261013-contact-shrine-1';
+export {ADVANCED_REPLAY_LIMITS,ADVANCED_REPLAY_STORAGE_KEY,createAdvancedRecorder,loadAdvancedReplays,saveAdvancedReplay,deleteAdvancedReplay} from './advanced-replay.mjs?v=20261013-contact-shrine-1';
 
 
 export const PLAY_REPLAY_STORAGE_KEY='trash-shot-room-replays-v3';
@@ -79,6 +83,7 @@ function contact(value,colliders,duration){
 }
 
 export function validateCourseReplay(input){
+  if(version(input)===7)return validateAdvancedReplay(input);
   if(version(input)===6)return validateOutdoorReplay(input);
   if(version(input)===5)return validateSchoolReplay(input);
   if(version(input)===4)return validateItemReplay(input);
@@ -112,7 +117,8 @@ export function validateCourseReplay(input){
   if(encoder.encode(JSON.stringify(record)).byteLength>COURSE_REPLAY_LIMITS.rawBytes)fail('REPLAY_TOO_LARGE','Room replay exceeds raw byte limit');
   return freeze(record);
 }
-export function createCourseReplay(coreV1,stageId,contacts=[],{fanEnabled=false,worldVersion=2,itemId='can',profileVersion=1,startTime=0,capture=null}={}){
+export function createCourseReplay(coreV1,stageId,contacts=[],{fanEnabled=false,worldVersion=2,itemId='can',profileVersion=1,startTime=0,capture=null,factorySession,launchFrame,impactPose=null}={}){
+  if(worldVersion>=15||profileVersion===3)return createAdvancedReplay(coreV1,stageId,contacts,{worldVersion,itemId,profileVersion,startTime,fanEnabled,capture,factorySession,launchFrame,impactPose});
   if(worldVersion>=11||profileVersion===2)return createOutdoorReplay(coreV1,stageId,contacts,{worldVersion,itemId,profileVersion,startTime,fanEnabled,capture});
   if([6,7,8,9,10].includes(worldVersion))return createSchoolReplay(coreV1,stageId,contacts,{worldVersion,itemId,profileVersion,startTime});
   if(itemId!=='can')return createItemReplay(coreV1,stageId,contacts,{fanEnabled,worldVersion,itemId,profileVersion});
@@ -120,6 +126,7 @@ export function createCourseReplay(coreV1,stageId,contacts=[],{fanEnabled=false,
   return validateCourseReplay({version:3,kind:'room-contacts',course:{worldVersion,contactModel:1,stageId,roomHits:contacts.length,contacts,fanEnabled},replay:coreV1});
 }
 export function coursePayload(record){
+  if(version(record)===7)return advancedPayload(record);
   if(version(record)===6)return outdoorPayload(record);
   if(version(record)===5)return schoolPayload(record);
   if(version(record)===4)return itemPayload(record);
@@ -173,10 +180,21 @@ export function interpretOutdoorContacts(coreResult,contacts=[]){
   if(!roles.length)roles.push({id:'direct',label:'ダイレクト'});
   return {...result,...counts,roles,roomContacts:bankContacts};
 }
+// New mechanisms use the established furniture score category while preserving
+// their original surface names in the contact trace and replay evidence.
+export function interpretAdvancedContacts(coreResult,contacts=[]){
+  if(coreResult==null)return coreResult;
+  const surfaces=new Set(['machine','belt','plate','ball','train','target','soil']);
+  const result=interpretOutdoorContacts(coreResult,contacts.map(value=>surfaces.has(value.surface)?{...value,surface:'furniture'}:value));
+  result.roomContacts=contacts.filter(value=>(!Number.isFinite(result.finalEntryTime)||value.time<result.finalEntryTime+1e-8)&&!['student','person','water'].includes(value.surface)).map(clone);
+  return result;
+}
 export function interpretCourseContacts(coreResult,contacts=[],worldVersion){
+  if(worldVersion>=15&&worldVersion<=29)return interpretAdvancedContacts(coreResult,contacts);
   return [11,12,13,14].includes(worldVersion)?interpretOutdoorContacts(coreResult,contacts):interpretPlayContacts(coreResult,contacts);
 }
 export function courseReplayResult(record){
+  if(version(record)===7){const valid=validateAdvancedReplay(record),result=interpretCourseContacts(valid.replay.result,valid.course.contacts,valid.course.worldVersion);return {...result,goalId:valid.course.capture?.goalId??null,goalRole:valid.course.capture?.goalRole??null};}
   if(version(record)===6){const valid=validateOutdoorReplay(record),result=interpretCourseContacts(valid.replay.result,valid.course.contacts,valid.course.worldVersion);return {...result,goalId:valid.course.capture?.goalId??null,goalRole:valid.course.capture?.goalRole??null};}
   if(version(record)===5){const valid=validateSchoolReplay(record),result=interpretPlayContacts(valid.replay.result,valid.course.contacts);return {...result,schoolHits:result.roomHits};}
   if(version(record)===4){const valid=validateItemReplay(record);return interpretPlayContacts(valid.replay.result,valid.course.contacts);}
@@ -184,6 +202,7 @@ export function courseReplayResult(record){
   const valid=validateCourseReplay(record);return interpretPlayContacts(valid.replay.result,valid.course.contacts);
 }
 export function createCourseReplayPlayer(record){
+  if(version(record)===7)return createAdvancedReplayPlayer(record);
   if(version(record)===6)return createOutdoorReplayPlayer(record);
   if(version(record)===5)return createSchoolReplayPlayer(record);
   if(version(record)===4)return createItemReplayPlayer(record);
@@ -192,6 +211,7 @@ export function createCourseReplayPlayer(record){
   return createReplayPlayer(valid.replay,{worldVersion:valid.course.worldVersion});
 }
 export function courseReplayToJSON(record){
+  if(version(record)===7)return advancedReplayToJSON(record);
   if(version(record)===6)return outdoorReplayToJSON(record);
   if(version(record)===5)return schoolReplayToJSON(record);
   if(version(record)===4)return itemReplayToJSON(record);
@@ -203,7 +223,7 @@ export function parseCourseReplayJSON(text){
   if(text.length>COURSE_REPLAY_LIMITS.rawBytes||encoder.encode(text).byteLength>COURSE_REPLAY_LIMITS.rawBytes)
     fail('REPLAY_TOO_LARGE','Room replay exceeds JSON byte limit');
   let record;try{record=JSON.parse(text);}catch{fail('INVALID_REPLAY','Malformed room replay JSON');}
-  return version(record)===6?parseOutdoorReplayJSON(text):version(record)===5?parseSchoolReplayJSON(text):version(record)===4?parseItemReplayJSON(text):version(record)===3?validateCourseReplay(record):legacy.parseCourseReplayJSON(text);
+  return version(record)===7?parseAdvancedReplayJSON(text):version(record)===6?parseOutdoorReplayJSON(text):version(record)===5?parseSchoolReplayJSON(text):version(record)===4?parseItemReplayJSON(text):version(record)===3?validateCourseReplay(record):legacy.parseCourseReplayJSON(text);
 }
 
 // The existing bounded gzip/base64url recipe, with an explicit new fragment.
@@ -225,6 +245,7 @@ function unbase64url(text){
   const bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));if(base64url(bytes)!==text)fail('INVALID_ENCODING','Noncanonical base64url room replay');return bytes;
 }
 export async function encodeCourseReplay(record){
+  if(version(record)===7)return encodeAdvancedReplay(record);
   if(version(record)===6)return encodeOutdoorReplay(record);
   if(version(record)===5)return encodeSchoolReplay(record);
   if(version(record)===4)return encodeItemReplay(record);
@@ -240,6 +261,7 @@ export async function encodeCourseReplay(record){
 export async function decodeCourseReplay(fragment){
   if(typeof fragment!=='string'||fragment.length>COURSE_REPLAY_LIMITS.urlChars)fail('SHARE_TOO_LARGE','Room replay fragment exceeds URL limit');
   const text=fragment.startsWith('#')?fragment.slice(1):fragment;
+  if(text.startsWith('tsc7.'))return decodeAdvancedReplay(fragment);
   if(text.startsWith('tsc6.'))return decodeOutdoorReplay(fragment);
   if(text.startsWith('tsc5.'))return decodeSchoolReplay(fragment);
   if(text.startsWith('tsc4.'))return decodeItemReplay(fragment);
@@ -252,6 +274,7 @@ export async function decodeCourseReplay(fragment){
   const record=parseCourseReplayJSON(json);if(record.version!==3)fail('UNSUPPORTED_VERSION','Room fragment cannot carry an older replay');return record;
 }
 export async function buildCourseReplayURL(record,url){
+  if(version(record)===7)return buildAdvancedReplayURL(record,url);
   if(version(record)===6)return buildOutdoorReplayURL(record,url);
   if(version(record)===5)return buildSchoolReplayURL(record,url);
   if(version(record)===4)return buildItemReplayURL(record,url);

@@ -33,7 +33,7 @@ export function validateOutdoorProgress(value,{completedIDs=[],cumulativeAttempt
 }
 // These helpers describe facts; only the app's live-shot progress reducer writes.
 export function outdoorSnapshot(progress){
-  const facts=progress?.version===3?progress.outdoor:emptyOutdoorProgress();
+  const facts=progress?.version>=3?progress.outdoor:emptyOutdoorProgress();
   const result={...facts,playedIDs:[...facts.playedIDs],normalIDs:[...facts.normalIDs],altIDs:[...facts.altIDs],unlockedRoutes:[...facts.unlockedRoutes]};
   return {...result,altCount:result.altIDs.length,complete:OUTDOOR_CHAPTER_IDS.every(id=>progress?.completedIDs?.includes(id)),recommendedRoute:result.altIDs.length>=2?4:5};
 }

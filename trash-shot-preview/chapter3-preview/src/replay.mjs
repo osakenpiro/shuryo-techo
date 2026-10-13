@@ -1,8 +1,8 @@
 // Recorded world poses, never a seed or a second physics simulation.
-import { ROOM_PHYSICS_WORLDS } from './physics.mjs?v=20261012-outdoor-chapter-1';
-import { SCHOOL_PHYSICS_WORLDS } from './school-world.mjs?v=20261012-outdoor-chapter-1';
-import { OUTDOOR_PHYSICS_WORLDS } from './outdoor-world.mjs?v=20261012-outdoor-chapter-1';
-import { THROWABLE_CATALOG } from './throwables.mjs?v=20261012-outdoor-chapter-1';
+import { ROOM_PHYSICS_WORLDS } from './physics.mjs?v=20261013-contact-shrine-1';
+import { SCHOOL_PHYSICS_WORLDS } from './school-world.mjs?v=20261013-contact-shrine-1';
+import { OUTDOOR_PHYSICS_WORLDS } from './outdoor-world.mjs?v=20261013-contact-shrine-1';
+import { THROWABLE_CATALOG } from './throwables.mjs?v=20261013-contact-shrine-1';
 export const REPLAY_LIMITS = Object.freeze({version:1, duration:5.1, frames:720,
   hz:60, rawBytes:180*1024, saved:5, storageBytes:900*1024, urlChars:8000,
   contacts:2400, precision:1e-5, storageKey:'trash-shot.replays.v1'});
@@ -58,7 +58,7 @@ function replayContext(context={}){
   let profile=null;
   if(item){
     if(typeof context.itemId!=='string'||context.itemId==='can'||!Object.hasOwn(THROWABLE_CATALOG,context.itemId)
-      ||context.worldVersion<2||context.profileVersion!==THROWABLE_CATALOG[context.itemId].physics.version)
+      ||context.worldVersion<2||![1,2].includes(context.profileVersion)||context.profileVersion!==THROWABLE_CATALOG[context.itemId].physics.version)
       fail('INVALID_REPLAY','Unsupported fixed item replay context');
     profile=THROWABLE_CATALOG[context.itemId].physics;
   }

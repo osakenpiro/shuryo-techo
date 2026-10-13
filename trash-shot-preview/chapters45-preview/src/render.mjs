@@ -1,12 +1,12 @@
-import { predictArc } from './physics.mjs?v=20261013-chapters45-1';
-import { roomScene,roomMotionShapes,roomMonitorQuad,paintScreenQuad } from './room-scene.mjs?v=20261013-chapters45-1';
-import {schoolScene,schoolMotionShapes,schoolCameraConfig} from './school-scene.mjs?v=20261013-chapters45-1';
-import {outdoorScene,outdoorMotionShapes,outdoorCameraConfig} from './outdoor-scene.mjs?v=20261013-chapters45-1';
-import {factoryScene,factoryMotionShapes,factoryCameraConfig} from './factory-scene.mjs?v=20261013-chapters45-1';
-import {eccentricScene,eccentricMotionShapes,eccentricCameraConfig,eccentricItemMeshes} from './eccentric-scene.mjs?v=20261013-chapters45-1';
-import {drawPixelText} from './pixel-type.mjs?v=20261013-chapters45-1';
-import {getThrowable} from './throwables.mjs?v=20261013-chapters45-1';
-import {getThrowableId,throwablePose} from './throwable-physics.mjs?v=20261013-chapters45-1';
+import { predictArc } from './physics.mjs?v=20261013-contact-shrine-1';
+import { roomScene,roomMotionShapes,roomMonitorQuad,paintScreenQuad } from './room-scene.mjs?v=20261013-contact-shrine-1';
+import {schoolScene,schoolMotionShapes,schoolCameraConfig} from './school-scene.mjs?v=20261013-contact-shrine-1';
+import {outdoorScene,outdoorMotionShapes,outdoorCameraConfig} from './outdoor-scene.mjs?v=20261013-contact-shrine-1';
+import {factoryScene,factoryMotionShapes,factoryCameraConfig} from './factory-scene.mjs?v=20261013-contact-shrine-1';
+import {eccentricScene,eccentricMotionShapes,eccentricCameraConfig,eccentricItemMeshes} from './eccentric-scene.mjs?v=20261013-contact-shrine-1';
+import {drawPixelText} from './pixel-type.mjs?v=20261013-contact-shrine-1';
+import {getThrowable} from './throwables.mjs?v=20261013-contact-shrine-1';
+import {getThrowableId,throwablePose} from './throwable-physics.mjs?v=20261013-contact-shrine-1';
 
 const add = (a,b) => ({ x:a.x+b.x, y:a.y+b.y, z:a.z+b.z });
 const sub = (a,b) => ({ x:a.x-b.x, y:a.y-b.y, z:a.z-b.z });
@@ -26,7 +26,7 @@ export function createRenderer(canvas) {
   let worldView=null;
   let environment=null,roomCache=null,roomBuilds=0,roomCutaway=[],roomFlightKey='',roomFlight=[],revealProgress=null,revealDistance=1;
   const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
-  let forward, right, up, focal,angleCueSnapshot=null;
+  let forward, right, up, focal,angleCueSnapshot=null,coinAccentSnapshot=null;
   const configureCamera = () => {
     const distance=(worldView?.view.distance??(10+sceneDistance*.6))*orbitState.zoom*revealDistance;
     camera={x:target.x+Math.sin(orbitState.azimuth)*Math.cos(orbitState.elevation)*distance,y:target.y+Math.sin(orbitState.elevation)*distance,z:target.z-Math.cos(orbitState.azimuth)*Math.cos(orbitState.elevation)*distance};
@@ -38,7 +38,7 @@ export function createRenderer(canvas) {
   const cameraToScreen = point => ({x:width/2+point.x*focal/point.z,y:height*.47-point.y*focal/point.z,depth:point.z,visible:point.z>.1});
   const project = point => projection==='side'?{x:sideFrame.left+point.z*sideFrame.scale,y:sideFrame.floor-point.y*sideFrame.scale,depth:1,visible:true}:cameraToScreen(worldToCamera(point));
   // The legal 3D orbit is retained for V1 replays; side zoom never changes it.
-  function cameraSnapshot(){return {azimuth:orbitState.azimuth,elevation:orbitState.elevation,zoom:orbitState.zoom,projection,sideZoom,environment,worldVersion:worldView?.worldVersion??0,angleCue:angleCueSnapshot?structuredClone(angleCueSnapshot):null,roomBuilds,roomCutaway:[...roomCutaway],position:{...camera},target:{...target},viewport:{width,height}};}
+  function cameraSnapshot(){return {azimuth:orbitState.azimuth,elevation:orbitState.elevation,zoom:orbitState.zoom,projection,sideZoom,environment,worldVersion:worldView?.worldVersion??0,angleCue:angleCueSnapshot?structuredClone(angleCueSnapshot):null,roomBuilds,roomCutaway:[...roomCutaway],position:{...camera},target:{...target},viewport:{width,height},...(coinAccentSnapshot?{coinAccent:structuredClone(coinAccentSnapshot)}:{})};}
   function setProjection(mode){projection=mode==='side'?'side':'perspective';}
   function setWorldView(world){if(worldView?.worldVersion!==world?.worldVersion)roomCache=null;worldView=world??null;}
   function monitorQuad(){return roomMonitorQuad(worldView).map(project);}
@@ -261,6 +261,39 @@ export function createRenderer(canvas) {
     depthPixels.data.fill(0);if(backgroundDepth)depthValues.set(backgroundDepth);else depthValues.fill(Infinity);
     rasterizeShapes(shapes);depthContext.putImageData(depthPixels,0,0);ctx.drawImage(depthCanvas,0,0,width,height);
   }
+  function drawCoinAccent(game,view){
+    if(getThrowable(getThrowableId(game)).shape!=='coin')return;
+    const point=project(game.can.position),physicalRadius=game.can.radius;
+    const isVisible=(p,radius=physicalRadius)=>{
+      if(!p.visible||p.x<0||p.y<0||p.x>=width||p.y>=height)return false;
+      const x=Math.min(depthWidth-1,Math.floor(p.x*depthScale)),y=Math.min(depthHeight-1,Math.floor(p.y*depthScale));
+      return p.depth-radius<=depthValues[y*depthWidth+x]+.025;
+    };
+    const bodyRadiusPixels=physicalRadius*focal/Math.max(.1,point.depth),visible=isVisible(point);
+    // A screen-space glint makes a real-size coin readable. Its collision
+    // radius, pose and past trail remain unchanged; there is no future path.
+    coinAccentSnapshot={visible,phase:game.phase,screen:{x:point.x,y:point.y},physicalRadius,bodyRadiusPixels,haloRadius:12,historicalMotes:0};
+    if(!visible)return;
+    const t=view.reducedMotion?0:(view.environmentTime??game.time??0),pulse=view.reducedMotion?1:.84+.16*Math.sin(t*7);
+    ctx.save();
+    const glow=ctx.createRadialGradient(point.x,point.y,1,point.x,point.y,12);
+    glow.addColorStop(0,`rgba(255,245,179,${.8*pulse})`);glow.addColorStop(.38,`rgba(249,205,83,${.38*pulse})`);glow.addColorStop(1,'rgba(249,205,83,0)');
+    ctx.fillStyle=glow;ctx.beginPath();ctx.arc(point.x,point.y,12,0,Math.PI*2);ctx.fill();
+    const core=Math.max(2.1,Math.min(4,bodyRadiusPixels));
+    ctx.fillStyle='#fff8ce';ctx.strokeStyle='#c39335';ctx.lineWidth=1;
+    ctx.beginPath();ctx.ellipse(point.x,point.y,core,core*.68,.25,0,Math.PI*2);ctx.fill();ctx.stroke();
+    const star=(x,y,r,alpha)=>{ctx.globalAlpha=alpha;ctx.fillStyle='#fffdf0';ctx.beginPath();ctx.moveTo(x,y-r);ctx.lineTo(x+r*.24,y-r*.24);ctx.lineTo(x+r,y);ctx.lineTo(x+r*.24,y+r*.24);ctx.lineTo(x,y+r);ctx.lineTo(x-r*.24,y+r*.24);ctx.lineTo(x-r,y);ctx.lineTo(x-r*.24,y-r*.24);ctx.closePath();ctx.fill();};
+    star(point.x+5,point.y-5,3.3,pulse);star(point.x-5.5,point.y+3.5,1.9,.55+.2*pulse);
+    if(['flying','settling'].includes(game.phase)){
+      const trail=game.trail??[];
+      for(const [offset,alpha] of [[4,.5],[9,.3],[14,.15]]){
+        const prior=trail[trail.length-1-offset];if(!prior)continue;
+        const p=project(prior);if(!isVisible(p,0))continue;
+        star(p.x,p.y,1.6,alpha);coinAccentSnapshot.historicalMotes++;
+      }
+    }
+    ctx.restore();
+  }
   function drawRoom(game,controls,view){
     ctx.fillStyle='#f4ead5';ctx.fillRect(0,0,width,height);
     const flightKey=[worldView?.worldVersion,getThrowableId(game),game.bin.radius,worldView?.origin.y,game.attempts,game.bin.center.z,game.bin.height,controls.power,controls.elevation,controls.yaw].join('/');
@@ -376,7 +409,7 @@ export function createRenderer(canvas) {
   function render(game,controls,view={}) {
     // Layout adapts the target only. The user's orbit survives every phase and resize.
     const distance=game.bin.center.z;
-    setWorldView(view.world??null);sceneDistance=distance;angleCueSnapshot=null;
+    setWorldView(view.world??null);sceneDistance=distance;angleCueSnapshot=null;coinAccentSnapshot=null;
     revealProgress=typeof view.revealProgress==='number'?clamp(view.revealProgress,0,1):null;
     revealDistance=revealProgress===null?1:.28+.72*revealProgress;
     environment=projection==='perspective'?(['factory','eccentric'].includes(worldView?.environment)?worldView.environment:view.environment==='outdoor'||worldView?.environment==='outdoor'?'outdoor':view.environment==='school'||worldView?.environment==='school'?'school':view.environment==='room'?'room':null):null;
@@ -398,6 +431,7 @@ export function createRenderer(canvas) {
     if(view.aim&&!view.customCue){const heading=view.aim.yaw*Math.PI/180,p=game.phase==='ready'?game.can.position:(worldView?.origin??{x:0,y:1.05,z:0});line(p,{x:p.x+Math.sin(heading)*.75,y:p.y,z:p.z+Math.cos(heading)*.75},'#bd8632',2);}
     const shapes=[...(room&&view.extraRoom?roomMotionShapes(view.environmentTime||0,view.fanEnabled,view.reducedMotion,worldView):[]),...(school?schoolMotionShapes(view.environmentTime||0,worldView,view.reducedMotion):[]),...(advanced?(worldView.environment==='factory'?factoryMotionShapes:eccentricMotionShapes)(view.environmentTime??0,worldView,{...view,session:view.factorySession,game,phase:game.phase,flightTime:game.time}):outdoor?outdoorMotionShapes(view.environmentTime??0,worldView,{...view,phase:game.phase,flightTime:game.time}):shapesForBin(game,room||school)),...shapesForCan(game,room||school||outdoor||advanced)];
     drawDepthShapes(shapes,backgroundDepth);
+    drawCoinAccent(game,view);
     if(room&&view.extraRoom){
       // The wind vane marks a local area, not a predicted landing point.
       const origin={x:0,y:.035,z:3},end={x:.65,y:.035,z:3};line(origin,end,view.fanEnabled?'#80a6a0':'#b5b4a1',2);line(end,{x:.48,y:.035,z:2.87},'#80a6a0',2);line(end,{x:.48,y:.035,z:3.13},'#80a6a0',2);

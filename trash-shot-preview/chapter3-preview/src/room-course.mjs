@@ -1,6 +1,8 @@
-import {schoolWorld} from './school-world.mjs?v=20261012-outdoor-chapter-1';
-import {outdoorWorld} from './outdoor-world.mjs?v=20261012-outdoor-chapter-1';
-import { stepGame, ROOM_PHYSICS_WORLDS } from './physics.mjs?v=20261012-outdoor-chapter-1';
+import {schoolWorld} from './school-world.mjs?v=20261013-contact-shrine-1';
+import {outdoorWorld} from './outdoor-world.mjs?v=20261013-contact-shrine-1';
+import {factoryWorld} from './factory-world.mjs?v=20261013-contact-shrine-1';
+import {eccentricWorld} from './eccentric-world.mjs?v=20261013-contact-shrine-1';
+import { stepGame, ROOM_PHYSICS_WORLDS } from './physics.mjs?v=20261013-contact-shrine-1';
 
 const TICK = 1 / 240, EPS = 1e-9, SLOP = 1e-5;
 const AXES = ['x', 'y', 'z'];
@@ -83,6 +85,8 @@ export function roomCourse(stageId,worldVersion=1) {
 }
 export function roomWorld(stageId,worldVersion=2) {
   if(worldVersion>=11&&worldVersion<=14)return outdoorWorld(stageId,worldVersion);
+  if(worldVersion>=15&&worldVersion<=18||worldVersion>=26&&worldVersion<=29)return factoryWorld(stageId,worldVersion);
+  if(worldVersion>=19&&worldVersion<=25)return eccentricWorld(stageId,worldVersion);
   if(worldVersion>=6&&worldVersion<=10)return schoolWorld(stageId,worldVersion);
   const worlds=worldVersion===1||worldVersion===2||worldVersion===3||worldVersion===4||worldVersion===5?WORLDS[worldVersion]:null;
   return worlds&&Object.hasOwn(worlds,stageId)?worlds[stageId]:null;

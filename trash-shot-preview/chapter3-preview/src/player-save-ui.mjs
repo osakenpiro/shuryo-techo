@@ -1,9 +1,9 @@
 // Save-code presentation only. The existing codecs validate data; the app owns
 // all player/storage writes and replay playback.
-import {encodePlayerCode,decodePlayerCode} from './player-save.mjs?v=20261012-outdoor-chapter-1';
-import {CHAPTER_IDS,CHAPTERS,migrateProgress,chapterForStage,outdoorSnapshot} from './progress-save.mjs?v=20261012-outdoor-chapter-1';
-import {STAGES} from './stages.mjs?v=20261012-outdoor-chapter-1';
-import {getThrowable} from './throwables.mjs?v=20261012-outdoor-chapter-1';
+import {encodePlayerCode,decodePlayerCode} from './player-save.mjs?v=20261013-contact-shrine-1';
+import {CHAPTER_IDS,CHAPTERS,migrateProgress,chapterForStage,outdoorSnapshot} from './progress-save.mjs?v=20261013-contact-shrine-1';
+import {STAGES} from './stages.mjs?v=20261013-contact-shrine-1';
+import {getThrowable} from './throwables.mjs?v=20261013-contact-shrine-1';
 
 const MAX_INPUT=40000,MAX_CODE=24500,MAX_REPLAY=8000;
 const PUBLIC_PAGE='https://osakenpiro.github.io/shuryo-techo/trash-shot-preview/';
@@ -21,12 +21,12 @@ function sameGamePage(url,pageURL){
 }
 export function classifyPlayerSaveInput(input,{pageURL}={}){
   if(typeof input!=='string')return invalid('保存コードを貼ってください。');
-  if(input.length>MAX_INPUT||input.length>16000&&!input.replace(/[ \t\r\n]/g,'').startsWith('TS4-'))return invalid('入力が長すぎます。保存コードだけをすべてコピーして貼ってください。');
+  if(input.length>MAX_INPUT||input.length>16000&&!/^TS[45]-/.test(input.replace(/[ \t\r\n]/g,'')))return invalid('入力が長すぎます。保存コードだけをすべてコピーして貼ってください。');
   // Wrapped copies are accepted, but arbitrary prose and hidden Unicode bytes
   // are not removed or interpreted as part of a code.
   const normalized=input.replace(/[ \t\r\n]/g,'');
-  if(!normalized)return {kind:'empty',message:'TS1-・TS2-・TS3-・TS4- で始まる、続き用の保存コードを貼ってください。'};
-  if(/^TS[1234]-/.test(normalized)){
+  if(!normalized)return {kind:'empty',message:'TS1-・TS2-・TS3-・TS4-・TS5- で始まる、続き用の保存コードを貼ってください。'};
+  if(/^TS[12345]-/.test(normalized)){
     if(normalized.length>MAX_CODE)return invalid('保存コードが長すぎます。元のコードを確認してください。');
     try{return {kind:'save',normalized,data:decodePlayerCode(normalized),message:'コードを確認できました。内容を見てから復元できます。'};}
     catch{return invalid('コードが欠けているか、途中の文字が変わっています。元のコードをすべてコピーして貼り直してください。今の記録は変わりません。');}
@@ -34,14 +34,14 @@ export function classifyPlayerSaveInput(input,{pageURL}={}){
   let fragment=normalized.startsWith('#')?normalized.slice(1):normalized;
   if(/^[a-z][a-z0-9+.-]*:/i.test(normalized)){
     let url;try{url=new URL(normalized);}catch{return invalid('リンクを読み取れません。続き用の保存コードを貼ってください。');}
-    if(!sameGamePage(url,pageURL))return invalid('このゲームの保存コードではありません。TS1-・TS2-・TS3-・TS4- で始まるコードを貼ってください。');
+    if(!sameGamePage(url,pageURL))return invalid('このゲームの保存コードではありません。TS1-・TS2-・TS3-・TS4-・TS5- で始まるコードを貼ってください。');
     fragment=url.hash.slice(1);
   }
-  if(/^(?:tsc[1-6]|tsr1)\.[A-Za-z0-9_-]+$/.test(fragment)){
+  if(/^(?:tsc[1-7]|tsr1)\.[A-Za-z0-9_-]+$/.test(fragment)){
     if(fragment.length+1>MAX_REPLAY)return invalid('リプレイリンクが長すぎます。元のリンクを確認してください。');
     return {kind:'replay',fragment:`#${fragment}`,message:replayMessage};
   }
-  return invalid('続き用の保存コードを読み取れません。TS1-・TS2-・TS3-・TS4- で始まるコードを、そのまま貼ってください。今の記録は変わりません。');
+  return invalid('続き用の保存コードを読み取れません。TS1-・TS2-・TS3-・TS4-・TS5- で始まるコードを、そのまま貼ってください。今の記録は変わりません。');
 }
 
 export function createPlayerSaveUI({document:doc,getPlayer,canRestore=()=>true,onRestore,onReplay,onContinue,initialStatus}={}){
@@ -65,7 +65,7 @@ export function createPlayerSaveUI({document:doc,getPlayer,canRestore=()=>true,o
     const entries=[['再開する面',STAGES[progress.resumeStage]?.label??progress.resumeStage],['章',chapter?`${chapter.number} ${chapter.label}`:''],['クリア',`${progress.completedIDs.length} / ${CHAPTER_IDS.length} 面`]];
     for(const entry of CHAPTERS)entries.push([`${entry.number} ${entry.label}`,`${entry.ids.filter(id=>progress.completedIDs.includes(id)).length} / ${entry.ids.length} 面`]);
     if(progress.resumeStage!==classified.data.progress.resumeStage)entries.push([chapter?.number===3?'外へ':'学校へ',chapter?.number===3?'第2章のクリアを引き継いで、3-1から再開します。':'第1章のクリアを引き継いで、2-1から再開します。']);
-    if(progress.version===3){const outdoor=outdoorSnapshot(progress);entries.push(['外の別解',`${outdoor.altCount} / 4 面`],['最初の道',outdoor.firstRoute===null?'3章クリア後に決まります':`${outdoor.firstRoute} ${outdoor.firstRoute===4?'工場・動く系':'色物'}`],['開いた道',outdoor.unlockedRoutes.length?outdoor.unlockedRoutes.map(id=>`${id} ${id===4?'工場・動く系':'色物'}`).join(' / '):'まだ分岐前']);}
+    if(progress.version>=3){const outdoor=outdoorSnapshot(progress);entries.push(['外の別解',`${outdoor.altCount} / 4 面`],['最初の道',outdoor.firstRoute===null?'3章クリア後に決まります':`${outdoor.firstRoute} ${outdoor.firstRoute===4?'工場・動く系':'色物'}`],['開いた道',outdoor.unlockedRoutes.length?outdoor.unlockedRoutes.map(id=>`${id} ${id===4?'工場・動く系':'色物'}`).join(' / '):'まだ分岐前']);}
     if(sourceVersion===1)entries.push(['コイン・投げるもの','今のコイン・装備を保持します（TS1）']);
     else {entries.push(['コイン',`${rewards.wallet} コイン`],['投げるもの',getThrowable(rewards.equipped)?.label??rewards.equipped]);if(rewards.earned?.length)entries.push(['ステージで手に入れた物',rewards.earned.map(id=>getThrowable(id)?.label??id).join(' / ')]);}
     for(const [label,value] of entries){const row=doc.createElement('div'),dt=doc.createElement('dt'),dd=doc.createElement('dd');dt.textContent=label;dd.textContent=value;row.append(dt,dd);host.append(row);}

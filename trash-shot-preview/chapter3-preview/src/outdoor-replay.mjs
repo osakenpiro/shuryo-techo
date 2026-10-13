@@ -1,13 +1,13 @@
 // V6 isolates new capture planes and profiles from historical V1–V5 records.
 // Playback reads recorded poses and a saved environment clock; it awards nothing.
-import {validateReplay,createReplayPlayer,ReplayError} from './replay.mjs?v=20261012-outdoor-chapter-1';
-import {roomWorld,sweepSphereAABB} from './room-course.mjs?v=20261012-outdoor-chapter-1';
-import {roomContactColliders} from './room-contact.mjs?v=20261012-outdoor-chapter-1';
-import {schoolSolids,schoolStudentPose,schoolStudentPoses} from './school-world.mjs?v=20261012-outdoor-chapter-1';
-import {validateSchoolStudentClearance} from './school-replay.mjs?v=20261012-outdoor-chapter-1';
-import {outdoorWorld,outdoorGoals,outdoorMotion,outdoorDynamicSolids} from './outdoor-world.mjs?v=20261012-outdoor-chapter-1';
-import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261012-outdoor-chapter-1';
-import {THROWABLE_CATALOG} from './throwables.mjs?v=20261012-outdoor-chapter-1';
+import {validateReplay,createReplayPlayer,ReplayError} from './replay.mjs?v=20261013-contact-shrine-1';
+import {roomWorld,sweepSphereAABB} from './room-course.mjs?v=20261013-contact-shrine-1';
+import {roomContactColliders} from './room-contact.mjs?v=20261013-contact-shrine-1';
+import {schoolSolids,schoolStudentPose,schoolStudentPoses} from './school-world.mjs?v=20261013-contact-shrine-1';
+import {validateSchoolStudentClearance} from './school-replay.mjs?v=20261013-contact-shrine-1';
+import {outdoorWorld,outdoorGoals,outdoorMotion,outdoorDynamicSolids} from './outdoor-world.mjs?v=20261013-contact-shrine-1';
+import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261013-contact-shrine-1';
+import {THROWABLE_CATALOG} from './throwables.mjs?v=20261013-contact-shrine-1';
 
 export const OUTDOOR_REPLAY_STORAGE_KEY='trash-shot-expanded-replays-v6';
 export const OUTDOOR_REPLAY_LIMITS=Object.freeze({version:6,contactModel:1,rawBytes:1024*1024,contacts:2400,urlChars:8000,saved:5,storageBytes:5*1024*1024+100,storageKey:OUTDOOR_REPLAY_STORAGE_KEY});
@@ -121,7 +121,7 @@ export function validateOutdoorReplay(input){
   object(input,['version','kind','item','course','replay'],'expanded replay');
   if(input.version!==6||input.kind!=='expanded-goals')fail('UNSUPPORTED_VERSION','Expanded replay version or kind is unsupported');
   object(input.item,['id','profileVersion'],'item');
-  if(typeof input.item.id!=='string'||!Object.hasOwn(THROWABLE_CATALOG,input.item.id)||input.item.profileVersion!==THROWABLE_CATALOG[input.item.id].physics.version)fail('INVALID_REPLAY','Unsupported fixed expanded throwable profile');
+  if(![1,2].includes(input.item.profileVersion)||typeof input.item.id!=='string'||!Object.hasOwn(THROWABLE_CATALOG,input.item.id)||input.item.profileVersion!==THROWABLE_CATALOG[input.item.id].physics.version)fail('INVALID_REPLAY','Unsupported fixed expanded throwable profile');
   object(input.course,['worldVersion','contactModel','stageId','startTime','fanEnabled','contacts','capture'],'course');
   const course=input.course;
   number(course.worldVersion,2,14,'course.worldVersion',true);

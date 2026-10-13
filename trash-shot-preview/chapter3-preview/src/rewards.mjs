@@ -1,11 +1,15 @@
 // Local rewards are earned from a live, issued shot; portable saves are not authentication.
-import {CHAPTER_IDS,FIRST_CHAPTER_IDS,LEGACY_CHAPTER_IDS,OUTDOOR_CHAPTER_IDS,OUTDOOR_STAGE_ITEMS} from './progress-save.mjs?v=20261012-outdoor-chapter-1';
-import {SHOT_ROLES} from './shot-analytics.mjs?v=20261012-outdoor-chapter-1';
-import {THROWABLE_CATALOG,DEFAULT_THROWABLE_ID} from './throwables.mjs?v=20261012-outdoor-chapter-1';
+import {CHAPTER_IDS,PREVIOUS_CHAPTER_IDS,BRANCH_CHAPTER_IDS,FIRST_CHAPTER_IDS,LEGACY_CHAPTER_IDS,OUTDOOR_CHAPTER_IDS,OUTDOOR_STAGE_ITEMS,ECCENTRIC_STAGE_ITEMS,STAGE_THROWABLE_ITEMS} from './progress-save.mjs?v=20261013-contact-shrine-1';
+import {SHOT_ROLES} from './shot-analytics.mjs?v=20261013-contact-shrine-1';
+import {THROWABLE_CATALOG,DEFAULT_THROWABLE_ID} from './throwables.mjs?v=20261013-contact-shrine-1';
 
 export const ITEM_CATALOG=Object.freeze(Object.fromEntries(['can','paper','rubber-ball','heavy-ball','carton'].map(id=>[id,THROWABLE_CATALOG[id]])));
 export {THROWABLE_CATALOG as ALL_ITEM_CATALOG};
 const OUTDOOR_ITEMS=Object.values(OUTDOOR_STAGE_ITEMS);
+const ECCENTRIC_ITEMS=Object.values(ECCENTRIC_STAGE_ITEMS).filter(id=>!['can'].includes(id));
+const EARNED_ITEMS=[...OUTDOOR_ITEMS,...ECCENTRIC_ITEMS];
+const EARNED_STAGE_ITEMS={...OUTDOOR_STAGE_ITEMS,...Object.fromEntries(Object.entries(ECCENTRIC_STAGE_ITEMS).filter(([,id])=>ECCENTRIC_ITEMS.includes(id)))};
+const fixedStage=stageId=>Object.hasOwn(STAGE_THROWABLE_ITEMS,stageId);
 const ITEMS=Object.keys(ITEM_CATALOG),MAX_SHOTS=1000000,MAX_CONTACTS=2400;
 const ROLE_LABELS=Object.freeze({...SHOT_ROLES,'desk-bank':'机当て','wall-bank':'壁当て','ceiling-bank':'天井当て','furniture-bank':'家具当て'});
 const BONUSES=Object.freeze({'floor-1':25,'floor-2':75,'floor-3plus':125,'rim-bank':25,'side-bank':25,'desk-bank':35,'wall-bank':40,'ceiling-bank':50,'furniture-bank':25});
@@ -34,12 +38,12 @@ const fresh=()=>({version:1,totalPoints:0,totalCoinsEarned:0,wallet:0,achievemen
 
 export function validateRewards(value){
   const version=value&&typeof value==='object'?Object.getOwnPropertyDescriptor(value,'version')?.value:undefined;
-  record(value,[...Object.keys(fresh()),...(version===2?['earned']:[])]);
-  if(![1,2].includes(value.version))fail('Invalid rewards version');
-  const stageIds=version===1?LEGACY_CHAPTER_IDS:CHAPTER_IDS,itemIds=version===1?ITEMS:[...ITEMS,...OUTDOOR_ITEMS];
+  record(value,[...Object.keys(fresh()),...([2,3].includes(version)?['earned']:[])]);
+  if(![1,2,3].includes(value.version))fail('Invalid rewards version');
+  const stageIds=version===1?LEGACY_CHAPTER_IDS:version===2?PREVIOUS_CHAPTER_IDS:CHAPTER_IDS,itemIds=version===1?ITEMS:version===2?[...ITEMS,...OUTDOOR_ITEMS]:[...ITEMS,...EARNED_ITEMS];
   for(const key of ['issuedShots','lastAwardedShot','awardedClears'])if(!integer(value[key]))fail('Invalid shot counter');
   for(const key of ['totalPoints','totalCoinsEarned','wallet'])if(!integer(value[key],0,MAX_POINTS*MAX_SHOTS))fail('Invalid rewards total');
-  const achievements=list(value.achievements,ACHIEVEMENT_IDS),purchased=list(value.purchased,ITEMS),earned=version===2?list(value.earned,OUTDOOR_ITEMS):[],owned=[...purchased,...earned];
+  const achievements=list(value.achievements,ACHIEVEMENT_IDS),purchased=list(value.purchased,ITEMS),earned=version>=2?list(value.earned,version===2?OUTDOOR_ITEMS:EARNED_ITEMS):[],owned=[...purchased,...earned];
   if(!purchased.includes(DEFAULT_THROWABLE_ID)||!owned.includes(value.equipped))fail('Invalid ownership');
   const spent=purchased.reduce((sum,id)=>sum+ITEM_CATALOG[id].price,0);
   if(value.wallet!==value.totalCoinsEarned-spent)fail('Inconsistent wallet');
@@ -51,22 +55,23 @@ export function validateRewards(value){
   if((clears===0&&achievements.length)||(clears>0&&!achievements.includes('first-clear')))fail('Inconsistent achievements');
   let pendingShot=null;
   if(value.pendingShot!==null){
-    record(value.pendingShot,['ticket','stageId','itemId',...(version===2?['stageLoan']:[])]);
+    record(value.pendingShot,['ticket','stageId','itemId',...(version>=2?['stageLoan']:[])]);
     const pending=value.pendingShot;
     if(!integer(pending.ticket,1)||pending.ticket!==value.issuedShots||pending.ticket<=value.lastAwardedShot
-      ||!stageIds.includes(pending.stageId)||version===2&&typeof pending.stageLoan!=='boolean'
-      ||(pending.stageLoan?OUTDOOR_STAGE_ITEMS[pending.stageId]!==pending.itemId:!owned.includes(pending.itemId)||OUTDOOR_CHAPTER_IDS.includes(pending.stageId)))fail('Invalid pending shot');
-    pendingShot={ticket:pending.ticket,stageId:pending.stageId,itemId:pending.itemId,...(version===2?{stageLoan:pending.stageLoan}:{})};
+      ||!stageIds.includes(pending.stageId)||version>=2&&typeof pending.stageLoan!=='boolean'
+      ||(pending.stageLoan?(version===2?OUTDOOR_STAGE_ITEMS:STAGE_THROWABLE_ITEMS)[pending.stageId]!==pending.itemId:!owned.includes(pending.itemId)||(version===3?fixedStage(pending.stageId):OUTDOOR_CHAPTER_IDS.includes(pending.stageId))))fail('Invalid pending shot');
+    pendingShot={ticket:pending.ticket,stageId:pending.stageId,itemId:pending.itemId,...(version>=2?{stageLoan:pending.stageLoan}:{})};
   }
   record(value.itemRecords,itemIds,[]);
   const itemRecords={};let recordedClears=0;
   for(const itemId of itemIds)if(Object.hasOwn(value.itemRecords,itemId)){
-    if(!owned.includes(itemId))fail('Record for unowned item');
+    if(!owned.includes(itemId)&&!(version===3&&ITEMS.includes(itemId)))fail('Record for unowned item');
     const source=value.itemRecords[itemId];record(source,stageIds,[]);
     if(Object.keys(source).length===0)fail('Empty item record');
     const stages={};
     for(const stageId of stageIds)if(Object.hasOwn(source,stageId)){
-      if(OUTDOOR_CHAPTER_IDS.includes(stageId)&&OUTDOOR_STAGE_ITEMS[stageId]!==itemId)fail('Record differs from the stage throwable');
+      if((version===3?fixedStage(stageId):OUTDOOR_CHAPTER_IDS.includes(stageId))&&(version===3?STAGE_THROWABLE_ITEMS:OUTDOOR_STAGE_ITEMS)[stageId]!==itemId)fail('Record differs from the stage throwable');
+      if(!owned.includes(itemId)&&!(version===3&&STAGE_THROWABLE_ITEMS[stageId]===itemId))fail('Unowned item record outside its loan stage');
       const entry=source[stageId];record(entry,['bestPoints','bestAttempts','clears']);
       if(!integer(entry.bestPoints,100,MAX_POINTS)||!integer(entry.bestAttempts,1)||!integer(entry.clears,1))fail('Invalid item best record');
       recordedClears+=entry.clears;stages[stageId]={bestPoints:entry.bestPoints,bestAttempts:entry.bestAttempts,clears:entry.clears};
@@ -74,8 +79,8 @@ export function validateRewards(value){
     itemRecords[itemId]=stages;
   }
   if(recordedClears!==clears)fail('Inconsistent item clear history');
-  if(earned.some(itemId=>!Object.entries(OUTDOOR_STAGE_ITEMS).some(([stageId,id])=>id===itemId&&itemRecords[itemId]?.[stageId]?.clears)))fail('Missing earned item clear');
-  return {version,totalPoints:value.totalPoints,totalCoinsEarned:value.totalCoinsEarned,wallet:value.wallet,achievements,purchased,equipped:value.equipped,issuedShots:value.issuedShots,lastAwardedShot:value.lastAwardedShot,awardedClears:clears,pendingShot,itemRecords,...(version===2?{earned}:{})};
+  if(earned.some(itemId=>!Object.entries(version===3?EARNED_STAGE_ITEMS:OUTDOOR_STAGE_ITEMS).some(([stageId,id])=>id===itemId&&itemRecords[itemId]?.[stageId]?.clears)))fail('Missing earned item clear');
+  return {version,totalPoints:value.totalPoints,totalCoinsEarned:value.totalCoinsEarned,wallet:value.wallet,achievements,purchased,equipped:value.equipped,issuedShots:value.issuedShots,lastAwardedShot:value.lastAwardedShot,awardedClears:clears,pendingShot,itemRecords,...(version>=2?{earned}:{})};
 }
 
 // Keep TS2's original four-stage envelope strict even as live rewards gain
@@ -88,6 +93,7 @@ export function validateLegacyRewards(value){
   return data;
 }
 
+export function validateOutdoorRewards(value){const data=validateRewards(value);if(data.version!==2)fail('Branch rewards require TS5');return data;}
 export function validateSchoolRewards(value){const data=validateRewards(value);if(data.version!==1)fail('Outdoor rewards require TS4');return data;}
 export function ownedThrowableIds(value){const data=validateRewards(value);return [...data.purchased,...(data.earned??[])];}
 
@@ -120,25 +126,26 @@ export function createRewards(initial){
     ownedIds:()=>ownedThrowableIds(state),
     owns:itemId=>ownedThrowableIds(state).includes(itemId),
     beginShot(context){
-      const itemId=context?.itemId??state.equipped,stageLoan=context?.stageLoan===true,isOutdoor=OUTDOOR_CHAPTER_IDS.includes(context?.stageId);
+      const itemId=context?.itemId??state.equipped,stageLoan=context?.stageLoan===true,isOutdoor=OUTDOOR_CHAPTER_IDS.includes(context?.stageId),isBranch=BRANCH_CHAPTER_IDS.includes(context?.stageId),isFixed=fixedStage(context?.stageId);
       if(!eligible(context)||state.issuedShots===MAX_SHOTS)return null;
-      if(isOutdoor?!stageLoan||OUTDOOR_STAGE_ITEMS[context.stageId]!==itemId:stageLoan||itemId!==state.equipped||!ownedThrowableIds(state).includes(itemId))return null;
+      if(isFixed?!stageLoan||STAGE_THROWABLE_ITEMS[context.stageId]!==itemId:stageLoan||itemId!==state.equipped||!ownedThrowableIds(state).includes(itemId))return null;
+      if(isBranch&&state.version<3)state=validateRewards({...state,version:3,earned:state.earned??[],pendingShot:state.pendingShot?{...state.pendingShot,stageLoan:Boolean(state.pendingShot.stageLoan)}:null});
       if(isOutdoor&&state.version===1)state=validateRewards({...state,version:2,earned:[],pendingShot:state.pendingShot?{...state.pendingShot,stageLoan:false}:null});
-      state.issuedShots++;state.pendingShot={ticket:state.issuedShots,stageId:context.stageId,itemId,...(state.version===2?{stageLoan}:{})};return state.issuedShots;
+      state.issuedShots++;state.pendingShot={ticket:state.issuedShots,stageId:context.stageId,itemId,...(state.version>=2?{stageLoan}:{})};return state.issuedShots;
     },
     award(context){
       if(!eligible(context))return {ok:false,reason:'ineligible'};
       const pending=state.pendingShot,itemId=context.itemId??state.equipped;
       const stageLoan=context.stageLoan===true;
       if(!pending||context.ticket!==pending.ticket||context.stageId!==pending.stageId||itemId!==pending.itemId
-        ||Boolean(pending.stageLoan)!==stageLoan||(stageLoan?OUTDOOR_STAGE_ITEMS[context.stageId]!==itemId:itemId!==state.equipped||!ownedThrowableIds(state).includes(itemId))
-        ||OUTDOOR_CHAPTER_IDS.includes(context.stageId)&&!['normal','alternative'].includes(context.goalRole)||context.ticket<=state.lastAwardedShot)return {ok:false,reason:'invalid-ticket'};
+        ||Boolean(pending.stageLoan)!==stageLoan||(stageLoan?STAGE_THROWABLE_ITEMS[context.stageId]!==itemId:itemId!==state.equipped||!ownedThrowableIds(state).includes(itemId))
+        ||fixedStage(context.stageId)&&!['normal','alternative'].includes(context.goalRole)||context.ticket<=state.lastAwardedShot)return {ok:false,reason:'invalid-ticket'};
       let score;try{score=scoreSuccessfulShot(context);}catch{return {ok:false,reason:'invalid-result'};}
       if(!score)return {ok:false,reason:'not-success'};
       const next=validateRewards(state),newAchievements=score.achievements.filter(entry=>!next.achievements.includes(entry.id));
       next.totalPoints+=score.points;next.totalCoinsEarned+=score.coins;next.wallet+=score.coins;
       next.achievements.push(...newAchievements.map(entry=>entry.id));next.lastAwardedShot=context.ticket;next.awardedClears++;next.pendingShot=null;
-      const unlockedItem=stageLoan&&!next.earned.includes(itemId)?{id:itemId,label:THROWABLE_CATALOG[itemId].label}:null;
+      const unlockedItem=stageLoan&&EARNED_ITEMS.includes(itemId)&&!next.earned.includes(itemId)?{id:itemId,label:THROWABLE_CATALOG[itemId].label}:null;
       if(unlockedItem)next.earned.push(itemId);
       next.itemRecords[itemId]??={};
       const previous=next.itemRecords[itemId][context.stageId];
@@ -147,7 +154,7 @@ export function createRewards(initial){
       return {ok:true,points:score.points,coins:score.coins,breakdown:score.breakdown,holeInOne:score.holeInOne,newAchievements,totalPoints:state.totalPoints,wallet:state.wallet,itemId,itemBest:{...state.itemRecords[itemId][context.stageId]},unlockedItem};
     },
     purchase(itemId){
-      if(OUTDOOR_ITEMS.includes(itemId))return {ok:false,reason:'stage-clear-only'};
+      if(EARNED_ITEMS.includes(itemId))return {ok:false,reason:'stage-clear-only'};
       if(!ITEMS.includes(itemId))return {ok:false,reason:'unknown-item'};
       if(state.purchased.includes(itemId))return {ok:false,reason:'already-owned'};
       const item=THROWABLE_CATALOG[itemId];if(state.wallet<item.price)return {ok:false,reason:'insufficient-coins'};

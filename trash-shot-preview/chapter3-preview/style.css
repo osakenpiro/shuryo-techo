@@ -461,11 +461,11 @@ body.title-is-open{overflow:hidden}
 .chapter-shell .chapter-stage-heading{grid-column:1/-1;margin:18px 0 0;color:#286864;font-size:17px;letter-spacing:.09em}
 .chapter-shell .chapter-stage-heading:first-child{margin-top:0}
 .chapter-shell .chapter-school-card .stage-thumbnail{background-size:cover;background-position:center}
-.chapter-shell .stage-school-classroom .stage-thumbnail{background-image:url("./art/school/20261011/school-classroom.png?v=20261012-outdoor-chapter-1")}
-.chapter-shell .stage-school-vending .stage-thumbnail{background-image:url("./art/school/20261011/school-vending.png?v=20261012-outdoor-chapter-1")}
-.chapter-shell .stage-school-passage .stage-thumbnail{background-image:url("./art/school/20261011/school-passage.png?v=20261012-outdoor-chapter-1")}
-.chapter-shell .stage-school-rooftop .stage-thumbnail{background-image:url("./art/school/20261011/school-rooftop.png?v=20261012-outdoor-chapter-1")}
-.chapter-shell .chapter-top[data-chapter="2"] .home-art{background-image:url("./art/school/20261011/school-classroom.png?v=20261012-outdoor-chapter-1");background-size:cover;background-position:center}
+.chapter-shell .stage-school-classroom .stage-thumbnail{background-image:url("./art/school/20261011/school-classroom.png?v=20261013-contact-shrine-1")}
+.chapter-shell .stage-school-vending .stage-thumbnail{background-image:url("./art/school/20261011/school-vending.png?v=20261013-contact-shrine-1")}
+.chapter-shell .stage-school-passage .stage-thumbnail{background-image:url("./art/school/20261011/school-passage.png?v=20261013-contact-shrine-1")}
+.chapter-shell .stage-school-rooftop .stage-thumbnail{background-image:url("./art/school/20261011/school-rooftop.png?v=20261013-contact-shrine-1")}
+.chapter-shell .chapter-top[data-chapter="2"] .home-art{background-image:url("./art/school/20261011/school-classroom.png?v=20261013-contact-shrine-1");background-size:cover;background-position:center}
 .chapter3-preview-note{margin:0 0 12px;padding:10px 16px;border-left:3px solid #b58d43;background:#f8edce;color:#76603f;font-size:12px;line-height:1.7}
 .chapter-shell .chapter-outdoor-card .stage-thumbnail{background-size:cover;background-position:center}
 .chapter-shell .stage-outdoor-shrine .stage-thumbnail{background-image:url('./art/outdoor/20261012/outdoor-shrine.png')}
@@ -503,3 +503,16 @@ body.title-is-open{overflow:hidden}
 @media(max-width:600px){.outdoor-route-map{padding:16px}.outdoor-map-faces,.outdoor-map-routes{grid-template-columns:1fr}.outdoor-route-card h4{font-size:18px}.chapter3-preview-note{font-size:11px}}
 .chapter-shell .home-face-mark[hidden]{display:none}
 @media(max-width:600px){.chapter-shell .chapter-stage-heading{font-size:15px;margin-top:14px}}
+
+/* U61 advanced face previews */
+.stage-eccentric-basket .stage-thumbnail { background-image:url("art/advanced/20261013/eccentric-basket.png"); background-size:cover; background-position:center; }
+.stage-eccentric-boar .stage-thumbnail { background-image:url("art/advanced/20261013/eccentric-boar.png"); background-size:cover; background-position:center; }
+.stage-factory-bank .stage-thumbnail { background-image:url("art/advanced/20261013/factory-bank.png"); background-size:cover; background-position:center; }
+.stage-factory-shutter .stage-thumbnail { background-image:url("art/advanced/20261013/factory-shutter.png"); background-size:cover; background-position:center; }
+.stage-factory-relay .stage-thumbnail { background-image:url("art/advanced/20261013/factory-relay.png"); background-size:cover; background-position:center; }
+.stage-eccentric-train .stage-thumbnail { background-image:url("art/advanced/20261013/eccentric-train.png"); background-size:cover; background-position:center; }
+.stage-factory-conveyor .stage-thumbnail { background-image:url("art/advanced/20261013/factory-conveyor.png"); background-size:cover; background-position:center; }
+.stage-eccentric-cannon .stage-thumbnail { background-image:url("art/advanced/20261013/eccentric-cannon.png"); background-size:cover; background-position:center; }
+.stage-eccentric-dandelion .stage-thumbnail { background-image:url("art/advanced/20261013/eccentric-dandelion.png"); background-size:cover; background-position:center; }
+.stage-eccentric-card .stage-thumbnail { background-image:url("art/advanced/20261013/eccentric-card.png"); background-size:cover; background-position:center; }
+.stage-eccentric-tower .stage-thumbnail { background-image:url("art/advanced/20261013/eccentric-tower.png"); background-size:cover; background-position:center; }

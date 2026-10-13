@@ -1,0 +1,70 @@
+// Chapter 5 uses the same metre-space solids and oriented goal contracts as
+// the outdoor chapter. Motion is a deterministic 12-second shared clock.
+const freeze=value=>{if(value&&typeof value==='object'){Object.values(value).forEach(freeze);Object.freeze(value);}return value;};
+const p=(x,y,z)=>({x,y,z});
+const box=(id,object,kind,min,max,surface='furniture',restitution=.28,extra={})=>({id,object,kind,min,max,surface,restitution,...extra});
+const top=(id,kind,center,radius,extra={})=>({id,role:'normal',kind,label:extra.label??id,shape:'circle',center,normal:p(0,1,0),up:p(0,0,1),radius,...extra});
+const front=(id,kind,center,radius,extra={})=>({id,role:'normal',kind,label:extra.label??id,shape:'circle',center,normal:p(0,0,-1),up:p(0,1,0),radius,...extra});
+const rectangle=(id,kind,center,halfWidth,halfHeight,extra={})=>({id,role:'normal',kind,label:extra.label??id,shape:'rectangle',center,normal:p(0,0,-1),up:p(0,1,0),halfWidth,halfHeight,...extra});
+export const ECCENTRIC_ENVIRONMENT_PERIOD=12;
+export function eccentricStartTime(time=0){if(!Number.isFinite(time))throw new TypeError('Eccentric time must be finite');return ((time%12)+12)%12;}
+export const ECCENTRIC_PHYSICS_WORLDS=freeze({
+  19:{worldVersion:19,origin:p(0,18.5,0),bin:{center:p(0,.5,9.5),radius:.7,height:1},launchLimits:{minPower:.1,maxPower:14,minElevation:-80,maxElevation:85}},
+  20:{worldVersion:20,origin:p(0,3.2,0),bin:{center:p(0,.55,9.5),radius:.72,height:1.1},launchLimits:{minPower:.1,maxPower:14,minElevation:-60,maxElevation:85}},
+  21:{worldVersion:21,origin:p(0,1.45,0),bin:{center:p(0,.425,6.5),radius:.66,height:.85}},
+  22:{worldVersion:22,origin:p(0,1.7,0),bin:{center:p(0,1.525,6),radius:.4,height:3.05},launchScale:2.2},
+  23:{worldVersion:23,origin:p(0,3.5,0),bin:{center:p(1,.3,4.3),radius:1.2,height:.6},launchLimits:{minPower:.1,maxPower:14,minElevation:-60,maxElevation:85}},
+  24:{worldVersion:24,origin:p(0,1.4,0),bin:{center:p(0,.8,5.4),radius:.7,height:1.6}},
+  25:{worldVersion:25,origin:p(0,1.15,0),bin:{center:p(0,1.8,15),radius:1.8,height:3.6},launchScale:4},
+});
+const make=(stageId,version,eccentricType,itemId,goals,solids,actors,launch,view,extra={})=>({stageId,worldVersion:version,environment:'eccentric',eccentricType,itemId,
+  physics:ECCENTRIC_PHYSICS_WORLDS[version],origin:ECCENTRIC_PHYSICS_WORLDS[version].origin,bin:ECCENTRIC_PHYSICS_WORLDS[version].bin,
+  goals,solids,actors,launch,view,room:{minX:-10,maxX:10,minZ:-4,maxZ:22,height:28,openSky:true},...extra});
+const binSolids=(id,center,radius,height)=>[
+  box(`${id}-body`,id,'bin-body',p(center.x-radius,0,center.z-radius),p(center.x+radius,height-.22,center.z+radius)),
+  box(`${id}-left`,id,'bin-rim',p(center.x-radius-.1,height-.22,center.z-radius-.1),p(center.x-radius,height+.08,center.z+radius+.1),'rim',.35),
+  box(`${id}-right`,id,'bin-rim',p(center.x+radius,height-.22,center.z-radius-.1),p(center.x+radius+.1,height+.08,center.z+radius+.1),'rim',.35),
+  box(`${id}-front`,id,'bin-rim',p(center.x-radius,height-.22,center.z-radius-.1),p(center.x+radius,height+.08,center.z-radius),'rim',.35),
+  box(`${id}-back`,id,'bin-rim',p(center.x-radius,height-.22,center.z+radius),p(center.x+radius,height+.08,center.z+radius+.1),'rim',.35),
+];
+const hoopSolids=[];
+for(let i=0;i<24;i++){
+  const angle=i*Math.PI/12,x=.43*Math.cos(angle),z=6+.43*Math.sin(angle);
+  hoopSolids.push(box(`basket-rim-${i}`, 'basket-hoop','hoop-rim',p(x-.04,3.01,z-.04),p(x+.04,3.09,z+.04),'rim',.65));
+}
+export const ECCENTRIC_WORLDS=freeze({
+  'eccentric-tower':make('eccentric-tower',19,'tower','can',[top('tower-street-bin','bin',p(0,1,9.5),.7,{label:'タワーの下のごみ箱'})],
+    [...binSolids('tower-street-bin',p(0,0,9.5),.7,1),box('tower-platform','tower','platform',p(-2.5,16.85,-3),p(2.5,17.05,-.55)),box('tower-left-railing','tower','rail',p(-2.5,17.05,-.65),p(-.65,18,-.55),'rail',.3),box('tower-right-railing','tower','rail',p(.65,17.05,-.65),p(2.5,18,-.55),'rail',.3)],[],
+    {power:4.95,elevation:5,yaw:0},{target:p(0,8,4.8),distance:38,azimuth:.22,elevation:.35}, {landmark:{kind:'tokyo-tower',height:23},wind:p(.01,0,0)}),
+  'eccentric-train':make('eccentric-train',20,'train','can',[top('train-platform-bin','bin',p(0,1.1,9.5),.72,{label:'線路脇のごみ箱'})],
+    binSolids('train-platform-bin',p(0,0,9.5),.72,1.1),[],{power:8.8,elevation:42,yaw:-14},{target:p(0,1.8,4.8),distance:20,azimuth:.28,elevation:.45}, {train:{kind:'train',width:8,height:2.55,depth:1.6}}),
+  'eccentric-boar':make('eccentric-boar',21,'boar','arrow',[front('forest-boar-target','boar',p(0,.85,6.5),.66,{label:'森のイノシシ',mode:'hit',motionId:'forest-boar'})],
+    [box('forest-left-trunk','forest-left-tree','tree',p(-2.65,0,3),p(-2.3,4,3.35)),box('forest-right-trunk','forest-right-tree','tree',p(2.3,0,4.1),p(2.65,4,4.45))],
+    [{id:'forest-boar',kind:'boar',position:p(0,.1,6.8),height:1.45,width:1.32,depth:1.1,color:'#80684e'}],{power:8.5,elevation:22,yaw:8},{target:p(0,1.1,3.6),distance:14,azimuth:.2,elevation:.4}),
+  'eccentric-basket':make('eccentric-basket',22,'basket','basketball',[top('basket-ring','basket-ring',p(0,3.05,6),.4,{label:'バスケットゴール'})],
+    [...hoopSolids,box('basket-backboard','basket-backboard','backboard',p(-.95,2.9,6.5),p(.95,4.1,6.64),'wall',.65),box('basket-post','basket-post','post',p(-.1,0,6.9),p(.1,3.65,7.1))],[],
+    {power:9,elevation:52,yaw:0},{target:p(0,1.6,3.4),distance:15,azimuth:.2,elevation:.4}),
+  'eccentric-dandelion':make('eccentric-dandelion',23,'dandelion','dandelion',[{id:'garden-flowerbed',role:'normal',kind:'flowerbed',label:'風の先の花壇',shape:'rectangle',center:p(1,.6,4.3),normal:p(0,1,0),up:p(0,0,1),halfWidth:1.2,halfHeight:.85}],
+    [box('garden-flowerbed-soil','garden-flowerbed','soil',p(-.3,.05,3.35),p(2.3,.35,5.25),'soil',0),box('garden-flowerbed-left','garden-flowerbed','planter',p(-.42,0,3.22),p(-.3,.48,5.38)),box('garden-flowerbed-right','garden-flowerbed','planter',p(2.3,0,3.22),p(2.42,.48,5.38)),box('garden-flowerbed-front','garden-flowerbed','planter',p(-.3,0,3.22),p(2.3,.48,3.35)),box('garden-flowerbed-back','garden-flowerbed','planter',p(-.3,0,5.25),p(2.3,.48,5.38))],[],
+    {power:1.6,elevation:30,yaw:0},{target:p(.5,1.8,2.3),distance:12,azimuth:.25,elevation:.4},{wind:p(.055,.02,.25)}),
+  'eccentric-card':make('eccentric-card',24,'card','playing-card',[rectangle('card-cork-target','card-target',p(0,1.6,5.4),.72,.78,{label:'トランプを刺す的',mode:'hit'})],
+    [box('card-target-board','card-target','target-board',p(-.88,.7,5.48),p(.88,2.5,5.6),'wall',.2),box('card-target-base','card-target','stand',p(-.12,0,5.6),p(.12,1.6,5.77))],[],
+    {power:8,elevation:22,yaw:0},{target:p(0,1.2,3),distance:13,azimuth:.2,elevation:.4}),
+  'eccentric-cannon':make('eccentric-cannon',25,'cannon','cannonball',[rectangle('fort-door-target','fort-door',p(0,2.1,15),1.55,1.95,{label:'砦の扉',mode:'hit'})],
+    [box('fort-door','fort-door','door',p(-1.8,0,15.2),p(1.8,4.2,15.4),'wall',.2),box('fort-wall-left','fort-wall','wall',p(-8,0,15.1),p(-1.8,6,15.55),'wall',.3),box('fort-wall-right','fort-wall','wall',p(1.8,0,15.1),p(8,6,15.55),'wall',.3),box('fort-wall-top','fort-wall','wall',p(-1.8,4.2,15.1),p(1.8,6,15.55),'wall',.3)],[],
+    {power:10,elevation:36,yaw:0},{target:p(0,2.5,7.5),distance:30,azimuth:.2,elevation:.4},{cannon:{position:p(0,.5,-.5),barrelLength:1.25}}),
+});
+export function eccentricWorld(stageId,worldVersion){const world=typeof stageId==='string'&&Object.hasOwn(ECCENTRIC_WORLDS,stageId)?ECCENTRIC_WORLDS[stageId]:null;return world&&(worldVersion===undefined||worldVersion===world.worldVersion)?world:null;}
+function requireWorld(world){const saved=eccentricWorld(world?.stageId,world?.worldVersion);if(!saved)throw new RangeError('A supported eccentric world is required');return saved;}
+export function eccentricSolids(world){return requireWorld(world).solids;}
+export function eccentricLaunchFrame(world,time=0){world=requireWorld(world);time=eccentricStartTime(time);const phase=time*Math.PI/6;
+  return {origin:{...world.origin,...(world.eccentricType==='train'?{x:3*Math.sin(phase)}:{})},velocity:p(world.eccentricType==='train'?Math.PI/2*Math.cos(phase):0,0,0),orientation:p(0,0,0),environmentTime:time};}
+export function eccentricActors(world,time=0){world=requireWorld(world);time=eccentricStartTime(time);return world.actors.map(actor=>({...actor,position:{...actor.position,...(actor.id==='forest-boar'?{x:2.2*Math.sin(time*Math.PI/6)}:{})}}));}
+export function eccentricGoals(world,time=0){world=requireWorld(world);const actors=eccentricActors(world,time);return world.goals.map(goal=>({...goal,center:{...goal.center,...(goal.motionId?{x:actors.find(a=>a.id===goal.motionId).position.x}:{})}}));}
+export function eccentricDynamicSolids(world,time=0){world=requireWorld(world);const result=[];
+  if(world.eccentricType==='train'){const frame=eccentricLaunchFrame(world,time),x=frame.origin.x;result.push(box('train-roof','train','train-roof',p(x-4,.15,-.8),p(x+4,2.7,.8),'train',.25));}
+  if(world.eccentricType==='boar'){const boar=eccentricActors(world,time)[0],x=boar.position.x;result.push(box('forest-boar-body','forest-boar','boar',p(x-.66,.1,6.62),p(x+.66,1.55,7.5),'target',.2));}
+  return result;
+}
+export function eccentricMotion(world,time=0){world=requireWorld(world);time=eccentricStartTime(time);const launchFrame=eccentricLaunchFrame(world,time);return {actors:eccentricActors(world,time),goals:eccentricGoals(world,time),launchFrame,
+  train:world.eccentricType==='train'?{id:'roof-train',kind:'train',position:p(launchFrame.origin.x,1.425,0),width:8,height:2.55,depth:1.6}:null,wind:world.wind?{...world.wind}:p(0,0,0)};}
