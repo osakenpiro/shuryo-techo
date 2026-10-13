@@ -1,7 +1,7 @@
 // Presentation only. Chapter progress and stage changes stay owned by app.mjs.
-import { STAGES } from './stages.mjs?v=20261013-contact-shrine-1';
-import { CHAPTER_IDS, CHAPTERS, chapterForStage, canChooseStage, outdoorSnapshot, OUTDOOR_CHAPTER_IDS, BRANCH_CHAPTER_IDS, FACTORY_CHAPTER_IDS, ECCENTRIC_CHAPTER_IDS } from './progress-save.mjs?v=20261013-contact-shrine-1';
-import { drawPixelText, measurePixelText } from './pixel-type.mjs?v=20261013-contact-shrine-1';
+import { STAGES } from './stages.mjs?v=20261013-outdoor-polish-1';
+import { CHAPTER_IDS, CHAPTERS, chapterForStage, canChooseStage, outdoorSnapshot, OUTDOOR_CHAPTER_IDS, BRANCH_CHAPTER_IDS, FACTORY_CHAPTER_IDS, ECCENTRIC_CHAPTER_IDS } from './progress-save.mjs?v=20261013-outdoor-polish-1';
+import { drawPixelText, measurePixelText } from './pixel-type.mjs?v=20261013-outdoor-polish-1';
 
 const $ = id => document.getElementById(id);
 const FACE_HELP = Object.freeze({
@@ -13,7 +13,7 @@ const FACE_HELP = Object.freeze({
   'school-vending': '小さな入口へ、力を抑えて正確に。',
   'school-passage': '二つの窓の向こうへ。廊下を行き交う生徒の間を狙おう。',
   'school-rooftop': '屋上から、中庭の箱へ。風も読もう。',
-  'outdoor-shrine': '人混み越しのお賽銭。鈴の紐には気をつけて。',
+  'outdoor-shrine': '参拝する人たちの動きを見て、向こうの賽銭箱へ。',
   'outdoor-baseball': 'ホームランの一球を、観客のミットへ。',
   'outdoor-mall': '吹き抜けから、子供のコーンへアイスを落とそう。',
   'outdoor-river': '船の灯りを読んで、向こう岸の花火筒へ。',
@@ -139,7 +139,7 @@ export function createGameShell({ getState, selectStage, onRouteVisit }) {
     const count=document.createElement('p');count.id='outdoor-alt-count';count.className='outdoor-alt-count';count.setAttribute('aria-live','polite');
     const decision=document.createElement('p');decision.className='outdoor-route-decision';
     const faces=document.createElement('ol');faces.className='outdoor-map-faces';
-    const rows=new Map(),hints=['人混みの中の、伸ばされた手。','バックスクリーンの、得点板の光る場所。','別の階のお客さんのコーヒーかサイダー。','川を横切る蒸気船の煙突。'];
+    const rows=new Map(),hints=['鳥居の脇にも、小さなやしろ。','バックスクリーンの、得点板の光る場所。','別の階のお客さんのコーヒーかサイダー。','川を横切る蒸気船の煙突。'];
     OUTDOOR_CHAPTER_IDS.forEach((id,index)=>{
       const row=document.createElement('li');row.dataset.stageId=id;
       const label=document.createElement('strong');label.textContent=STAGES[id]?.label??`3-${index+1}`;

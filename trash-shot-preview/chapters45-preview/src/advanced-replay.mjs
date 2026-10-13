@@ -1,16 +1,16 @@
-// V7 owns Chapter 4/5 mechanisms and profile-3 items. Historical codecs stay
+// V7 owns Chapter 4/5 mechanisms, revised outdoor worlds and profile-3 items. Historical codecs stay
 // fixed. Playback interpolates recorded poses; it never simulates or awards.
-import {ReplayError,REPLAY_LIMITS,REPLAY_ROLE_LABELS} from './replay.mjs?v=20261013-contact-shrine-1';
-import {roomWorld,sweepSphereAABB} from './room-course.mjs?v=20261013-contact-shrine-1';
-import {roomContactColliders} from './room-contact.mjs?v=20261013-contact-shrine-1';
-import {schoolSolids,schoolStudentPose,schoolStudentPoses} from './school-world.mjs?v=20261013-contact-shrine-1';
-import {validateSchoolStudentClearance} from './school-replay.mjs?v=20261013-contact-shrine-1';
-import {outdoorGoals,outdoorMotion,outdoorDynamicSolids} from './outdoor-world.mjs?v=20261013-contact-shrine-1';
-import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261013-contact-shrine-1';
-import {factoryGoals,factoryMotion,factoryDynamicSolids} from './factory-world.mjs?v=20261013-contact-shrine-1';
-import {createFactorySession,validateFactorySession} from './factory-play.mjs?v=20261013-contact-shrine-1';
-import {eccentricGoals,eccentricMotion,eccentricDynamicSolids,eccentricLaunchFrame} from './eccentric-world.mjs?v=20261013-contact-shrine-1';
-import {THROWABLE_CATALOG} from './throwables.mjs?v=20261013-contact-shrine-1';
+import {ReplayError,REPLAY_LIMITS,REPLAY_ROLE_LABELS} from './replay.mjs?v=20261013-outdoor-polish-1';
+import {roomWorld,sweepSphereAABB} from './room-course.mjs?v=20261013-outdoor-polish-1';
+import {roomContactColliders} from './room-contact.mjs?v=20261013-outdoor-polish-1';
+import {schoolSolids,schoolStudentPose,schoolStudentPoses} from './school-world.mjs?v=20261013-outdoor-polish-1';
+import {validateSchoolStudentClearance} from './school-replay.mjs?v=20261013-outdoor-polish-1';
+import {outdoorGoals,outdoorMotion,outdoorDynamicSolids} from './outdoor-world.mjs?v=20261013-outdoor-polish-1';
+import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261013-outdoor-polish-1';
+import {factoryGoals,factoryMotion,factoryDynamicSolids} from './factory-world.mjs?v=20261013-outdoor-polish-1';
+import {createFactorySession,validateFactorySession} from './factory-play.mjs?v=20261013-outdoor-polish-1';
+import {eccentricGoals,eccentricMotion,eccentricDynamicSolids,eccentricLaunchFrame} from './eccentric-world.mjs?v=20261013-outdoor-polish-1';
+import {THROWABLE_CATALOG} from './throwables.mjs?v=20261013-outdoor-polish-1';
 export const ADVANCED_REPLAY_STORAGE_KEY='trash-shot-advanced-replays-v7';
 export const ADVANCED_REPLAY_LIMITS=Object.freeze({version:7,contactModel:1,duration:5.1,frames:720,hz:60,rawBytes:1024*1024,contacts:2400,urlChars:8000,saved:5,storageBytes:5*1024*1024+100,storageKey:ADVANCED_REPLAY_STORAGE_KEY});
 const AXES=['x','y','z'],SLOP=1e-5,TOL=.0001,CONTACT_KEYS=['type','surface','object','colliderId','shotId','time','position','normal','incomingNormalSpeed','beforeVelocity','afterVelocity'];
@@ -28,9 +28,9 @@ function object(value,keys,where){
 function number(v,min,max,where,integer=false){if(typeof v!=='number'||!Number.isFinite(v)||v<min||v>max||integer&&!Number.isInteger(v))fail('INVALID_REPLAY',`${where}: number out of range`);return v;}
 function vector(v,where,normal=false){object(v,AXES,where);const r=Object.fromEntries(AXES.map(k=>[k,number(v[k],normal?-1:-100,normal?1:100,`${where}.${k}`)]));if(normal&&Math.abs(Math.hypot(...AXES.map(k=>r[k]))-1)>1e-7)fail('INVALID_REPLAY','Contact normal is not unit length');return r;}
 function array(v,min,max,where){if(!Array.isArray(v)||Object.getPrototypeOf(v)!==Array.prototype||v.length<min||v.length>max||Reflect.ownKeys(v).length!==v.length+1)fail('INVALID_REPLAY',`${where}: invalid array`);for(let i=0;i<v.length;i++){const d=Object.getOwnPropertyDescriptor(v,String(i));if(!d||!('value'in d)||!d.enumerable)fail('INVALID_REPLAY',`${where}: sparse or accessor array`);}return v;}
-function worldData(stageId,worldVersion){number(worldVersion,1,29,'worldVersion',true);if(typeof stageId!=='string')fail('INVALID_REPLAY','Stage identity required');const world=roomWorld(stageId,worldVersion);if(!world)fail('INVALID_REPLAY','Unsupported fixed advanced world');return world;}
+function worldData(stageId,worldVersion){number(worldVersion,1,32,'worldVersion',true);if(typeof stageId!=='string')fail('INVALID_REPLAY','Stage identity required');const world=roomWorld(stageId,worldVersion);if(!world)fail('INVALID_REPLAY','Unsupported fixed advanced world');return world;}
 function itemData(value){object(value,['id','profileVersion'],'item');if(typeof value.id!=='string'||!Object.hasOwn(THROWABLE_CATALOG,value.id)||![1,2,3].includes(value.profileVersion)||value.profileVersion!==THROWABLE_CATALOG[value.id].physics.version)fail('INVALID_REPLAY','Unsupported fixed advanced throwable');return {id:value.id,profileVersion:value.profileVersion};}
-function phaseData(value,world){const period=world.environment==='factory'?8:['outdoor','eccentric'].includes(world.environment)?12:world.environment==='school'?8:1;number(value,0,period,'startTime');if(value>=period||world.environment==='room'&&value!==0)fail('INVALID_REPLAY','Saved environment phase invalid');return value;}
+function phaseData(value,world){const period=world.environment==='factory'?8:['outdoor','eccentric'].includes(world.environment)?12:world.environment==='school'?8:1;number(value,0,period,'startTime');if(value>=period||world.environment==='room'&&value!==0||world.worldVersion===30&&Math.abs(value*240-Math.round(value*240))>1e-7)fail('INVALID_REPLAY','Saved environment phase invalid');return value;}
 function sessionData(value,world){
  if(world.environment!=='factory'){if(value!==null)fail('INVALID_REPLAY','Only factory worlds carry a session');return null;}
  object(value,['version','stageId','plateLatched','setupBall','setupContact','setupShot','bankContacts','completed'],'factorySession');
@@ -86,6 +86,10 @@ function contactData(v,world,startTime,duration,radius,session){
  const position=vector(v.position,'contact.position'),normal=vector(v.normal,'contact.normal',true),diff=sub(position,Object.fromEntries(AXES.map(k=>[k,Math.max(solid.min[k],Math.min(solid.max[k],position[k]))]))),distance=Math.hypot(...AXES.map(k=>diff[k])),dynamic=!world.solids?.some(s=>s.id===solid.id)&&world.worldVersion>=11;
  if(Math.abs(distance-radius-SLOP)>(dynamic?1e-5:2e-7)||AXES.some(k=>Math.abs(diff[k]/distance-normal[k])>(dynamic?1e-4:2e-6)))fail('INVALID_REPLAY','Contact detached from separated surface');
  const beforeVelocity=vector(v.beforeVelocity,'contact.beforeVelocity'),afterVelocity=vector(v.afterVelocity,'contact.afterVelocity'),incomingNormalSpeed=number(v.incomingNormalSpeed,.15,100,'incomingNormalSpeed');let relativeBefore=beforeVelocity,relativeAfter=afterVelocity;
+ if(world.worldVersion===30&&['person','arm'].includes(solid.surface)){
+  const tickStart=Math.floor((startTime+time+1e-9)*240)/240,a=outdoorDynamicSolids(world,tickStart).find(s=>s.id===solid.id),b=outdoorDynamicSolids(world,tickStart+1/240).find(s=>s.id===solid.id),surfaceVelocity=Object.fromEntries(AXES.map(k=>[k,(b.min[k]-a.min[k])*240]));
+  relativeBefore=sub(beforeVelocity,surfaceVelocity);relativeAfter=sub(afterVelocity,surfaceVelocity);
+ }
  if(world.factoryType==='shutter'&&normal.y<-.999){
   const tickStart=Math.floor((time+1e-9)*240)/240,a=factoryDynamicSolids(world,startTime+tickStart,session).find(s=>s.id===solid.id),b=factoryDynamicSolids(world,startTime+tickStart+1/240,session).find(s=>s.id===solid.id),surfaceVelocity=Object.fromEntries(AXES.map(k=>[k,(b.min[k]-a.min[k])*240]));
   if(surfaceVelocity.y<0){relativeBefore=sub(beforeVelocity,surfaceVelocity);relativeAfter=sub(afterVelocity,surfaceVelocity);}

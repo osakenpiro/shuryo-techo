@@ -1,9 +1,9 @@
 // Chapter 3 composes the proven 240 Hz sphere/solid contact stepper. Goal
 // apertures are checked in the same earliest-contact sweep, not a UI distance.
-import {createGame,setRoomWorld,throwCan,captureGoal,stopBlockedShot,stopSplatShot,emitShotEffect,getShotEffects,setShotEnvironmentStart} from './physics.mjs?v=20261013-contact-shrine-1';
-import {cloneThrowable,throwableWindScale} from './throwable-physics.mjs?v=20261013-contact-shrine-1';
-import {createRoomContactStepper,ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261013-contact-shrine-1';
-import {outdoorWorld,outdoorGoals,outdoorSolids,outdoorDynamicSolids,outdoorStartTime} from './outdoor-world.mjs?v=20261013-contact-shrine-1';
+import {createGame,setRoomWorld,throwCan,captureGoal,stopBlockedShot,stopSplatShot,emitShotEffect,getShotEffects,setShotEnvironmentStart} from './physics.mjs?v=20261013-outdoor-polish-1';
+import {cloneThrowable,throwableWindScale,throwableRestitution,throwableFriction,throwableContact} from './throwable-physics.mjs?v=20261013-outdoor-polish-1';
+import {createRoomContactStepper,ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261013-outdoor-polish-1';
+import {outdoorWorld,outdoorGoals,outdoorSolids,outdoorDynamicSolids,outdoorStartTime,shrineStartTime} from './outdoor-world.mjs?v=20261013-outdoor-polish-1';
 const TICK=ROOM_CONTACT_TICK,EPS=1e-9,AXES=['x','y','z'];
 const active=game=>game?.phase==='flying'||game?.phase==='settling';
 const copy=p=>({x:p.x,y:p.y,z:p.z});
@@ -32,21 +32,33 @@ export function sweepOutdoorGoal(start,end,radius,goalStart,goalEnd=goalStart){
   return fits?{time,position,goal:{...goalStart,center}}:null;
 }
 function requireWorld(world){const saved=outdoorWorld(world?.stageId,world?.worldVersion);if(!saved)throw new RangeError('A supported outdoor world is required');return saved;}
+// A moving hand transfers momentum in its own frame. This callback is supplied
+// only by revised shrine30; every historical contact keeps the old arithmetic.
+export function shrineImpactResponse({game,collider,normal,beforeVelocity,materialBounce}){
+  if(!['person','arm'].includes(collider.surface))return null;
+  const surface=collider.surfaceVelocity??{x:0,y:0,z:0},relative=sub(beforeVelocity,surface),normalSpeed=dot(relative,normal),incoming=Math.max(0,-normalSpeed);
+  if(incoming<=EPS)return {velocity:copy(beforeVelocity),incomingNormalSpeed:0,supported:false,handledThrowableContact:true};
+  const bounce=throwableRestitution(game,collider.surface,materialBounce),out=Object.fromEntries(AXES.map(a=>[a,relative[a]-(1+bounce)*normalSpeed*normal[a]])),outward=dot(out,normal),tangent=Object.fromEntries(AXES.map(a=>[a,out[a]-outward*normal[a]])),speed=Math.hypot(...AXES.map(a=>tangent[a])),remaining=Math.max(0,speed-incoming*(1+bounce)*throwableFriction(game,.22));
+  const after=Object.fromEntries(AXES.map(a=>[a,outward*normal[a]+(speed>EPS?tangent[a]*remaining/speed:0)]));
+  // Twist acts on relative tangential energy, then return to the world frame.
+  Object.assign(game.can.velocity,after);throwableContact(game,normal,relative,incoming);const rotated=copy(game.can.velocity);Object.assign(game.can.velocity,beforeVelocity);
+  return {velocity:Object.fromEntries(AXES.map(a=>[a,rotated[a]+surface[a]])),incomingNormalSpeed:incoming,supported:false,handledThrowableContact:true};
+}
 export function createOutdoorPlayStepper(world,{startTime=0,onContact,onEffect}={}){
-  world=requireWorld(world);const launchTime=outdoorStartTime(startTime);
+  world=requireWorld(world);const launchTime=world.worldVersion===30?shrineStartTime(startTime):outdoorStartTime(startTime);
   let currentGame=null,remainder=0,ticks=0,windSteps=0,shotId=null,elapsed=0,capture=null,effects=[];
   const deliverEffect=value=>{if(!value||effects.some(e=>e.id===value.id))return;effects.push(value);if(typeof onEffect==='function')try{onEffect(value);}catch{/* Display cannot stop physics. */}};
   const effect=(game,value)=>deliverEffect(emitShotEffect(game,{...value,environmentTime:launchTime+game.time}));
   const moving=(time,h)=>{
     const a=outdoorDynamicSolids(world,launchTime+time),b=outdoorDynamicSolids(world,launchTime+time+h);
-    return a.map(solid=>{const end=b.find(q=>q.id===solid.id);return {...solid,delta:sub(end.min,solid.min)};});
+    return a.map(solid=>{const end=b.find(q=>q.id===solid.id),delta=sub(end.min,solid.min);return {...solid,delta,...(world.worldVersion===30?{surfaceVelocity:Object.fromEntries(AXES.map(axis=>[axis,delta[axis]/h]))}:{})};});
   };
   const captureSweep=(game,start,end,h)=>{
     const a=outdoorGoals(world,launchTime+game.time),b=outdoorGoals(world,launchTime+game.time+h);let selected=null;
     for(const goal of a){const hit=sweepOutdoorGoal(start,end,game.can.radius,goal,b.find(q=>q.id===goal.id));if(hit&&(!selected||hit.time<selected.time-EPS))selected=hit;}
     return selected;
   };
-  const delegate=createRoomContactStepper(world,{solids:outdoorSolids(world),dynamicColliders:moving,captureSweep,
+  const delegate=createRoomContactStepper(world,{solids:outdoorSolids(world),dynamicColliders:moving,captureSweep,...(world.worldVersion===30?{impactResponse:shrineImpactResponse}:{}),
     onCapture(game,hit){if(captureGoal(game,hit.goal,{position:hit.position,environmentTime:launchTime+game.time}))capture={goalId:hit.goal.id,goalRole:hit.goal.role,position:copy(hit.position),normal:copy(hit.goal.normal),time:game.time};},
     onBlockingContact(game,hit,collider){stopBlockedShot(game,collider.surface==='person'?'crowd':collider.surface==='water'?'water':'blocked');},
     onTerminalContact(game,hit,collider){stopSplatShot(game,{surface:collider.surface,colliderId:collider.id,normal:hit.normal,environmentTime:launchTime+game.time});},

@@ -1,12 +1,12 @@
-import { predictArc } from './physics.mjs?v=20261013-contact-shrine-1';
-import { roomScene,roomMotionShapes,roomMonitorQuad,paintScreenQuad } from './room-scene.mjs?v=20261013-contact-shrine-1';
-import {schoolScene,schoolMotionShapes,schoolCameraConfig} from './school-scene.mjs?v=20261013-contact-shrine-1';
-import {outdoorScene,outdoorMotionShapes,outdoorCameraConfig} from './outdoor-scene.mjs?v=20261013-contact-shrine-1';
-import {factoryScene,factoryMotionShapes,factoryCameraConfig} from './factory-scene.mjs?v=20261013-contact-shrine-1';
-import {eccentricScene,eccentricMotionShapes,eccentricCameraConfig,eccentricItemMeshes} from './eccentric-scene.mjs?v=20261013-contact-shrine-1';
-import {drawPixelText} from './pixel-type.mjs?v=20261013-contact-shrine-1';
-import {getThrowable} from './throwables.mjs?v=20261013-contact-shrine-1';
-import {getThrowableId,throwablePose} from './throwable-physics.mjs?v=20261013-contact-shrine-1';
+import { predictArc } from './physics.mjs?v=20261013-outdoor-polish-1';
+import { roomScene,roomMotionShapes,roomMonitorQuad,paintScreenQuad } from './room-scene.mjs?v=20261013-outdoor-polish-1';
+import {schoolScene,schoolMotionShapes,schoolCameraConfig} from './school-scene.mjs?v=20261013-outdoor-polish-1';
+import {outdoorScene,outdoorMotionShapes,outdoorCameraConfig} from './outdoor-scene.mjs?v=20261013-outdoor-polish-1';
+import {factoryScene,factoryMotionShapes,factoryCameraConfig} from './factory-scene.mjs?v=20261013-outdoor-polish-1';
+import {eccentricScene,eccentricMotionShapes,eccentricCameraConfig,eccentricItemMeshes} from './eccentric-scene.mjs?v=20261013-outdoor-polish-1';
+import {drawPixelText} from './pixel-type.mjs?v=20261013-outdoor-polish-1';
+import {getThrowable} from './throwables.mjs?v=20261013-outdoor-polish-1';
+import {getThrowableId,throwablePose} from './throwable-physics.mjs?v=20261013-outdoor-polish-1';
 
 const add = (a,b) => ({ x:a.x+b.x, y:a.y+b.y, z:a.z+b.z });
 const sub = (a,b) => ({ x:a.x-b.x, y:a.y-b.y, z:a.z-b.z });
@@ -15,6 +15,12 @@ const cross = (a,b) => ({x:a.y*b.z-a.z*b.y,y:a.z*b.x-a.x*b.z,z:a.x*b.y-a.y*b.x})
 const scale = (a,n) => ({x:a.x*n,y:a.y*n,z:a.z*n});
 const unit = a => scale(a,1/Math.hypot(a.x,a.y,a.z));
 const circle = (center,radius,y,segments=48) => Array.from({length:segments},(_,i)=>({x:center.x+Math.cos(i/segments*Math.PI*2)*radius,y,z:center.z+Math.sin(i/segments*Math.PI*2)*radius}));
+
+// Alternate live views keep the world's target and distance. Their ordinary
+// orbit tuple can therefore be recorded and restored by every existing codec.
+export function goalCameraOrbit(world){
+  return {azimuth:Math.PI-(world?.outdoorType==='baseball'?.16:.1),elevation:world?.worldVersion===31?.46:world?.outdoorType==='mall'?.22:.26,zoom:world?.worldVersion===32?.9:.62};
+}
 
 export function createRenderer(canvas) {
   const ctx = canvas.getContext('2d');

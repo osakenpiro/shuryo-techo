@@ -7,6 +7,7 @@ const horizontal=(id,role,kind,center,radius,extra={})=>({id,role,kind,label:ext
 const front=(id,role,kind,center,radius,extra={})=>({id,role,kind,label:extra.label??id,shape:'circle',center,normal:p(0,0,-1),up:p(0,1,0),radius,...extra});
 export const OUTDOOR_ENVIRONMENT_PERIOD=12;
 export function outdoorStartTime(time=0){if(!Number.isFinite(time))throw new TypeError('Outdoor time must be finite');return ((time%OUTDOOR_ENVIRONMENT_PERIOD)+OUTDOOR_ENVIRONMENT_PERIOD)%OUTDOOR_ENVIRONMENT_PERIOD;}
+export function shrineStartTime(time=0){return (Math.floor(outdoorStartTime(time)*240+1e-9)%2880)/240;}
 const shrineGoals=[
   {id:'shrine-offering',role:'normal',kind:'offering-box',label:'賽銭箱',shape:'rectangle',center:p(0,1.1,6.8),normal:p(0,1,0),up:p(0,0,1),halfWidth:1.03,halfHeight:.43},
   horizontal('shrine-hand','alternative','hand',p(-1.65,2.05,4.3),.29,{label:'伸ばしている手'}),
@@ -75,27 +76,81 @@ export const OUTDOOR_PHYSICS_WORLDS=freeze({
   12:{worldVersion:12,origin:p(0,1.9,0),bin:{center:p(0,3,40),radius:.62,height:6},launchScale:3.2},
   13:{worldVersion:13,origin:p(0,8.4,0),bin:{center:p(0,.7,3.2),radius:.33,height:1.4},launchLimits:{minPower:.1,maxPower:14,minElevation:-80,maxElevation:85}},
   14:{worldVersion:14,origin:p(0,1.3,0),bin:{center:p(0,.6,11.5),radius:.57,height:1.2},launchScale:1.3},
+  30:{worldVersion:30,origin:p(0,1.05,0),bin:{center:p(0,.55,6.8),radius:1.03,height:1.1}},
+  31:{worldVersion:31,origin:p(0,1.9,0),bin:{center:p(0,3,40),radius:.62,height:6},launchScale:3.2},
+  32:{worldVersion:32,origin:p(0,8.4,0),bin:{center:p(0,.7,3.2),radius:.33,height:1.4},launchLimits:{minPower:.1,maxPower:14,minElevation:-80,maxElevation:85}},
 });
 const make=(stageId,version,outdoorType,itemId,goals,solids,actors,launch,view,extra={})=>({stageId,worldVersion:version,environment:'outdoor',outdoorType,itemId,
   physics:OUTDOOR_PHYSICS_WORLDS[version],origin:OUTDOOR_PHYSICS_WORLDS[version].origin,bin:OUTDOOR_PHYSICS_WORLDS[version].bin,
   goals,solids,actors,launch,view,room:{minX:-20,maxX:20,minZ:-3,maxZ:60,height:25,openSky:true},...extra});
-export const OUTDOOR_WORLDS=freeze({
+export const OUTDOOR_LEGACY_WORLDS=freeze({
   'outdoor-shrine':make('outdoor-shrine',11,'shrine','coin',shrineGoals,shrineSolids,crowd,{power:7.4,elevation:48,yaw:0},{target:p(0,1.5,3.8),distance:13,azimuth:.2,elevation:.38},{room:{minX:-5,maxX:5,minZ:-2,maxZ:8.5,height:5,openSky:true}}),
   'outdoor-baseball':make('outdoor-baseball',12,'baseball','baseball',baseballGoals,baseballSolids,baseballActors,{power:9.8,elevation:30,yaw:0},{target:p(0,5,19),distance:54,azimuth:.18,elevation:.42},{room:{minX:-17,maxX:17,minZ:-3,maxZ:58,height:20,openSky:true}}),
   'outdoor-mall':make('outdoor-mall',13,'mall','ice-scoop',mallGoals,mallSolids,mallActors,{power:3.1,elevation:0,yaw:0},{target:p(0,4.3,2),distance:16,azimuth:.28,elevation:.55},{room:{minX:-6,maxX:6,minZ:-3,maxZ:6.4,height:11,openSky:true}}),
   'outdoor-river':make('outdoor-river',14,'river','firework-ball',riverGoals,riverSolids,[{id:'firework-worker',kind:'worker',position:p(1.05,.07,11.75),height:1.7,width:.46,depth:.35,color:'#788dad'}],{power:10.4,elevation:44,yaw:0},{target:p(0,1.3,6.5),distance:20,azimuth:.18,elevation:.43},{room:{minX:-7,maxX:7,minZ:-3,maxZ:16,height:12,openSky:true},water:{minX:-20,maxX:20,minZ:1.2,maxZ:10.55,y:0},fireworks:{burstCenter:p(.2,6.2,11.5)},wind:p(.025,0,0)}),
 });
-export function outdoorWorld(stageId,worldVersion){const world=typeof stageId==='string'&&Object.hasOwn(OUTDOOR_WORLDS,stageId)?OUTDOOR_WORLDS[stageId]:null;return world&&(worldVersion===undefined||worldVersion===world.worldVersion)?world:null;}
+const inariGoal={id:'shrine-inari',role:'alternative',kind:'inari-offering-box',label:'脇の稲荷社の賽銭箱',shape:'rectangle',center:p(3.8,.9,5.7),normal:p(0,1,0),up:p(0,0,1),halfWidth:.38,halfHeight:.3};
+const inariSolids=[
+  box('shrine-inari-box-body','shrine-inari','offering-box',p(3.36,0,5.35),p(4.24,.64,6.05)),
+  box('shrine-inari-box-front','shrine-inari','offering-rim',p(3.36,.64,5.34),p(4.24,.94,5.4),'rim',.35),
+  box('shrine-inari-box-back','shrine-inari','offering-rim',p(3.36,.64,6),p(4.24,.94,6.06),'rim',.35),
+  box('shrine-inari-box-left','shrine-inari','offering-rim',p(3.35,.64,5.35),p(3.42,.94,6.05),'rim',.35),
+  box('shrine-inari-box-right','shrine-inari','offering-rim',p(4.18,.64,5.35),p(4.25,.94,6.05),'rim',.35),
+  box('shrine-inari-house','shrine-inari-house','small-shrine',p(3.25,0,6.15),p(4.35,1.75,7.05)),
+  box('shrine-inari-roof','shrine-inari-house','small-shrine-roof',p(3.08,1.75,6.04),p(4.52,1.93,7.2)),
+];
+const newerCrowd=[
+  [-1.5,2.1,1.7,'adult','coat','short',false],[-.55,2.35,1.24,'child','hoodie','short',false],[1.15,2.2,1.66,'adult','skirt','bob',false],
+  [-2.25,3.35,1.63,'elderly','coat','grey',false],[-1.04,3.6,1.74,'adult','shirt','short',true],[.35,3.35,1.6,'teen','hoodie','ponytail',true],[1.45,3.75,1.7,'adult','coat','short',false],[2.55,3.6,1.56,'teen','shirt','bob',false],
+  [-2.35,4.9,1.67,'adult','skirt','ponytail',false],[-1.35,4.7,1.54,'elderly','coat','grey',false],[-.32,5.05,1.71,'adult','shirt','short',true],[.95,4.7,1.3,'child','hoodie','short',false],[2.2,4.95,1.7,'adult','coat','bob',true],
+  [-1.85,5.75,1.7,'adult','shirt','short',false],[-.95,5.9,1.65,'adult','skirt','bob',false],[1.25,5.75,1.68,'elderly','coat','grey',false],
+].map(([x,z,height,age,clothing,hair,reaching],index)=>({id:`shrine-visitor-${index+1}`,kind:'worshipper',position:p(x,0,z),height,width:age==='child'?.31:index%4===0?.52:index%3===0?.35:.43,depth:.30,color:['#b87754','#739991','#d2a45f','#7999b1','#ad8885','#99a079'][index%6],
+  appearance:{age:age==='elderly'?'elder':age,build:index%4===0?'broad':index%3===0?'slim':'regular',clothing:clothing==='shirt'?'sweater':clothing,hair:hair==='grey'?'silver':hair,hat:index===3?'knit':index===13?'cap':'none',bag:age==='teen'?'backpack':index%5===0?'shoulder':'none',gesture:reaching?'reach':['prayer','bow','wait'][index%3],skin:['#d6af8c','#c99574','#e5bd98'][index%3]},reaching,posePhase:index*.83}));
+export const OUTDOOR_WORLDS=freeze({...OUTDOOR_LEGACY_WORLDS,'outdoor-shrine':{...OUTDOOR_LEGACY_WORLDS['outdoor-shrine'],worldVersion:30,physics:OUTDOOR_PHYSICS_WORLDS[30],origin:OUTDOOR_PHYSICS_WORLDS[30].origin,bin:OUTDOOR_PHYSICS_WORLDS[30].bin,
+  actors:newerCrowd,goals:[shrineGoals[0],inariGoal],solids:[...shrineSolids,...inariSolids],view:{...OUTDOOR_LEGACY_WORLDS['outdoor-shrine'].view,target:p(.25,1.5,3.8),distance:14.5},inari:{goalId:'shrine-inari',center:p(3.8,0,6.6),boxCenter:inariGoal.center,boxHalfWidth:inariGoal.halfWidth,boxHalfDepth:inariGoal.halfHeight}},
+  'outdoor-baseball':{...OUTDOOR_LEGACY_WORLDS['outdoor-baseball'],worldVersion:31,physics:OUTDOOR_PHYSICS_WORLDS[31],origin:OUTDOOR_PHYSICS_WORLDS[31].origin,bin:OUTDOOR_PHYSICS_WORLDS[31].bin,solids:[...baseballSolids,...[-4.7,4.7].map((x,index)=>box(`stadium-scoreboard-support-${index===0?'left':'right'}`,'stadium-scoreboard','scoreboard-column',p(x-.16,0,55.3),p(x+.16,10,55.6),'wall',.35))],view:{target:p(0,8,26),distance:82,azimuth:.12,elevation:.44},visualBounds:{minX:-38,maxX:38,minZ:-23,maxZ:78,height:36}},
+  'outdoor-mall':{...OUTDOOR_LEGACY_WORLDS['outdoor-mall'],worldVersion:32,physics:OUTDOOR_PHYSICS_WORLDS[32],origin:OUTDOOR_PHYSICS_WORLDS[32].origin,bin:OUTDOOR_PHYSICS_WORLDS[32].bin,view:{target:p(0,4.2,2.1),distance:15.4,azimuth:0,elevation:.98},visualBounds:{minX:-9,maxX:9,minZ:-4,maxZ:8,height:12}}});
+const OUTDOOR_WORLD_BY_VERSION=freeze(Object.fromEntries([...Object.values(OUTDOOR_LEGACY_WORLDS),...Object.values(OUTDOOR_WORLDS)].map(w=>[w.worldVersion,w])));
+export function outdoorWorldByVersion(worldVersion){return Number.isInteger(worldVersion)&&Object.hasOwn(OUTDOOR_WORLD_BY_VERSION,worldVersion)?OUTDOOR_WORLD_BY_VERSION[worldVersion]:null;}
+export function outdoorWorld(stageId,worldVersion){const world=worldVersion===undefined?typeof stageId==='string'&&Object.hasOwn(OUTDOOR_WORLDS,stageId)?OUTDOOR_WORLDS[stageId]:null:outdoorWorldByVersion(worldVersion);return world?.stageId===stageId?world:null;}
 function requireWorld(world){const saved=outdoorWorld(world?.stageId,world?.worldVersion);if(!saved)throw new RangeError('A supported outdoor world is required');return saved;}
 export function outdoorSolids(world){return requireWorld(world).solids;}
-export function outdoorActors(world,time=0){world=requireWorld(world);if(!Number.isFinite(time))throw new TypeError('Outdoor time must be finite');return world.actors.map((actor,index)=>({...actor,position:{...actor.position,...(world.outdoorType==='shrine'&&!actor.id.startsWith('hand-')?{x:actor.position.x+.075*Math.sin(time*Math.PI/6+index)}:{})}}));}
+export function outdoorActors(world,time=0){world=requireWorld(world);if(!Number.isFinite(time))throw new TypeError('Outdoor time must be finite');if(world.worldVersion===30)return world.actors.map(actor=>shrineVisitorPose(actor,time));return world.actors.map((actor,index)=>({...actor,position:{...actor.position,...(world.outdoorType==='shrine'&&!actor.id.startsWith('hand-')?{x:actor.position.x+.075*Math.sin(time*Math.PI/6+index)}:{})}}));}
+function shrineVisitorKinematics(actor,time){
+  const phase=time*Math.PI/6+actor.posePhase,q={...actor.position,x:actor.position.x+.025*Math.sin(phase)},h=actor.height,w=actor.width,joints={hip:p(q.x,h*.48,q.z),head:p(q.x,h*.91,q.z),leftShoulder:p(q.x-w*.42,h*.77,q.z),rightShoulder:p(q.x+w*.42,h*.77,q.z)};
+  const reach=actor.reaching?(.5+.5*Math.sin(phase))*.84:0;
+  for(const [name,side] of [['left',-1],['right',1]]){
+    joints[`${name}Elbow`]=p(q.x+side*(w*.63+.12*reach),h*(.59+.19*reach),q.z-.13*reach);
+    joints[`${name}Wrist`]=p(q.x+side*(w*.68+.28*reach),h*(.43+.95*reach),q.z-.24*reach);
+    if(actor.appearance.gesture==='prayer'){joints[`${name}Elbow`]=p(q.x+side*.19,h*.61,q.z+.04);joints[`${name}Wrist`]=p(q.x+side*.035,h*.65,q.z+.14);}
+    if(actor.appearance.gesture==='bow'){joints.head=p(q.x,h*.88,q.z+.05);joints[`${name}Wrist`].z+=.08;}
+    joints[`${name}Knee`]=p(q.x+side*w*.22,h*.24,q.z);joints[`${name}Foot`]=p(q.x+side*w*.22,.035,q.z+.035);
+  }
+  return {position:q,joints,reach};
+}
+function shrineVisitorPose(actor,time){
+  // Constant-speed translation within each physics tick gives rendering,
+  // relative sweeps and replay validation one reconstructable surface speed.
+  const tick=1/240,from=Math.floor((time+1e-9)/tick)*tick,f=Math.max(0,Math.min(1,(time-from)/tick)),a=shrineVisitorKinematics(actor,from),b=shrineVisitorKinematics(actor,from+tick),mix=(x,y)=>p(x.x+(y.x-x.x)*f,x.y+(y.y-x.y)*f,x.z+(y.z-x.z)*f),q=mix(a.position,b.position),joints=Object.fromEntries(Object.entries(a.joints).map(([key,value])=>[key,mix(value,b.joints[key])])),h=actor.height,w=actor.width,reach=a.reach+(b.reach-a.reach)*f;
+  const parts=[box(`${actor.id}-torso`,actor.id,'person-torso',p(q.x-w/2,h*.28,q.z-.15),p(q.x+w/2,h*.82,q.z+.15),'person',.20),box(`${actor.id}-head`,actor.id,'person-head',p(joints.head.x-.1,joints.head.y-h*.09,joints.head.z-.1),p(joints.head.x+.1,joints.head.y+h*.09,joints.head.z+.1),'person',.20)];
+  for(const name of ['left','right']){
+    const knee=joints[`${name}Knee`];parts.push(box(`${actor.id}-${name}-leg`,actor.id,'person-leg',p(knee.x-.055,0,q.z-.07),p(knee.x+.055,h*.48,q.z+.07),'person',.20));
+    const chain=[joints[`${name}Shoulder`],joints[`${name}Elbow`],joints[`${name}Wrist`]];
+    for(let segment=0;segment<2;segment++)for(const [index,t] of [.25,.75].entries()){
+      const a=chain[segment],b=chain[segment+1],center=p(a.x+(b.x-a.x)*t,a.y+(b.y-a.y)*t,a.z+(b.z-a.z)*t),r=.07;
+      parts.push(box(`${actor.id}-${name}-arm-${segment}-${index}`,actor.id,'person-arm',p(center.x-r,center.y-r,center.z-r),p(center.x+r,center.y+r,center.z+r),'arm',.25));
+    }
+    const center=chain[2];parts.push(box(`${actor.id}-${name}-hand`,actor.id,'person-hand',p(center.x-.085,center.y-.07,center.z-.07),p(center.x+.085,center.y+.07,center.z+.07),'arm',.25));
+  }
+  return {...actor,position:q,joints,contactParts:parts,reach};
+}
 export function outdoorBoats(world,time=0){world=requireWorld(world);if(!Number.isFinite(time))throw new TypeError('Outdoor time must be finite');if(world.outdoorType!=='river')return [];const phase=time*Math.PI/6;return [
   {id:'river-steamship',kind:'steamship',position:p(4.8*Math.sin(phase-.7),.16,6.3),width:3.5,depth:1.25,height:.7,chimney:{height:2.5,radius:.6}},
   {id:'river-houseboat',kind:'houseboat',position:p(4.8*Math.sin(phase+2.2),.12,3.6),width:3,depth:1.1,height:1.05},
 ];}
 export function outdoorGoals(world,time=0){world=requireWorld(world);const boats=outdoorBoats(world,time);return world.goals.map(goal=>({...goal,center:goal.motionId?{...goal.center,x:boats.find(b=>b.id===goal.motionId).position.x}:{...goal.center}}));}
 export function outdoorMotion(world,time=0){world=requireWorld(world);const boats=outdoorBoats(world,time),actors=outdoorActors(world,time),goals=outdoorGoals(world,time);const lamps=boats.map((boat,index)=>({id:`${boat.id}-lamp`,position:p(boat.position.x,Math.max(1.25,boat.position.y+boat.height+.16),boat.position.z-boat.depth/2-.14),radius:index?3.1:7.1,intensity:index?1:2,color:index?'#efc875':'#f8dca2'}));return {actors,boats,lamps,goals};}
-export function outdoorDynamicSolids(world,time=0){world=requireWorld(world);const solids=outdoorActors(world,time).map(actor=>box(`${actor.id}-body`,actor.id,'person',p(actor.position.x-actor.width/2,actor.position.y,actor.position.z-actor.depth/2),p(actor.position.x+actor.width/2,actor.position.y+actor.height,actor.position.z+actor.depth/2),'person',0,{blocking:true}));
+export function outdoorDynamicSolids(world,time=0){world=requireWorld(world);const actors=outdoorActors(world,time),solids=world.worldVersion===30?actors.flatMap(a=>a.contactParts):actors.map(actor=>box(`${actor.id}-body`,actor.id,'person',p(actor.position.x-actor.width/2,actor.position.y,actor.position.z-actor.depth/2),p(actor.position.x+actor.width/2,actor.position.y+actor.height,actor.position.z+actor.depth/2),'person',0,{blocking:true}));
   for(const boat of outdoorBoats(world,time)){
     const q=boat.position;solids.push(box(`${boat.id}-hull`,boat.id,'boat-hull',p(q.x-boat.width/2,q.y,q.z-boat.depth/2),p(q.x+boat.width/2,q.y+boat.height,q.z+boat.depth/2),'boat',.28));
     if(boat.chimney)solids.push(box(`${boat.id}-chimney-body`,boat.id,'chimney',p(q.x-.43,.7,q.z-.43),p(q.x+.43,2.22,q.z+.43),'boat',.3));

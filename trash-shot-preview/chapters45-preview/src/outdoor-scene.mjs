@@ -1,8 +1,9 @@
 // Outdoor places continue the approved room/school paper, wood and teal visual
 // language. Physical mesh endpoints come from the world descriptors; painted
 // trim and floor markings are decoration, not additional collision surfaces.
-import {outdoorSolids,outdoorMotion,outdoorDynamicSolids} from './outdoor-world.mjs?v=20261013-contact-shrine-1';
-import {outdoorEffectShapes,outdoorLightColor,outdoorLampShapes} from './outdoor-effects.mjs?v=20261013-contact-shrine-1';
+import {outdoorSolids,outdoorMotion,outdoorDynamicSolids} from './outdoor-world.mjs?v=20261013-outdoor-polish-1';
+import {outdoorEffectShapes,outdoorLightColor,outdoorLampShapes} from './outdoor-effects.mjs?v=20261013-outdoor-polish-1';
+import {outdoorArchitectureGroups} from './outdoor-architecture.mjs?v=20261013-outdoor-polish-1';
 export const OUTDOOR_PALETTE=Object.freeze({cream:'#f4ead5',wall:'#eee2c6',wood:'#c89b61',teal:'#4a948b',darkTeal:'#286864',gold:'#e8b54e',orange:'#e98238',sky:'#bfdedb',green:'#8caf7d',night:'#172e3d',water:'#244c60'});
 const p=(x,y,z)=>({x,y,z});
 const face=(points,fill,stroke=null,metadata={})=>({points,fill,stroke,...metadata});
@@ -38,6 +39,7 @@ function surfaceColor(c,world){
   if(c.id==='shrine-back-wall')return '#b4875b';
   if(c.id==='shrine-left-post'||c.id==='shrine-right-post')return '#bc925f';
   if(c.kind==='offering-box'||c.object==='shrine-offering')return '#ad8557';
+  if(world.worldVersion===30&&c.kind==='small-shrine-roof')return '#688c78';
   if(typeOf(world)==='river')return /bank|ground/.test(id)?'#6c796e':/boat|deck/.test(id)?'#9b805d':/chimney|tube/.test(id)?'#456966':'#657f7e';
   if(/grass/.test(id))return OUTDOOR_PALETTE.green;
   if(/floor|slab|step|ground|walkway|bank/.test(id))return /mall/.test(world.stageId)?'#e4d8bb':'#c4b28d';
@@ -133,6 +135,45 @@ function shrineDetails(s,world){
   oval(s,q.x,q.y-.003,q.z,.20,.20,'#806c43',trim('bell'));
   cylinder(s,q.x,q.y+.27,q.z,.045,.10,'#a88a51',8,trim('bell-mount'));
 }
+function shrineInariDetails(s,world){
+  const goal=world.goals.find(g=>g.id==='shrine-inari'),q=goal.center,house=world.solids.find(c=>c.id==='shrine-inari-house'),roof=world.solids.find(c=>c.id==='shrine-inari-roof'),meta=part=>({inariPart:part,decoration:true});
+  const x=q.x,z=house.min.z-.012,y=house.max.y,vermillion='#b97558';
+  // A small shrine is part of the place, without a gold alternative-target
+  // billboard. Its roof begins behind the entire accepting box aperture.
+  box(s,x-.46,.18,z-.009,.92,.95,.018,'#9c7953',meta('wood-door'));
+  for(const xx of [-.34,-.17,0,.17,.34])box(s,x+xx,.22,z-.037,.024,.90,.028,'#c4a070',meta('wood-lattice'));
+  for(const yy of [.40,.79,1.04])line(s,p(x-.41,yy,z-.048),p(x+.41,yy,z-.048),'#d1b47e',meta('wood-lattice'));
+  const a=roof.min,b=roof.max,peak=y+.53;
+  s.push(face([p(a.x,b.y,a.z),p(x,peak,a.z),p(x,peak,b.z),p(a.x,b.y,b.z)],'#688c78',null,meta('roof')));
+  s.push(face([p(x,peak,a.z),p(b.x,b.y,a.z),p(b.x,b.y,b.z),p(x,peak,b.z)],'#557d6c',null,meta('roof')));
+  s.push(face([p(a.x,b.y,a.z-.004),p(x,peak,a.z-.004),p(b.x,b.y,a.z-.004)],'#bd9b66',null,meta('gable')));
+  box(s,a.x,b.y-.06,a.z-.02,b.x-a.x,.08,.055,'#8c7250',meta('eave'));
+  const toriiZ=house.min.z-.050;for(const side of [-1,1]){
+    box(s,x+side*.46-.045,.06,toriiZ,.09,1.38,.085,vermillion,meta('torii'));
+    cylinder(s,x+side*.46,.015,toriiZ+.042,.075,.075,'#899883',6,meta('torii-foot'));
+  }
+  box(s,x-.59,1.40,toriiZ-.018,1.18,.115,.14,vermillion,meta('torii'));
+  box(s,x-.67,1.54,toriiZ-.050,1.34,.09,.18,'#7c7d60',meta('torii-cap'));
+  box(s,x-.10,1.19,toriiZ-.024,.20,.26,.024,'#b58a58',meta('torii-plaque'));
+  // Sitting foxes stay small, beside the real box. Pointed ears, a curled
+  // tail and quiet bib distinguish them from the human crowd.
+  for(const side of [-1,1]){
+    const fx=x+side*.62,fz=q.z+.055,fox=[],tag=meta('fox');
+    box(fox,fx-.13,.012,fz-.12,.26,.075,.24,'#b6bca4',tag);
+    ellipsoid(fox,fx,.25,fz,.105,.18,.105,'#e4d8b9',6,2,tag);
+    ellipsoid(fox,fx,.41,fz-.025,.10,.093,.085,'#eee3c8',6,2,tag);
+    for(const earSide of [-1,1])fox.push(face([p(fx+earSide*.08,.45,fz-.028),p(fx+earSide*.025,.45,fz-.028),p(fx+earSide*.072,.55,fz+.018)],'#d4c5a4',null,tag));
+    fox.push(face([p(fx-.06,.40,fz-.105),p(fx+.06,.40,fz-.105),p(fx,.366,fz-.145)],'#eee3c8',null,tag));
+    fox.push(face([p(fx-.074,.325,fz-.107),p(fx+.074,.325,fz-.107),p(fx+.048,.232,fz-.111),p(fx-.048,.232,fz-.111)],'#b7755d',null,meta('fox-bib')));
+    for(const dx of [-.053,.053])line(fox,p(fx+dx,.422,fz-.098),p(fx+dx*.83,.420,fz-.110),'#77785d',tag);
+    fox.push(face([p(fx-.08,.13,fz+.08),p(fx+side*.17,.12,fz+.08),p(fx+side*.14,.26,fz+.055),p(fx+.02,.20,fz+.065)],'#d4c6a5',null,tag));
+    s.push(...fox);
+  }
+  const boxBody=world.solids.find(c=>c.id==='shrine-inari-box-body'),front=boxBody.min.z-.012;
+  box(s,x-.35,.15,front,.70,.035,.015,'#c7a570',meta('box-trim'));box(s,x-.35,.52,front,.70,.035,.015,'#c7a570',meta('box-trim'));
+  for(const dx of [-.26,-.13,0,.13,.26])line(s,p(x+dx,.20,front-.008),p(x+dx,.50,front-.008),'#8f6f4d',meta('box-panel'));
+  for(let i=0;i<3;i++)flat(s,x-.17,.015,q.z-1.10+i*.25,.34,.17,'#c5c5ae',meta('side-stones'));
+}
 function baseballDetails(s,world){
   const r=roomOf(world),o=world.origin;
   flat(s,r.minX,.008,r.minZ,r.maxX-r.minX,r.maxZ-r.minZ,'#91b782');
@@ -194,17 +235,31 @@ function buildGroups(world){
   const r=roomOf(world),type=typeOf(world);
   if(type!=='river')flat(background,r.minX,-.018,r.minZ,r.maxX-r.minX,r.maxZ-r.minZ,type==='baseball'?'#a1bc87':type==='mall'?'#eee4cc':'#b8bd92');
   groups.push({id:'outdoor-background',shapes:background,physical:false});
-  for(const c of solids){const shapes=[];physicalBox(shapes,c,surfaceColor(c,world));groups.push({id:c.id,object:c.object??c.kind,bounds:boundsOf(c),shapes,physical:true});}
+  for(const c of solids){const shapes=[];physicalBox(shapes,c,surfaceColor(c,world));const glass=world.worldVersion===32&&/^mall-source-(left|right)-rail$/.test(c.id);groups.push({id:c.id,object:c.object??c.kind,bounds:boundsOf(c),shapes:glass?shapes.map(m=>({...m,fill:'rgba(158,190,175,.10)',depthWrite:false,sourceGlassRail:true})):shapes,physical:true});}
   const detail=[];
-  if(type==='shrine')shrineDetails(detail,world);else if(type==='baseball')baseballDetails(detail,world);else if(type==='mall')mallDetails(detail,world);else if(type==='river')riverDetails(detail,world);
-  groups.push({id:'outdoor-detail',shapes:detail,physical:false});
+  if(type==='shrine'){shrineDetails(detail,world);if(world.worldVersion===30)shrineInariDetails(detail,world);}else if(type==='baseball'&&world.worldVersion!==31)baseballDetails(detail,world);else if(type==='mall'&&world.worldVersion!==32)mallDetails(detail,world);else if(type==='river')riverDetails(detail,world);
+  if(world.worldVersion===30){
+    const buckets=new Map();
+    for(const shape of detail){
+      const part=shape.shrinePart??'',ip=shape.inariPart??'';
+      const shell=/^roof|^eave-underside/.test(part)?'shrine30-roof':/wall|lattice|facade|sill|lintel/.test(part)?'shrine30-facade':/porch-beam|shimenawa|shide/.test(part)?'shrine30-porch':/roof|gable|eave/.test(ip)?'inari30-roof':/wood-door|wood-lattice/.test(ip)?'inari30-facade':/torii/.test(ip)?'inari30-torii':null;
+      const key=shell??'outdoor-detail';if(!buckets.has(key))buckets.set(key,[]);buckets.get(key).push(shape);
+    }
+    for(const [id,shapes] of buckets){
+      const shell=id!=='outdoor-detail',points=shell?shapes.flatMap(m=>m.points):[],bounds=shell?Object.fromEntries(['x','y','z'].flatMap(k=>[['min'+k.toUpperCase(),Math.min(...points.map(q=>q[k]))],['max'+k.toUpperCase(),Math.max(...points.map(q=>q[k]))]])):undefined;
+      groups.push({id,shapes,physical:false,...(shell?{bounds,architecturalShell:true}:{})});
+    }
+  }else groups.push({id:'outdoor-detail',shapes:detail,physical:false});
+  for(const group of outdoorArchitectureGroups(world)){
+    if(world.worldVersion===31&&group.id==='stadium-scoreboard-innings')groups.push({...group,architecturalShell:true,bounds:boundsOf(world.solids.find(c=>c.id==='stadium-scoreboard'))});else groups.push(group);
+  }
   // These spectators/customers and their mouths have no gameplay motion. Keep
   // them in the cached depth layer rather than rebuilding hundreds of faces.
   if(type==='baseball'||type==='mall'){
     const figures=[],motion=outdoorMotion(world,0);
-    for(const actor of motion.actors)actorShapes(figures,actor,0,true);
+    for(const actor of motion.actors){if(world.worldVersion===31||world.worldVersion===32)styledFixedVisitorShapes(figures,actor,motion.goals,world);else actorShapes(figures,actor,0,true);}
     for(const goal of motion.goals)aperture(figures,goal);
-    heldObjects(figures,motion.actors,motion.goals);
+    if(world.worldVersion!==31&&world.worldVersion!==32)heldObjects(figures,motion.actors,motion.goals);
     if(type==='baseball')actorShapes(figures,batterActor(world),0,true);
     groups.push({id:'outdoor-fixed-actors',shapes:figures,physical:false});
   }
@@ -220,12 +275,12 @@ export function outdoorCameraConfig(world){return {azimuth:world?.view?.azimuth?
 export function outdoorScene(camera,world,time=0,options={}){
   if(world?.environment!=='outdoor')throw new RangeError('A frozen outdoor world is required');
   const key=`${world.stageId}/${world.worldVersion}`;if(!cache.has(key))cache.set(key,buildGroups(world));
-  const groups=cache.get(key),shapes=[],cutaway=[],goals=world.goals??[],endpoints=[world.origin,...goals.map(g=>g.center??g.position).filter(Boolean)];
+  const groups=cache.get(key),shapes=[],cutaway=[],goals=world.goals??[],endpoints=[world.origin,...goals.map(g=>g.center??g.position).filter(Boolean),...(world.worldVersion===32?world.actors.map(a=>({...a.position,y:a.position.y+a.height*.5})):[])];
   const lamps=typeOf(world)==='river'?outdoorMotion(world,time).lamps:[];
   for(const group of groups){
     // Only building shells cut away. Real crowd, rope, stands and rails stay
     // opaque. No projected throw trajectory is used to reveal a hidden path.
-    const sourceFloor=typeOf(world)==='mall'&&group.id==='mall-source-balcony',shell=group.physical&&(/wall|ceiling|building-shell/.test(`${group.id} ${group.object}`)||sourceFloor);
+    const sourceFloor=typeOf(world)==='mall'&&(group.id==='mall-source-balcony'||group.sourceBalcony===true),shell=group.architecturalShell===true||group.physical&&(/wall|ceiling|building-shell/.test(`${group.id} ${group.object}`)||sourceFloor||world.worldVersion===31&&group.id==='stadium-scoreboard');
     const faded=shell&&(/ceiling/.test(group.id)||endpoints.some(q=>sightIntersects(group.bounds,camera,q)));
     if(faded){cutaway.push(group.id);shapes.push(...group.shapes.map(s=>({...s,fill:transparent(s.fill,sourceFloor?.11:/ceiling/.test(group.id)?.045:.16),depthWrite:false})));}
     else shapes.push(...group.shapes);
@@ -371,6 +426,104 @@ function shrineWorshipperShapes(s,actor,time,reducedMotion=false){
   for(const shape of model)s.push({...shape,actorId:actor.id,points:shape.points.map(a=>p(min.x+(a.x-low.x)*sx,min.y+(a.y-low.y)*sy,min.z+(a.z-low.z)*sz))});
   oval(s,q.x,q.y+.008,q.z,actor.width*.65,actor.depth*.8,'rgba(57,77,52,.14)',{actorShadow:actor.id});
 }
+const visitorModels=new Map();
+function visitorLoft(s,y0,y1,rx0,rx1,rz0,rz1,color,n,meta){
+  const ring=(y,rx,rz)=>Array.from({length:n},(_,i)=>p(Math.cos(i/n*Math.PI*2)*rx,y,Math.sin(i/n*Math.PI*2)*rz)),lo=ring(y0,rx0,rz0),hi=ring(y1,rx1,rz1);
+  for(let i=0;i<n;i++)s.push(face([lo[i],lo[(i+1)%n],hi[(i+1)%n],hi[i]],shade(color,Math.round(Math.cos(i/n*Math.PI*2)*8)),null,meta));
+  s.push(face(hi,shade(color,12),null,meta));
+}
+function visitorLocalModel(actor){
+  const a=actor.appearance,h=actor.height,w=actor.width,d=actor.depth,detail=actor.position.z<2.6?'near':actor.position.z<4.2?'middle':'far',n=detail==='near'?8:6,key=`${actor.id}/${h}/${w}/${d}/${JSON.stringify(a)}/${detail}`;
+  if(visitorModels.has(key))return visitorModels.get(key);
+  const body=[],head=[],skin=a.skin??'#ddba94',hair=a.hair==='silver'?'#b7b6a0':a.hair==='bob'?'#615745':a.hair==='ponytail'?'#70614a':'#555a45',color=actor.color,meta=part=>({visitorPart:part,appearance:{...a},visitorDetail:detail,shrineFacing:p(0,0,1)});
+  const hem=a.clothing==='coat'?.28:a.clothing==='skirt'?.48:.44,shoulder=a.build==='broad'?.50:a.build==='slim'?.42:.46;
+  visitorLoft(body,h*hem,h*.77,w*(a.clothing==='coat'?.46:.39),w*shoulder,d*.39,d*.34,color,n,meta(a.clothing));
+  if(a.clothing==='skirt')visitorLoft(body,h*.285,h*.48,w*.49,w*.35,d*.47,d*.36,shade(color,-13),n,meta('skirt-hem'));
+  if(a.clothing==='hoodie'){
+    visitorLoft(body,h*.735,h*.82,w*.30,w*.25,d*.42,d*.38,shade(color,11),n,meta('hood'));
+    line(body,p(-w*.30,h*.755,-d*.30),p(w*.30,h*.755,-d*.30),shade(color,-15),meta('hood-seam'));
+  }
+  if(detail!=='far'){
+    line(body,p(0,h*(hem+.035),-d*.398),p(0,h*.74,-d*.348),shade(color,-18),meta('back-seam'));
+    line(body,p(-w*.35,h*(hem+.012),-d*.35),p(w*.35,h*(hem+.012),-d*.35),shade(color,16),meta('hem-seam'));
+    if(a.clothing==='coat')for(const yy of [.46,.56,.65])line(body,p(-.006,h*yy,d*.383),p(.008,h*yy,d*.383),'#d9c094',meta('coat-buttons'));
+  }
+  // Accessories change the rear silhouette inside the real body collider,
+  // rather than duplicating a uniform body with another paint colour.
+  if(a.bag==='backpack'){
+    const y=h*.49;visitorLoft(body,y,h*.73,w*.27,w*.26,d*.30,d*.28,'#b3945c',n,meta('backpack-core'));
+    for(const side of [-1,1])line(body,p(side*w*.20,h*.72,-d*.445),p(side*w*.20,h*.50,-d*.445),'#786e4d',meta('backpack-strap'));
+    const pack=[];box(pack,-w*.29,y,-d*.5,w*.58,h*.23,d*.19,'#b89b65',meta('backpack'));body.push(...pack.filter((_,i)=>i!==5));
+  }else if(a.bag==='shoulder'){
+    box(body,-w*.45,h*.31,-d*.45,w*.31,h*.17,d*.24,'#8f8870',meta('shoulder-bag'));
+    line(body,p(w*.28,h*.75,-d*.36),p(-w*.35,h*.38,-d*.465),'#746e53',meta('bag-strap'));
+  }
+  const ry=h*.09,rx=a.age==='child'?.096:.10,rz=.091;
+  ellipsoid(head,0,0,0,rx,ry,rz,skin,n,3,meta('head-skin'));
+  // Faceted scalp plus a rear hair panel gives bob/short/silver styles distinct
+  // silhouettes using fewer faces than the old layered full ellipsoids.
+  const at=(angle,height)=>p(Math.cos(angle)*rx,height,Math.sin(angle)*rz),crown=Array.from({length:n},(_,i)=>at(i/n*Math.PI*2,ry*.48));
+  for(let i=0;i<n;i++)head.push(face([crown[i],crown[(i+1)%n],p(0,ry,0)],hair,null,meta('hair-crown')));
+  const backLength=a.hair==='bob'?ry*.91:ry*.60;
+  for(let i=0;i<n;i++){
+    const angle=i/n*Math.PI*2,next=(i+1)/n*Math.PI*2;if(Math.sin((angle+next)/2)>0)continue;
+    head.push(face([at(angle,-backLength),at(next,-backLength),at(next,ry*.49),at(angle,ry*.49)],hair,null,{...meta('hair-back'),shrineHairBack:true}));
+  }
+  if(a.hair==='ponytail'){
+    head.push(face([p(-.038,0,-.088),p(.038,0,-.088),p(.031,-ry*.90,-.094),p(-.026,-ry*.90,-.094)],hair,null,meta('ponytail')));
+    head.push(face([p(.038,0,-.088),p(.038,-ry*.70,-.067),p(.031,-ry*.90,-.094)],shade(hair,-8),null,meta('ponytail')));
+  }
+  if(a.hat==='cap'||a.hat==='knit'){
+    const cap=a.hat==='cap'?'#687f6b':'#9a9b7b';for(let i=0;i<n;i++)head.push(face([crown[i],crown[(i+1)%n],p(0,ry,0)],cap,null,meta('hat')));
+    head.push(face([p(-.092,ry*.44,-.019),p(.092,ry*.44,-.019),p(.10,ry*.40,.095),p(-.10,ry*.40,.095)],cap,null,meta('hat-brim')));
+  }
+  for(const side of [-1,1])head.push(face([p(side*.038-.005,-ry*.06,.092),p(side*.038+.005,-ry*.06,.092),p(side*.038+.005,ry*.04,.092),p(side*.038-.005,ry*.04,.092)],'#565d46',null,{...meta('face'),shrineFace:true}));
+  const model={body,head,detail,n,skin};visitorModels.set(key,model);return model;
+}
+function visitorLimb(s,a,b,r0,r1,color,n,meta){
+  const axis=unit(p(b.x-a.x,b.y-a.y,b.z-a.z)),right=unit(cross(axis,Math.abs(axis.y)>.8?p(0,0,1):p(0,1,0))),up=cross(axis,right),ring=(q,r)=>Array.from({length:n},(_,i)=>add(q,add(scale(right,Math.cos(i/n*Math.PI*2)*r),scale(up,Math.sin(i/n*Math.PI*2)*r)))),lo=ring(a,r0),hi=ring(b,r1);
+  for(let i=0;i<n;i++)s.push(face([lo[i],lo[(i+1)%n],hi[(i+1)%n],hi[i]],shade(color,i%2?-7:5),null,meta));
+}
+function shrineCrowdVisitorShapes(s,actor){
+  const model=visitorLocalModel(actor),q=actor.position,h=actor.height,w=actor.width,j=actor.joints,facing=actor.facing??1,n=model.detail==='far'?3:4,meta=part=>({actorId:actor.id,visitorPart:part,visitorDetail:model.detail,appearance:{...actor.appearance},shrineFacing:p(0,0,facing)});
+  for(const mesh of model.body)s.push({...mesh,actorId:actor.id,shrineFacing:p(0,0,facing),points:mesh.points.map(a=>p(q.x+a.x,q.y+a.y,q.z+a.z*facing))});
+  for(const mesh of model.head)s.push({...mesh,actorId:actor.id,shrineFacing:p(0,0,facing),contactPartId:`${actor.id}-head`,points:mesh.points.map(a=>p(j.head.x+a.x,j.head.y+a.y,j.head.z+a.z*facing))});
+  visitorLimb(s,p(j.head.x,j.head.y-h*.09,j.head.z),p(q.x,q.y+h*.76,q.z),.033,.046,model.skin,model.detail==='far'?3:4,meta('neck'));
+  for(const [name,side] of [['left',-1],['right',1]]){
+    const knee=j[`${name}Knee`],foot=j[`${name}Foot`],hip=p(knee.x,j.hip.y,q.z);
+    visitorLimb(s,hip,p(foot.x,q.y+.057,q.z),.050,.043,'#667967',model.detail==='far'?3:4,{...meta('trousers'),contactPartId:`${actor.id}-${name}-leg`});
+    s.push(face([p(foot.x-.052,q.y+.027,q.z-.07*facing),p(foot.x+.052,q.y+.027,q.z-.07*facing),p(foot.x+.052,q.y+.071,q.z+.07*facing),p(foot.x-.052,q.y+.071,q.z+.07*facing)],'#74765e',null,meta('shoe')));
+    if(model.detail!=='far')s.push(face([p(foot.x-.052,q.y+.005,q.z-.07*facing),p(foot.x+.052,q.y+.005,q.z-.07*facing),p(foot.x+.052,q.y+.027,q.z-.07*facing),p(foot.x-.052,q.y+.027,q.z-.07*facing)],'#566b59',null,meta('shoe-heel')));
+    const shoulder=j[`${name}Shoulder`],elbow=j[`${name}Elbow`],wrist=j[`${name}Wrist`],arm={...meta('sleeve'),sharedJointChain:name};
+    visitorLimb(s,shoulder,elbow,.064,.055,actor.color,n,{...arm,sharedSegment:0});visitorLimb(s,elbow,wrist,.051,.034,shade(actor.color,7),n,{...arm,sharedSegment:1});
+    // Two small solid palm faces and two thin edges replace the giant target
+    // hand. The real hand box and its shared wrist remain the contact source.
+    const r=.052,z=wrist.z,top=wrist.y+.034,bottom=wrist.y-.043,tag={...meta('hand'),sharedWrist:name,contactPartId:`${actor.id}-${name}-hand`};
+    s.push(face([p(wrist.x-r,bottom,z-.034),p(wrist.x+r,bottom,z-.034),p(wrist.x+r,top,z-.034),p(wrist.x-r,top,z-.034)],model.skin,null,tag));
+    s.push(face([p(wrist.x-r,top,z+.034),p(wrist.x+r,top,z+.034),p(wrist.x+r,bottom,z+.034),p(wrist.x-r,bottom,z+.034)],shade(model.skin,-8),null,tag));
+    if(model.detail!=='far'){
+      s.push(face([p(wrist.x-r,top,z-.034),p(wrist.x+r,top,z-.034),p(wrist.x+r,top,z+.034),p(wrist.x-r,top,z+.034)],shade(model.skin,9),null,tag));
+      line(s,p(wrist.x-side*.012,bottom+.008,z-.035),p(wrist.x-side*.012,top-.012,z-.035),'#b99b78',meta('hand-fingers'));
+    }
+  }
+  oval(s,q.x,q.y+.008,q.z,w*.59,actor.depth*.65,'rgba(57,77,52,.13)',{actorShadow:actor.id});
+}
+function styledFixedVisitorShapes(s,actor,goals,world){
+  const q=actor.position,h=actor.height,w=actor.width,child=actor.kind==='child',index=world.actors.findIndex(a=>a.id===actor.id),goal=goals.find(g=>g.kind==='cone'&&child||g.kind==='mitt'&&Math.abs(g.center.x-q.x)<.1||g.kind==='coffee'&&actor.id.includes('coffee')||g.kind==='soda'&&actor.id.includes('soda'));
+  const appearance={age:child?'child':index%3===2?'elder':'adult',build:child?'slim':index%3===0?'broad':'regular',clothing:child?'hoodie':index%3===1?'coat':'sweater',hair:child?'bob':index%3===2?'silver':index%3===1?'ponytail':'short',hat:world.worldVersion===31&&index%2===0?'cap':'none',bag:world.worldVersion===32&&!child?'shoulder':'none',skin:child?'#e5bd98':'#d8b48f',gesture:child?'hold-cone':'hold-goal'};
+  const joints={head:p(q.x,q.y+h*.91,q.z),hip:p(q.x,q.y+h*.48,q.z)};
+  for(const [name,side] of [['left',-1],['right',1]]){
+    joints[`${name}Shoulder`]=p(q.x+side*w*.38,q.y+h*.77,q.z);
+    joints[`${name}Elbow`]=p(q.x+side*w*.44,q.y+h*.57,q.z-.035);
+    joints[`${name}Wrist`]=p(q.x+side*w*.48,q.y+h*.44,q.z-.045);
+    joints[`${name}Knee`]=p(q.x+side*w*.22,q.y+h*.24,q.z);joints[`${name}Foot`]=p(q.x+side*w*.22,q.y+.035,q.z-.035);
+    if(goal&&(child||name==='right')){
+      joints[`${name}Wrist`]=child?p(goal.center.x+side*.16,goal.center.y-.27,goal.center.z-.025):p(goal.center.x,goal.center.y-.18,goal.center.z+.035);
+      joints[`${name}Elbow`]=p(joints[`${name}Shoulder`].x+side*.025,(joints[`${name}Shoulder`].y+joints[`${name}Wrist`].y)/2-.07,(q.z+joints[`${name}Wrist`].z)/2);
+    }
+  }
+  shrineCrowdVisitorShapes(s,{...actor,appearance,joints,facing:-1});
+}
 function boatDetails(s,boat,time,reducedMotion=false){
   const q=boat.position,w=boat.width??2,d=boat.depth??1.1,h=boat.height??.55,steam=boat.kind==='steamship',color=steam?'#cfdbcd':'#d4b878',meta={boatDetailId:boat.id};
   // Thin cabin windows, a cream rubbing strake and a painted bow distinguish
@@ -439,13 +592,13 @@ export function outdoorMotionShapes(time,world,options={}){
   if(typeof options==='boolean')options={reducedMotion:options};
   if(world?.environment!=='outdoor')throw new RangeError('A frozen outdoor world is required');
   const motion=outdoorMotion(world,time),shapes=[],movingFigures=['shrine','river'].includes(typeOf(world));
-  if(movingFigures)for(const actor of motion.actors??[]){if(typeOf(world)==='shrine')shrineWorshipperShapes(shapes,actor,time,!!options.reducedMotion);else actorShapes(shapes,actor,time,!!options.reducedMotion);}
+  if(movingFigures)for(const actor of motion.actors??[]){if(world.worldVersion===30)shrineCrowdVisitorShapes(shapes,actor);else if(typeOf(world)==='shrine')shrineWorshipperShapes(shapes,actor,time,!!options.reducedMotion);else actorShapes(shapes,actor,time,!!options.reducedMotion);}
   const dynamic=outdoorDynamicSolids(world,time),actorIds=new Set((motion.actors??[]).map(actor=>actor.id)),actorSolidIds=new Set((motion.actors??[]).flatMap(actor=>(actor.colliders??[]).map(c=>c.id)));
   for(const solid of dynamic){if(actorIds.has(solid.object)||actorIds.has(solid.actorId)||actorSolidIds.has(solid.id)||solid.kind==='actor'||solid.kind==='person'||solid.kind==='crowd'||solid.kind==='student')continue;
     const boat=motion.boats.find(b=>b.id===solid.object),color=boat&&solid.kind==='boat-hull'?(boat.kind==='steamship'?'#587f7b':'#b29462'):surfaceColor(solid,world);
     physicalBox(shapes,solid,color);}
   for(const boat of motion.boats??[])boatDetails(shapes,boat,time,!!options.reducedMotion);
-  if(movingFigures){for(const goal of motion.goals??[]){if(typeOf(world)==='shrine'&&goal.kind==='hand')shrineRaisedHandShapes(shapes,goal);else aperture(shapes,goal);}heldObjects(shapes,motion.actors,motion.goals);}
+  if(movingFigures){for(const goal of motion.goals??[]){if(typeOf(world)==='shrine'&&goal.kind==='hand')shrineRaisedHandShapes(shapes,goal);else if(world.worldVersion===30&&goal.id==='shrine-inari'){const mouth=[];aperture(mouth,goal);shapes.push(...mouth.map(m=>({...m,fill:m.opening?'#bb9864':m.fill,inariOpening:true})));}else aperture(shapes,goal);}heldObjects(shapes,motion.actors,motion.goals);}
   batSwing(shapes,world,time,options);
   const lit=typeOf(world)==='river'?lightShapes(shapes,motion.lamps??[]):shapes;
   lit.push(...outdoorLampShapes(motion.lamps??[],{waterY:world.water?.y??0,waterBounds:world.water}));

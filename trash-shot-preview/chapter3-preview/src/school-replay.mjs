@@ -1,9 +1,9 @@
 // Version 5 records school contacts and a bounded walking phase around V1 poses.
 // Older room envelopes keep their original codecs, keys and interpretation.
-import {validateReplay,createReplayPlayer,ReplayError} from './replay.mjs?v=20261013-contact-shrine-1';
-import {sweepSphereAABB} from './room-course.mjs?v=20261013-contact-shrine-1';
-import {schoolWorld,schoolSolids,schoolStudentPose,schoolStudentPoses} from './school-world.mjs?v=20261013-contact-shrine-1';
-import {THROWABLE_CATALOG} from './throwables.mjs?v=20261013-contact-shrine-1';
+import {validateReplay,createReplayPlayer,ReplayError} from './replay.mjs?v=20261013-outdoor-polish-1';
+import {sweepSphereAABB} from './room-course.mjs?v=20261013-outdoor-polish-1';
+import {schoolWorld,schoolSolids,schoolStudentPose,schoolStudentPoses} from './school-world.mjs?v=20261013-outdoor-polish-1';
+import {THROWABLE_CATALOG} from './throwables.mjs?v=20261013-outdoor-polish-1';
 
 export const SCHOOL_REPLAY_STORAGE_KEY='trash-shot-school-replays-v5';
 export const SCHOOL_REPLAY_LIMITS=Object.freeze({version:5,contactModel:1,rawBytes:1024*1024,

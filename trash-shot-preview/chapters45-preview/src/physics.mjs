@@ -1,10 +1,10 @@
 // World-space simulation. One metre is one unit; rendering never affects physics.
 import {throwableRadius,throwableInitialVelocity,beginThrowableShot,applyThrowableAir,
-  throwableRestitution,throwableFriction,throwableContact,getThrowableProfile,cloneThrowable,throwableTerminalContact} from './throwable-physics.mjs?v=20261013-contact-shrine-1';
-import {SCHOOL_PHYSICS_WORLDS} from './school-world.mjs?v=20261013-contact-shrine-1';
-import {OUTDOOR_PHYSICS_WORLDS,OUTDOOR_WORLDS} from './outdoor-world.mjs?v=20261013-contact-shrine-1';
-import {FACTORY_PHYSICS_WORLDS,factoryWorldByVersion} from './factory-world.mjs?v=20261013-contact-shrine-1';
-import {ECCENTRIC_PHYSICS_WORLDS,ECCENTRIC_WORLDS} from './eccentric-world.mjs?v=20261013-contact-shrine-1';
+  throwableRestitution,throwableFriction,throwableContact,getThrowableProfile,cloneThrowable,throwableTerminalContact} from './throwable-physics.mjs?v=20261013-outdoor-polish-1';
+import {SCHOOL_PHYSICS_WORLDS} from './school-world.mjs?v=20261013-outdoor-polish-1';
+import {OUTDOOR_PHYSICS_WORLDS,OUTDOOR_WORLDS,outdoorWorldByVersion} from './outdoor-world.mjs?v=20261013-outdoor-polish-1';
+import {FACTORY_PHYSICS_WORLDS,factoryWorldByVersion} from './factory-world.mjs?v=20261013-outdoor-polish-1';
+import {ECCENTRIC_PHYSICS_WORLDS,ECCENTRIC_WORLDS} from './eccentric-world.mjs?v=20261013-outdoor-polish-1';
 const extendedPhysicsWorld=version=>OUTDOOR_PHYSICS_WORLDS[version]??FACTORY_PHYSICS_WORLDS[version]??ECCENTRIC_PHYSICS_WORLDS[version];
 const GRAVITY = 9.81;
 const SUBSTEP = 1 / 240;
@@ -174,7 +174,7 @@ export function setSetup(game, input = {}) {
 }
 
 export function setRoomWorld(game, worldVersion = 2) {
-  if (!Number.isInteger(worldVersion)||worldVersion<1||worldVersion>29) throw new RangeError('Room world version must be an integer from 1 through 29');
+  if (!Number.isInteger(worldVersion)||worldVersion<1||worldVersion>32) throw new RangeError('Room world version must be an integer from 1 through 32');
   const world = ROOM_PHYSICS_WORLDS[worldVersion]??SCHOOL_PHYSICS_WORLDS[worldVersion]??extendedPhysicsWorld(worldVersion);
   ROOM_SETUPS.set(game, worldVersion);
   game.bin = { ...world.bin, center: { ...world.bin.center } };
@@ -273,7 +273,7 @@ function finish(game, success) {
 // remains unchanged, including when an earned non-terminal item is re-equipped.
 export function captureGoal(game,goal,{position=game?.can?.position,environmentTime}={}){
   if(!ACTIVE.has(game?.phase)||!extendedPhysicsWorld(ROOM_SETUPS.get(game)))return false;
-  const world=factoryWorldByVersion(ROOM_SETUPS.get(game))??Object.values({...OUTDOOR_WORLDS,...ECCENTRIC_WORLDS}).find(w=>w.worldVersion===ROOM_SETUPS.get(game));
+  const world=factoryWorldByVersion(ROOM_SETUPS.get(game))??outdoorWorldByVersion(ROOM_SETUPS.get(game))??Object.values(ECCENTRIC_WORLDS).find(w=>w.worldVersion===ROOM_SETUPS.get(game));
   const fixed=world.goals.find(g=>g.id===goal?.id);
   if(!fixed||fixed.role!==goal.role||!position||!['x','y','z'].every(axis=>Number.isFinite(position[axis])))return false;
   game.can.position={...position};game.phase='settling';

@@ -1,9 +1,9 @@
 // Shared room-contact adapter. The established simulation still owns gravity,
 // the hollow bin, floor contact, the five-second result, and save compatibility.
-import {createGame, setRoomWorld, throwCan, stepGame,stopSplatShot} from './physics.mjs?v=20261013-contact-shrine-1';
-import {sweepSphereAABB} from './room-course.mjs?v=20261013-contact-shrine-1';
-import {roomSolidColliders} from './room-solids.mjs?v=20261013-contact-shrine-1';
-import {applyThrowableAir,throwableRestitution,throwableFriction,throwableContact,cloneThrowable,throwableTerminalContact} from './throwable-physics.mjs?v=20261013-contact-shrine-1';
+import {createGame, setRoomWorld, throwCan, stepGame,stopSplatShot} from './physics.mjs?v=20261013-outdoor-polish-1';
+import {sweepSphereAABB} from './room-course.mjs?v=20261013-outdoor-polish-1';
+import {roomSolidColliders} from './room-solids.mjs?v=20261013-outdoor-polish-1';
+import {applyThrowableAir,throwableRestitution,throwableFriction,throwableContact,cloneThrowable,throwableTerminalContact} from './throwable-physics.mjs?v=20261013-outdoor-polish-1';
 
 const TICK = 1 / 240, GRAVITY = 9.81, EPS = 1e-9, CORE_EPS = 1.000001e-7, SLOP = 1e-5;
 const AXES = ['x', 'y', 'z'], ACTIVE = new Set(['flying', 'settling']);
@@ -88,12 +88,13 @@ function findSupport(game,colliders) {
  * Every caller cadence is accumulated into the same 1/240 s sequence. Nothing
  * in this module changes production replays or the established physics module.
  */
-export function createRoomContactStepper(world,{onContact,extra=false,solids,dynamicColliders,onBlockingContact,captureSweep,onCapture,onTerminalContact}={}) {
+export function createRoomContactStepper(world,{onContact,extra=false,solids,dynamicColliders,onBlockingContact,captureSweep,onCapture,onTerminalContact,impactResponse}={}) {
   // Explicit geometry is used only by the school adapter; the historical room
   // path above retains its exact immutable furniture and arithmetic.
   if(solids!==undefined&&(!Array.isArray(solids)||solids.some(c=>!finitePoint(c?.min)||!finitePoint(c?.max)||AXES.some(axis=>c.min[axis]>c.max[axis]))))throw new TypeError('Explicit solid bounds must be finite');
   if(dynamicColliders!==undefined&&typeof dynamicColliders!=='function')throw new TypeError('Dynamic colliders must be a function');
   if(captureSweep!==undefined&&typeof captureSweep!=='function')throw new TypeError('Capture sweep must be a function');
+  if(impactResponse!==undefined&&typeof impactResponse!=='function')throw new TypeError('Impact response must be a function');
   const colliders=solids??solidGeometry(world,extra),lastImpact=new Map();
   let remainder=0,shotId=null,substeps=0,contactCount=0,contacts=[],boundedStops=0;
   function reset() {
@@ -110,12 +111,17 @@ export function createRoomContactStepper(world,{onContact,extra=false,solids,dyn
     if(typeof onContact==='function') try{onContact(event);}catch{/* Observation cannot interrupt a throw. */}
   }
   function impact(game,hit,collider) {
-    const v=game.can.velocity,before=copy(v),normalSpeed=dot(v,hit.normal),incoming=Math.max(0,-normalSpeed);
-    const supported=hit.normal.y>.999 && incoming<.55;
+    const v=game.can.velocity,before=copy(v),normalSpeed=dot(v,hit.normal);let incoming=Math.max(0,-normalSpeed);
+    let supported=hit.normal.y>.999 && incoming<.55;
     const materialBounce=Number.isFinite(collider.restitution)?Math.max(0,Math.min(.8,collider.restitution)):
       collider.object==='bed'?.18:.28;
     const bounce=supported?0:throwableRestitution(game,collider.surface,materialBounce);
-    if(normalSpeed<0) {
+    const response=impactResponse?.({game,collider,normal:copy(hit.normal),beforeVelocity:before,materialBounce,supported});
+    if(response!=null){
+      if(!finitePoint(response.velocity)||!Number.isFinite(response.incomingNormalSpeed)||response.incomingNormalSpeed<0||response.supported!==undefined&&typeof response.supported!=='boolean')throw new TypeError('Impact response must return a finite physical velocity');
+      Object.assign(v,response.velocity);incoming=response.incomingNormalSpeed;supported=response.supported??supported;
+      if(!response.handledThrowableContact)throwableContact(game,hit.normal,before,incoming);
+    }else if(normalSpeed<0) {
       for(const axis of AXES) v[axis]-=(1+bounce)*normalSpeed*hit.normal[axis];
       const outward=dot(v,hit.normal),tangent=Object.fromEntries(AXES.map(axis=>[axis,v[axis]-outward*hit.normal[axis]]));
       const speed=Math.hypot(tangent.x,tangent.y,tangent.z),remaining=Math.max(0,speed-incoming*(1+bounce)*throwableFriction(game,.22));
