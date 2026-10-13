@@ -1,7 +1,7 @@
 // Collision solids for the comparison room, recovered from the actual meshes.
 // Keep the saved worlds and production renderer unchanged. A furniture group
 // is never converted to one solid box: open legs and shelf gaps stay open.
-import {roomScene} from './room-scene.mjs?v=20261013-outdoor-polish-1';
+import {roomScene} from './room-scene.mjs?v=20261013-physical-scenes-1';
 
 const AXES = ['x', 'y', 'z'];
 const freeze = value => {

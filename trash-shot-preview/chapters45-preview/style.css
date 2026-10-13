@@ -461,11 +461,11 @@ body.title-is-open{overflow:hidden}
 .chapter-shell .chapter-stage-heading{grid-column:1/-1;margin:18px 0 0;color:#286864;font-size:17px;letter-spacing:.09em}
 .chapter-shell .chapter-stage-heading:first-child{margin-top:0}
 .chapter-shell .chapter-school-card .stage-thumbnail{background-size:cover;background-position:center}
-.chapter-shell .stage-school-classroom .stage-thumbnail{background-image:url("./art/school/20261011/school-classroom.png?v=20261013-outdoor-polish-1")}
-.chapter-shell .stage-school-vending .stage-thumbnail{background-image:url("./art/school/20261011/school-vending.png?v=20261013-outdoor-polish-1")}
-.chapter-shell .stage-school-passage .stage-thumbnail{background-image:url("./art/school/20261011/school-passage.png?v=20261013-outdoor-polish-1")}
-.chapter-shell .stage-school-rooftop .stage-thumbnail{background-image:url("./art/school/20261011/school-rooftop.png?v=20261013-outdoor-polish-1")}
-.chapter-shell .chapter-top[data-chapter="2"] .home-art{background-image:url("./art/school/20261011/school-classroom.png?v=20261013-outdoor-polish-1");background-size:cover;background-position:center}
+.chapter-shell .stage-school-classroom .stage-thumbnail{background-image:url("./art/school/20261011/school-classroom.png?v=20261013-physical-scenes-1")}
+.chapter-shell .stage-school-vending .stage-thumbnail{background-image:url("./art/school/20261011/school-vending.png?v=20261013-physical-scenes-1")}
+.chapter-shell .stage-school-passage .stage-thumbnail{background-image:url("./art/school/20261011/school-passage.png?v=20261013-physical-scenes-1")}
+.chapter-shell .stage-school-rooftop .stage-thumbnail{background-image:url("./art/school/20261011/school-rooftop.png?v=20261013-physical-scenes-1")}
+.chapter-shell .chapter-top[data-chapter="2"] .home-art{background-image:url("./art/school/20261011/school-classroom.png?v=20261013-physical-scenes-1");background-size:cover;background-position:center}
 .chapter3-preview-note{margin:0 0 12px;padding:10px 16px;border-left:3px solid #b58d43;background:#f8edce;color:#76603f;font-size:12px;line-height:1.7}
 .chapter-shell .chapter-outdoor-card .stage-thumbnail{background-size:cover;background-position:center}
 .chapter-shell .stage-outdoor-shrine .stage-thumbnail{background-image:url('./art/outdoor/20261012/outdoor-shrine.png')}
@@ -497,9 +497,14 @@ body.title-is-open{overflow:hidden}
 .outdoor-route-detour{margin-top:8px}
 .outdoor-sound-choice{display:flex;align-items:center;gap:8px;margin:12px 0;color:#286864;font-size:12px}
 .outdoor-sound-choice input{accent-color:#438f88;width:18px;height:18px}
-.goal-camera{width:min(380px,100%);margin:0 auto 12px;border:1px solid #acc5ba;border-radius:10px;overflow:hidden;background:#f5ecd7}
-.goal-camera p{margin:0;padding:6px 12px;color:#286864;font-size:11px}
-#goal-scene{display:block;width:100%;height:190px;pointer-events:none}
+.goal-camera{position:absolute;top:12px;right:12px;z-index:3;width:clamp(138px,32%,260px);margin:0;border:2px solid #7caa9d;border-radius:10px;overflow:hidden;background:#f5ecd7;box-shadow:0 3px 12px #284c4830;pointer-events:none}
+.goal-camera[hidden],.pixel-intro-active .goal-camera{display:none}
+.goal-camera p{display:flex;align-items:center;gap:5px;margin:0;padding:5px 8px;color:#286864;background:#fff8e9;font-size:10px;line-height:1.3;white-space:nowrap}
+.goal-camera p span{color:#619c87;font-size:7px}
+.goal-camera[data-aiming=true]{opacity:.78}
+#goal-scene{display:block;width:100%;height:auto;aspect-ratio:8/5;pointer-events:none}
+@media(max-width:600px){.goal-camera{top:8px;right:8px;width:clamp(130px,37%,172px);border-radius:8px}.goal-camera p{padding:4px 6px;font-size:9px}}
+@media(max-height:500px){.goal-camera{top:8px;right:8px;width:min(24%,190px)}.goal-camera p{padding:3px 6px}}
 @media(max-width:600px){.outdoor-route-map{padding:16px}.outdoor-map-faces,.outdoor-map-routes{grid-template-columns:1fr}.outdoor-route-card h4{font-size:18px}.chapter3-preview-note{font-size:11px}}
 .chapter-shell .home-face-mark[hidden]{display:none}
 @media(max-width:600px){.chapter-shell .chapter-stage-heading{font-size:15px;margin-top:14px}}

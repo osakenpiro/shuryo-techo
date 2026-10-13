@@ -79,6 +79,9 @@ export const OUTDOOR_PHYSICS_WORLDS=freeze({
   30:{worldVersion:30,origin:p(0,1.05,0),bin:{center:p(0,.55,6.8),radius:1.03,height:1.1}},
   31:{worldVersion:31,origin:p(0,1.9,0),bin:{center:p(0,3,40),radius:.62,height:6},launchScale:3.2},
   32:{worldVersion:32,origin:p(0,8.4,0),bin:{center:p(0,.7,3.2),radius:.33,height:1.4},launchLimits:{minPower:.1,maxPower:14,minElevation:-80,maxElevation:85}},
+  33:{worldVersion:33,origin:p(0,1.9,0),bin:{center:p(0,3,40),radius:.62,height:6},launchScale:3.2},
+  34:{worldVersion:34,origin:p(0,8.4,0),bin:{center:p(0,.625,3.2),radius:.05,height:1.25},launchLimits:{minPower:.1,maxPower:14,minElevation:-80,maxElevation:85}},
+  35:{worldVersion:35,origin:p(0,1.3,0),bin:{center:p(0,.6,11.5),radius:.17,height:1.2},launchScale:1.3},
 });
 const make=(stageId,version,outdoorType,itemId,goals,solids,actors,launch,view,extra={})=>({stageId,worldVersion:version,environment:'outdoor',outdoorType,itemId,
   physics:OUTDOOR_PHYSICS_WORLDS[version],origin:OUTDOOR_PHYSICS_WORLDS[version].origin,bin:OUTDOOR_PHYSICS_WORLDS[version].bin,
@@ -106,11 +109,71 @@ const newerCrowd=[
   [-1.85,5.75,1.7,'adult','shirt','short',false],[-.95,5.9,1.65,'adult','skirt','bob',false],[1.25,5.75,1.68,'elderly','coat','grey',false],
 ].map(([x,z,height,age,clothing,hair,reaching],index)=>({id:`shrine-visitor-${index+1}`,kind:'worshipper',position:p(x,0,z),height,width:age==='child'?.31:index%4===0?.52:index%3===0?.35:.43,depth:.30,color:['#b87754','#739991','#d2a45f','#7999b1','#ad8885','#99a079'][index%6],
   appearance:{age:age==='elderly'?'elder':age,build:index%4===0?'broad':index%3===0?'slim':'regular',clothing:clothing==='shirt'?'sweater':clothing,hair:hair==='grey'?'silver':hair,hat:index===3?'knit':index===13?'cap':'none',bag:age==='teen'?'backpack':index%5===0?'shoulder':'none',gesture:reaching?'reach':['prayer','bow','wait'][index%3],skin:['#d6af8c','#c99574','#e5bd98'][index%3]},reaching,posePhase:index*.83}));
+// Previously released world 31 is kept byte-for-byte for saved V7 records.
+// The default can advance without rebinding their collision or actor poses.
+export const OUTDOOR_PREVIOUS_WORLDS=freeze({
+  'outdoor-baseball':{...OUTDOOR_LEGACY_WORLDS['outdoor-baseball'],worldVersion:31,physics:OUTDOOR_PHYSICS_WORLDS[31],origin:OUTDOOR_PHYSICS_WORLDS[31].origin,bin:OUTDOOR_PHYSICS_WORLDS[31].bin,solids:[...baseballSolids,...[-4.7,4.7].map((x,index)=>box(`stadium-scoreboard-support-${index===0?'left':'right'}`,'stadium-scoreboard','scoreboard-column',p(x-.16,0,55.3),p(x+.16,10,55.6),'wall',.35))],view:{target:p(0,8,26),distance:82,azimuth:.12,elevation:.44},visualBounds:{minX:-38,maxX:38,minZ:-23,maxZ:78,height:36}},
+  'outdoor-mall':{...OUTDOOR_LEGACY_WORLDS['outdoor-mall'],worldVersion:32,physics:OUTDOOR_PHYSICS_WORLDS[32],origin:OUTDOOR_PHYSICS_WORLDS[32].origin,bin:OUTDOOR_PHYSICS_WORLDS[32].bin,view:{target:p(0,4.2,2.1),distance:15.4,azimuth:0,elevation:.98},visualBounds:{minX:-9,maxX:9,minZ:-4,maxZ:8,height:12}},
+});
+// One stepped outfield boundary owns both the collision volumes and their
+// visible terraces. The central catchers stand behind the fence in row one;
+// connected side wings turn toward the infield instead of leaving a podium
+// in the grass. AABB steps intentionally match the existing contact model.
+const standLevels=[4.2,5.5,6.8,8.1],standDepths=[4.4,3.4,3.4,3.4];
+const wingRanges=[[10,13,36.46666666666667],[13,16,35.233333333333334],[16,19,34],[19,21.2,31.123076923076923],[21.2,23.4,28.246153846153845],[23.4,25.5,25.5]];
+const standSegments=[{id:'centre',minX:-10,maxX:10,frontZ:37.9},...[-1,1].flatMap(side=>wingRanges.map(([inner,outer,frontZ],i)=>({id:`${side<0?'left':'right'}-${i+1}`,minX:side<0?-outer:inner,maxX:side<0?-inner:outer,frontZ})))];
+const connectedStandSolids=[];
+for(const segment of standSegments){
+  connectedStandSolids.push(box(`stadium-outfield-fence-${segment.id}`,'stadium-outfield-fence','outfield-fence',p(segment.minX,0,segment.frontZ-.3),p(segment.maxX,2.4,segment.frontZ),'wall',.35));
+  let z=segment.frontZ;
+  for(const [row,height] of standLevels.entries()){
+    connectedStandSolids.push(box(`stadium-terrace-${segment.id}-${row+1}`,'stadium-connected-stands','stand-terrace',p(segment.minX,0,z),p(segment.maxX,height,z+standDepths[row])));
+    z+=standDepths[row];
+  }
+}
+// Close the short returns between each stepped front segment, so a visible
+// fence corner has no diagonal gap in the same sphere sweep used for play.
+for(const side of [-1,1]){
+  let priorZ=37.9;
+  for(const [index,[inner,,frontZ]] of wingRanges.entries()){
+    const x=side*inner;
+    connectedStandSolids.push(box(`stadium-fence-return-${side<0?'left':'right'}-${index+1}`,'stadium-outfield-fence','fence-return',p(x-.15,0,frontZ-.3),p(x+.15,2.4,priorZ),'wall',.35));
+    priorZ=frontZ;
+  }
+}
+connectedStandSolids.push(box('stadium-front-row-rail','stadium-connected-stands','stand-rail',p(-10,4.75,39.45),p(10,4.9,39.52),'rail',.3));
+export const BASEBALL_STANDS_GEOMETRY=freeze({worldVersion:33,segments:standSegments,levels:standLevels,depths:standDepths,solids:connectedStandSolids,fieldFront:standSegments.map(s=>({minX:s.minX,maxX:s.maxX,z:s.frontZ-.3})),spectatorRow:{floorY:4.2,feetZ:40.45,goalY:6,goalZ:40,solidId:'stadium-terrace-centre-1'}});
+const foulPoles=[-1,1].map(side=>box(`stadium-foul-pole-${side<0?'left':'right'}`,'stadium-foul-poles','foul-pole',p(side*25.5-.07,0,25.18),p(side*25.5+.07,10,25.32),'wall',.35));
+const seatedCatchers=baseballActors.map((actor,index)=>({...actor,facing:p(0,0,-1),gesture:'await-catch',mittGoalId:baseballGoals[index].id,supportSolidId:'stadium-terrace-centre-1',appearance:{shirt:['jersey','hoodie','jersey','jacket','jersey'][index],hair:['short','bob','short','short','short'][index],hat:['cap','none','cap','cap','none'][index],skin:['#d6af8c','#c99574','#e5bd98','#c99574','#d6af8c'][index]}}));
+const realMallGoals=[
+  horizontal('mall-child-cone','normal','cone',p(0,1.25,3.2),.05,{label:'子供のコーン',landing:true}),
+  horizontal('mall-coffee','alternative','coffee',p(-2.7,5.4,2.3),.045,{label:'別階のコーヒー'}),
+  horizontal('mall-soda','alternative','soda',p(2.8,3.3,2.8),.05,{label:'別階のサイダー'}),
+];
+const realMallSolids=[...mallSolids.filter(c=>!['mall-coffee-body','mall-soda-body','mall-cone-body'].includes(c.id)),
+  ...[-1,1].flatMap(side=>[.55,4.82].map((z,index)=>box(`mall-${side<0?'left':'right'}-balcony-post-${index+1}`,'mall-balcony-supports','balcony-post',p(side<0?-5.5:5.34,0,z),p(side<0?-5.34:5.5,side<0?4.3:2.1,z+.18)))),
+  ...[[4.3,4.5,'middle'],[2.1,2.3,'lower'],[7.1,7.3,'upper']].map(([bottom,top,level])=>box(`mall-rear-${level}-gallery`,'mall-connected-galleries','balcony',p(-6,bottom,5.1),p(6,top,6.2))),
+  box('mall-left-middle-gallery-link','mall-connected-galleries','balcony',p(-6,4.3,.5),p(-5.5,4.5,5.1)),
+  box('mall-right-lower-gallery-link','mall-connected-galleries','balcony',p(5.5,2.1,.5),p(6,2.3,5.1)),
+  box('mall-coffee-body','mall-coffee','cup',p(-2.75,5.29,2.25),p(-2.65,5.36,2.35)),
+  box('mall-soda-body','mall-soda','cup',p(2.745,3.13,2.745),p(2.855,3.26,2.855)),
+  box('mall-cone-body','mall-child-cone','cone',p(-.047,1.10,3.153),p(.047,1.20,3.247)),
+];
+export const OUTDOOR_MALL_PROPS=freeze({worldVersion:34,iceRadius:.035,cone:{center:p(0,1.25,3.2),mouthRadius:.05,outerRadius:.055,tipY:1.10},coffee:{center:p(-2.7,5.4,2.3),mouthRadius:.045,outerRadius:.05,bottomY:5.29},soda:{center:p(2.8,3.3,2.8),mouthRadius:.05,outerRadius:.055,bottomY:3.13}});
+export const OUTDOOR_RIVER_PROPS=freeze({worldVersion:35,fireworkRadius:.12,tube:{center:p(0,1.2,11.5),mouthRadius:.17,outerRadius:.205,bottomY:.07},steamship:{width:8,depth:2.4,height:.6,baseY:.16,hullSections:[[-4,-3,.42],[-3,-2,.92],[-2,2,1.2],[2,3,.92],[3,4,.42]],wheelhouse:{minX:1.44,maxX:2.64,minY:.81,maxY:2.55,halfDepth:.72},chimney:{height:2.9,radius:.22,outerRadius:.27,bodyTop:2.65}},houseboat:{width:6.4,depth:2.15,height:.48,baseY:.12,hullSections:[[-3.2,-2.4,.38],[-2.4,-1.6,.82],[-1.6,1.6,1.075],[1.6,2.4,.82],[2.4,3.2,.38]],cabin:{halfLength:2.5,halfDepth:.87,floorY:.6,eaveY:2.35,ridgeY:2.60}}});
+const realRiverGoals=[horizontal('river-firework-tube','normal','firework-tube',p(0,1.2,11.5),.17,{label:'向こう岸の花火筒'}),horizontal('river-steamship-chimney','alternative','chimney',p(0,2.9,6.3),.22,{label:'蒸気船の煙突',motionId:'river-steamship'})];
+const realRiverSolids=[...riverSolids.filter(c=>c.id!=='river-tube-body'),box('river-tube-body','river-firework-tube','tube',p(-.205,.07,11.295),p(.205,.96,11.705)),
+  box('river-tube-rim-front','river-firework-tube','tube-rim',p(-.205,.96,11.295),p(.205,1.24,11.33),'rim',.35),
+  box('river-tube-rim-back','river-firework-tube','tube-rim',p(-.205,.96,11.67),p(.205,1.24,11.705),'rim',.35),
+  box('river-tube-rim-left','river-firework-tube','tube-rim',p(-.205,.96,11.295),p(-.17,1.24,11.705),'rim',.35),
+  box('river-tube-rim-right','river-firework-tube','tube-rim',p(.17,.96,11.295),p(.205,1.24,11.705),'rim',.35),
+];
 export const OUTDOOR_WORLDS=freeze({...OUTDOOR_LEGACY_WORLDS,'outdoor-shrine':{...OUTDOOR_LEGACY_WORLDS['outdoor-shrine'],worldVersion:30,physics:OUTDOOR_PHYSICS_WORLDS[30],origin:OUTDOOR_PHYSICS_WORLDS[30].origin,bin:OUTDOOR_PHYSICS_WORLDS[30].bin,
   actors:newerCrowd,goals:[shrineGoals[0],inariGoal],solids:[...shrineSolids,...inariSolids],view:{...OUTDOOR_LEGACY_WORLDS['outdoor-shrine'].view,target:p(.25,1.5,3.8),distance:14.5},inari:{goalId:'shrine-inari',center:p(3.8,0,6.6),boxCenter:inariGoal.center,boxHalfWidth:inariGoal.halfWidth,boxHalfDepth:inariGoal.halfHeight}},
-  'outdoor-baseball':{...OUTDOOR_LEGACY_WORLDS['outdoor-baseball'],worldVersion:31,physics:OUTDOOR_PHYSICS_WORLDS[31],origin:OUTDOOR_PHYSICS_WORLDS[31].origin,bin:OUTDOOR_PHYSICS_WORLDS[31].bin,solids:[...baseballSolids,...[-4.7,4.7].map((x,index)=>box(`stadium-scoreboard-support-${index===0?'left':'right'}`,'stadium-scoreboard','scoreboard-column',p(x-.16,0,55.3),p(x+.16,10,55.6),'wall',.35))],view:{target:p(0,8,26),distance:82,azimuth:.12,elevation:.44},visualBounds:{minX:-38,maxX:38,minZ:-23,maxZ:78,height:36}},
-  'outdoor-mall':{...OUTDOOR_LEGACY_WORLDS['outdoor-mall'],worldVersion:32,physics:OUTDOOR_PHYSICS_WORLDS[32],origin:OUTDOOR_PHYSICS_WORLDS[32].origin,bin:OUTDOOR_PHYSICS_WORLDS[32].bin,view:{target:p(0,4.2,2.1),distance:15.4,azimuth:0,elevation:.98},visualBounds:{minX:-9,maxX:9,minZ:-4,maxZ:8,height:12}}});
-const OUTDOOR_WORLD_BY_VERSION=freeze(Object.fromEntries([...Object.values(OUTDOOR_LEGACY_WORLDS),...Object.values(OUTDOOR_WORLDS)].map(w=>[w.worldVersion,w])));
+  'outdoor-baseball':{...OUTDOOR_PREVIOUS_WORLDS['outdoor-baseball'],worldVersion:33,physics:OUTDOOR_PHYSICS_WORLDS[33],origin:OUTDOOR_PHYSICS_WORLDS[33].origin,bin:OUTDOOR_PHYSICS_WORLDS[33].bin,actors:seatedCatchers,solids:[...connectedStandSolids,...foulPoles,...OUTDOOR_PREVIOUS_WORLDS['outdoor-baseball'].solids.filter(c=>c.id==='stadium-scoreboard'||c.kind==='scoreboard-column')],room:{minX:-28,maxX:28,minZ:-3,maxZ:58,height:20,openSky:true},stands:BASEBALL_STANDS_GEOMETRY,view:{target:p(0,6.5,24),distance:68,azimuth:.08,elevation:.42}},
+  'outdoor-mall':{...OUTDOOR_PREVIOUS_WORLDS['outdoor-mall'],worldVersion:34,physics:OUTDOOR_PHYSICS_WORLDS[34],origin:OUTDOOR_PHYSICS_WORLDS[34].origin,bin:OUTDOOR_PHYSICS_WORLDS[34].bin,goals:realMallGoals,solids:realMallSolids,props:OUTDOOR_MALL_PROPS,launch:{power:3.05,elevation:-3,yaw:0}},
+  'outdoor-river':{...OUTDOOR_LEGACY_WORLDS['outdoor-river'],worldVersion:35,physics:OUTDOOR_PHYSICS_WORLDS[35],origin:OUTDOOR_PHYSICS_WORLDS[35].origin,bin:OUTDOOR_PHYSICS_WORLDS[35].bin,goals:realRiverGoals,solids:realRiverSolids,props:OUTDOOR_RIVER_PROPS,launch:{power:10.45,elevation:44,yaw:0}}});
+const OUTDOOR_WORLD_BY_VERSION=freeze(Object.fromEntries([...Object.values(OUTDOOR_LEGACY_WORLDS),...Object.values(OUTDOOR_PREVIOUS_WORLDS),...Object.values(OUTDOOR_WORLDS)].map(w=>[w.worldVersion,w])));
 export function outdoorWorldByVersion(worldVersion){return Number.isInteger(worldVersion)&&Object.hasOwn(OUTDOOR_WORLD_BY_VERSION,worldVersion)?OUTDOOR_WORLD_BY_VERSION[worldVersion]:null;}
 export function outdoorWorld(stageId,worldVersion){const world=worldVersion===undefined?typeof stageId==='string'&&Object.hasOwn(OUTDOOR_WORLDS,stageId)?OUTDOOR_WORLDS[stageId]:null:outdoorWorldByVersion(worldVersion);return world?.stageId===stageId?world:null;}
 function requireWorld(world){const saved=outdoorWorld(world?.stageId,world?.worldVersion);if(!saved)throw new RangeError('A supported outdoor world is required');return saved;}
@@ -144,7 +207,10 @@ function shrineVisitorPose(actor,time){
   }
   return {...actor,position:q,joints,contactParts:parts,reach};
 }
-export function outdoorBoats(world,time=0){world=requireWorld(world);if(!Number.isFinite(time))throw new TypeError('Outdoor time must be finite');if(world.outdoorType!=='river')return [];const phase=time*Math.PI/6;return [
+export function outdoorBoats(world,time=0){world=requireWorld(world);if(!Number.isFinite(time))throw new TypeError('Outdoor time must be finite');if(world.outdoorType!=='river')return [];const phase=time*Math.PI/6;if(world.worldVersion===35)return [
+  {id:'river-steamship',kind:'steamship',position:p(4.8*Math.sin(phase-.7),.16,6.3),width:8,depth:2.4,height:.6,hullSections:OUTDOOR_RIVER_PROPS.steamship.hullSections,wheelhouse:OUTDOOR_RIVER_PROPS.steamship.wheelhouse,chimney:{height:2.9,radius:.22,outerRadius:.27,bodyTop:2.65}},
+  {id:'river-houseboat',kind:'houseboat',position:p(4.8*Math.sin(phase+2.2),.12,3.6),width:6.4,depth:2.15,height:.48,hullSections:OUTDOOR_RIVER_PROPS.houseboat.hullSections,cabin:{halfLength:2.5,halfDepth:.87,floorY:.6,eaveY:2.35,ridgeY:2.60}},
+];return [
   {id:'river-steamship',kind:'steamship',position:p(4.8*Math.sin(phase-.7),.16,6.3),width:3.5,depth:1.25,height:.7,chimney:{height:2.5,radius:.6}},
   {id:'river-houseboat',kind:'houseboat',position:p(4.8*Math.sin(phase+2.2),.12,3.6),width:3,depth:1.1,height:1.05},
 ];}
@@ -152,7 +218,22 @@ export function outdoorGoals(world,time=0){world=requireWorld(world);const boats
 export function outdoorMotion(world,time=0){world=requireWorld(world);const boats=outdoorBoats(world,time),actors=outdoorActors(world,time),goals=outdoorGoals(world,time);const lamps=boats.map((boat,index)=>({id:`${boat.id}-lamp`,position:p(boat.position.x,Math.max(1.25,boat.position.y+boat.height+.16),boat.position.z-boat.depth/2-.14),radius:index?3.1:7.1,intensity:index?1:2,color:index?'#efc875':'#f8dca2'}));return {actors,boats,lamps,goals};}
 export function outdoorDynamicSolids(world,time=0){world=requireWorld(world);const actors=outdoorActors(world,time),solids=world.worldVersion===30?actors.flatMap(a=>a.contactParts):actors.map(actor=>box(`${actor.id}-body`,actor.id,'person',p(actor.position.x-actor.width/2,actor.position.y,actor.position.z-actor.depth/2),p(actor.position.x+actor.width/2,actor.position.y+actor.height,actor.position.z+actor.depth/2),'person',0,{blocking:true}));
   for(const boat of outdoorBoats(world,time)){
-    const q=boat.position;solids.push(box(`${boat.id}-hull`,boat.id,'boat-hull',p(q.x-boat.width/2,q.y,q.z-boat.depth/2),p(q.x+boat.width/2,q.y+boat.height,q.z+boat.depth/2),'boat',.28));
-    if(boat.chimney)solids.push(box(`${boat.id}-chimney-body`,boat.id,'chimney',p(q.x-.43,.7,q.z-.43),p(q.x+.43,2.22,q.z+.43),'boat',.3));
+    const q=boat.position;
+    if(world.worldVersion===35){
+      boat.hullSections.forEach(([from,to,halfDepth],index)=>solids.push(box(`${boat.id}-hull-${index+1}`,boat.id,'boat-hull',p(q.x+from,q.y,q.z-halfDepth),p(q.x+to,q.y+boat.height,q.z+halfDepth),'boat',.28)));
+      if(boat.wheelhouse)solids.push(box(`${boat.id}-wheelhouse`,boat.id,'boat-wheelhouse',p(q.x+boat.wheelhouse.minX,boat.wheelhouse.minY,q.z-boat.wheelhouse.halfDepth),p(q.x+boat.wheelhouse.maxX,boat.wheelhouse.maxY,q.z+boat.wheelhouse.halfDepth),'boat',.28));
+      if(boat.cabin)solids.push(box(`${boat.id}-cabin`,boat.id,'boat-cabin',p(q.x-boat.cabin.halfLength,boat.cabin.floorY,q.z-boat.cabin.halfDepth),p(q.x+boat.cabin.halfLength,boat.cabin.ridgeY,q.z+boat.cabin.halfDepth),'boat',.28));
+    }else solids.push(box(`${boat.id}-hull`,boat.id,'boat-hull',p(q.x-boat.width/2,q.y,q.z-boat.depth/2),p(q.x+boat.width/2,q.y+boat.height,q.z+boat.depth/2),'boat',.28));
+    if(boat.chimney){
+      if(world.worldVersion===35){
+        solids.push(box(`${boat.id}-chimney-body`,boat.id,'chimney',p(q.x-.27,.76,q.z-.27),p(q.x+.27,2.65,q.z+.27),'boat',.3));
+        for(const [part,min,max] of [
+          ['front',p(q.x-.27,2.65,q.z-.27),p(q.x+.27,2.92,q.z-.22)],
+          ['back',p(q.x-.27,2.65,q.z+.22),p(q.x+.27,2.92,q.z+.27)],
+          ['left',p(q.x-.27,2.65,q.z-.27),p(q.x-.22,2.92,q.z+.27)],
+          ['right',p(q.x+.22,2.65,q.z-.27),p(q.x+.27,2.92,q.z+.27)],
+        ])solids.push(box(`${boat.id}-chimney-rim-${part}`,boat.id,'chimney-rim',min,max,'rim',.35));
+      }else solids.push(box(`${boat.id}-chimney-body`,boat.id,'chimney',p(q.x-.43,.7,q.z-.43),p(q.x+.43,2.22,q.z+.43),'boat',.3));
+    }
   }return solids;
 }

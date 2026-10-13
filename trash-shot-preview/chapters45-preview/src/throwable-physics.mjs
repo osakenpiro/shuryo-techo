@@ -1,7 +1,9 @@
 // Profiles extend the existing fixed-step simulation; the default can takes
 // every original arithmetic path. No item changes gravitational acceleration.
-import {DEFAULT_THROWABLE_ID,getThrowable} from './throwables.mjs?v=20261013-outdoor-polish-1';
+import {DEFAULT_THROWABLE_ID,getThrowable} from './throwables.mjs?v=20261013-physical-scenes-1';
+import {throwableWorldProfile} from './throwable-world-profile.mjs?v=20261013-physical-scenes-1';
 const ITEMS=new WeakMap(),EPS=1e-9,MAX_RESTITUTION=.8;
+const WORLDS=new WeakMap();
 const FIXED_POSES=new WeakMap();
 const active=game=>game?.phase==='flying'||game?.phase==='settling';
 const finiteVector=value=>value&&['x','y','z'].every(axis=>Number.isFinite(value[axis]));
@@ -14,7 +16,11 @@ export function getThrowableId(game){
 }
 export function getThrowableProfile(game){
   const id=getThrowableId(game);
-  return id===DEFAULT_THROWABLE_ID?null:getThrowable(id).physics;
+  return id===DEFAULT_THROWABLE_ID?null:throwableWorldProfile(id,WORLDS.get(game));
+}
+export function setThrowableWorld(game,worldVersion){
+  if(!game||typeof game!=='object')throw new TypeError('A world needs a game');
+  if(worldVersion==null)WORLDS.delete(game);else WORLDS.set(game,worldVersion);
 }
 export function setThrowable(game,id=DEFAULT_THROWABLE_ID){
   if(!game||typeof game!=='object')throw new TypeError('An item needs a game');
@@ -23,10 +29,10 @@ export function setThrowable(game,id=DEFAULT_THROWABLE_ID){
   FIXED_POSES.delete(game);
   if(id===DEFAULT_THROWABLE_ID){ITEMS.delete(game);delete game.throwableId;}
   else{ITEMS.set(game,id);game.throwableId=id;}
-  if(game.can)game.can.radius=item.physics.radius;
+  if(game.can)game.can.radius=throwableWorldProfile(id,WORLDS.get(game)).radius;
   return true;
 }
-export function cloneThrowable(from,to){return setThrowable(to,getThrowableId(from));}
+export function cloneThrowable(from,to){setThrowableWorld(to,WORLDS.get(from));return setThrowable(to,getThrowableId(from));}
 export function throwableRadius(game,fallback=.14){return getThrowableProfile(game)?.radius??fallback;}
 export function throwableTerminalContact(game){return getThrowableProfile(game)?.terminalContact??null;}
 export function throwableProfileVersion(game){return getThrowable(game?.throwableId??getThrowableId(game))?.physics.version??1;}

@@ -1,12 +1,12 @@
-import { predictArc } from './physics.mjs?v=20261013-outdoor-polish-1';
-import { roomScene,roomMotionShapes,roomMonitorQuad,paintScreenQuad } from './room-scene.mjs?v=20261013-outdoor-polish-1';
-import {schoolScene,schoolMotionShapes,schoolCameraConfig} from './school-scene.mjs?v=20261013-outdoor-polish-1';
-import {outdoorScene,outdoorMotionShapes,outdoorCameraConfig} from './outdoor-scene.mjs?v=20261013-outdoor-polish-1';
-import {factoryScene,factoryMotionShapes,factoryCameraConfig} from './factory-scene.mjs?v=20261013-outdoor-polish-1';
-import {eccentricScene,eccentricMotionShapes,eccentricCameraConfig,eccentricItemMeshes} from './eccentric-scene.mjs?v=20261013-outdoor-polish-1';
-import {drawPixelText} from './pixel-type.mjs?v=20261013-outdoor-polish-1';
-import {getThrowable} from './throwables.mjs?v=20261013-outdoor-polish-1';
-import {getThrowableId,throwablePose} from './throwable-physics.mjs?v=20261013-outdoor-polish-1';
+import { predictArc } from './physics.mjs?v=20261013-physical-scenes-1';
+import { roomScene,roomMotionShapes,roomMonitorQuad,paintScreenQuad } from './room-scene.mjs?v=20261013-physical-scenes-1';
+import {schoolScene,schoolMotionShapes,schoolCameraConfig} from './school-scene.mjs?v=20261013-physical-scenes-1';
+import {outdoorScene,outdoorMotionShapes,outdoorCameraConfig} from './outdoor-scene.mjs?v=20261013-physical-scenes-1';
+import {factoryScene,factoryMotionShapes,factoryCameraConfig} from './factory-scene.mjs?v=20261013-physical-scenes-1';
+import {eccentricScene,eccentricMotionShapes,eccentricCameraConfig,eccentricItemMeshes} from './eccentric-scene.mjs?v=20261013-physical-scenes-1';
+import {drawPixelText} from './pixel-type.mjs?v=20261013-physical-scenes-1';
+import {getThrowable} from './throwables.mjs?v=20261013-physical-scenes-1';
+import {getThrowableId,throwablePose} from './throwable-physics.mjs?v=20261013-physical-scenes-1';
 
 const add = (a,b) => ({ x:a.x+b.x, y:a.y+b.y, z:a.z+b.z });
 const sub = (a,b) => ({ x:a.x-b.x, y:a.y-b.y, z:a.z-b.z });
@@ -116,7 +116,7 @@ export function createRenderer(canvas) {
   }
   function drawAngleCue(game,aim,numericLabels=true){
     const baseOrigin=worldView?.origin??{x:0,y:1.05,z:0},item=getThrowable(getThrowableId(game));
-    const origin=item.id==='can'?baseOrigin:{...baseOrigin,y:baseOrigin.y+item.physics.radius-.14},angle=aim.elevation*Math.PI/180,heading=aim.yaw*Math.PI/180,radius=.66;
+    const origin=item.id==='can'?baseOrigin:{...baseOrigin,y:baseOrigin.y+game.can.radius-.14},angle=aim.elevation*Math.PI/180,heading=aim.yaw*Math.PI/180,radius=.66;
     const at=a=>({x:origin.x+Math.sin(heading)*Math.cos(a)*radius,y:origin.y+Math.sin(a)*radius,z:origin.z+Math.cos(heading)*Math.cos(a)*radius});
     const arc=Array.from({length:13},(_,i)=>at(angle*i/12));polygon([origin,...arc],'rgba(218,173,75,.18)');
     for(let i=1;i<arc.length;i++)line(arc[i-1],arc[i],'#c49942',1.4);

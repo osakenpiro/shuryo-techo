@@ -1,10 +1,10 @@
 // World-space simulation. One metre is one unit; rendering never affects physics.
 import {throwableRadius,throwableInitialVelocity,beginThrowableShot,applyThrowableAir,
-  throwableRestitution,throwableFriction,throwableContact,getThrowableProfile,cloneThrowable,throwableTerminalContact} from './throwable-physics.mjs?v=20261013-outdoor-polish-1';
-import {SCHOOL_PHYSICS_WORLDS} from './school-world.mjs?v=20261013-outdoor-polish-1';
-import {OUTDOOR_PHYSICS_WORLDS,OUTDOOR_WORLDS,outdoorWorldByVersion} from './outdoor-world.mjs?v=20261013-outdoor-polish-1';
-import {FACTORY_PHYSICS_WORLDS,factoryWorldByVersion} from './factory-world.mjs?v=20261013-outdoor-polish-1';
-import {ECCENTRIC_PHYSICS_WORLDS,ECCENTRIC_WORLDS} from './eccentric-world.mjs?v=20261013-outdoor-polish-1';
+  throwableRestitution,throwableFriction,throwableContact,getThrowableProfile,cloneThrowable,throwableTerminalContact,setThrowableWorld} from './throwable-physics.mjs?v=20261013-physical-scenes-1';
+import {SCHOOL_PHYSICS_WORLDS} from './school-world.mjs?v=20261013-physical-scenes-1';
+import {OUTDOOR_PHYSICS_WORLDS,OUTDOOR_WORLDS,outdoorWorldByVersion} from './outdoor-world.mjs?v=20261013-physical-scenes-1';
+import {FACTORY_PHYSICS_WORLDS,factoryWorldByVersion} from './factory-world.mjs?v=20261013-physical-scenes-1';
+import {ECCENTRIC_PHYSICS_WORLDS,ECCENTRIC_WORLDS} from './eccentric-world.mjs?v=20261013-physical-scenes-1';
 const extendedPhysicsWorld=version=>OUTDOOR_PHYSICS_WORLDS[version]??FACTORY_PHYSICS_WORLDS[version]??ECCENTRIC_PHYSICS_WORLDS[version];
 const GRAVITY = 9.81;
 const SUBSTEP = 1 / 240;
@@ -170,13 +170,15 @@ export function setSetup(game, input = {}) {
   const height = bounded(value.height, game.bin.height, 0.5, 2.5);
   game.bin = { center: { x: 0, y: height / 2, z: distance }, radius: BIN_RADIUS, height };
   ROOM_SETUPS.delete(game);
+  setThrowableWorld(game,null);
   return clearShot(game, 'setup');
 }
 
 export function setRoomWorld(game, worldVersion = 2) {
-  if (!Number.isInteger(worldVersion)||worldVersion<1||worldVersion>32) throw new RangeError('Room world version must be an integer from 1 through 32');
+  if (!Number.isInteger(worldVersion)||worldVersion<1||worldVersion>35) throw new RangeError('Room world version must be an integer from 1 through 35');
   const world = ROOM_PHYSICS_WORLDS[worldVersion]??SCHOOL_PHYSICS_WORLDS[worldVersion]??extendedPhysicsWorld(worldVersion);
   ROOM_SETUPS.set(game, worldVersion);
+  setThrowableWorld(game,worldVersion);
   game.bin = { ...world.bin, center: { ...world.bin.center } };
   return clearShot(game, 'room-setup');
 }
@@ -290,7 +292,7 @@ export function emitShotEffect(game,effect){
   if(effects.length>=120)return false;
   const value=freezeTree({id:effect.id??`${game.attempts}:${effect.type}:${effects.length}`,type:effect.type,time:game.time,
     environmentTime:Number.isFinite(effect.environmentTime)?effect.environmentTime:(SHOT_ENVIRONMENT_START.get(game)??0)+game.time,
-    sourceId:String(effect.sourceId??''),position:{...(effect.position??game.can.position)},...(effect.normal?{normal:{...effect.normal}}:{})});
+    sourceId:String(effect.sourceId??''),position:{...(effect.position??game.can.position)},...(effect.normal?{normal:{...effect.normal}}:{}),...(ROOM_SETUPS.get(game)===34&&effect.type==='ice-splat'?{radius:game.can.radius*1.8}:{})});
   if(effects.some(item=>item.id===value.id))return false;
   SHOT_EFFECTS.set(game,[...effects,value]);notify(game,'shot-effect',{effect:value});return value;
 }

@@ -206,7 +206,124 @@ function mallOutsideArchitecture(){
   return [group('mall-outer-arcade-and-escalators',s,{architectureRole:'background',bounds:bound(s)}),group('mall-open-skylight-frame',roof,{architectureRole:'roof-shell',architecturalShell:true,bounds:bound(roof),cutaway:'open-centre'})];
 }
 
+function clippedDepthPolygon(points,minZ,maxZ){
+  let result=points;
+  for(const [z,above] of [[minZ,true],[maxZ,false]]){
+    const next=[];
+    for(let i=0;i<result.length;i++){
+      const a=result[i],b=result[(i+1)%result.length],ia=above?a.z>=z:a.z<=z,ib=above?b.z>=z:b.z<=z;
+      if(ia)next.push(a);
+      if(ia!==ib){const t=(z-a.z)/(b.z-a.z);next.push(p(a.x+(b.x-a.x)*t,a.y,z));}
+    }
+    result=next;
+  }
+  return result;
+}
+function connectedBaseballField(world){
+  const s=[],m={architecturePart:'field-marking',planeOnly:true},home=p(0,.012,-.55);
+  const front=world.stands.fieldFront.toSorted((a,b)=>a.minX-b.minX);
+  // Fan triangles follow every actual stepped fence segment and return. The
+  // green surface stops at that physical boundary; it never surrounds a fan.
+  const boundary=[];
+  for(const section of front){boundary.push(p(section.minX,.012,section.z),p(section.maxX,.012,section.z));}
+  for(let i=0;i<boundary.length-1;i++){
+    const wedge=[home,boundary[i],boundary[i+1]];
+    for(let z=0;z<38;z+=3){const stripe=clippedDepthPolygon(wedge,z,z+3);if(stripe.length>=3)s.push(face(stripe,(z/3)%2?'#9fbe8b':'#8aaf7d',m));}
+    const a=boundary[i],b=boundary[i+1];
+    if(Math.hypot(a.x-b.x,a.z-b.z)>.01){
+      const inner=q=>{const d=Math.hypot(q.x,q.z-home.z);return p(q.x*(1-1.05/d),.022,home.z+(q.z-home.z)*(1-1.05/d));};
+      s.push(face([a,b,inner(b),inner(a)],'#c4a576',{...m,architecturePart:'warning-track'}));
+    }
+  }
+  const left=p(-6.4,.026,6.6),second=p(0,.026,13.1),right=p(6.4,.026,6.6),arc=[home,...Array.from({length:19},(_,i)=>p(Math.sin(-Math.PI/2+i/18*Math.PI)*10,.024,3+Math.cos(-Math.PI/2+i/18*Math.PI)*10))];
+  s.push(face(arc,'#d7bf91',m),face([home,left,second,right],'#dec89e',m));
+  for(const [x,z] of [[-6.4,6.6],[0,13.1],[6.4,6.6]])s.push(face([p(x,.029,z-.23),p(x+.23,.029,z),p(x,.029,z+.23),p(x-.23,.029,z)],'#fff4dc',m));
+  s.push(face([p(-.22,.03,-.7),p(.22,.03,-.7),p(.22,.03,-.44),p(0,.03,-.26),p(-.22,.03,-.44)],'#fff4dc',m));
+  for(const side of [-1,1])line(s,home,p(side*25.5,.034,25.2),'#fff4dc',m);
+  const mound=Array.from({length:12},(_,i)=>p(Math.cos(i/12*Math.PI*2)*1.2,.027,7+Math.sin(i/12*Math.PI*2)*1.2));
+  s.push(face(mound,'#c3a478',m));flat(s,-.34,.029,6.91,.68,.16,'#f8edd5',m);
+  for(const side of [-1,1]){const x=side*.88;for(const z of [-.84,.2])line(s,p(x-.25,.032,z),p(x+.25,.032,z),'#fff4dc',m);for(const dx of [-.25,.25])line(s,p(x+dx,.032,-.84),p(x+dx,.032,.2),'#fff4dc',m);}
+  // Distance markers and bright foul poles deliberately signal a compact toy
+  // ballpark. Bases, chairs and people keep their shared human-scale relation.
+  for(const side of [-1,1]){
+    const x=side*25.5,z=25.25,tag={architecturePart:'foul-pole'};
+    cylinder(s,x,0,z,.07,10,'#e7bf5c',6,tag);
+    for(let y=2.6;y<10;y+=.65)line(s,p(x,y,z),p(x+side*.40,y,z),'#f1d383',tag);
+    line(s,p(x+side*.40,2.6,z),p(x+side*.40,10,z),'#f1d383',tag);
+  }
+  return group('stadium33-field-bounded-by-outfield',s,{architectureRole:'plane-trim'});
+}
+function seatedFan(s,x,y,z,index,meta){
+  // Small three-dimensional seated bodies share the same 0.5m chairs as the
+  // catching row; no flat billboard people or independently scaled heads.
+  const colors=['#c2a575','#7fa093','#a7b7a4','#c6b99b','#a98b78'];
+  const skin=index%3?'#d7b28e':'#b98c6c',hair=index%4?'#685d4b':'#a6a792';
+  cylinder(s,x,y+.47,z,.19,.43,colors[index%colors.length],5,{...meta,architecturePart:'seated-fan-body'});
+  cylinder(s,x,y+.92,z,.13,.24,skin,6,{...meta,architecturePart:'seated-fan-head'});
+  cylinder(s,x,y+1.11,z,.139,.07,hair,6,{...meta,architecturePart:'seated-fan-hair'});
+  for(const side of [-1,1]){
+    line(s,p(x+side*.09,y+.47,z-.04),p(x+side*.09,y+.12,z-.21),'#657c6d',meta);
+    line(s,p(x+side*.18,y+.76,z),p(x+side*.18,y+.56,z-.18),colors[index%colors.length],meta);
+  }
+}
+function connectedStandTrim(world){
+  const s=[];
+  for(const solid of world.stands.solids){
+    if(solid.kind==='outfield-fence'||solid.kind==='fence-return'){
+      const m={architecturePart:'outfield-padding',sourceSolidId:solid.id,planeOnly:true},z=solid.min.z-.002;
+      for(let x=solid.min.x+.06;x<solid.max.x-.04;x+=1.2){
+        const width=Math.min(1.1,solid.max.x-x-.04);
+        if(width>0)s.push(face([p(x,.16,z),p(x+width,.16,z),p(x+width,2.22,z),p(x,2.22,z)],'#3e867d',m));
+      }
+      flat(s,solid.min.x,solid.max.y+.002,solid.min.z,solid.max.x-solid.min.x,solid.max.z-solid.min.z,'#e7dcc2',m);
+    }else if(solid.kind==='stand-terrace'){
+      const m={architecturePart:'terrace-edge',sourceSolidId:solid.id,planeOnly:true},y=solid.max.y+.002;
+      flat(s,solid.min.x,y,solid.min.z,solid.max.x-solid.min.x,.09,'#e6cf9e',m);
+      line(s,p(solid.min.x,y+.001,solid.max.z-.12),p(solid.max.x,y+.001,solid.max.z-.12),'#afb39b',m);
+    }
+  }
+  let index=0;
+  for(const section of world.stands.segments)for(let row=0;row<4;row++){
+    const solid=world.stands.solids.find(c=>c.id===`stadium-terrace-${section.id}-${row+1}`),y=solid.max.y,z=solid.min.z+(row===0?3.65:1.48),span=solid.max.x-solid.min.x,count=Math.max(1,Math.floor(span/2.4));
+    for(let seat=0;seat<count;seat++){
+      const x=solid.min.x+(seat+.5)*span/count,w=.48,d=.46,tag={architecturePart:'seat',supportSolidId:solid.id,chairWidth:w,tier:row};
+      flat(s,x-w/2,y+.43,z-d/2,w,d,'#73a399',tag);
+      s.push(face([p(x-w/2,y+.43,z+d/2),p(x+w/2,y+.43,z+d/2),p(x+w/2,y+.91,z+d/2+.055),p(x-w/2,y+.91,z+d/2+.055)],row%2?'#589184':'#86ac9d',tag));
+      for(const side of [-1,1])line(s,p(x+side*.19,y+.02,z),p(x+side*.19,y+.43,z),'#718b7a',tag);
+      if((index+row)%5===1)seatedFan(s,x,y,z,index,{supportSolidId:solid.id,tier:row,architecturePart:'background-spectator'});
+      index++;
+    }
+  }
+  return group('stadium33-physical-terrace-trim-and-seats',s,{architectureRole:'seating'});
+}
+function compactStadiumSurrounds(world){
+  const s=[],m={architecturePart:'connected-concourse',outsidePlayArea:true};
+  // Cream side concourses join the same outfield bowl, keeping the near half
+  // open as an unmistakable miniature stadium cutaway.
+  for(const side of [-1,1]){
+    const x=side<0?-30:28;
+    box(s,x,0,4,2,2.1,36,'#d7d2b6',m);
+    box(s,x,2.1,4,2,.18,36,'#6b9c8e',m);
+    for(const z of [7,16,25,34,46,55])box(s,side<0?-30.2:29.6,0,z,.6,20.2,.6,'#ded9c0',m);
+  }
+  box(s,-28,0,58.2,56,9.5,1.1,'#d5d1b6',m);box(s,-28,8.7,58.18,56,.8,1.14,'#659a8c',m);
+  for(let x=-27;x<=27;x+=6)line(s,p(x,.5,58.17),p(x,8.6,58.17),'#b6bba3',m);
+  return group('stadium33-connected-outer-concourse',s,{architectureRole:'background',bounds:bound(s)});
+}
+function compactStadiumRoof(){
+  const panels=[],ribs=[],centre=25,at=(theta,r)=>p(Math.sin(theta)*30*r,20.6+13*Math.sqrt(Math.max(0,1-r*r)),centre+Math.cos(theta)*33*r),rings=[1,.88,.66,.42,.16,0];
+  for(let k=0;k<rings.length-1;k++)for(let i=0;i<14;i++){
+    const a=-Math.PI/2+i/14*Math.PI,b=-Math.PI/2+(i+1)/14*Math.PI;
+    panels.push(face([at(a,rings[k]),at(b,rings[k]),at(b,rings[k+1]),at(a,rings[k+1])],k%2?'rgba(244,234,213,0.22)':'rgba(222,231,213,0.27)',{architecturePart:'dome-shell',depthWrite:false,outsidePlayArea:true}));
+  }
+  for(let i=0;i<=6;i++){const theta=-Math.PI/2+i/6*Math.PI;for(let k=0;k<rings.length-1;k++)beam(ribs,at(theta,rings[k]),at(theta,rings[k+1]),.115,'#86a69a',{architecturePart:'roof-rib',depthWrite:false,outsidePlayArea:true});}
+  for(const r of [1,.66,.16])for(let i=0;i<14;i++)line(ribs,at(-Math.PI/2+i/14*Math.PI,r),at(-Math.PI/2+(i+1)/14*Math.PI,r),'#a6bcb0',{architecturePart:'roof-rib',depthWrite:false,outsidePlayArea:true});
+  const m={architectureRole:'roof-shell',bounds:bound([...panels,...ribs]),cutaway:'near-half-open'};
+  return [group('stadium33-open-dome-shell',panels,{...m,architecturalShell:true}),group('stadium33-curved-roof-ribs',ribs,m)];
+}
+
 export function outdoorArchitectureGroups(world){
+  if(world?.worldVersion===33&&world.stageId==='outdoor-baseball')return [connectedBaseballField(world),connectedStandTrim(world),compactStadiumSurrounds(world),...compactStadiumRoof(),stadiumScoreboard(world)];
   if(world?.worldVersion===31&&world.stageId==='outdoor-baseball')return [baseballField(world),stadiumBowl(),...stadiumRoof(),stadiumScoreboard(world)];
   if(world?.worldVersion===32&&world.stageId==='outdoor-mall')return [...mallFloorAndEdges(world),mallPhysicalRailTrim(world),mallStorefronts(world),...mallOutsideArchitecture()];
   return [];

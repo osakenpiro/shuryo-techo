@@ -1,9 +1,9 @@
 // Chapter 3 composes the proven 240 Hz sphere/solid contact stepper. Goal
 // apertures are checked in the same earliest-contact sweep, not a UI distance.
-import {createGame,setRoomWorld,throwCan,captureGoal,stopBlockedShot,stopSplatShot,emitShotEffect,getShotEffects,setShotEnvironmentStart} from './physics.mjs?v=20261013-outdoor-polish-1';
-import {cloneThrowable,throwableWindScale,throwableRestitution,throwableFriction,throwableContact} from './throwable-physics.mjs?v=20261013-outdoor-polish-1';
-import {createRoomContactStepper,ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261013-outdoor-polish-1';
-import {outdoorWorld,outdoorGoals,outdoorSolids,outdoorDynamicSolids,outdoorStartTime,shrineStartTime} from './outdoor-world.mjs?v=20261013-outdoor-polish-1';
+import {createGame,setRoomWorld,throwCan,captureGoal,stopBlockedShot,stopSplatShot,emitShotEffect,getShotEffects,setShotEnvironmentStart} from './physics.mjs?v=20261013-physical-scenes-1';
+import {cloneThrowable,throwableWindScale,throwableRestitution,throwableFriction,throwableContact} from './throwable-physics.mjs?v=20261013-physical-scenes-1';
+import {createRoomContactStepper,ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261013-physical-scenes-1';
+import {outdoorWorld,outdoorGoals,outdoorSolids,outdoorDynamicSolids,outdoorStartTime,shrineStartTime} from './outdoor-world.mjs?v=20261013-physical-scenes-1';
 const TICK=ROOM_CONTACT_TICK,EPS=1e-9,AXES=['x','y','z'];
 const active=game=>game?.phase==='flying'||game?.phase==='settling';
 const copy=p=>({x:p.x,y:p.y,z:p.z});
@@ -26,7 +26,7 @@ export function sweepOutdoorGoal(start,end,radius,goalStart,goalEnd=goalStart){
   if(from<=EPS||to>EPS||from-to<=EPS)return null;
   const time=from/(from-to),position=lerp(start,end,time),center=lerp(goalStart.center,goalEnd.center,time),offset=sub(position,center);
   const u=dot(offset,right),v=dot(offset,up);
-  const fits=goalStart.shape==='circle'?Number.isFinite(goalStart.radius)&&Math.hypot(u,v)<goalStart.radius-radius-EPS:
+  const fits=goalStart.shape==='circle'?Number.isFinite(goalStart.radius)&&Math.hypot(u,v)<goalStart.radius-(goalStart.landing===true?0:radius)-EPS:
     goalStart.shape==='rectangle'&&Number.isFinite(goalStart.halfWidth)&&Number.isFinite(goalStart.halfHeight)
       &&Math.abs(u)<goalStart.halfWidth-radius-EPS&&Math.abs(v)<goalStart.halfHeight-radius-EPS;
   return fits?{time,position,goal:{...goalStart,center}}:null;
