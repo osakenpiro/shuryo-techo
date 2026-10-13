@@ -1,12 +1,12 @@
-import { predictArc } from './physics.mjs?v=20261013-physical-scenes-1';
-import { roomScene,roomMotionShapes,roomMonitorQuad,paintScreenQuad } from './room-scene.mjs?v=20261013-physical-scenes-1';
-import {schoolScene,schoolMotionShapes,schoolCameraConfig} from './school-scene.mjs?v=20261013-physical-scenes-1';
-import {outdoorScene,outdoorMotionShapes,outdoorCameraConfig} from './outdoor-scene.mjs?v=20261013-physical-scenes-1';
-import {factoryScene,factoryMotionShapes,factoryCameraConfig} from './factory-scene.mjs?v=20261013-physical-scenes-1';
-import {eccentricScene,eccentricMotionShapes,eccentricCameraConfig,eccentricItemMeshes} from './eccentric-scene.mjs?v=20261013-physical-scenes-1';
-import {drawPixelText} from './pixel-type.mjs?v=20261013-physical-scenes-1';
-import {getThrowable} from './throwables.mjs?v=20261013-physical-scenes-1';
-import {getThrowableId,throwablePose} from './throwable-physics.mjs?v=20261013-physical-scenes-1';
+import { predictArc } from './physics.mjs?v=20261014-ballpark-1';
+import { roomScene,roomMotionShapes,roomMonitorQuad,paintScreenQuad } from './room-scene.mjs?v=20261014-ballpark-1';
+import {schoolScene,schoolMotionShapes,schoolCameraConfig} from './school-scene.mjs?v=20261014-ballpark-1';
+import {outdoorScene,outdoorMotionShapes,outdoorCameraConfig} from './outdoor-scene.mjs?v=20261014-ballpark-1';
+import {factoryScene,factoryMotionShapes,factoryCameraConfig} from './factory-scene.mjs?v=20261014-ballpark-1';
+import {eccentricScene,eccentricMotionShapes,eccentricCameraConfig,eccentricItemMeshes} from './eccentric-scene.mjs?v=20261014-ballpark-1';
+import {drawPixelText} from './pixel-type.mjs?v=20261014-ballpark-1';
+import {getThrowable} from './throwables.mjs?v=20261014-ballpark-1';
+import {getThrowableId,throwablePose} from './throwable-physics.mjs?v=20261014-ballpark-1';
 
 const add = (a,b) => ({ x:a.x+b.x, y:a.y+b.y, z:a.z+b.z });
 const sub = (a,b) => ({ x:a.x-b.x, y:a.y-b.y, z:a.z-b.z });
@@ -431,11 +431,11 @@ export function createRenderer(canvas) {
     if(room&&view.monitorCanvas){ctx.save();ctx.globalAlpha=roomCutaway.includes([2,3,4,5].includes(worldView?.worldVersion)?'source-desk':'desk') ? .23 : 1;paintScreenQuad(ctx,view.monitorCanvas,monitorQuad());ctx.restore();}
     if(!outdoor&&!advanced)shadow(game.bin.center,game.bin.radius*1.35,game.bin.radius*1.14,.11);
     const schoolGround=school?worldView.solids.filter(s=>['desk-top','roof'].includes(s.kind)&&s.max.y<=game.can.position.y&&game.can.position.x>=s.min.x-game.can.radius&&game.can.position.x<=s.max.x+game.can.radius&&game.can.position.z>=s.min.z-game.can.radius&&game.can.position.z<=s.max.z+game.can.radius):[],canGround=Math.max(0,...schoolGround.map(s=>s.max.y));
-    shadow(game.can.position,.2+Math.max(0,game.can.position.y-canGround)*.035,.2,.13/(1+Math.max(0,game.can.position.y-canGround)*.8),canGround);
+    if(!(worldView?.worldVersion===36&&view.baseballPitch?.active))shadow(game.can.position,.2+Math.max(0,game.can.position.y-canGround)*.035,.2,.13/(1+Math.max(0,game.can.position.y-canGround)*.8),canGround);
     if(view.prediction&&(!view.course||Array.isArray(view.windArc))&&(game.phase==='ready'||game.phase==='success'||game.phase==='miss'))drawArc(game,view.aim||controls,view.windArc);
     if(game.phase!=='ready')drawTrail(game);
     if(view.aim&&!view.customCue){const heading=view.aim.yaw*Math.PI/180,p=game.phase==='ready'?game.can.position:(worldView?.origin??{x:0,y:1.05,z:0});line(p,{x:p.x+Math.sin(heading)*.75,y:p.y,z:p.z+Math.cos(heading)*.75},'#bd8632',2);}
-    const shapes=[...(room&&view.extraRoom?roomMotionShapes(view.environmentTime||0,view.fanEnabled,view.reducedMotion,worldView):[]),...(school?schoolMotionShapes(view.environmentTime||0,worldView,view.reducedMotion):[]),...(advanced?(worldView.environment==='factory'?factoryMotionShapes:eccentricMotionShapes)(view.environmentTime??0,worldView,{...view,session:view.factorySession,game,phase:game.phase,flightTime:game.time}):outdoor?outdoorMotionShapes(view.environmentTime??0,worldView,{...view,phase:game.phase,flightTime:game.time}):shapesForBin(game,room||school)),...shapesForCan(game,room||school||outdoor||advanced)];
+    const shapes=[...(room&&view.extraRoom?roomMotionShapes(view.environmentTime||0,view.fanEnabled,view.reducedMotion,worldView):[]),...(school?schoolMotionShapes(view.environmentTime||0,worldView,view.reducedMotion):[]),...(advanced?(worldView.environment==='factory'?factoryMotionShapes:eccentricMotionShapes)(view.environmentTime??0,worldView,{...view,session:view.factorySession,game,phase:game.phase,flightTime:game.time}):outdoor?outdoorMotionShapes(view.environmentTime??0,worldView,{...view,camera:{...camera},phase:game.phase,flightTime:game.time}):shapesForBin(game,room||school)),...(worldView?.worldVersion===36&&view.baseballPitch?.active?[]:shapesForCan(game,room||school||outdoor||advanced))];
     drawDepthShapes(shapes,backgroundDepth);
     drawCoinAccent(game,view);
     if(room&&view.extraRoom){

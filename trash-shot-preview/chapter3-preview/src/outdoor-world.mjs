@@ -82,6 +82,7 @@ export const OUTDOOR_PHYSICS_WORLDS=freeze({
   33:{worldVersion:33,origin:p(0,1.9,0),bin:{center:p(0,3,40),radius:.62,height:6},launchScale:3.2},
   34:{worldVersion:34,origin:p(0,8.4,0),bin:{center:p(0,.625,3.2),radius:.05,height:1.25},launchLimits:{minPower:.1,maxPower:14,minElevation:-80,maxElevation:85}},
   35:{worldVersion:35,origin:p(0,1.3,0),bin:{center:p(0,.6,11.5),radius:.17,height:1.2},launchScale:1.3},
+  36:{worldVersion:36,origin:p(0,1.9,0),bin:{center:p(0,2.775,40),radius:.62,height:5.55},launchScale:3.2},
 });
 const make=(stageId,version,outdoorType,itemId,goals,solids,actors,launch,view,extra={})=>({stageId,worldVersion:version,environment:'outdoor',outdoorType,itemId,
   physics:OUTDOOR_PHYSICS_WORLDS[version],origin:OUTDOOR_PHYSICS_WORLDS[version].origin,bin:OUTDOOR_PHYSICS_WORLDS[version].bin,
@@ -168,12 +169,51 @@ const realRiverSolids=[...riverSolids.filter(c=>c.id!=='river-tube-body'),box('r
   box('river-tube-rim-left','river-firework-tube','tube-rim',p(-.205,.96,11.295),p(-.17,1.24,11.705),'rim',.35),
   box('river-tube-rim-right','river-firework-tube','tube-rim',p(.17,.96,11.295),p(.205,1.24,11.705),'rim',.35),
 ];
+// Released world33 is immutable: changing the live ballpark cannot change its
+// saved stand contacts, catcher positions, capture dimensions or view.
+export const OUTDOOR_RELEASED_WORLDS=freeze({
+  'outdoor-baseball':{...OUTDOOR_PREVIOUS_WORLDS['outdoor-baseball'],worldVersion:33,physics:OUTDOOR_PHYSICS_WORLDS[33],origin:OUTDOOR_PHYSICS_WORLDS[33].origin,bin:OUTDOOR_PHYSICS_WORLDS[33].bin,actors:seatedCatchers,solids:[...connectedStandSolids,...foulPoles,...OUTDOOR_PREVIOUS_WORLDS['outdoor-baseball'].solids.filter(c=>c.id==='stadium-scoreboard'||c.kind==='scoreboard-column')],room:{minX:-28,maxX:28,minZ:-3,maxZ:58,height:20,openSky:true},stands:BASEBALL_STANDS_GEOMETRY,view:{target:p(0,6.5,24),distance:68,azimuth:.08,elevation:.42}},
+});
+// World36 separates the hand-sized glove mesh from the user-approved human
+// catching area. The ball must cross this actual receiver plane inward; the
+// scene moves the same receiver's glove to the saved capture position.
+const receiverGoals=mittXs.map((x,index)=>({id:`stadium-mitt-${index+1}`,role:'normal',kind:'mitt',label:`観客のミット ${index+1}`,shape:'rectangle',center:p(x,5.55,40),normal:p(0,0,-1),up:p(0,1,0),halfWidth:.62,halfHeight:.85,mode:'catch',receiverActorId:`spectator-${index+1}`}));
+receiverGoals.push({id:'stadium-scoreboard-light',role:'alternative',kind:'scoreboard-light',label:'光る得点板',shape:'rectangle',center:p(0,14,55),normal:p(0,0,-1),up:p(0,1,0),halfWidth:.72,halfHeight:.45});
+const realStandLevels=Array.from({length:16},(_,row)=>4.2+.325*row),realStandDepths=[2.95,...Array(15).fill(.85)],realStandAisles=[-17.2,-7,7,17.2].map(x=>({minX:x-.6,maxX:x+.6,width:1.2}));
+const realStandSolids=[];
+for(const segment of standSegments){
+  realStandSolids.push(box(`stadium-outfield-fence-${segment.id}`,'stadium-outfield-fence','outfield-fence',p(segment.minX,0,segment.frontZ-.3),p(segment.maxX,2.4,segment.frontZ),'wall',.35));
+  let z=segment.frontZ;
+  for(const [row,height] of realStandLevels.entries()){
+    const endZ=z+realStandDepths[row],seatZ=row===0?segment.frontZ+2.55:(z+endZ)/2,aisles=realStandAisles.filter(a=>a.minX>segment.minX&&a.maxX<segment.maxX);
+    const cuts=[segment.minX,...aisles.flatMap(a=>[a.minX,a.maxX]),segment.maxX];
+    for(let part=0;part<cuts.length-1;part++){
+      const minX=cuts[part],maxX=cuts[part+1],aisle=aisles.some(a=>a.minX===minX&&a.maxX===maxX),metadata={rowIndex:row,segmentId:segment.id,seatZ};
+      if(aisle&&row>0){
+        for(let step=0;step<2;step++)realStandSolids.push(box(`stadium-aisle-${segment.id}-${row+1}-${part}-${step+1}`,'stadium-connected-stands','stand-stair',p(minX,0,z+(endZ-z)*step/2),p(maxX,height-.1625*(1-step),z+(endZ-z)*(step+1)/2),'furniture',.28,{...metadata,stepIndex:step}));
+      }else realStandSolids.push(box(`stadium-terrace-${segment.id}-${row+1}-${part}`,'stadium-connected-stands',aisle?'stand-concourse':'stand-terrace',p(minX,0,z),p(maxX,height,endZ),'furniture',.28,metadata));
+    }
+    z=endZ;
+  }
+}
+realStandSolids.push(...connectedStandSolids.filter(c=>c.kind==='fence-return'));
+// Only the five front-row receiver chairs lie in the playable catching strip.
+// Their visible pan/back bounds are shared with rendering. Far rows remain
+// stadium scenery over the real stepped seating terrain, rather than adding
+// thousands of thin contacts to the ball's active path.
+const targetSeats=mittXs.map((x,index)=>({id:`stadium-target-chair-${index+1}`,actorId:`spectator-${index+1}`,position:p(x,4.2,40.45),width:.48,depth:.43,seatHeight:.43,backHeight:.82,supportSolidId:'stadium-terrace-centre-1-2'}));
+for(const seat of targetSeats){const q=seat.position;realStandSolids.push(box(`${seat.id}-pan`,seat.id,'chair-pan',p(q.x-.24,q.y+.40,q.z-.215),p(q.x+.24,q.y+.43,q.z+.215),'furniture',.28,{receiverActorId:seat.actorId}),box(`${seat.id}-back`,seat.id,'chair-back',p(q.x-.24,q.y+.43,q.z+.215),p(q.x+.24,q.y+.82,q.z+.255),'furniture',.28,{receiverActorId:seat.actorId}));}
+export const BASEBALL_REAL_STANDS_GEOMETRY=freeze({worldVersion:36,segments:standSegments,levels:realStandLevels,depths:realStandDepths,aisles:realStandAisles,solids:realStandSolids,fieldFront:BASEBALL_STANDS_GEOMETRY.fieldFront,spectatorRow:{floorY:4.2,feetZ:40.45,goalY:5.55,goalZ:40,solidId:'stadium-terrace-centre-1-2'},chair:{width:.48,pitch:.58},stair:{tread:.425,rise:.1625},targetSeats});
+const realScoreboardSolids=[box('stadium-scoreboard','stadium-scoreboard','scoreboard',p(-4.2,11.9,55.2),p(4.2,16.1,55.5),'wall',.35),...[-2.8,2.8].map((x,index)=>box(`stadium-scoreboard-support-${index===0?'left':'right'}`,'stadium-scoreboard','scoreboard-column',p(x-.12,0,55.2),p(x+.12,11.9,55.5),'wall',.35))];
+const realCatchers=seatedCatchers.map(actor=>({...actor,supportSolidId:'stadium-terrace-centre-1-2'}));
+const pitcher={id:'stadium-pitcher',kind:'pitcher',position:p(0,.08,7),height:1.75,width:.46,depth:.35,color:'#f4e9d0',facing:p(0,0,-1),gesture:'pitch',supportSolidId:'stadium-pitcher-mound'};
+const pitcherMound=box('stadium-pitcher-mound','stadium-pitcher-mound','mound',p(-.55,0,6.45),p(.55,.08,7.55),'furniture',.28);
 export const OUTDOOR_WORLDS=freeze({...OUTDOOR_LEGACY_WORLDS,'outdoor-shrine':{...OUTDOOR_LEGACY_WORLDS['outdoor-shrine'],worldVersion:30,physics:OUTDOOR_PHYSICS_WORLDS[30],origin:OUTDOOR_PHYSICS_WORLDS[30].origin,bin:OUTDOOR_PHYSICS_WORLDS[30].bin,
   actors:newerCrowd,goals:[shrineGoals[0],inariGoal],solids:[...shrineSolids,...inariSolids],view:{...OUTDOOR_LEGACY_WORLDS['outdoor-shrine'].view,target:p(.25,1.5,3.8),distance:14.5},inari:{goalId:'shrine-inari',center:p(3.8,0,6.6),boxCenter:inariGoal.center,boxHalfWidth:inariGoal.halfWidth,boxHalfDepth:inariGoal.halfHeight}},
-  'outdoor-baseball':{...OUTDOOR_PREVIOUS_WORLDS['outdoor-baseball'],worldVersion:33,physics:OUTDOOR_PHYSICS_WORLDS[33],origin:OUTDOOR_PHYSICS_WORLDS[33].origin,bin:OUTDOOR_PHYSICS_WORLDS[33].bin,actors:seatedCatchers,solids:[...connectedStandSolids,...foulPoles,...OUTDOOR_PREVIOUS_WORLDS['outdoor-baseball'].solids.filter(c=>c.id==='stadium-scoreboard'||c.kind==='scoreboard-column')],room:{minX:-28,maxX:28,minZ:-3,maxZ:58,height:20,openSky:true},stands:BASEBALL_STANDS_GEOMETRY,view:{target:p(0,6.5,24),distance:68,azimuth:.08,elevation:.42}},
+  'outdoor-baseball':{...OUTDOOR_RELEASED_WORLDS['outdoor-baseball'],worldVersion:36,physics:OUTDOOR_PHYSICS_WORLDS[36],origin:OUTDOOR_PHYSICS_WORLDS[36].origin,bin:OUTDOOR_PHYSICS_WORLDS[36].bin,goals:receiverGoals,actors:[...realCatchers,pitcher],solids:[...realStandSolids,...foulPoles,...realScoreboardSolids,pitcherMound],stands:BASEBALL_REAL_STANDS_GEOMETRY,scoreboard:{min:p(-4.2,11.9,55.2),max:p(4.2,16.1,55.5),highlightGoalId:'stadium-scoreboard-light'},mitt:{length:.32,width:.24,depth:.09},pitcherId:'stadium-pitcher'},
   'outdoor-mall':{...OUTDOOR_PREVIOUS_WORLDS['outdoor-mall'],worldVersion:34,physics:OUTDOOR_PHYSICS_WORLDS[34],origin:OUTDOOR_PHYSICS_WORLDS[34].origin,bin:OUTDOOR_PHYSICS_WORLDS[34].bin,goals:realMallGoals,solids:realMallSolids,props:OUTDOOR_MALL_PROPS,launch:{power:3.05,elevation:-3,yaw:0}},
   'outdoor-river':{...OUTDOOR_LEGACY_WORLDS['outdoor-river'],worldVersion:35,physics:OUTDOOR_PHYSICS_WORLDS[35],origin:OUTDOOR_PHYSICS_WORLDS[35].origin,bin:OUTDOOR_PHYSICS_WORLDS[35].bin,goals:realRiverGoals,solids:realRiverSolids,props:OUTDOOR_RIVER_PROPS,launch:{power:10.45,elevation:44,yaw:0}}});
-const OUTDOOR_WORLD_BY_VERSION=freeze(Object.fromEntries([...Object.values(OUTDOOR_LEGACY_WORLDS),...Object.values(OUTDOOR_PREVIOUS_WORLDS),...Object.values(OUTDOOR_WORLDS)].map(w=>[w.worldVersion,w])));
+const OUTDOOR_WORLD_BY_VERSION=freeze(Object.fromEntries([...Object.values(OUTDOOR_LEGACY_WORLDS),...Object.values(OUTDOOR_PREVIOUS_WORLDS),...Object.values(OUTDOOR_RELEASED_WORLDS),...Object.values(OUTDOOR_WORLDS)].map(w=>[w.worldVersion,w])));
 export function outdoorWorldByVersion(worldVersion){return Number.isInteger(worldVersion)&&Object.hasOwn(OUTDOOR_WORLD_BY_VERSION,worldVersion)?OUTDOOR_WORLD_BY_VERSION[worldVersion]:null;}
 export function outdoorWorld(stageId,worldVersion){const world=worldVersion===undefined?typeof stageId==='string'&&Object.hasOwn(OUTDOOR_WORLDS,stageId)?OUTDOOR_WORLDS[stageId]:null:outdoorWorldByVersion(worldVersion);return world?.stageId===stageId?world:null;}
 function requireWorld(world){const saved=outdoorWorld(world?.stageId,world?.worldVersion);if(!saved)throw new RangeError('A supported outdoor world is required');return saved;}

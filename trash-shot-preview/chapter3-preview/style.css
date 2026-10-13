@@ -77,6 +77,10 @@
 @media(max-height:500px){.canvas-wrap{height:max(180px,calc(100svh - 184px))}.masthead{min-height:52px}.scene-bottom{padding-bottom:8px}.pixel-intro-active .canvas-wrap{height:max(180px,calc(100svh - 150px))}}
 
 .arc-controls[hidden]{display:none}
+.view-controls{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.camera-zoom-controls{display:flex;align-items:center;gap:6px;padding-left:12px;border-left:1px solid #d8c7a7;flex-shrink:0}
+@media(max-width:670px){.view-controls{flex-basis:100%;gap:6px}.camera-zoom-controls{padding-left:0;border-left:0}.scene-toolbar .arc-controls{margin-left:auto}}
+@media(max-width:670px) and (min-height:501px){.canvas-wrap{height:clamp(310px,calc(100svh - 296px),680px)}}
 
 /* Spatial launch cues have no aiming telemetry in normal play. */
 #play-cue{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:hidden}.pixel-intro-active #play-cue{display:none}.arc-controls output[hidden]{display:none}.launch-analysis{font-size:12px;line-height:1.8;color:#365f5a;font-variant-numeric:tabular-nums}.launch-analysis[hidden]{display:none}.result-analysis{margin:12px 0 16px;padding:12px 14px;border:1px solid #d9dfcd;border-radius:8px;background:#fff8e9}.result-analysis h3{margin:0 0 6px;font-size:12px}.result-analysis p{margin:4px 0;font-size:12px}
@@ -461,11 +465,11 @@ body.title-is-open{overflow:hidden}
 .chapter-shell .chapter-stage-heading{grid-column:1/-1;margin:18px 0 0;color:#286864;font-size:17px;letter-spacing:.09em}
 .chapter-shell .chapter-stage-heading:first-child{margin-top:0}
 .chapter-shell .chapter-school-card .stage-thumbnail{background-size:cover;background-position:center}
-.chapter-shell .stage-school-classroom .stage-thumbnail{background-image:url("./art/school/20261011/school-classroom.png?v=20261013-physical-scenes-1")}
-.chapter-shell .stage-school-vending .stage-thumbnail{background-image:url("./art/school/20261011/school-vending.png?v=20261013-physical-scenes-1")}
-.chapter-shell .stage-school-passage .stage-thumbnail{background-image:url("./art/school/20261011/school-passage.png?v=20261013-physical-scenes-1")}
-.chapter-shell .stage-school-rooftop .stage-thumbnail{background-image:url("./art/school/20261011/school-rooftop.png?v=20261013-physical-scenes-1")}
-.chapter-shell .chapter-top[data-chapter="2"] .home-art{background-image:url("./art/school/20261011/school-classroom.png?v=20261013-physical-scenes-1");background-size:cover;background-position:center}
+.chapter-shell .stage-school-classroom .stage-thumbnail{background-image:url("./art/school/20261011/school-classroom.png?v=20261014-ballpark-1")}
+.chapter-shell .stage-school-vending .stage-thumbnail{background-image:url("./art/school/20261011/school-vending.png?v=20261014-ballpark-1")}
+.chapter-shell .stage-school-passage .stage-thumbnail{background-image:url("./art/school/20261011/school-passage.png?v=20261014-ballpark-1")}
+.chapter-shell .stage-school-rooftop .stage-thumbnail{background-image:url("./art/school/20261011/school-rooftop.png?v=20261014-ballpark-1")}
+.chapter-shell .chapter-top[data-chapter="2"] .home-art{background-image:url("./art/school/20261011/school-classroom.png?v=20261014-ballpark-1");background-size:cover;background-position:center}
 .chapter3-preview-note{margin:0 0 12px;padding:10px 16px;border-left:3px solid #b58d43;background:#f8edce;color:#76603f;font-size:12px;line-height:1.7}
 .chapter-shell .chapter-outdoor-card .stage-thumbnail{background-size:cover;background-position:center}
 .chapter-shell .stage-outdoor-shrine .stage-thumbnail{background-image:url('./art/outdoor/20261012/outdoor-shrine.png')}

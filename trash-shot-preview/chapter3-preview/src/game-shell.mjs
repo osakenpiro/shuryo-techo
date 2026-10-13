@@ -1,7 +1,7 @@
 // Presentation only. Chapter progress and stage changes stay owned by app.mjs.
-import { STAGES } from './stages.mjs?v=20261013-physical-scenes-1';
-import { CHAPTER_IDS, CHAPTERS, chapterForStage, canChooseStage, outdoorSnapshot, OUTDOOR_CHAPTER_IDS, BRANCH_CHAPTER_IDS, FACTORY_CHAPTER_IDS, ECCENTRIC_CHAPTER_IDS } from './progress-save.mjs?v=20261013-physical-scenes-1';
-import { drawPixelText, measurePixelText } from './pixel-type.mjs?v=20261013-physical-scenes-1';
+import { STAGES } from './stages.mjs?v=20261014-ballpark-1';
+import { CHAPTER_IDS, CHAPTERS, chapterForStage, canChooseStage, outdoorSnapshot, OUTDOOR_CHAPTER_IDS, BRANCH_CHAPTER_IDS, FACTORY_CHAPTER_IDS, ECCENTRIC_CHAPTER_IDS } from './progress-save.mjs?v=20261014-ballpark-1';
+import { drawPixelText, measurePixelText } from './pixel-type.mjs?v=20261014-ballpark-1';
 
 const $ = id => document.getElementById(id);
 const FACE_HELP = Object.freeze({

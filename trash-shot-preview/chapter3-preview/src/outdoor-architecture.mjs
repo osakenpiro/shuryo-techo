@@ -1,3 +1,4 @@
+import {ballparkArchitectureGroups} from './ballpark-scene.mjs?v=20261014-ballpark-1';
 // Architecture for the new outdoor views only. Legacy worlds 12 / 13 retain
 // their original meshes and recordings. The field, apertures and balcony
 // collision volumes remain owned by outdoor-world; these groups add a place
@@ -323,6 +324,7 @@ function compactStadiumRoof(){
 }
 
 export function outdoorArchitectureGroups(world){
+  if(world?.worldVersion===36&&world.stageId==='outdoor-baseball')return [{...connectedBaseballField(world),id:'stadium36-field-bounded-by-outfield'},...ballparkArchitectureGroups(world),...compactStadiumRoof().map(g=>({...g,id:g.id.replace('33','36')}))];
   if(world?.worldVersion===33&&world.stageId==='outdoor-baseball')return [connectedBaseballField(world),connectedStandTrim(world),compactStadiumSurrounds(world),...compactStadiumRoof(),stadiumScoreboard(world)];
   if(world?.worldVersion===31&&world.stageId==='outdoor-baseball')return [baseballField(world),stadiumBowl(),...stadiumRoof(),stadiumScoreboard(world)];
   if(world?.worldVersion===32&&world.stageId==='outdoor-mall')return [...mallFloorAndEdges(world),mallPhysicalRailTrim(world),mallStorefronts(world),...mallOutsideArchitecture()];

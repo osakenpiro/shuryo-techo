@@ -1,11 +1,12 @@
 // Outdoor places continue the approved room/school paper, wood and teal visual
 // language. Physical mesh endpoints come from the world descriptors; painted
 // trim and floor markings are decoration, not additional collision surfaces.
-import {outdoorSolids,outdoorMotion,outdoorDynamicSolids} from './outdoor-world.mjs?v=20261013-physical-scenes-1';
-import {outdoorEffectShapes,outdoorLightColor,outdoorLampShapes} from './outdoor-effects.mjs?v=20261013-physical-scenes-1';
-import {outdoorArchitectureGroups} from './outdoor-architecture.mjs?v=20261013-physical-scenes-1';
-import {mallPhysicalGroups} from './mall-physical-scene.mjs?v=20261013-physical-scenes-1';
-import {riverPhysicalGroups,riverPhysicalMotionShapes} from './river-physical-scene.mjs?v=20261013-physical-scenes-1';
+import {outdoorSolids,outdoorMotion,outdoorDynamicSolids} from './outdoor-world.mjs?v=20261014-ballpark-1';
+import {outdoorEffectShapes,outdoorLightColor,outdoorLampShapes} from './outdoor-effects.mjs?v=20261014-ballpark-1';
+import {ballparkMotionShapes} from './ballpark-scene.mjs?v=20261014-ballpark-1';
+import {outdoorArchitectureGroups} from './outdoor-architecture.mjs?v=20261014-ballpark-1';
+import {mallPhysicalGroups} from './mall-physical-scene.mjs?v=20261014-ballpark-1';
+import {riverPhysicalGroups,riverPhysicalMotionShapes} from './river-physical-scene.mjs?v=20261014-ballpark-1';
 export const OUTDOOR_PALETTE=Object.freeze({cream:'#f4ead5',wall:'#eee2c6',wood:'#c89b61',teal:'#4a948b',darkTeal:'#286864',gold:'#e8b54e',orange:'#e98238',sky:'#bfdedb',green:'#8caf7d',night:'#172e3d',water:'#244c60'});
 const p=(x,y,z)=>({x,y,z});
 const face=(points,fill,stroke=null,metadata={})=>({points,fill,stroke,...metadata});
@@ -37,9 +38,10 @@ const boundsOf=c=>({minX:c.min.x,maxX:c.max.x,minY:c.min.y,maxY:c.max.y,minZ:c.m
 const roomOf=world=>world.visualBounds??world.room??world.bounds??{minX:-6,maxX:6,minZ:-2,maxZ:12,height:8};
 function surfaceColor(c,world){
   if(c.color)return c.color;
-  if(world.worldVersion===33&&c.kind==='stand-terrace')return '#c5c8b0';
-  if(world.worldVersion===33&&(c.kind==='outfield-fence'||c.kind==='fence-return'))return '#4a8b7f';
-  if(world.worldVersion===33&&c.kind==='stand-rail')return '#b0bb9e';
+  if(world.worldVersion===36&&c.kind==='stand-stair')return '#ded5bd';
+  if([33,36].includes(world.worldVersion)&&c.kind==='stand-terrace')return '#c5c8b0';
+  if([33,36].includes(world.worldVersion)&&(c.kind==='outfield-fence'||c.kind==='fence-return'))return '#4a8b7f';
+  if([33,36].includes(world.worldVersion)&&c.kind==='stand-rail')return '#b0bb9e';
   const id=`${c.kind??''} ${c.object??''} ${c.id}`;
   if(c.id==='shrine-back-wall')return '#b4875b';
   if(c.id==='shrine-left-post'||c.id==='shrine-right-post')return '#bc925f';
@@ -238,16 +240,16 @@ function riverDetails(s,world){
 function buildGroups(world){
   const groups=[],background=[],solids=outdoorSolids(world);
   const r=roomOf(world),type=typeOf(world);
-  if(type!=='river')flat(background,r.minX,-.018,r.minZ,r.maxX-r.minX,r.maxZ-r.minZ,type==='baseball'?(world.worldVersion===33?'#d4cbb0':'#a1bc87'):type==='mall'?'#eee4cc':'#b8bd92');
+  if(type!=='river')flat(background,r.minX,-.018,r.minZ,r.maxX-r.minX,r.maxZ-r.minZ,type==='baseball'?([33,36].includes(world.worldVersion)?'#d4cbb0':'#a1bc87'):type==='mall'?'#eee4cc':'#b8bd92');
   groups.push({id:'outdoor-background',shapes:background,physical:false});
   for(const c of solids){
-    const shapes=[],receiverShell=world.worldVersion===34&&['mall-cone-body','mall-coffee-body','mall-soda-body'].includes(c.id)||world.worldVersion===35&&/^river-tube-(body|rim-)/.test(c.id);
+    const shapes=[],receiverShell=world.worldVersion===36&&['chair-pan','chair-back'].includes(c.kind)||world.worldVersion===34&&['mall-cone-body','mall-coffee-body','mall-soda-body'].includes(c.id)||world.worldVersion===35&&/^river-tube-(body|rim-)/.test(c.id);
     if(!receiverShell)physicalBox(shapes,c,surfaceColor(c,world));
     const glass=[32,34].includes(world.worldVersion)&&/^mall-source-(left|right)-rail$/.test(c.id);
     groups.push({id:c.id,object:c.object??c.kind,bounds:boundsOf(c),shapes:glass?shapes.map(m=>({...m,fill:'rgba(158,190,175,.10)',depthWrite:false,sourceGlassRail:true})):shapes,physical:true});
   }
   const detail=[];
-  if(type==='shrine'){shrineDetails(detail,world);if(world.worldVersion===30)shrineInariDetails(detail,world);}else if(type==='baseball'&&![31,33].includes(world.worldVersion))baseballDetails(detail,world);else if(type==='mall'&&![32,34].includes(world.worldVersion))mallDetails(detail,world);else if(type==='river'&&world.worldVersion!==35)riverDetails(detail,world);
+  if(type==='shrine'){shrineDetails(detail,world);if(world.worldVersion===30)shrineInariDetails(detail,world);}else if(type==='baseball'&&![31,33,36].includes(world.worldVersion))baseballDetails(detail,world);else if(type==='mall'&&![32,34].includes(world.worldVersion))mallDetails(detail,world);else if(type==='river'&&world.worldVersion!==35)riverDetails(detail,world);
   if(world.worldVersion===30){
     const buckets=new Map();
     for(const shape of detail){
@@ -267,7 +269,7 @@ function buildGroups(world){
   if(world.worldVersion===35)groups.push(...riverPhysicalGroups(world));
   // These spectators/customers and their mouths have no gameplay motion. Keep
   // them in the cached depth layer rather than rebuilding hundreds of faces.
-  if(type==='baseball'||type==='mall'&&world.worldVersion!==34){
+  if(type==='baseball'&&world.worldVersion!==36||type==='mall'&&world.worldVersion!==34){
     const figures=[],motion=outdoorMotion(world,0);
     for(const actor of motion.actors){if(world.worldVersion===33)stadiumCatcherShapes(figures,actor,motion.goals);else if(world.worldVersion===31||world.worldVersion===32)styledFixedVisitorShapes(figures,actor,motion.goals,world);else actorShapes(figures,actor,0,true);}
     for(const goal of motion.goals){if(world.worldVersion===33&&goal.kind==='mitt')stadiumMittShapes(figures,goal);else aperture(figures,goal);}
@@ -275,6 +277,7 @@ function buildGroups(world){
     if(type==='baseball')actorShapes(figures,batterActor(world),0,true);
     groups.push({id:'outdoor-fixed-actors',shapes:figures,physical:false});
   }
+  if(world.worldVersion===36){const figures=[];actorShapes(figures,batterActor(world),0,true);groups.push({id:'outdoor-fixed-batter',shapes:figures,physical:false});}
   return groups;
 }
 function sightIntersects(bounds,camera,target){
@@ -292,10 +295,12 @@ export function outdoorScene(camera,world,time=0,options={}){
   for(const group of groups){
     // Only building shells cut away. Real crowd, rope, stands and rails stay
     // opaque. No projected throw trajectory is used to reveal a hidden path.
-    const sourceFloor=typeOf(world)==='mall'&&(group.id==='mall-source-balcony'||group.sourceBalcony===true),shell=group.architecturalShell===true||group.physical&&(/wall|ceiling|building-shell/.test(`${group.id} ${group.object}`)||sourceFloor||[31,33].includes(world.worldVersion)&&group.id==='stadium-scoreboard');
+    const sourceFloor=typeOf(world)==='mall'&&(group.id==='mall-source-balcony'||group.sourceBalcony===true),shell=group.architecturalShell===true||group.physical&&(/wall|ceiling|building-shell/.test(`${group.id} ${group.object}`)||sourceFloor||[31,33,36].includes(world.worldVersion)&&group.id==='stadium-scoreboard');
     const faded=shell&&(/ceiling/.test(group.id)||endpoints.some(q=>sightIntersects(group.bounds,camera,q)));
-    if(faded){cutaway.push(group.id);shapes.push(...group.shapes.map(s=>({...s,fill:transparent(s.fill,sourceFloor?.11:/ceiling/.test(group.id)?.045:.16),depthWrite:false})));}
-    else shapes.push(...group.shapes);
+    const nearScoreboard=world.worldVersion===36&&Math.hypot(camera.x,camera.y-14,camera.z-55)<42;
+    const visibleShapes=world.worldVersion===36?group.shapes.filter(s=>!s.scoreboardDetail||s.scoreboardDetail===(nearScoreboard?'near':'far')):group.shapes;
+    if(faded){cutaway.push(group.id);shapes.push(...visibleShapes.map(s=>({...s,fill:transparent(s.fill,sourceFloor?.11:/ceiling/.test(group.id)?.045:.16),depthWrite:false})));}
+    else shapes.push(...visibleShapes);
   }
   return {shapes:lamps.length?lightShapes(shapes,lamps,world.worldVersion===35):shapes,cutaway,groups:groups.map(({id,object,bounds,physical})=>({id,object,bounds,physical})),worldVersion:world.worldVersion,stageId:world.stageId};
 }
@@ -648,6 +653,7 @@ export function outdoorMotionShapes(time,world,options={}){
   if(typeof options==='boolean')options={reducedMotion:options};
   if(world?.environment!=='outdoor')throw new RangeError('A frozen outdoor world is required');
   const motion=outdoorMotion(world,time),shapes=[],movingFigures=['shrine','river'].includes(typeOf(world));
+  if(world.worldVersion===36){shapes.push(...ballparkMotionShapes(world,time,options));batSwing(shapes,world,time,options);shapes.push(...outdoorEffectShapes(world,time,options));return shapes;}
   if(world.worldVersion===35){
     const lit=lightShapes(riverPhysicalMotionShapes(world,motion,time,options),motion.lamps??[],true);
     lit.push(...outdoorLampShapes(motion.lamps??[],{waterY:world.water?.y??0,waterBounds:world.water}));
