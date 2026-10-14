@@ -83,6 +83,7 @@ export const OUTDOOR_PHYSICS_WORLDS=freeze({
   34:{worldVersion:34,origin:p(0,8.4,0),bin:{center:p(0,.625,3.2),radius:.05,height:1.25},launchLimits:{minPower:.1,maxPower:14,minElevation:-80,maxElevation:85}},
   35:{worldVersion:35,origin:p(0,1.3,0),bin:{center:p(0,.6,11.5),radius:.17,height:1.2},launchScale:1.3},
   36:{worldVersion:36,origin:p(0,1.9,0),bin:{center:p(0,2.775,40),radius:.62,height:5.55},launchScale:3.2},
+  37:{worldVersion:37,origin:p(0,1.3,0),bin:{center:p(0,.6,11.5),radius:.17,height:1.2},launchScale:1.3},
 });
 const make=(stageId,version,outdoorType,itemId,goals,solids,actors,launch,view,extra={})=>({stageId,worldVersion:version,environment:'outdoor',outdoorType,itemId,
   physics:OUTDOOR_PHYSICS_WORLDS[version],origin:OUTDOOR_PHYSICS_WORLDS[version].origin,bin:OUTDOOR_PHYSICS_WORLDS[version].bin,
@@ -162,6 +163,9 @@ const realMallSolids=[...mallSolids.filter(c=>!['mall-coffee-body','mall-soda-bo
 ];
 export const OUTDOOR_MALL_PROPS=freeze({worldVersion:34,iceRadius:.035,cone:{center:p(0,1.25,3.2),mouthRadius:.05,outerRadius:.055,tipY:1.10},coffee:{center:p(-2.7,5.4,2.3),mouthRadius:.045,outerRadius:.05,bottomY:5.29},soda:{center:p(2.8,3.3,2.8),mouthRadius:.05,outerRadius:.055,bottomY:3.13}});
 export const OUTDOOR_RIVER_PROPS=freeze({worldVersion:35,fireworkRadius:.12,tube:{center:p(0,1.2,11.5),mouthRadius:.17,outerRadius:.205,bottomY:.07},steamship:{width:8,depth:2.4,height:.6,baseY:.16,hullSections:[[-4,-3,.42],[-3,-2,.92],[-2,2,1.2],[2,3,.92],[3,4,.42]],wheelhouse:{minX:1.44,maxX:2.64,minY:.81,maxY:2.55,halfDepth:.72},chimney:{height:2.9,radius:.22,outerRadius:.27,bodyTop:2.65}},houseboat:{width:6.4,depth:2.15,height:.48,baseY:.12,hullSections:[[-3.2,-2.4,.38],[-2.4,-1.6,.82],[-1.6,1.6,1.075],[1.6,2.4,.82],[2.4,3.2,.38]],cabin:{halfLength:2.5,halfDepth:.87,floorY:.6,eaveY:2.35,ridgeY:2.60}}});
+export const OUTDOOR_RIVER_NIGHT_PROPS=freeze({...OUTDOOR_RIVER_PROPS,worldVersion:37,
+  traffic:{period:12,minX:-20,maxX:20,steamship:{laneZ:5,phase:0,direction:1},houseboat:{laneZ:2.5,phase:1.3,direction:-1}},
+  lighting:{ambient:.04,sky:'#050912',water:'#070e18',steamship:{radius:7.5,intensity:1.65,color:'#f8dca2'},houseboat:{radius:3.6,intensity:1.05,color:'#efc875'},board:{radius:3.2,intensity:.8,color:'#f4ca82'}}});
 const realRiverGoals=[horizontal('river-firework-tube','normal','firework-tube',p(0,1.2,11.5),.17,{label:'向こう岸の花火筒'}),horizontal('river-steamship-chimney','alternative','chimney',p(0,2.9,6.3),.22,{label:'蒸気船の煙突',motionId:'river-steamship'})];
 const realRiverSolids=[...riverSolids.filter(c=>c.id!=='river-tube-body'),box('river-tube-body','river-firework-tube','tube',p(-.205,.07,11.295),p(.205,.96,11.705)),
   box('river-tube-rim-front','river-firework-tube','tube-rim',p(-.205,.96,11.295),p(.205,1.24,11.33),'rim',.35),
@@ -208,12 +212,14 @@ const realScoreboardSolids=[box('stadium-scoreboard','stadium-scoreboard','score
 const realCatchers=seatedCatchers.map(actor=>({...actor,supportSolidId:'stadium-terrace-centre-1-2'}));
 const pitcher={id:'stadium-pitcher',kind:'pitcher',position:p(0,.08,7),height:1.75,width:.46,depth:.35,color:'#f4e9d0',facing:p(0,0,-1),gesture:'pitch',supportSolidId:'stadium-pitcher-mound'};
 const pitcherMound=box('stadium-pitcher-mound','stadium-pitcher-mound','mound',p(-.55,0,6.45),p(.55,.08,7.55),'furniture',.28);
+// World 35 keeps its original sine motion and light/view descriptors for V7.
+export const OUTDOOR_RETAINED_RIVER_WORLDS=freeze({35:{...OUTDOOR_LEGACY_WORLDS['outdoor-river'],worldVersion:35,physics:OUTDOOR_PHYSICS_WORLDS[35],origin:OUTDOOR_PHYSICS_WORLDS[35].origin,bin:OUTDOOR_PHYSICS_WORLDS[35].bin,goals:realRiverGoals,solids:realRiverSolids,props:OUTDOOR_RIVER_PROPS,launch:{power:10.45,elevation:44,yaw:0}}});
 export const OUTDOOR_WORLDS=freeze({...OUTDOOR_LEGACY_WORLDS,'outdoor-shrine':{...OUTDOOR_LEGACY_WORLDS['outdoor-shrine'],worldVersion:30,physics:OUTDOOR_PHYSICS_WORLDS[30],origin:OUTDOOR_PHYSICS_WORLDS[30].origin,bin:OUTDOOR_PHYSICS_WORLDS[30].bin,
   actors:newerCrowd,goals:[shrineGoals[0],inariGoal],solids:[...shrineSolids,...inariSolids],view:{...OUTDOOR_LEGACY_WORLDS['outdoor-shrine'].view,target:p(.25,1.5,3.8),distance:14.5},inari:{goalId:'shrine-inari',center:p(3.8,0,6.6),boxCenter:inariGoal.center,boxHalfWidth:inariGoal.halfWidth,boxHalfDepth:inariGoal.halfHeight}},
   'outdoor-baseball':{...OUTDOOR_RELEASED_WORLDS['outdoor-baseball'],worldVersion:36,physics:OUTDOOR_PHYSICS_WORLDS[36],origin:OUTDOOR_PHYSICS_WORLDS[36].origin,bin:OUTDOOR_PHYSICS_WORLDS[36].bin,goals:receiverGoals,actors:[...realCatchers,pitcher],solids:[...realStandSolids,...foulPoles,...realScoreboardSolids,pitcherMound],stands:BASEBALL_REAL_STANDS_GEOMETRY,scoreboard:{min:p(-4.2,11.9,55.2),max:p(4.2,16.1,55.5),highlightGoalId:'stadium-scoreboard-light'},mitt:{length:.32,width:.24,depth:.09},pitcherId:'stadium-pitcher'},
   'outdoor-mall':{...OUTDOOR_PREVIOUS_WORLDS['outdoor-mall'],worldVersion:34,physics:OUTDOOR_PHYSICS_WORLDS[34],origin:OUTDOOR_PHYSICS_WORLDS[34].origin,bin:OUTDOOR_PHYSICS_WORLDS[34].bin,goals:realMallGoals,solids:realMallSolids,props:OUTDOOR_MALL_PROPS,launch:{power:3.05,elevation:-3,yaw:0}},
-  'outdoor-river':{...OUTDOOR_LEGACY_WORLDS['outdoor-river'],worldVersion:35,physics:OUTDOOR_PHYSICS_WORLDS[35],origin:OUTDOOR_PHYSICS_WORLDS[35].origin,bin:OUTDOOR_PHYSICS_WORLDS[35].bin,goals:realRiverGoals,solids:realRiverSolids,props:OUTDOOR_RIVER_PROPS,launch:{power:10.45,elevation:44,yaw:0}}});
-const OUTDOOR_WORLD_BY_VERSION=freeze(Object.fromEntries([...Object.values(OUTDOOR_LEGACY_WORLDS),...Object.values(OUTDOOR_PREVIOUS_WORLDS),...Object.values(OUTDOOR_RELEASED_WORLDS),...Object.values(OUTDOOR_WORLDS)].map(w=>[w.worldVersion,w])));
+  'outdoor-river':{...OUTDOOR_RETAINED_RIVER_WORLDS[35],worldVersion:37,physics:OUTDOOR_PHYSICS_WORLDS[37],origin:OUTDOOR_PHYSICS_WORLDS[37].origin,bin:OUTDOOR_PHYSICS_WORLDS[37].bin,goals:realRiverGoals.map(goal=>goal.motionId?{...goal,center:{...goal.center,z:5}}:goal),props:OUTDOOR_RIVER_NIGHT_PROPS,lighting:OUTDOOR_RIVER_NIGHT_PROPS.lighting,view:{target:p(0,1.1,6.5),distance:14.6,azimuth:.1,elevation:.21}}});
+const OUTDOOR_WORLD_BY_VERSION=freeze(Object.fromEntries([...Object.values(OUTDOOR_LEGACY_WORLDS),...Object.values(OUTDOOR_PREVIOUS_WORLDS),...Object.values(OUTDOOR_RELEASED_WORLDS),...Object.values(OUTDOOR_RETAINED_RIVER_WORLDS),...Object.values(OUTDOOR_WORLDS)].map(w=>[w.worldVersion,w])));
 export function outdoorWorldByVersion(worldVersion){return Number.isInteger(worldVersion)&&Object.hasOwn(OUTDOOR_WORLD_BY_VERSION,worldVersion)?OUTDOOR_WORLD_BY_VERSION[worldVersion]:null;}
 export function outdoorWorld(stageId,worldVersion){const world=worldVersion===undefined?typeof stageId==='string'&&Object.hasOwn(OUTDOOR_WORLDS,stageId)?OUTDOOR_WORLDS[stageId]:null:outdoorWorldByVersion(worldVersion);return world?.stageId===stageId?world:null;}
 function requireWorld(world){const saved=outdoorWorld(world?.stageId,world?.worldVersion);if(!saved)throw new RangeError('A supported outdoor world is required');return saved;}
@@ -247,25 +253,31 @@ function shrineVisitorPose(actor,time){
   }
   return {...actor,position:q,joints,contactParts:parts,reach};
 }
-export function outdoorBoats(world,time=0){world=requireWorld(world);if(!Number.isFinite(time))throw new TypeError('Outdoor time must be finite');if(world.outdoorType!=='river')return [];const phase=time*Math.PI/6;if(world.worldVersion===35)return [
+export function outdoorBoats(world,time=0){world=requireWorld(world);if(!Number.isFinite(time))throw new TypeError('Outdoor time must be finite');if(world.outdoorType!=='river')return [];const phase=time*Math.PI/6;if(world.worldVersion===37){
+  const props=world.props,traffic=props.traffic,position=(kind)=>{const lane=traffic[kind],fraction=outdoorStartTime(time+lane.phase)/traffic.period,x=lane.direction>0?traffic.minX+(traffic.maxX-traffic.minX)*fraction:traffic.maxX-(traffic.maxX-traffic.minX)*fraction;return p(x,props[kind].baseY,lane.laneZ);};
+  return [{id:'river-steamship',kind:'steamship',position:position('steamship'),...props.steamship},{id:'river-houseboat',kind:'houseboat',position:position('houseboat'),...props.houseboat}];
+}if(world.worldVersion===35)return [
   {id:'river-steamship',kind:'steamship',position:p(4.8*Math.sin(phase-.7),.16,6.3),width:8,depth:2.4,height:.6,hullSections:OUTDOOR_RIVER_PROPS.steamship.hullSections,wheelhouse:OUTDOOR_RIVER_PROPS.steamship.wheelhouse,chimney:{height:2.9,radius:.22,outerRadius:.27,bodyTop:2.65}},
   {id:'river-houseboat',kind:'houseboat',position:p(4.8*Math.sin(phase+2.2),.12,3.6),width:6.4,depth:2.15,height:.48,hullSections:OUTDOOR_RIVER_PROPS.houseboat.hullSections,cabin:{halfLength:2.5,halfDepth:.87,floorY:.6,eaveY:2.35,ridgeY:2.60}},
 ];return [
   {id:'river-steamship',kind:'steamship',position:p(4.8*Math.sin(phase-.7),.16,6.3),width:3.5,depth:1.25,height:.7,chimney:{height:2.5,radius:.6}},
   {id:'river-houseboat',kind:'houseboat',position:p(4.8*Math.sin(phase+2.2),.12,3.6),width:3,depth:1.1,height:1.05},
 ];}
-export function outdoorGoals(world,time=0){world=requireWorld(world);const boats=outdoorBoats(world,time);return world.goals.map(goal=>({...goal,center:goal.motionId?{...goal.center,x:boats.find(b=>b.id===goal.motionId).position.x}:{...goal.center}}));}
-export function outdoorMotion(world,time=0){world=requireWorld(world);const boats=outdoorBoats(world,time),actors=outdoorActors(world,time),goals=outdoorGoals(world,time);const lamps=boats.map((boat,index)=>({id:`${boat.id}-lamp`,position:p(boat.position.x,Math.max(1.25,boat.position.y+boat.height+.16),boat.position.z-boat.depth/2-.14),radius:index?3.1:7.1,intensity:index?1:2,color:index?'#efc875':'#f8dca2'}));return {actors,boats,lamps,goals};}
+export function outdoorGoals(world,time=0){world=requireWorld(world);const boats=outdoorBoats(world,time);return world.goals.map(goal=>{const boat=goal.motionId?boats.find(b=>b.id===goal.motionId):null;return {...goal,center:boat?{...goal.center,x:boat.position.x,...(world.worldVersion===37?{z:boat.position.z}:{})}:{...goal.center}};});}
+export function outdoorMotion(world,time=0){world=requireWorld(world);const boats=outdoorBoats(world,time),actors=outdoorActors(world,time),goals=outdoorGoals(world,time);const lamps=world.worldVersion===37?boats.flatMap(boat=>{
+  const light=world.lighting[boat.kind],board=world.lighting.board,q=boat.position;
+  return [{id:`${boat.id}-lamp`,position:p(q.x,1.25,q.z+boat.depth/2+.14),...light},{id:`${boat.id}-board-lamp`,position:p(q.x,1.25,q.z-boat.depth/2-.14),...board}];
+}):boats.map((boat,index)=>({id:`${boat.id}-lamp`,position:p(boat.position.x,Math.max(1.25,boat.position.y+boat.height+.16),boat.position.z-boat.depth/2-.14),radius:index?3.1:7.1,intensity:index?1:2,color:index?'#efc875':'#f8dca2'}));return {actors,boats,lamps,goals};}
 export function outdoorDynamicSolids(world,time=0){world=requireWorld(world);const actors=outdoorActors(world,time),solids=world.worldVersion===30?actors.flatMap(a=>a.contactParts):actors.map(actor=>box(`${actor.id}-body`,actor.id,'person',p(actor.position.x-actor.width/2,actor.position.y,actor.position.z-actor.depth/2),p(actor.position.x+actor.width/2,actor.position.y+actor.height,actor.position.z+actor.depth/2),'person',0,{blocking:true}));
   for(const boat of outdoorBoats(world,time)){
     const q=boat.position;
-    if(world.worldVersion===35){
+    if(world.worldVersion===35||world.worldVersion===37){
       boat.hullSections.forEach(([from,to,halfDepth],index)=>solids.push(box(`${boat.id}-hull-${index+1}`,boat.id,'boat-hull',p(q.x+from,q.y,q.z-halfDepth),p(q.x+to,q.y+boat.height,q.z+halfDepth),'boat',.28)));
       if(boat.wheelhouse)solids.push(box(`${boat.id}-wheelhouse`,boat.id,'boat-wheelhouse',p(q.x+boat.wheelhouse.minX,boat.wheelhouse.minY,q.z-boat.wheelhouse.halfDepth),p(q.x+boat.wheelhouse.maxX,boat.wheelhouse.maxY,q.z+boat.wheelhouse.halfDepth),'boat',.28));
       if(boat.cabin)solids.push(box(`${boat.id}-cabin`,boat.id,'boat-cabin',p(q.x-boat.cabin.halfLength,boat.cabin.floorY,q.z-boat.cabin.halfDepth),p(q.x+boat.cabin.halfLength,boat.cabin.ridgeY,q.z+boat.cabin.halfDepth),'boat',.28));
     }else solids.push(box(`${boat.id}-hull`,boat.id,'boat-hull',p(q.x-boat.width/2,q.y,q.z-boat.depth/2),p(q.x+boat.width/2,q.y+boat.height,q.z+boat.depth/2),'boat',.28));
     if(boat.chimney){
-      if(world.worldVersion===35){
+      if(world.worldVersion===35||world.worldVersion===37){
         solids.push(box(`${boat.id}-chimney-body`,boat.id,'chimney',p(q.x-.27,.76,q.z-.27),p(q.x+.27,2.65,q.z+.27),'boat',.3));
         for(const [part,min,max] of [
           ['front',p(q.x-.27,2.65,q.z-.27),p(q.x+.27,2.92,q.z-.22)],

@@ -1,6 +1,6 @@
 // Shared metre-space primitives keep the approved paper/wood/teal art family.
 // Canonical world solids own every gameplay surface; trim is decorative.
-import {factoryWorld,factorySolids,factoryGoals,factoryMotion,factoryDynamicSolids} from './factory-world.mjs?v=20261014-goal-cues-1';
+import {factoryWorld,factorySolids,factoryGoals,factoryMotion,factoryDynamicSolids} from './factory-world.mjs?v=20261014-night-cards-1';
 export const FACTORY_PALETTE=Object.freeze({cream:'#f4ead5',wall:'#eee2c6',wood:'#c89b61',teal:'#4a948b',darkTeal:'#286864',gold:'#e8b54e',orange:'#e98238',steel:'#8da69c',floor:'#d7c9ad'});
 const p=(x,y,z)=>({x,y,z});
 const face=(points,fill,stroke=null,meta={})=>({points,fill,stroke,...meta});

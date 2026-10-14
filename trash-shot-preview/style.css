@@ -461,13 +461,51 @@ body.title-is-open{overflow:hidden}
 .chapter-shell .chapter-stage-heading{grid-column:1/-1;margin:18px 0 0;color:#286864;font-size:17px;letter-spacing:.09em}
 .chapter-shell .chapter-stage-heading:first-child{margin-top:0}
 .chapter-shell .chapter-school-card .stage-thumbnail{background-size:cover;background-position:center}
-.chapter-shell .stage-school-classroom .stage-thumbnail{background-image:url("./art/school/20261011/school-classroom.png?v=20261014-goal-cues-1")}
-.chapter-shell .stage-school-vending .stage-thumbnail{background-image:url("./art/school/20261011/school-vending.png?v=20261014-goal-cues-1")}
-.chapter-shell .stage-school-passage .stage-thumbnail{background-image:url("./art/school/20261011/school-passage.png?v=20261014-goal-cues-1")}
-.chapter-shell .stage-school-rooftop .stage-thumbnail{background-image:url("./art/school/20261011/school-rooftop.png?v=20261014-goal-cues-1")}
-.chapter-shell .chapter-top[data-chapter="2"] .home-art{background-image:url("./art/school/20261011/school-classroom.png?v=20261014-goal-cues-1");background-size:cover;background-position:center}
+.chapter-shell .stage-school-classroom .stage-thumbnail{background-image:url("./art/school/20261011/school-classroom.png?v=20261014-night-cards-1")}
+.chapter-shell .stage-school-vending .stage-thumbnail{background-image:url("./art/school/20261011/school-vending.png?v=20261014-night-cards-1")}
+.chapter-shell .stage-school-passage .stage-thumbnail{background-image:url("./art/school/20261011/school-passage.png?v=20261014-night-cards-1")}
+.chapter-shell .stage-school-rooftop .stage-thumbnail{background-image:url("./art/school/20261011/school-rooftop.png?v=20261014-night-cards-1")}
+.chapter-shell .chapter-top[data-chapter="2"] .home-art{background-image:url("./art/school/20261011/school-classroom.png?v=20261014-night-cards-1");background-size:cover;background-position:center}
 .chapter-shell .home-face-mark[hidden]{display:none}
 @media(max-width:600px){.chapter-shell .chapter-stage-heading{font-size:15px;margin-top:14px}}
+
+/* Present goal locations flash briefly; the canvas keeps every input gesture. */
+#goal-cue{position:absolute;inset:0;z-index:2;width:100%;height:100%;pointer-events:none;overflow:hidden}
+#goal-cue *{pointer-events:none}.pixel-intro-active #goal-cue{display:none}
+#goal-cue .goal-cue-halo{fill:none;stroke:#fffaf0;stroke-width:7}
+#goal-cue .goal-cue-ring{fill:#b4d8c832;stroke:#286864;stroke-width:2.5}
+#goal-cue .goal-cue-flag-paper,#goal-cue .goal-cue-edge-paper{fill:#fff8e9;stroke:#286864;stroke-width:1.5}
+#goal-cue .goal-cue-flag-pole{fill:none;stroke:#286864;stroke-width:1.6;stroke-linecap:round}
+#goal-cue .goal-cue-flag-cloth{fill:#dab45c;stroke:#947231;stroke-width:.7;stroke-linejoin:round}
+#goal-cue .goal-cue-edge-arrow{fill:#286864;stroke:#fff8e9;stroke-width:1;stroke-linejoin:round}
+#goal-cue .goal-cue-note-paper{fill:#fff8e9ed;stroke:#85ad9b;stroke-width:1}
+#goal-cue .goal-cue-note text{fill:#286864;font:600 12px system-ui,sans-serif;letter-spacing:.025em}
+.scene-toolbar #goal-confirm{min-height:44px;min-width:44px;white-space:nowrap}
+.scene-toolbar #goal-confirm::before{content:'⚑';display:inline-block;margin-right:5px;color:#a38035;font-size:16px;line-height:1;vertical-align:-1px}
+
+/* Original stage-card concepts, 2026-10-14. Each atlas contains six equal tiles.
+   The inner image keeps its 9:4 aspect ratio and crops within the selected tile;
+   the 1.025 scale removes generated sheet seams without editing source pixels. */
+.chapter-shell :is(.stage-art-4,.chapter-school-card) .stage-thumbnail{
+  background-image:none;container-type:size;display:block;padding:0;
+}
+.chapter-shell :is(.stage-art-4,.chapter-school-card) .stage-thumbnail::before{
+  content:"";position:absolute;top:50%;left:var(--card-focus,50%);
+  width:max(100%,225cqh);height:max(100%,44.444444cqw);
+  transform:translate(calc(-1 * var(--card-focus,50%)),-50%) scale(1.025);
+  background-image:var(--card-atlas);background-repeat:no-repeat;
+  background-size:200% 300%;background-position:var(--card-x,0%) var(--card-y,0%);
+  pointer-events:none;
+}
+.chapter-shell .stage-art-4 .stage-fan-symbol,.chapter-shell .stage-art-4 .stage-cat-symbol{display:none}
+.chapter-shell .stage-art-4{--card-atlas:url('./art/stage-cards/20261014/room-school.png?v=20261014-night-cards-1');--card-x:0%;--card-y:0%;--card-focus:64%}
+.chapter-shell .stage-school-classroom{--card-atlas:url('./art/stage-cards/20261014/room-school.png?v=20261014-night-cards-1');--card-x:100%;--card-y:0%;--card-focus:65%}
+.chapter-shell .stage-school-vending{--card-atlas:url('./art/stage-cards/20261014/room-school.png?v=20261014-night-cards-1');--card-x:0%;--card-y:50%}
+.chapter-shell .stage-school-passage{--card-atlas:url('./art/stage-cards/20261014/room-school.png?v=20261014-night-cards-1');--card-x:100%;--card-y:50%;--card-focus:55%}
+.chapter-shell .stage-school-rooftop{--card-atlas:url('./art/stage-cards/20261014/room-school.png?v=20261014-night-cards-1');--card-x:0%;--card-y:100%;--card-focus:66%}
+@media(max-width:430px){
+  .chapter-shell :is(.stage-art-4,.chapter-school-card) .stage-thumbnail{height:142px;align-self:stretch}
+}
 
 /* Present goal locations flash briefly; the canvas keeps every input gesture. */
 #goal-cue{position:absolute;inset:0;z-index:2;width:100%;height:100%;pointer-events:none;overflow:hidden}

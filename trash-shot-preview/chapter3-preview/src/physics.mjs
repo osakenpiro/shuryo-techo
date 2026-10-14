@@ -1,10 +1,10 @@
 // World-space simulation. One metre is one unit; rendering never affects physics.
 import {throwableRadius,throwableInitialVelocity,beginThrowableShot,applyThrowableAir,
-  throwableRestitution,throwableFriction,throwableContact,getThrowableProfile,cloneThrowable,throwableTerminalContact,setThrowableWorld} from './throwable-physics.mjs?v=20261014-goal-cues-1';
-import {SCHOOL_PHYSICS_WORLDS} from './school-world.mjs?v=20261014-goal-cues-1';
-import {OUTDOOR_PHYSICS_WORLDS,OUTDOOR_WORLDS,outdoorWorldByVersion} from './outdoor-world.mjs?v=20261014-goal-cues-1';
-import {FACTORY_PHYSICS_WORLDS,factoryWorldByVersion} from './factory-world.mjs?v=20261014-goal-cues-1';
-import {ECCENTRIC_PHYSICS_WORLDS,ECCENTRIC_WORLDS} from './eccentric-world.mjs?v=20261014-goal-cues-1';
+  throwableRestitution,throwableFriction,throwableContact,getThrowableProfile,cloneThrowable,throwableTerminalContact,setThrowableWorld} from './throwable-physics.mjs?v=20261014-night-cards-1';
+import {SCHOOL_PHYSICS_WORLDS} from './school-world.mjs?v=20261014-night-cards-1';
+import {OUTDOOR_PHYSICS_WORLDS,OUTDOOR_WORLDS,outdoorWorldByVersion} from './outdoor-world.mjs?v=20261014-night-cards-1';
+import {FACTORY_PHYSICS_WORLDS,factoryWorldByVersion} from './factory-world.mjs?v=20261014-night-cards-1';
+import {ECCENTRIC_PHYSICS_WORLDS,ECCENTRIC_WORLDS} from './eccentric-world.mjs?v=20261014-night-cards-1';
 const extendedPhysicsWorld=version=>OUTDOOR_PHYSICS_WORLDS[version]??FACTORY_PHYSICS_WORLDS[version]??ECCENTRIC_PHYSICS_WORLDS[version];
 const GRAVITY = 9.81;
 const SUBSTEP = 1 / 240;
@@ -175,7 +175,7 @@ export function setSetup(game, input = {}) {
 }
 
 export function setRoomWorld(game, worldVersion = 2) {
-  if (!Number.isInteger(worldVersion)||worldVersion<1||worldVersion>36) throw new RangeError('Room world version must be an integer from 1 through 36');
+  if (!Number.isInteger(worldVersion)||worldVersion<1||worldVersion>37) throw new RangeError('Room world version must be an integer from 1 through 37');
   const world = ROOM_PHYSICS_WORLDS[worldVersion]??SCHOOL_PHYSICS_WORLDS[worldVersion]??extendedPhysicsWorld(worldVersion);
   ROOM_SETUPS.set(game, worldVersion);
   setThrowableWorld(game,worldVersion);

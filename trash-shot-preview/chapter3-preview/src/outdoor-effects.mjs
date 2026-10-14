@@ -34,11 +34,14 @@ export function outdoorLightLevel(position,lamps=[],{ambient=.20}={}){
 }
 
 export function outdoorLightColor(color,position,lamps=[],options={}){
-  if(!/^#[0-9a-f]{6}$/i.test(color))return color;
+  const nightRGBA=options.night===true&&/^rgba?\(\s*[\d.]+\s*,\s*[\d.]+\s*,\s*[\d.]+(?:\s*,\s*[\d.]+)?\s*\)$/i.test(color??'');
+  if(!/^#[0-9a-f]{6}$/i.test(color)&&!nightRGBA)return color;
   const light=outdoorLightLevel(position,lamps,options);
   // The original material hue survives; warmer light lifts it near the boats.
-  const rgb=[1,3,5].map(i=>parseInt(color.slice(i,i+2),16));
-  return '#'+rgb.map((c,i)=>Math.round(clamp(c*light+light*(1-light)*[20,11,1][i],0,255)).toString(16).padStart(2,'0')).join('');
+  const components=nightRGBA?color.match(/[\d.]+/g).map(Number):null,rgb=components?.slice(0,3)??[1,3,5].map(i=>parseInt(color.slice(i,i+2),16));
+  const lit=rgb.map((c,i)=>Math.round(clamp(c*light+light*(1-light)*[20,11,1][i]+(options.night===true?(1-light)*[2,4,7][i]:0),0,255)));
+  if(nightRGBA)return `rgba(${lit.join(',')},${components[3]??1})`;
+  return '#'+lit.map(c=>c.toString(16).padStart(2,'0')).join('');
 }
 
 export function outdoorLampShapes(lamps=[],{waterY,waterBounds}={}){

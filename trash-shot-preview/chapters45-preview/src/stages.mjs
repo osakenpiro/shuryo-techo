@@ -1,8 +1,8 @@
 // App-owned guided progress. Outdoor defaults use the same immutable geometry
 // as live contacts and replay validation, without copying tuned launch values.
-import {OUTDOOR_WORLDS} from './outdoor-world.mjs?v=20261014-goal-cues-1';
-import {FACTORY_WORLDS} from './factory-world.mjs?v=20261014-goal-cues-1';
-import {ECCENTRIC_WORLDS} from './eccentric-world.mjs?v=20261014-goal-cues-1';
+import {OUTDOOR_WORLDS} from './outdoor-world.mjs?v=20261014-night-cards-1';
+import {FACTORY_WORLDS} from './factory-world.mjs?v=20261014-night-cards-1';
+import {ECCENTRIC_WORLDS} from './eccentric-world.mjs?v=20261014-night-cards-1';
 const outdoorLabels={'outdoor-shrine':'3-1：人混み越しのお賽銭','outdoor-baseball':'3-2：観客席のミットへ','outdoor-mall':'3-3：吹き抜けのアイス','outdoor-river':'3-4：川向こうの花火'};
 const outdoorStages=Object.fromEntries(Object.entries(OUTDOOR_WORLDS).map(([id,w],i)=>[id,Object.freeze({label:outdoorLabels[id],number:`3-${i+1}`,environment:'outdoor',worldVersion:w.worldVersion,distance:w.bin.center.z,height:w.bin.height,...w.launch,itemId:w.itemId})]));
 const advancedLabels={'factory-shutter':'シャッターの向こう','factory-conveyor':'ベルトに乗せて','factory-bank':'左右の壁で2バウンド','factory-relay':'2球のピタゴラ装置','eccentric-tower':'東京タワーから','eccentric-train':'電車の上から','eccentric-boar':'森のイノシシ','eccentric-basket':'バスケットゴール','eccentric-dandelion':'綿毛を風に乗せて','eccentric-card':'トランプを刺せ','eccentric-cannon':'大砲で砦の扉へ'};

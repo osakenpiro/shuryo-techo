@@ -1,31 +1,31 @@
-import {buildGoalCue,goalCueMarkup} from './goal-cue.mjs?v=20261014-goal-cues-1';
-import { STAGES, createStageProgress } from './stages.mjs?v=20261014-goal-cues-1';
-import { sideAim } from './side-aim.mjs?v=20261014-goal-cues-1';
-import {createPixelIntro} from './pixel-intro.mjs?v=20261014-goal-cues-1';
-import {createRoomWindStepper} from './room-gimmicks.mjs?v=20261014-goal-cues-1';
-import {CHAPTER_IDS,FIRST_CHAPTER_IDS,SCHOOL_CHAPTER_IDS,CHAPTERS,chapterForStage,getNextStage,isChapterBoundary,createChapterProgress} from './progress-save.mjs?v=20261014-goal-cues-1';
-import {roomCourse,roomWorld,createRoomCourseStepper} from './room-course.mjs?v=20261014-goal-cues-1';
-import {createPlayRoomStepper,predictPlayRoomArc} from './play-room.mjs?v=20261014-goal-cues-1';
-import {createSchoolPlayStepper,predictSchoolArc} from './school-play.mjs?v=20261014-goal-cues-1';
-import {COURSE_REPLAY_LIMITS,createCourseReplay,validateCourseReplay,coursePayload,courseReplayResult,createCourseReplayPlayer,courseReplayToJSON,parseCourseReplayJSON,decodeCourseReplay,buildCourseReplayURL,interpretPlayContacts,loadPlayReplays,savePlayReplay,deletePlayReplay,loadItemReplays,saveItemReplay,deleteItemReplay,loadSchoolReplays,saveSchoolReplay,deleteSchoolReplay} from './play-replay.mjs?v=20261014-goal-cues-1';
-import {createPullScale,mapScaledPull} from './pull-scale.mjs?v=20261014-goal-cues-1';
-import {createPlayCue,playCueMarkup,pullHandleMarkup} from './play-cue.mjs?v=20261014-goal-cues-1';
-import {launchSummary,impactSummary} from './shot-summary.mjs?v=20261014-goal-cues-1';
-import { createGame, setSetup, setRoomWorld, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261014-goal-cues-1';
-import { createRenderer } from './render.mjs?v=20261014-goal-cues-1';
-import { createShotAnalytics } from './shot-analytics.mjs?v=20261014-goal-cues-1';
-import { createRecorder, loadReplays, saveReplay, deleteReplay } from './replay.mjs?v=20261014-goal-cues-1';
-import {createGameShell} from './game-shell.mjs?v=20261014-goal-cues-1';
-import {createTitleScreen} from './title-screen.mjs?v=20261014-goal-cues-1';
-import {createGameMenu} from './game-menu.mjs?v=20261014-goal-cues-1';
-import {createPlayerSaveUI} from './player-save-ui.mjs?v=20261014-goal-cues-1';
+import {buildGoalCue,goalCueMarkup} from './goal-cue.mjs?v=20261014-night-cards-1';
+import { STAGES, createStageProgress } from './stages.mjs?v=20261014-night-cards-1';
+import { sideAim } from './side-aim.mjs?v=20261014-night-cards-1';
+import {createPixelIntro} from './pixel-intro.mjs?v=20261014-night-cards-1';
+import {createRoomWindStepper} from './room-gimmicks.mjs?v=20261014-night-cards-1';
+import {CHAPTER_IDS,FIRST_CHAPTER_IDS,SCHOOL_CHAPTER_IDS,CHAPTERS,chapterForStage,getNextStage,isChapterBoundary,createChapterProgress} from './progress-save.mjs?v=20261014-night-cards-1';
+import {roomCourse,roomWorld,createRoomCourseStepper} from './room-course.mjs?v=20261014-night-cards-1';
+import {createPlayRoomStepper,predictPlayRoomArc} from './play-room.mjs?v=20261014-night-cards-1';
+import {createSchoolPlayStepper,predictSchoolArc} from './school-play.mjs?v=20261014-night-cards-1';
+import {COURSE_REPLAY_LIMITS,createCourseReplay,validateCourseReplay,coursePayload,courseReplayResult,createCourseReplayPlayer,courseReplayToJSON,parseCourseReplayJSON,decodeCourseReplay,buildCourseReplayURL,interpretPlayContacts,loadPlayReplays,savePlayReplay,deletePlayReplay,loadItemReplays,saveItemReplay,deleteItemReplay,loadSchoolReplays,saveSchoolReplay,deleteSchoolReplay} from './play-replay.mjs?v=20261014-night-cards-1';
+import {createPullScale,mapScaledPull} from './pull-scale.mjs?v=20261014-night-cards-1';
+import {createPlayCue,playCueMarkup,pullHandleMarkup,launchCueOrigin} from './play-cue.mjs?v=20261014-night-cards-1';
+import {launchSummary,impactSummary} from './shot-summary.mjs?v=20261014-night-cards-1';
+import { createGame, setSetup, setRoomWorld, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261014-night-cards-1';
+import { createRenderer } from './render.mjs?v=20261014-night-cards-1';
+import { createShotAnalytics } from './shot-analytics.mjs?v=20261014-night-cards-1';
+import { createRecorder, loadReplays, saveReplay, deleteReplay } from './replay.mjs?v=20261014-night-cards-1';
+import {createGameShell} from './game-shell.mjs?v=20261014-night-cards-1';
+import {createTitleScreen} from './title-screen.mjs?v=20261014-night-cards-1';
+import {createGameMenu} from './game-menu.mjs?v=20261014-night-cards-1';
+import {createPlayerSaveUI} from './player-save-ui.mjs?v=20261014-night-cards-1';
 
-import {createRewards,ACHIEVEMENTS} from './rewards.mjs?v=20261014-goal-cues-1';
-import {loadPlayerSave,savePlayerSave,restorePlayerSave} from './player-save.mjs?v=20261014-goal-cues-1';
-import {THROWABLE_CATALOG,getThrowable} from './throwables.mjs?v=20261014-goal-cues-1';
-import {setThrowable,getThrowableId} from './throwable-physics.mjs?v=20261014-goal-cues-1';
-import {createStoreUI} from './item-store.mjs?v=20261014-goal-cues-1';
-import {createRewardEffects} from './reward-effects.mjs?v=20261014-goal-cues-1';
+import {createRewards,ACHIEVEMENTS} from './rewards.mjs?v=20261014-night-cards-1';
+import {loadPlayerSave,savePlayerSave,restorePlayerSave} from './player-save.mjs?v=20261014-night-cards-1';
+import {THROWABLE_CATALOG,getThrowable} from './throwables.mjs?v=20261014-night-cards-1';
+import {setThrowable,getThrowableId} from './throwable-physics.mjs?v=20261014-night-cards-1';
+import {createStoreUI} from './item-store.mjs?v=20261014-night-cards-1';
+import {createRewardEffects} from './reward-effects.mjs?v=20261014-night-cards-1';
 
 let goalCueStage=null,goalCuePending=false,goalCueUntil=0,goalCueSource=null,goalCueState={visible:false,markers:[]};
 const GOAL_CUE_MS=3200;
@@ -83,7 +83,7 @@ const inviteDialog=$('invite-dialog');
 function openGameInvitation(){
   if(!inviteDialog||busy()||pixelIntro?.active)return false;
   cancelGesture('game-invite');
-  const url=new URL(location.href);url.hash='';url.search='';url.searchParams.set('v','20261014-goal-cues-1');
+  const url=new URL(location.href);url.hash='';url.search='';url.searchParams.set('v','20261014-night-cards-1');
   $('invite-link').value=url.href;
   $('invite-message').textContent='';
   $('invite-share').hidden=typeof navigator.share!=='function';
@@ -960,11 +960,11 @@ function paintPlayCue(aim){
   const overlay=$('play-cue');if(!overlay)return;
   const rect=canvas.getBoundingClientRect();overlay.setAttribute('viewBox',`0 0 ${rect.width} ${rect.height}`);
   if(!aim||busy()||pixelIntro?.active||$('chapter-result')?.open||replayDialog.open){overlay.replaceChildren();cueSnapshot={visible:false,numericLabels:trainingMode,predictionVisible:trainingMode&&view.prediction&&!busy(),predictionPoints:trainingPreview?.length??0};return;}
-  const world=liveWorld();const origin=world?(getThrowableId(game)==='can'?world.origin:{...world.origin,y:world.origin.y+game.can.radius-.14}):{x:0,y:1.05,z:0};
+  const origin=launchCueOrigin(game,liveWorld()?.origin);
   const cue=createPlayCue(origin,aim,renderer.project,rect.width,rect.height);
   const gesture=view.gesture?.kind==='throw'?view.gesture:null;
-  overlay.innerHTML=playCueMarkup(cue,{risk:gesture?.aim?.risk>0})+(gesture?pullHandleMarkup(gesture,gesture.aim,sideStage(),pullInput()?-1:1):'');
-  cueSnapshot={visible:cue.visible,numericLabels:trainingMode,predictionVisible:trainingMode&&view.prediction,predictionPoints:trainingPreview?.length??0,arrowWorldLength:cue.arrowWorldLength,arrowScreenLength:cue.initial.length,
+  overlay.innerHTML=playCueMarkup(cue,{risk:gesture?.aim?.risk>0})+(gesture?pullHandleMarkup(gesture,gesture.aim,sideStage(),pullInput()?-1:1,cue.originVisible?cue.projectedOrigin:null):'');
+  cueSnapshot={visible:cue.visible,origin:{...cue.origin},projectedOrigin:{...cue.projectedOrigin},projectedBall:renderer.project(game.can.position),originVisible:cue.originVisible,numericLabels:trainingMode,predictionVisible:trainingMode&&view.prediction,predictionPoints:trainingPreview?.length??0,arrowWorldLength:cue.arrowWorldLength,arrowScreenLength:cue.initial.length,
     angleFan:{visible:cue.sector.length>=3,segments:cue.angleArc.segments.length},parameters:{...aim},risk:gesture?.aim?.risk??0};
   lastPresentedAim={parameters:{...aim},elapsedSeconds:gesture?(gesture.presentationTime-gesture.started)/1000:null,scale:gesture?.scale?structuredClone(gesture.scale):null};
 }

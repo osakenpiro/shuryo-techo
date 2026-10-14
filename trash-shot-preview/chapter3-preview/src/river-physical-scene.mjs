@@ -35,14 +35,19 @@ function tree(s,x,z,scale=1){
   for(const [dx,dz,y] of [[-.35,-.10,1.8],[.32,.09,2.0],[.08,.35,1.65]]){beam(s,p(x,.85*scale,z),p(x+dx*scale,y*scale,z+dz*scale),.035*scale,'#718878',m);ellipsoid(s,x+dx*scale,y*scale,z+dz*scale,.58*scale,.57*scale,.54*scale,'#718f76',m,8,3);}
 }
 function waterfront(world){
-  const s=[],w=world.water;
+  const s=[],w=world.water,night=world.worldVersion===37;
   // Irregular long reflections and small ripples share the actual water plane.
-  for(let col=0;col<32;col++)for(let row=0;row<12;row++)flat(s,w.minX+(w.maxX-w.minX)*col/32,w.y+.006,w.minZ+(w.maxZ-w.minZ)*row/12,(w.maxX-w.minX)/32,(w.maxZ-w.minZ)/12,(col+row)%3?'#376775':'#315d6d',{water:true,riverPart:'water'});
+  const columns=night?64:32,rows=night?24:12;
+  for(let col=0;col<columns;col++)for(let row=0;row<rows;row++)flat(s,w.minX+(w.maxX-w.minX)*col/columns,w.y+.006,w.minZ+(w.maxZ-w.minZ)*row/rows,(w.maxX-w.minX)/columns,(w.maxZ-w.minZ)/rows,night?'#234551':(col+row)%3?'#376775':'#315d6d',{water:true,riverPart:'water'});
   for(let row=0;row<18;row++)for(let col=0;col<7;col++){const x=-15+col*4.8+.3*Math.sin(row),z=1.4+row*.49;line(s,p(x,.012,z),p(x+.58+((col+row)%3)*.12,.012,z+.025),'#5a8a8d',{riverPart:'water-ripple'});}
   for(const [edge,dz,sign] of [[1.12,-.025,-1],[10.61,.025,1]]){
-    box(s,-20,-.045,edge+dz,40,.145,.11,'#8b9683',{riverPart:'bank-stone-edge',outsidePlayArea:true});
+    // Short stone and path sections sample the passing lantern independently.
+    // A single forty-metre polygon would light the whole bank at its centroid.
+    if(night)for(let x=-20;x<20;x+=.8)box(s,x,-.045,edge+dz,.8,.145,.11,'#8b9683',{riverPart:'bank-stone-edge',outsidePlayArea:true});
+    else box(s,-20,-.045,edge+dz,40,.145,.11,'#8b9683',{riverPart:'bank-stone-edge',outsidePlayArea:true});
     for(let x=-19.8;x<20;x+=.68)line(s,p(x,.087,edge+dz-.002),p(x,.087,edge+dz+.10),'#bdbaa0',{riverPart:'edge-stone-joint'});
-    flat(s,-20,.071,sign>0?10.72:-2.8,40,sign>0?5.6:3.85,'#8c917a',{riverPart:'outside-bank-path',outsidePlayArea:true});
+    if(night)for(let x=-20;x<20;x+=.8)for(let row=0;row<7;row++)flat(s,x,.071,(sign>0?10.72:-2.8)+row*(sign>0?5.6:3.85)/7,.8,(sign>0?5.6:3.85)/7,'#8c917a',{riverPart:'outside-bank-path',outsidePlayArea:true});
+    else flat(s,-20,.071,sign>0?10.72:-2.8,40,sign>0?5.6:3.85,'#8c917a',{riverPart:'outside-bank-path',outsidePlayArea:true});
   }
   // The throwing mat, working crates and safety boundary remain ordinary
   // objects of the same scale as the operator and the 34 cm mortar mouth.
@@ -60,7 +65,7 @@ function waterfront(world){
     beam(s,p(x,2.04,1.17),p(x,2.04,10.65),.036,'#bbc1a8',{riverPart:'bridge-handrail',outsidePlayArea:true});
   }
   for(const [x,z,scale] of [[-5.0,14.1,1.2],[5.2,14.6,1.1],[-8.1,15.2,1.3],[8.7,14.9,1.0]])tree(s,x,z,scale);
-  return group('river35-waterfront-and-stone-embankments',s);
+  return group(`river${world.worldVersion}-waterfront-and-stone-embankments`,s);
 }
 function festival(world){
   const s=[],m={riverPart:'festival-far-bank',outsidePlayArea:true};
@@ -93,7 +98,8 @@ function festival(world){
   // A quiet moon and its broken reflection are static night scenery.
   ellipsoid(s,4.8,7.5,18.7,.42,.42,.08,'#e2d4ac',{riverPart:'moon',emissive:true},16,6);
   for(let i=0;i<9;i++){const z=3.2+i*.68,x=3.9+.075*Math.sin(i*2.4),w=.16+.045*i;flat(s,x-w/2,.016,z,w,.045,'rgba(208,192,139,.16)',{riverPart:'moon-water-reflection',emissive:true,depthWrite:false});}
-  return group('river35-festival-stalls-roofed-house-and-lanterns',s);
+  const distantEmission=world.worldVersion===37?s.map(shape=>shape.emissive&&/^#[0-9a-f]{6}$/i.test(shape.fill??'')?{...shape,fill:'#'+[1,3,5].map(i=>Math.round(parseInt(shape.fill.slice(i,i+2),16)*(shape.riverPart==='moon'?.68:.40)).toString(16).padStart(2,'0')).join('')}:shape):s;
+  return group(`river${world.worldVersion}-festival-stalls-roofed-house-and-lanterns`,distantEmission);
 }
 function tube(s,goal,outerRadius=.205,bottom=.07,part='firework-mortar'){
   const q=goal.center,r=goal.radius,n=20,m={goalId:goal.id,goalRole:goal.role,goalKind:goal.kind,riverPart:part};
@@ -133,10 +139,10 @@ function worker(s,actor){
   for(const shape of model)s.push({...shape,points:shape.points.map(a=>p(q.x+a.x*k,q.y+a.y*k,q.z+a.z*k))});
 }
 export function riverPhysicalGroups(world){
-  if(world?.worldVersion!==35||world.stageId!=='outdoor-river')return [];
+  if(![35,37].includes(world?.worldVersion)||world.stageId!=='outdoor-river')return [];
   const landing=[];for(const goal of world.goals.filter(g=>g.role==='normal'))tube(landing,goal,world.props?.tube?.outerRadius??.205,.07);
   for(const actor of world.actors)worker(landing,actor);
-  return [waterfront(world),festival(world),group('river35-paper-shell-mortar-and-launch-operator',landing)];
+  return [waterfront(world),festival(world),group(`river${world.worldVersion}-paper-shell-mortar-and-launch-operator`,world.worldVersion===37?landing.map(shape=>shape.emissive?{...shape,emissive:false}:shape):landing)];
 }
 
 function hull(s,boat,top,fill){
@@ -237,7 +243,7 @@ function steamship(s,boat,goal,time,reducedMotion){
   beam(s,p(q.x+w*.45,deck+.02,q.z),p(q.x+w*.44,deck+.40,q.z),.027,'#8ea48e',{...m,riverPart:'bow-cleat'});
 }
 export function riverPhysicalMotionShapes(world,motion,time=0,options={}){
-  if(world?.worldVersion!==35||world.stageId!=='outdoor-river')return [];
+  if(![35,37].includes(world?.worldVersion)||world.stageId!=='outdoor-river')return [];
   const s=[];
   for(const boat of motion.boats){
     const goal=motion.goals.find(g=>g.motionId===boat.id);

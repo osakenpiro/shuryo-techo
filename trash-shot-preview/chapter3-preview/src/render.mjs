@@ -1,12 +1,12 @@
-import { predictArc } from './physics.mjs?v=20261014-goal-cues-1';
-import { roomScene,roomMotionShapes,roomMonitorQuad,paintScreenQuad } from './room-scene.mjs?v=20261014-goal-cues-1';
-import {schoolScene,schoolMotionShapes,schoolCameraConfig} from './school-scene.mjs?v=20261014-goal-cues-1';
-import {outdoorScene,outdoorMotionShapes,outdoorCameraConfig} from './outdoor-scene.mjs?v=20261014-goal-cues-1';
-import {factoryScene,factoryMotionShapes,factoryCameraConfig} from './factory-scene.mjs?v=20261014-goal-cues-1';
-import {eccentricScene,eccentricMotionShapes,eccentricCameraConfig,eccentricItemMeshes} from './eccentric-scene.mjs?v=20261014-goal-cues-1';
-import {drawPixelText} from './pixel-type.mjs?v=20261014-goal-cues-1';
-import {getThrowable} from './throwables.mjs?v=20261014-goal-cues-1';
-import {getThrowableId,throwablePose} from './throwable-physics.mjs?v=20261014-goal-cues-1';
+import { predictArc } from './physics.mjs?v=20261014-night-cards-1';
+import { roomScene,roomMotionShapes,roomMonitorQuad,paintScreenQuad } from './room-scene.mjs?v=20261014-night-cards-1';
+import {schoolScene,schoolMotionShapes,schoolCameraConfig} from './school-scene.mjs?v=20261014-night-cards-1';
+import {outdoorScene,outdoorMotionShapes,outdoorCameraConfig} from './outdoor-scene.mjs?v=20261014-night-cards-1';
+import {factoryScene,factoryMotionShapes,factoryCameraConfig} from './factory-scene.mjs?v=20261014-night-cards-1';
+import {eccentricScene,eccentricMotionShapes,eccentricCameraConfig,eccentricItemMeshes} from './eccentric-scene.mjs?v=20261014-night-cards-1';
+import {drawPixelText} from './pixel-type.mjs?v=20261014-night-cards-1';
+import {getThrowable} from './throwables.mjs?v=20261014-night-cards-1';
+import {getThrowableId,throwablePose} from './throwable-physics.mjs?v=20261014-night-cards-1';
 
 const add = (a,b) => ({ x:a.x+b.x, y:a.y+b.y, z:a.z+b.z });
 const sub = (a,b) => ({ x:a.x-b.x, y:a.y-b.y, z:a.z-b.z });
@@ -333,14 +333,15 @@ export function createRenderer(canvas) {
     ctx.drawImage(roomCache.image,0,0,width,height);return roomCache.depth;
   }
   function drawOutdoor(game,view){
-    const river=worldView.outdoorType==='river',time=view.environmentTime??0;
-    const wash=ctx.createLinearGradient(0,0,0,height);wash.addColorStop(0,river?'#152f3b':worldView.outdoorType==='baseball'?'#bddbd5':'#f4ead5');wash.addColorStop(1,river?'#294854':'#efe1c6');ctx.fillStyle=wash;ctx.fillRect(0,0,width,height);
-    // Only illumination is refreshed in bounded 10 Hz slices. Goal and actor
-    // poses are rendered every frame at the exact shared environment time.
+    const river=worldView.outdoorType==='river',night=worldView.worldVersion===37,time=view.environmentTime??0;
+    const wash=ctx.createLinearGradient(0,0,0,height);wash.addColorStop(0,night?(worldView.lighting?.sky??'#050a14'):river?'#152f3b':worldView.outdoorType==='baseball'?'#bddbd5':'#f4ead5');wash.addColorStop(1,night?(worldView.lighting?.water??'#0b1722'):river?'#294854':'#efe1c6');ctx.fillStyle=wash;ctx.fillRect(0,0,width,height);
+    // Background pools are cached for at most 100 ms of environment time.
+    // New images sample the actual current lamp pose; boat meshes, chimney,
+    // colliders, ball and fixed goal camera still follow their frame clock.
     const lightTick=river?Math.floor(time*10)/10:0;
     const key=['outdoor',worldView.worldVersion,width,height,depthWidth,depthHeight,camera.x,camera.y,camera.z,lightTick].join('/');
     if(!roomCache||roomCache.key!==key){
-      const scene=outdoorScene(camera,worldView,lightTick,view),opaque=scene.shapes.filter(s=>s.depthWrite!==false),faded=scene.shapes.filter(s=>s.depthWrite===false);
+      const scene=outdoorScene(camera,worldView,night?time:lightTick,view),opaque=scene.shapes.filter(s=>s.depthWrite!==false),faded=scene.shapes.filter(s=>s.depthWrite===false);
       faded.sort((a,b)=>dot(sub(b.points[0],camera),forward)-dot(sub(a.points[0],camera),forward));
       depthPixels.data.fill(0);depthValues.fill(Infinity);rasterizeShapes([...opaque,...faded]);
       const image=document.createElement('canvas');image.width=depthWidth;image.height=depthHeight;image.getContext('2d').putImageData(depthPixels,0,0);

@@ -1,41 +1,41 @@
-import {buildGoalCue,goalCueMarkup} from './goal-cue.mjs?v=20261014-goal-cues-1';
-import { STAGES, createStageProgress } from './stages.mjs?v=20261014-goal-cues-1';
-import { sideAim } from './side-aim.mjs?v=20261014-goal-cues-1';
-import {createPixelIntro} from './pixel-intro.mjs?v=20261014-goal-cues-1';
-import {createRoomWindStepper} from './room-gimmicks.mjs?v=20261014-goal-cues-1';
-import {CHAPTER_IDS,FIRST_CHAPTER_IDS,SCHOOL_CHAPTER_IDS,OUTDOOR_CHAPTER_IDS,FACTORY_CHAPTER_IDS,ECCENTRIC_CHAPTER_IDS,BRANCH_CHAPTER_IDS,STAGE_THROWABLE_ITEMS,CHAPTERS,chapterForStage,getNextStage,isChapterBoundary,createChapterProgress,outdoorSnapshot,canChooseStage} from './progress-save.mjs?v=20261014-goal-cues-1';
-import {roomCourse,roomWorld,createRoomCourseStepper} from './room-course.mjs?v=20261014-goal-cues-1';
-import {createPlayRoomStepper,predictPlayRoomArc} from './play-room.mjs?v=20261014-goal-cues-1';
-import {createSchoolPlayStepper,predictSchoolArc} from './school-play.mjs?v=20261014-goal-cues-1';
-import {createOutdoorPlayStepper,predictOutdoorArc} from './outdoor-play.mjs?v=20261014-goal-cues-1';
-import {outdoorStartTime,shrineStartTime,outdoorGoals} from './outdoor-world.mjs?v=20261014-goal-cues-1';
-import {factoryStartTime,factoryGoals} from './factory-world.mjs?v=20261014-goal-cues-1';
-import {createFactoryPlayStepper,createFactorySession,resetFactorySession,predictFactoryArc} from './factory-play.mjs?v=20261014-goal-cues-1';
-import {eccentricStartTime,eccentricLaunchFrame,eccentricGoals} from './eccentric-world.mjs?v=20261014-goal-cues-1';
-import {createEccentricPlayStepper,throwEccentric,predictEccentricArc} from './eccentric-play.mjs?v=20261014-goal-cues-1';
-import {createOutdoorEffects} from './outdoor-effects.mjs?v=20261014-goal-cues-1';
-import {createBaseballIntro} from './baseball-intro.mjs?v=20261014-goal-cues-1';
-import {loadOutdoorReplays,saveOutdoorReplay,deleteOutdoorReplay,createAdvancedRecorder,loadAdvancedReplays,saveAdvancedReplay,deleteAdvancedReplay} from './play-replay.mjs?v=20261014-goal-cues-1';
-import {COURSE_REPLAY_LIMITS,createCourseReplay,validateCourseReplay,coursePayload,courseReplayResult,createCourseReplayPlayer,courseReplayToJSON,parseCourseReplayJSON,decodeCourseReplay,buildCourseReplayURL,interpretCourseContacts,loadPlayReplays,savePlayReplay,deletePlayReplay,loadItemReplays,saveItemReplay,deleteItemReplay,loadSchoolReplays,saveSchoolReplay,deleteSchoolReplay} from './play-replay.mjs?v=20261014-goal-cues-1';
-import {createPullScale,mapScaledPull} from './pull-scale.mjs?v=20261014-goal-cues-1';
-import {createPlayCue,playCueMarkup,pullHandleMarkup} from './play-cue.mjs?v=20261014-goal-cues-1';
-import {launchSummary,impactSummary} from './shot-summary.mjs?v=20261014-goal-cues-1';
-import { createGame, setSetup, setRoomWorld, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261014-goal-cues-1';
-import { createRenderer } from './render.mjs?v=20261014-goal-cues-1';
-import { createShotAnalytics } from './shot-analytics.mjs?v=20261014-goal-cues-1';
-import { createRecorder, loadReplays, saveReplay, deleteReplay } from './replay.mjs?v=20261014-goal-cues-1';
-import {createGameShell} from './game-shell.mjs?v=20261014-goal-cues-1';
-import {createTitleScreen} from './title-screen.mjs?v=20261014-goal-cues-1';
-import {createGameMenu} from './game-menu.mjs?v=20261014-goal-cues-1';
-import {createPlayerSaveUI} from './player-save-ui.mjs?v=20261014-goal-cues-1';
+import {buildGoalCue,goalCueMarkup} from './goal-cue.mjs?v=20261014-night-cards-1';
+import { STAGES, createStageProgress } from './stages.mjs?v=20261014-night-cards-1';
+import { sideAim } from './side-aim.mjs?v=20261014-night-cards-1';
+import {createPixelIntro} from './pixel-intro.mjs?v=20261014-night-cards-1';
+import {createRoomWindStepper} from './room-gimmicks.mjs?v=20261014-night-cards-1';
+import {CHAPTER_IDS,FIRST_CHAPTER_IDS,SCHOOL_CHAPTER_IDS,OUTDOOR_CHAPTER_IDS,FACTORY_CHAPTER_IDS,ECCENTRIC_CHAPTER_IDS,BRANCH_CHAPTER_IDS,STAGE_THROWABLE_ITEMS,CHAPTERS,chapterForStage,getNextStage,isChapterBoundary,createChapterProgress,outdoorSnapshot,canChooseStage} from './progress-save.mjs?v=20261014-night-cards-1';
+import {roomCourse,roomWorld,createRoomCourseStepper} from './room-course.mjs?v=20261014-night-cards-1';
+import {createPlayRoomStepper,predictPlayRoomArc} from './play-room.mjs?v=20261014-night-cards-1';
+import {createSchoolPlayStepper,predictSchoolArc} from './school-play.mjs?v=20261014-night-cards-1';
+import {createOutdoorPlayStepper,predictOutdoorArc} from './outdoor-play.mjs?v=20261014-night-cards-1';
+import {outdoorStartTime,shrineStartTime,outdoorGoals,outdoorMotion} from './outdoor-world.mjs?v=20261014-night-cards-1';
+import {factoryStartTime,factoryGoals} from './factory-world.mjs?v=20261014-night-cards-1';
+import {createFactoryPlayStepper,createFactorySession,resetFactorySession,predictFactoryArc} from './factory-play.mjs?v=20261014-night-cards-1';
+import {eccentricStartTime,eccentricLaunchFrame,eccentricGoals} from './eccentric-world.mjs?v=20261014-night-cards-1';
+import {createEccentricPlayStepper,throwEccentric,predictEccentricArc} from './eccentric-play.mjs?v=20261014-night-cards-1';
+import {createOutdoorEffects} from './outdoor-effects.mjs?v=20261014-night-cards-1';
+import {createBaseballIntro} from './baseball-intro.mjs?v=20261014-night-cards-1';
+import {loadOutdoorReplays,saveOutdoorReplay,deleteOutdoorReplay,createAdvancedRecorder,loadAdvancedReplays,saveAdvancedReplay,deleteAdvancedReplay} from './play-replay.mjs?v=20261014-night-cards-1';
+import {COURSE_REPLAY_LIMITS,createCourseReplay,validateCourseReplay,coursePayload,courseReplayResult,createCourseReplayPlayer,courseReplayToJSON,parseCourseReplayJSON,decodeCourseReplay,buildCourseReplayURL,interpretCourseContacts,loadPlayReplays,savePlayReplay,deletePlayReplay,loadItemReplays,saveItemReplay,deleteItemReplay,loadSchoolReplays,saveSchoolReplay,deleteSchoolReplay} from './play-replay.mjs?v=20261014-night-cards-1';
+import {createPullScale,mapScaledPull} from './pull-scale.mjs?v=20261014-night-cards-1';
+import {createPlayCue,playCueMarkup,pullHandleMarkup,launchCueOrigin} from './play-cue.mjs?v=20261014-night-cards-1';
+import {launchSummary,impactSummary} from './shot-summary.mjs?v=20261014-night-cards-1';
+import { createGame, setSetup, setRoomWorld, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261014-night-cards-1';
+import { createRenderer } from './render.mjs?v=20261014-night-cards-1';
+import { createShotAnalytics } from './shot-analytics.mjs?v=20261014-night-cards-1';
+import { createRecorder, loadReplays, saveReplay, deleteReplay } from './replay.mjs?v=20261014-night-cards-1';
+import {createGameShell} from './game-shell.mjs?v=20261014-night-cards-1';
+import {createTitleScreen} from './title-screen.mjs?v=20261014-night-cards-1';
+import {createGameMenu} from './game-menu.mjs?v=20261014-night-cards-1';
+import {createPlayerSaveUI} from './player-save-ui.mjs?v=20261014-night-cards-1';
 
-import {createRewards,ACHIEVEMENTS} from './rewards.mjs?v=20261014-goal-cues-1';
-import {loadPlayerSave,savePlayerSave,restorePlayerSave} from './player-save.mjs?v=20261014-goal-cues-1';
-import {THROWABLE_CATALOG,getThrowable} from './throwables.mjs?v=20261014-goal-cues-1';
-import {setThrowable,getThrowableId,getThrowableProfile} from './throwable-physics.mjs?v=20261014-goal-cues-1';
-import {createStoreUI} from './item-store.mjs?v=20261014-goal-cues-1';
-import {createRewardEffects} from './reward-effects.mjs?v=20261014-goal-cues-1';
-import {createPreviewStorage} from './preview-storage.mjs?v=20261014-goal-cues-1';
+import {createRewards,ACHIEVEMENTS} from './rewards.mjs?v=20261014-night-cards-1';
+import {loadPlayerSave,savePlayerSave,restorePlayerSave} from './player-save.mjs?v=20261014-night-cards-1';
+import {THROWABLE_CATALOG,getThrowable} from './throwables.mjs?v=20261014-night-cards-1';
+import {setThrowable,getThrowableId,getThrowableProfile} from './throwable-physics.mjs?v=20261014-night-cards-1';
+import {createStoreUI} from './item-store.mjs?v=20261014-night-cards-1';
+import {createRewardEffects} from './reward-effects.mjs?v=20261014-night-cards-1';
+import {createPreviewStorage} from './preview-storage.mjs?v=20261014-night-cards-1';
 
 let goalCueStage=null,goalCuePending=false,goalCueUntil=0,goalCueSource=null,goalCueState={visible:false,markers:[]};
 const GOAL_CUE_MS=3200;
@@ -113,7 +113,7 @@ const inviteDialog=$('invite-dialog');
 function openGameInvitation(){
   if(!inviteDialog||busy()||pixelIntro?.active)return false;
   cancelGesture('game-invite');
-  const url=new URL(location.href);url.hash='';url.search='';url.searchParams.set('v','20261014-goal-cues-1');
+  const url=new URL(location.href);url.hash='';url.search='';url.searchParams.set('v','20261014-night-cards-1');
   $('invite-link').value=url.href;
   $('invite-message').textContent='';
   $('invite-share').hidden=typeof navigator.share!=='function';
@@ -906,7 +906,7 @@ async function loadSharedReplay(){
 }
 window.addEventListener('hashchange',loadSharedReplay);
 loadSharedReplay();
-window.__trashShot={goalCueSnapshot:()=>structuredClone(goalCueState),game,controls,pitchSnapshot:()=>baseballIntro.snapshot(liveWorld(),game.can.radius),advancedSnapshot:()=>({active:advancedStage(),preview:reviewChapters45,stageId:stageProgress.snapshot().id,environmentTime,startTime:environmentStartTime(),sceneTime:sceneTime(),factorySession:factorySession?structuredClone(factorySession):null,impactPose:playStepper?.snapshot().impactPose??null}),outdoorSnapshot:()=>({active:outdoorStage(),preview:reviewChapter3,stageId:stageProgress.snapshot().id,environmentTime,startTime:environmentStartTime(),sceneTime:sceneTime(),facts:outdoorSnapshot(chapterProgress.snapshot()),audio:outdoorEffects.snapshot(),goalCamera:{enabled:goalCameraVisible,visible:goalCameraShown(),mode:'inset',mainMode:'thrower',stageId:goalCameraShown()?stageProgress.snapshot().id:null,camera:renderer.cameraSnapshot(),insetVisible:goalCameraShown(),insetCamera:goalRenderer?.cameraSnapshot()??null,presented:goalCameraPresented?{...goalCameraPresented}:null,prediction:false,numericLabels:false}}),schoolSnapshot:()=>({active:schoolStage(),stageId:stageProgress.snapshot().id,environmentTime,phase:schoolStartTime(),sceneTime:sceneTime()}),menuSnapshot:()=>({selected:menuUI?.selected()??null,open:$('game-menu')?.open===true,arcTipVisible:$('arc-tip')?.hidden===false,arcTipLearned}),titleSnapshot:()=>({active:titleActive(),seen:titleSeen,unlocked:titleUnlocked(),firstResultPending:firstTitlePending()}),stageSnapshot:()=>({...stageProgress.snapshot(),completed:[...stageProgress.snapshot().completed.filter(id=>!CHAPTER_IDS.includes(id)),...chapterProgress.snapshot().completedIDs]}),chapterSnapshot:()=>({...chapterProgress.snapshot(),training:trainingMode,practice:chapterPractice,currentStage:stageProgress.snapshot().id,result:chapterResult?{stageId:chapterResult.stageId,attempts:chapterResult.attempts,roles:structuredClone(chapterResult.roles),best:chapterResult.best,practice:chapterResult.practice,itemId:chapterResult.itemId,reward:structuredClone(chapterResult.reward),analysis:structuredClone(chapterResult.analysis)}:null}),courseSnapshot:()=>playStepper?.snapshot()??courseStepper.snapshot(),rewardSnapshot:()=>rewards.snapshot(),throwableSnapshot:()=>({id:getThrowableId(game),profile:getThrowableProfile(game)??getThrowable(getThrowableId(game)).physics}),playSnapshot:()=>structuredClone({roomContacts:playStepper?.snapshot()??null,cue:cueSnapshot,trainingPreview:trainingPreview??[],frozenScale:view.gesture?.scale??null,presentedAim:lastPresentedAim,releasedAim:lastReleasedAim,resultAnalysis:lastShotAnalysis,numericLabels:trainingMode,predictionVisible:trainingMode&&view.prediction}),snapshot:()=>getSnapshot(game),cameraSnapshot:()=>renderer.cameraSnapshot(),introSnapshot:()=>pixelIntro?.snapshot()??null,gimmickSnapshot:()=>({active:extraRoom(),fanEnabled,...(playStepper?.snapshot()??roomWind.snapshot()),windArc:(trainingPreview??[]).map(p=>({...p}))}),inputSnapshot:()=>({scheme:chapterProgress.snapshot().inputScheme,training:trainingMode,trainingStats:{...trainingStats},worldVersion:liveWorld()?.worldVersion??1,mode:view.mode,prediction:view.prediction,activeGesture:view.gesture?.kind||null,heldAim:view.gesture?.kind==='throw'?{...view.gesture.aim.actual,valid:view.gesture.aim.valid,risk:view.gesture.aim.risk,rawDistance:view.gesture.aim.rawDistance}:null,lastPaintedPhase:view.gesture?.kind==='throw'?(view.gesture.presentationTime-view.gesture.started)/1000:null,activePointers:pointers.size,cancellations,lastInput:lastInput?structuredClone(lastInput):null}),analyticsSnapshot:()=>({...analytics.snapshot(),result:actualLiveResult()}),replaySnapshot:()=>({active:replayDialog.open,playing:replayPlaying,time:replayTime,duration:replayPlayer?.duration||0,sourceId:viewedPayload?.id||null,sourceType:replaySource,recordedFrames:viewedPayload?.frames.length||0,current:replayPlayer?structuredClone(replayPlayer.sample(replayTime)):null,result:viewedResult?structuredClone(viewedResult):null,course:viewedReplay?.course?structuredClone(viewedReplay.course):null,savedCount:savedReplays.length,latestId:lastReplay?coursePayload(lastReplay).id:null,recording:Boolean(videoState),video:videoBlob?{size:videoBlob.size,mime:videoBlob.type}:null})};
+window.__trashShot={goalCueSnapshot:()=>structuredClone(goalCueState),game,controls,pitchSnapshot:()=>baseballIntro.snapshot(liveWorld(),game.can.radius),advancedSnapshot:()=>({active:advancedStage(),preview:reviewChapters45,stageId:stageProgress.snapshot().id,environmentTime,startTime:environmentStartTime(),sceneTime:sceneTime(),factorySession:factorySession?structuredClone(factorySession):null,impactPose:playStepper?.snapshot().impactPose??null}),outdoorSnapshot:()=>({active:outdoorStage(),preview:reviewChapter3,stageId:stageProgress.snapshot().id,environmentTime,startTime:environmentStartTime(),sceneTime:sceneTime(),motion:outdoorStage()?structuredClone(outdoorMotion(liveWorld(),sceneTime())):null,facts:outdoorSnapshot(chapterProgress.snapshot()),audio:outdoorEffects.snapshot(),goalCamera:{enabled:goalCameraVisible,visible:goalCameraShown(),mode:'inset',mainMode:'thrower',stageId:goalCameraShown()?stageProgress.snapshot().id:null,camera:renderer.cameraSnapshot(),insetVisible:goalCameraShown(),insetCamera:goalRenderer?.cameraSnapshot()??null,presented:goalCameraPresented?{...goalCameraPresented}:null,prediction:false,numericLabels:false}}),schoolSnapshot:()=>({active:schoolStage(),stageId:stageProgress.snapshot().id,environmentTime,phase:schoolStartTime(),sceneTime:sceneTime()}),menuSnapshot:()=>({selected:menuUI?.selected()??null,open:$('game-menu')?.open===true,arcTipVisible:$('arc-tip')?.hidden===false,arcTipLearned}),titleSnapshot:()=>({active:titleActive(),seen:titleSeen,unlocked:titleUnlocked(),firstResultPending:firstTitlePending()}),stageSnapshot:()=>({...stageProgress.snapshot(),completed:[...stageProgress.snapshot().completed.filter(id=>!CHAPTER_IDS.includes(id)),...chapterProgress.snapshot().completedIDs]}),chapterSnapshot:()=>({...chapterProgress.snapshot(),training:trainingMode,practice:chapterPractice,currentStage:stageProgress.snapshot().id,result:chapterResult?{stageId:chapterResult.stageId,attempts:chapterResult.attempts,roles:structuredClone(chapterResult.roles),best:chapterResult.best,practice:chapterResult.practice,itemId:chapterResult.itemId,reward:structuredClone(chapterResult.reward),analysis:structuredClone(chapterResult.analysis)}:null}),courseSnapshot:()=>playStepper?.snapshot()??courseStepper.snapshot(),rewardSnapshot:()=>rewards.snapshot(),throwableSnapshot:()=>({id:getThrowableId(game),profile:getThrowableProfile(game)??getThrowable(getThrowableId(game)).physics}),playSnapshot:()=>structuredClone({roomContacts:playStepper?.snapshot()??null,cue:cueSnapshot,trainingPreview:trainingPreview??[],frozenScale:view.gesture?.scale??null,presentedAim:lastPresentedAim,releasedAim:lastReleasedAim,resultAnalysis:lastShotAnalysis,numericLabels:trainingMode,predictionVisible:trainingMode&&view.prediction}),snapshot:()=>getSnapshot(game),cameraSnapshot:()=>renderer.cameraSnapshot(),introSnapshot:()=>pixelIntro?.snapshot()??null,gimmickSnapshot:()=>({active:extraRoom(),fanEnabled,...(playStepper?.snapshot()??roomWind.snapshot()),windArc:(trainingPreview??[]).map(p=>({...p}))}),inputSnapshot:()=>({scheme:chapterProgress.snapshot().inputScheme,training:trainingMode,trainingStats:{...trainingStats},worldVersion:liveWorld()?.worldVersion??1,mode:view.mode,prediction:view.prediction,activeGesture:view.gesture?.kind||null,heldAim:view.gesture?.kind==='throw'?{...view.gesture.aim.actual,valid:view.gesture.aim.valid,risk:view.gesture.aim.risk,rawDistance:view.gesture.aim.rawDistance}:null,lastPaintedPhase:view.gesture?.kind==='throw'?(view.gesture.presentationTime-view.gesture.started)/1000:null,activePointers:pointers.size,cancellations,lastInput:lastInput?structuredClone(lastInput):null}),analyticsSnapshot:()=>({...analytics.snapshot(),result:actualLiveResult()}),replaySnapshot:()=>({active:replayDialog.open,playing:replayPlaying,time:replayTime,duration:replayPlayer?.duration||0,sourceId:viewedPayload?.id||null,sourceType:replaySource,recordedFrames:viewedPayload?.frames.length||0,current:replayPlayer?structuredClone(replayPlayer.sample(replayTime)):null,result:viewedResult?structuredClone(viewedResult):null,course:viewedReplay?.course?structuredClone(viewedReplay.course):null,savedCount:savedReplays.length,latestId:lastReplay?coursePayload(lastReplay).id:null,recording:Boolean(videoState),video:videoBlob?{size:videoBlob.size,mime:videoBlob.type}:null})};
 updateControlLabels();updateUI(true);
 // Explicit stages and shared records bypass the fresh pixel introduction.
 const entryStage=new URLSearchParams(location.search).get('stage')??(reviewChapters45?'factory-shutter':reviewChapter3?'outdoor-shrine':null);
@@ -1090,11 +1090,11 @@ function paintPlayCue(aim){
   const overlay=$('play-cue');if(!overlay)return;
   const rect=canvas.getBoundingClientRect();overlay.setAttribute('viewBox',`0 0 ${rect.width} ${rect.height}`);
   if(!aim||busy()||pixelIntro?.active||$('chapter-result')?.open||replayDialog.open){overlay.replaceChildren();cueSnapshot={visible:false,numericLabels:trainingMode,predictionVisible:trainingMode&&view.prediction&&!busy(),predictionPoints:trainingPreview?.length??0};return;}
-  const world=liveWorld();const origin=world?(getThrowableId(game)==='can'?world.origin:{...world.origin,y:world.origin.y+game.can.radius-.14}):{x:0,y:1.05,z:0};
+  const origin=launchCueOrigin(game,liveWorld()?.origin);
   const cue=createPlayCue(origin,aim,renderer.project,rect.width,rect.height);
   const gesture=view.gesture?.kind==='throw'?view.gesture:null;
-  overlay.innerHTML=playCueMarkup(cue,{risk:gesture?.aim?.risk>0})+(gesture?pullHandleMarkup(gesture,gesture.aim,sideStage(),pullInput()?-1:1):'');
-  cueSnapshot={visible:cue.visible,numericLabels:trainingMode,predictionVisible:trainingMode&&view.prediction,predictionPoints:trainingPreview?.length??0,arrowWorldLength:cue.arrowWorldLength,arrowScreenLength:cue.initial.length,
+  overlay.innerHTML=playCueMarkup(cue,{risk:gesture?.aim?.risk>0})+(gesture?pullHandleMarkup(gesture,gesture.aim,sideStage(),pullInput()?-1:1,cue.originVisible?cue.projectedOrigin:null):'');
+  cueSnapshot={visible:cue.visible,origin:{...cue.origin},projectedOrigin:{...cue.projectedOrigin},projectedBall:renderer.project(game.can.position),originVisible:cue.originVisible,numericLabels:trainingMode,predictionVisible:trainingMode&&view.prediction,predictionPoints:trainingPreview?.length??0,arrowWorldLength:cue.arrowWorldLength,arrowScreenLength:cue.initial.length,
     angleFan:{visible:cue.sector.length>=3,segments:cue.angleArc.segments.length},parameters:{...aim},risk:gesture?.aim?.risk??0};
   lastPresentedAim={parameters:{...aim},elapsedSeconds:gesture?(gesture.presentationTime-gesture.started)/1000:null,scale:gesture?.scale?structuredClone(gesture.scale):null};
 }

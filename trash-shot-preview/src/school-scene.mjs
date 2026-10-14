@@ -1,7 +1,7 @@
 // The school uses the same warm paper / wood / teal language as the approved
 // room art. Every physical surface is drawn from the frozen school descriptor;
 // small flat markings do not introduce additional gameplay obstacles.
-import {schoolSolids,schoolStudentPose,schoolStudentPoses} from './school-world.mjs?v=20261014-goal-cues-1';
+import {schoolSolids,schoolStudentPose,schoolStudentPoses} from './school-world.mjs?v=20261014-night-cards-1';
 
 export const SCHOOL_PALETTE=Object.freeze({cream:'#f4ead5',wall:'#eee2c6',wood:'#c89b61',metal:'#c1cab7',teal:'#4a948b',darkTeal:'#286864',gold:'#e8b54e',orange:'#e98238',sky:'#bfdedb',green:'#8caf7d'});
 const p=(x,y,z)=>({x,y,z});

@@ -1,12 +1,12 @@
 // Outdoor places continue the approved room/school paper, wood and teal visual
 // language. Physical mesh endpoints come from the world descriptors; painted
 // trim and floor markings are decoration, not additional collision surfaces.
-import {outdoorSolids,outdoorMotion,outdoorDynamicSolids} from './outdoor-world.mjs?v=20261014-goal-cues-1';
-import {outdoorEffectShapes,outdoorLightColor,outdoorLampShapes} from './outdoor-effects.mjs?v=20261014-goal-cues-1';
-import {ballparkMotionShapes} from './ballpark-scene.mjs?v=20261014-goal-cues-1';
-import {outdoorArchitectureGroups} from './outdoor-architecture.mjs?v=20261014-goal-cues-1';
-import {mallPhysicalGroups} from './mall-physical-scene.mjs?v=20261014-goal-cues-1';
-import {riverPhysicalGroups,riverPhysicalMotionShapes} from './river-physical-scene.mjs?v=20261014-goal-cues-1';
+import {outdoorSolids,outdoorMotion,outdoorDynamicSolids} from './outdoor-world.mjs?v=20261014-night-cards-1';
+import {outdoorEffectShapes,outdoorLightColor,outdoorLampShapes} from './outdoor-effects.mjs?v=20261014-night-cards-1';
+import {ballparkMotionShapes} from './ballpark-scene.mjs?v=20261014-night-cards-1';
+import {outdoorArchitectureGroups} from './outdoor-architecture.mjs?v=20261014-night-cards-1';
+import {mallPhysicalGroups} from './mall-physical-scene.mjs?v=20261014-night-cards-1';
+import {riverPhysicalGroups,riverPhysicalMotionShapes} from './river-physical-scene.mjs?v=20261014-night-cards-1';
 export const OUTDOOR_PALETTE=Object.freeze({cream:'#f4ead5',wall:'#eee2c6',wood:'#c89b61',teal:'#4a948b',darkTeal:'#286864',gold:'#e8b54e',orange:'#e98238',sky:'#bfdedb',green:'#8caf7d',night:'#172e3d',water:'#244c60'});
 const p=(x,y,z)=>({x,y,z});
 const face=(points,fill,stroke=null,metadata={})=>({points,fill,stroke,...metadata});
@@ -243,13 +243,13 @@ function buildGroups(world){
   if(type!=='river')flat(background,r.minX,-.018,r.minZ,r.maxX-r.minX,r.maxZ-r.minZ,type==='baseball'?([33,36].includes(world.worldVersion)?'#d4cbb0':'#a1bc87'):type==='mall'?'#eee4cc':'#b8bd92');
   groups.push({id:'outdoor-background',shapes:background,physical:false});
   for(const c of solids){
-    const shapes=[],receiverShell=world.worldVersion===36&&['chair-pan','chair-back'].includes(c.kind)||world.worldVersion===34&&['mall-cone-body','mall-coffee-body','mall-soda-body'].includes(c.id)||world.worldVersion===35&&/^river-tube-(body|rim-)/.test(c.id);
+    const shapes=[],receiverShell=world.worldVersion===36&&['chair-pan','chair-back'].includes(c.kind)||world.worldVersion===34&&['mall-cone-body','mall-coffee-body','mall-soda-body'].includes(c.id)||[35,37].includes(world.worldVersion)&&/^river-tube-(body|rim-)/.test(c.id);
     if(!receiverShell)physicalBox(shapes,c,surfaceColor(c,world));
     const glass=[32,34].includes(world.worldVersion)&&/^mall-source-(left|right)-rail$/.test(c.id);
     groups.push({id:c.id,object:c.object??c.kind,bounds:boundsOf(c),shapes:glass?shapes.map(m=>({...m,fill:'rgba(158,190,175,.10)',depthWrite:false,sourceGlassRail:true})):shapes,physical:true});
   }
   const detail=[];
-  if(type==='shrine'){shrineDetails(detail,world);if(world.worldVersion===30)shrineInariDetails(detail,world);}else if(type==='baseball'&&![31,33,36].includes(world.worldVersion))baseballDetails(detail,world);else if(type==='mall'&&![32,34].includes(world.worldVersion))mallDetails(detail,world);else if(type==='river'&&world.worldVersion!==35)riverDetails(detail,world);
+  if(type==='shrine'){shrineDetails(detail,world);if(world.worldVersion===30)shrineInariDetails(detail,world);}else if(type==='baseball'&&![31,33,36].includes(world.worldVersion))baseballDetails(detail,world);else if(type==='mall'&&![32,34].includes(world.worldVersion))mallDetails(detail,world);else if(type==='river'&&![35,37].includes(world.worldVersion))riverDetails(detail,world);
   if(world.worldVersion===30){
     const buckets=new Map();
     for(const shape of detail){
@@ -266,7 +266,7 @@ function buildGroups(world){
     if([31,33].includes(world.worldVersion)&&group.id==='stadium-scoreboard-innings')groups.push({...group,architecturalShell:true,bounds:boundsOf(world.solids.find(c=>c.id==='stadium-scoreboard'))});else groups.push(group);
   }
   if(world.worldVersion===34)groups.push(...mallPhysicalGroups(world));
-  if(world.worldVersion===35)groups.push(...riverPhysicalGroups(world));
+  if([35,37].includes(world.worldVersion))groups.push(...riverPhysicalGroups(world));
   // These spectators/customers and their mouths have no gameplay motion. Keep
   // them in the cached depth layer rather than rebuilding hundreds of faces.
   if(type==='baseball'&&world.worldVersion!==36||type==='mall'&&world.worldVersion!==34){
@@ -302,7 +302,7 @@ export function outdoorScene(camera,world,time=0,options={}){
     if(faded){cutaway.push(group.id);shapes.push(...visibleShapes.map(s=>({...s,fill:transparent(s.fill,sourceFloor?.11:/ceiling/.test(group.id)?.045:.16),depthWrite:false})));}
     else shapes.push(...visibleShapes);
   }
-  return {shapes:lamps.length?lightShapes(shapes,lamps,world.worldVersion===35):shapes,cutaway,groups:groups.map(({id,object,bounds,physical})=>({id,object,bounds,physical})),worldVersion:world.worldVersion,stageId:world.stageId};
+  return {shapes:lamps.length?lightShapes(shapes,lamps,[35,37].includes(world.worldVersion),riverLightOptions(world)):shapes,cutaway,groups:groups.map(({id,object,bounds,physical})=>({id,object,bounds,physical})),worldVersion:world.worldVersion,stageId:world.stageId};
 }
 
 const add=(a,b)=>p(a.x+b.x,a.y+b.y,a.z+b.z);
@@ -310,7 +310,8 @@ const scale=(a,n)=>p(a.x*n,a.y*n,a.z*n);
 const cross=(a,b)=>p(a.y*b.z-a.z*b.y,a.z*b.x-a.x*b.z,a.x*b.y-a.y*b.x);
 const unit=a=>scale(a,1/(Math.hypot(a.x,a.y,a.z)||1));
 const centroid=shape=>scale(shape.points.reduce(add,p(0,0,0)),1/shape.points.length);
-const lightShapes=(shapes,lamps,preserveEmissive=false)=>shapes.map(shape=>preserveEmissive&&shape.emissive?shape:({...shape,fill:outdoorLightColor(shape.fill,centroid(shape),lamps,{ambient:.24}),stroke:outdoorLightColor(shape.stroke,centroid(shape),lamps,{ambient:.24})}));
+const riverLightOptions=world=>world.worldVersion===37?{ambient:world.lighting?.ambient??.035,night:true}:{ambient:.24};
+const lightShapes=(shapes,lamps,preserveEmissive=false,options={ambient:.24})=>shapes.map(shape=>preserveEmissive&&shape.emissive?shape:({...shape,fill:outdoorLightColor(shape.fill,centroid(shape),lamps,options),stroke:outdoorLightColor(shape.stroke,centroid(shape),lamps,options)}));
 function basis(goal){
   const normal=unit(goal.normal??p(0,1,0)),vertical=goal.up??(Math.abs(normal.y)>.8?p(0,0,1):p(0,1,0)),right=unit(cross(vertical,normal)),up=unit(cross(normal,right));
   return {normal,right,up,at:(x,y,d=0)=>add(goal.center,add(scale(right,x),add(scale(up,y),scale(normal,d))))};
@@ -654,8 +655,8 @@ export function outdoorMotionShapes(time,world,options={}){
   if(world?.environment!=='outdoor')throw new RangeError('A frozen outdoor world is required');
   const motion=outdoorMotion(world,time),shapes=[],movingFigures=['shrine','river'].includes(typeOf(world));
   if(world.worldVersion===36){shapes.push(...ballparkMotionShapes(world,time,options));batSwing(shapes,world,time,options);shapes.push(...outdoorEffectShapes(world,time,options));return shapes;}
-  if(world.worldVersion===35){
-    const lit=lightShapes(riverPhysicalMotionShapes(world,motion,time,options),motion.lamps??[],true);
+  if([35,37].includes(world.worldVersion)){
+    const lit=lightShapes(riverPhysicalMotionShapes(world,motion,time,options),motion.lamps??[],true,riverLightOptions(world));
     lit.push(...outdoorLampShapes(motion.lamps??[],{waterY:world.water?.y??0,waterBounds:world.water}));
     lit.push(...outdoorEffectShapes(world,time,options));
     return lit;
