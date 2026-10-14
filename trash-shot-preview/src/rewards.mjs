@@ -1,7 +1,7 @@
 // Local rewards are earned from a live, issued shot; portable saves are not authentication.
-import {CHAPTER_IDS,FIRST_CHAPTER_IDS} from './progress-save.mjs?v=20261012-school-window-1';
-import {SHOT_ROLES} from './shot-analytics.mjs?v=20261012-school-window-1';
-import {THROWABLE_CATALOG,DEFAULT_THROWABLE_ID} from './throwables.mjs?v=20261012-school-window-1';
+import {CHAPTER_IDS,FIRST_CHAPTER_IDS} from './progress-save.mjs?v=20261014-goal-cues-1';
+import {SHOT_ROLES} from './shot-analytics.mjs?v=20261014-goal-cues-1';
+import {THROWABLE_CATALOG,DEFAULT_THROWABLE_ID} from './throwables.mjs?v=20261014-goal-cues-1';
 
 export {THROWABLE_CATALOG as ITEM_CATALOG};
 const ITEMS=Object.keys(THROWABLE_CATALOG),MAX_SHOTS=1000000,MAX_CONTACTS=2400;

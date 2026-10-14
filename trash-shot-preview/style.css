@@ -461,10 +461,24 @@ body.title-is-open{overflow:hidden}
 .chapter-shell .chapter-stage-heading{grid-column:1/-1;margin:18px 0 0;color:#286864;font-size:17px;letter-spacing:.09em}
 .chapter-shell .chapter-stage-heading:first-child{margin-top:0}
 .chapter-shell .chapter-school-card .stage-thumbnail{background-size:cover;background-position:center}
-.chapter-shell .stage-school-classroom .stage-thumbnail{background-image:url("./art/school/20261011/school-classroom.png?v=20261012-school-window-1")}
-.chapter-shell .stage-school-vending .stage-thumbnail{background-image:url("./art/school/20261011/school-vending.png?v=20261012-school-window-1")}
-.chapter-shell .stage-school-passage .stage-thumbnail{background-image:url("./art/school/20261011/school-passage.png?v=20261012-school-window-1")}
-.chapter-shell .stage-school-rooftop .stage-thumbnail{background-image:url("./art/school/20261011/school-rooftop.png?v=20261012-school-window-1")}
-.chapter-shell .chapter-top[data-chapter="2"] .home-art{background-image:url("./art/school/20261011/school-classroom.png?v=20261012-school-window-1");background-size:cover;background-position:center}
+.chapter-shell .stage-school-classroom .stage-thumbnail{background-image:url("./art/school/20261011/school-classroom.png?v=20261014-goal-cues-1")}
+.chapter-shell .stage-school-vending .stage-thumbnail{background-image:url("./art/school/20261011/school-vending.png?v=20261014-goal-cues-1")}
+.chapter-shell .stage-school-passage .stage-thumbnail{background-image:url("./art/school/20261011/school-passage.png?v=20261014-goal-cues-1")}
+.chapter-shell .stage-school-rooftop .stage-thumbnail{background-image:url("./art/school/20261011/school-rooftop.png?v=20261014-goal-cues-1")}
+.chapter-shell .chapter-top[data-chapter="2"] .home-art{background-image:url("./art/school/20261011/school-classroom.png?v=20261014-goal-cues-1");background-size:cover;background-position:center}
 .chapter-shell .home-face-mark[hidden]{display:none}
 @media(max-width:600px){.chapter-shell .chapter-stage-heading{font-size:15px;margin-top:14px}}
+
+/* Present goal locations flash briefly; the canvas keeps every input gesture. */
+#goal-cue{position:absolute;inset:0;z-index:2;width:100%;height:100%;pointer-events:none;overflow:hidden}
+#goal-cue *{pointer-events:none}.pixel-intro-active #goal-cue{display:none}
+#goal-cue .goal-cue-halo{fill:none;stroke:#fffaf0;stroke-width:7}
+#goal-cue .goal-cue-ring{fill:#b4d8c832;stroke:#286864;stroke-width:2.5}
+#goal-cue .goal-cue-flag-paper,#goal-cue .goal-cue-edge-paper{fill:#fff8e9;stroke:#286864;stroke-width:1.5}
+#goal-cue .goal-cue-flag-pole{fill:none;stroke:#286864;stroke-width:1.6;stroke-linecap:round}
+#goal-cue .goal-cue-flag-cloth{fill:#dab45c;stroke:#947231;stroke-width:.7;stroke-linejoin:round}
+#goal-cue .goal-cue-edge-arrow{fill:#286864;stroke:#fff8e9;stroke-width:1;stroke-linejoin:round}
+#goal-cue .goal-cue-note-paper{fill:#fff8e9ed;stroke:#85ad9b;stroke-width:1}
+#goal-cue .goal-cue-note text{fill:#286864;font:600 12px system-ui,sans-serif;letter-spacing:.025em}
+.scene-toolbar #goal-confirm{min-height:44px;min-width:44px;white-space:nowrap}
+.scene-toolbar #goal-confirm::before{content:'⚑';display:inline-block;margin-right:5px;color:#a38035;font-size:16px;line-height:1;vertical-align:-1px}

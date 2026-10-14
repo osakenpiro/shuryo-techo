@@ -1,7 +1,7 @@
 // Local rewards are earned from a live, issued shot; portable saves are not authentication.
-import {CHAPTER_IDS,PREVIOUS_CHAPTER_IDS,BRANCH_CHAPTER_IDS,FIRST_CHAPTER_IDS,LEGACY_CHAPTER_IDS,OUTDOOR_CHAPTER_IDS,OUTDOOR_STAGE_ITEMS,ECCENTRIC_STAGE_ITEMS,STAGE_THROWABLE_ITEMS} from './progress-save.mjs?v=20261014-ballpark-1';
-import {SHOT_ROLES} from './shot-analytics.mjs?v=20261014-ballpark-1';
-import {THROWABLE_CATALOG,DEFAULT_THROWABLE_ID} from './throwables.mjs?v=20261014-ballpark-1';
+import {CHAPTER_IDS,PREVIOUS_CHAPTER_IDS,BRANCH_CHAPTER_IDS,FIRST_CHAPTER_IDS,LEGACY_CHAPTER_IDS,OUTDOOR_CHAPTER_IDS,OUTDOOR_STAGE_ITEMS,ECCENTRIC_STAGE_ITEMS,STAGE_THROWABLE_ITEMS} from './progress-save.mjs?v=20261014-goal-cues-1';
+import {SHOT_ROLES} from './shot-analytics.mjs?v=20261014-goal-cues-1';
+import {THROWABLE_CATALOG,DEFAULT_THROWABLE_ID} from './throwables.mjs?v=20261014-goal-cues-1';
 
 export const ITEM_CATALOG=Object.freeze(Object.fromEntries(['can','paper','rubber-ball','heavy-ball','carton'].map(id=>[id,THROWABLE_CATALOG[id]])));
 export {THROWABLE_CATALOG as ALL_ITEM_CATALOG};

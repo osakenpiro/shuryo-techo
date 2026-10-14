@@ -1,7 +1,7 @@
 // Presentation only. Chapter progress and stage changes stay owned by app.mjs.
-import { STAGES } from './stages.mjs?v=20261012-school-window-1';
-import { CHAPTER_IDS, CHAPTERS, chapterForStage } from './progress-save.mjs?v=20261012-school-window-1';
-import { drawPixelText, measurePixelText } from './pixel-type.mjs?v=20261012-school-window-1';
+import { STAGES } from './stages.mjs?v=20261014-goal-cues-1';
+import { CHAPTER_IDS, CHAPTERS, chapterForStage } from './progress-save.mjs?v=20261014-goal-cues-1';
+import { drawPixelText, measurePixelText } from './pixel-type.mjs?v=20261014-goal-cues-1';
 
 const $ = id => document.getElementById(id);
 const FACE_HELP = Object.freeze({

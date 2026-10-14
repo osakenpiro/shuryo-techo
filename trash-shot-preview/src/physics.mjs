@@ -1,7 +1,7 @@
 // World-space simulation. One metre is one unit; rendering never affects physics.
 import {throwableRadius,throwableInitialVelocity,beginThrowableShot,applyThrowableAir,
-  throwableRestitution,throwableFriction,throwableContact,getThrowableProfile,cloneThrowable} from './throwable-physics.mjs?v=20261012-school-window-1';
-import {SCHOOL_PHYSICS_WORLDS} from './school-world.mjs?v=20261012-school-window-1';
+  throwableRestitution,throwableFriction,throwableContact,getThrowableProfile,cloneThrowable} from './throwable-physics.mjs?v=20261014-goal-cues-1';
+import {SCHOOL_PHYSICS_WORLDS} from './school-world.mjs?v=20261014-goal-cues-1';
 const GRAVITY = 9.81;
 const SUBSTEP = 1 / 240;
 const MAX_FRAME = 0.1;

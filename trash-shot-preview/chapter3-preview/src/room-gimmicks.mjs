@@ -1,4 +1,4 @@
-import {createGame,throwCan,stepGame,setRoomWorld,getRoomWorldVersion} from './physics.mjs?v=20261014-ballpark-1';
+import {createGame,throwCan,stepGame,setRoomWorld,getRoomWorldVersion} from './physics.mjs?v=20261014-goal-cues-1';
 
 export const ROOM_WIND=Object.freeze({minX:-1.5,maxX:1.5,minY:.4,maxY:3.4,minZ:1.8,maxZ:4.2,accelerationX:1.2});
 // World 5 is the stronger optional-room challenge. The original field remains
