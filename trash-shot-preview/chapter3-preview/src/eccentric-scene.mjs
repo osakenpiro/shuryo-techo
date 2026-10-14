@@ -1,8 +1,10 @@
 // Chapter 5 changes places and objects while keeping the approved faceted,
 // warm paper / teal material language and the production metre-space camera.
-import {eccentricWorld,eccentricSolids,eccentricDynamicSolids,eccentricMotion} from './eccentric-world.mjs?v=20261014-night-cards-1';
-import {scenePrimitives,FACTORY_PALETTE} from './factory-scene.mjs?v=20261014-night-cards-1';
-import {throwablePose} from './throwable-physics.mjs?v=20261014-night-cards-1';
+import {eccentricWorld,eccentricSolids,eccentricDynamicSolids,eccentricMotion} from './eccentric-world.mjs?v=20261014-tower-train-2';
+import {scenePrimitives,FACTORY_PALETTE} from './factory-scene.mjs?v=20261014-tower-train-2';
+import {throwablePose} from './throwable-physics.mjs?v=20261014-tower-train-2';
+import {tokyoTowerStaticMeshes,tokyoTowerGroups} from './tokyo-tower-scene.mjs?v=20261014-tower-train-2';
+import {trainWindowStaticMeshes,trainWindowDynamicMeshes,trainWindowCutaway} from './train-window-scene.mjs?v=20261014-tower-train-2';
 const {p,face,shade,add,scale,cross,unit,box,physicalBox,cylinder,ellipsoid,line,flat,limb,basis,opening}=scenePrimitives;
 export const ECCENTRIC_PALETTE=Object.freeze({...FACTORY_PALETTE,sky:'#bfdedb',green:'#8caf7d',grass:'#a9bd8f',bark:'#9b805b',stone:'#b8b799',water:'#86b5ad'});
 const cache=new Map(),axes=['x','y','z'];
@@ -127,15 +129,20 @@ function fort(s,world){
   for(const x of [-8.7,8.7])tree(s,x,9,1.4);
 }
 function fixedGoals(s,world){
-  if(['boar','basket'].includes(world.eccentricType))return;
+  if(world.worldVersion===39||['boar','basket'].includes(world.eccentricType))return;
   for(const goal of world.goals){
     const hit=goal.mode==='hit';opening(s,goal,{colour:world.eccentricType==='dandelion'?'#d8c092':ECCENTRIC_PALETTE.gold,pocket:!hit&&world.eccentricType!=='dandelion'});
   }
 }
 export function eccentricStaticMeshes(world){
-  world=requireWorld(world);const key=world.stageId;if(cache.has(key))return cache.get(key);
-  const shapes=[];for(const solid of eccentricSolids(world))physicalBox(shapes,solid,colourOf(solid));
-  ({tower:city,train:railStation,boar:forest,basket:court,dandelion:meadow,card:cardRange,cannon:fort})[world.eccentricType](shapes,world);
+  world=requireWorld(world);const key=`${world.stageId}/${world.worldVersion}`;if(cache.has(key))return cache.get(key);
+  const shapes=[];
+  if(world.worldVersion===39)shapes.push(...trainWindowStaticMeshes(world));
+  else{
+    for(const solid of eccentricSolids(world))if(!(world.worldVersion===38&&solid.renderedBy==='tokyo-tower-scene'))physicalBox(shapes,solid,colourOf(solid));
+    if(world.worldVersion===38)shapes.push(...tokyoTowerStaticMeshes(world));
+    else ({tower:city,train:railStation,boar:forest,basket:court,dandelion:meadow,card:cardRange,cannon:fort})[world.eccentricType](shapes,world);
+  }
   fixedGoals(shapes,world);cache.set(key,shapes);return shapes;
 }
 function boarShapes(s,actor,solid){
@@ -182,7 +189,8 @@ function cannonShapes(s,world,options){
   }
 }
 export function eccentricDynamicMeshes(world,time=0,options={}){
-  world=requireWorld(world);const motion=eccentricMotion(world,time),solids=eccentricDynamicSolids(world,time),shapes=[];
+  world=requireWorld(world);if(world.worldVersion===39)return trainWindowDynamicMeshes(world,time,options);
+  const motion=eccentricMotion(world,time),solids=eccentricDynamicSolids(world,time),shapes=[];
   for(const solid of solids){if(solid.kind==='boar')continue;physicalBox(shapes,solid,'#629487');}
   if(motion.train)trainDetails(shapes,solids.find(c=>c.kind==='train-roof'),motion);
   for(const actor of motion.actors){const solid=solids.find(c=>c.object===actor.id);if(actor.kind==='boar'&&solid)boarShapes(shapes,actor,solid);}
@@ -248,5 +256,5 @@ export function eccentricItemMeshes(game,itemOrShape){
   return shapes;
 }
 export function eccentricCameraConfig(world){world=requireWorld(world);return {azimuth:world.view.azimuth,elevation:world.view.elevation,zoom:1};}
-export function eccentricScene(camera,world){world=requireWorld(world);return {shapes:eccentricStaticMeshes(world),cutaway:[],groups:eccentricSolids(world).map(c=>({id:c.id,physical:true,bounds:{minX:c.min.x,maxX:c.max.x,minY:c.min.y,maxY:c.max.y,minZ:c.min.z,maxZ:c.max.z}})),stageId:world.stageId,worldVersion:world.worldVersion};}
+export function eccentricScene(camera,world){world=requireWorld(world);return {shapes:eccentricStaticMeshes(world),cutaway:world.worldVersion===39?trainWindowCutaway(world,camera):[],groups:[...eccentricSolids(world).map(c=>({id:c.id,physical:true,bounds:{minX:c.min.x,maxX:c.max.x,minY:c.min.y,maxY:c.max.y,minZ:c.min.z,maxZ:c.max.z}})),...(world.worldVersion===38?tokyoTowerGroups(world):[])],stageId:world.stageId,worldVersion:world.worldVersion};}
 export const eccentricMotionShapes=(time,world,options={})=>eccentricDynamicMeshes(world,time,options);

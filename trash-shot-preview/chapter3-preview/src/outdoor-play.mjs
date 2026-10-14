@@ -1,9 +1,9 @@
 // Chapter 3 composes the proven 240 Hz sphere/solid contact stepper. Goal
 // apertures are checked in the same earliest-contact sweep, not a UI distance.
-import {createGame,setRoomWorld,throwCan,captureGoal,stopBlockedShot,stopSplatShot,emitShotEffect,getShotEffects,setShotEnvironmentStart} from './physics.mjs?v=20261014-night-cards-1';
-import {cloneThrowable,throwableWindScale,throwableRestitution,throwableFriction,throwableContact} from './throwable-physics.mjs?v=20261014-night-cards-1';
-import {createRoomContactStepper,ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261014-night-cards-1';
-import {outdoorWorld,outdoorGoals,outdoorSolids,outdoorDynamicSolids,outdoorStartTime,shrineStartTime} from './outdoor-world.mjs?v=20261014-night-cards-1';
+import {createGame,setRoomWorld,throwCan,captureGoal,stopBlockedShot,stopSplatShot,emitShotEffect,getShotEffects,setShotEnvironmentStart} from './physics.mjs?v=20261014-tower-train-2';
+import {cloneThrowable,throwableWindScale,throwableRestitution,throwableFriction,throwableContact} from './throwable-physics.mjs?v=20261014-tower-train-2';
+import {createRoomContactStepper,ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261014-tower-train-2';
+import {outdoorWorld,outdoorGoals,outdoorSolids,outdoorDynamicSolids,outdoorStartTime,shrineStartTime} from './outdoor-world.mjs?v=20261014-tower-train-2';
 const TICK=ROOM_CONTACT_TICK,EPS=1e-9,AXES=['x','y','z'];
 const active=game=>game?.phase==='flying'||game?.phase==='settling';
 const copy=p=>({x:p.x,y:p.y,z:p.z});

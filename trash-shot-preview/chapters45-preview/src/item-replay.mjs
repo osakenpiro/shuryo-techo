@@ -1,9 +1,9 @@
 // Version 4 carries an allowlisted throwable profile alongside actual recorded poses.
 // V1/V2/V3 codecs remain responsible for their original can recordings.
-import {validateReplay,createReplayPlayer,ReplayError} from './replay.mjs?v=20261014-night-cards-1';
-import {roomWorld} from './room-course.mjs?v=20261014-night-cards-1';
-import {roomContactColliders} from './room-contact.mjs?v=20261014-night-cards-1';
-import {THROWABLE_CATALOG} from './throwables.mjs?v=20261014-night-cards-1';
+import {validateReplay,createReplayPlayer,ReplayError} from './replay.mjs?v=20261014-tower-train-2';
+import {roomWorld} from './room-course.mjs?v=20261014-tower-train-2';
+import {roomContactColliders} from './room-contact.mjs?v=20261014-tower-train-2';
+import {THROWABLE_CATALOG} from './throwables.mjs?v=20261014-tower-train-2';
 
 export const ITEM_REPLAY_STORAGE_KEY='trash-shot-item-replays-v4';
 export const ITEM_REPLAY_LIMITS=Object.freeze({version:4,contactModel:1,rawBytes:1024*1024,

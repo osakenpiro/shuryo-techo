@@ -1,7 +1,7 @@
 // Presentation only. Chapter progress and stage changes stay owned by app.mjs.
-import { STAGES } from './stages.mjs?v=20261014-night-cards-1';
-import { CHAPTER_IDS, CHAPTERS, chapterForStage, canChooseStage, outdoorSnapshot, OUTDOOR_CHAPTER_IDS, BRANCH_CHAPTER_IDS, FACTORY_CHAPTER_IDS, ECCENTRIC_CHAPTER_IDS } from './progress-save.mjs?v=20261014-night-cards-1';
-import { drawPixelText, measurePixelText } from './pixel-type.mjs?v=20261014-night-cards-1';
+import { STAGES } from './stages.mjs?v=20261014-tower-train-2';
+import { CHAPTER_IDS, CHAPTERS, chapterForStage, canChooseStage, outdoorSnapshot, OUTDOOR_CHAPTER_IDS, BRANCH_CHAPTER_IDS, FACTORY_CHAPTER_IDS, ECCENTRIC_CHAPTER_IDS } from './progress-save.mjs?v=20261014-tower-train-2';
+import { drawPixelText, measurePixelText } from './pixel-type.mjs?v=20261014-tower-train-2';
 
 const $ = id => document.getElementById(id);
 const FACE_HELP = Object.freeze({
@@ -21,8 +21,8 @@ const FACE_HELP = Object.freeze({
   'factory-conveyor': 'ベルトに乗せて、流れの先の箱へ。',
   'factory-bank': '左右の壁を使って、二つのバウンドをつなごう。',
   'factory-relay': '最初の球で仕掛けを動かし、次の球を箱へ。',
-  'eccentric-tower': 'タワーの上から、街の箱へ大きなひと投げ。',
-  'eccentric-train': '電車の上から、動く足場のタイミングを読もう。',
+  'eccentric-tower': '250mの展望台から、はるか下の街の箱へ。',
+  'eccentric-train': '走る電車の窓から、隣を走る電車の窓へ。',
   'eccentric-boar': '森で狙いを定めて、矢を的へ。',
   'eccentric-basket': 'バスケットゴールに、気持ちよくシュート。',
   'eccentric-dandelion': '軽い綿毛を、風に乗せて届けよう。',

@@ -1,13 +1,13 @@
 // Timed Chapter 4 mechanisms compose the existing fixed 240 Hz contact solver.
 // A conveyor reaction applies only after real top contact. Relay state persists
 // across retry/throws until its owner explicitly resets or replaces the session.
-import {createGame,setRoomWorld,throwCan,captureGoal,stopBlockedShot,setShotEnvironmentStart} from './physics.mjs?v=20261014-night-cards-1';
-import {cloneThrowable,getThrowableId,throwableRestitution} from './throwable-physics.mjs?v=20261014-night-cards-1';
-import {getThrowable} from './throwables.mjs?v=20261014-night-cards-1';
-import {createRoomContactStepper,ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261014-night-cards-1';
-import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261014-night-cards-1';
-import {sweepSphereAABB} from './room-course.mjs?v=20261014-night-cards-1';
-import {factoryWorld,factoryGoals,factorySolids,factoryDynamicSolids,factoryStartTime} from './factory-world.mjs?v=20261014-night-cards-1';
+import {createGame,setRoomWorld,throwCan,captureGoal,stopBlockedShot,setShotEnvironmentStart} from './physics.mjs?v=20261014-tower-train-2';
+import {cloneThrowable,getThrowableId,throwableRestitution} from './throwable-physics.mjs?v=20261014-tower-train-2';
+import {getThrowable} from './throwables.mjs?v=20261014-tower-train-2';
+import {createRoomContactStepper,ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261014-tower-train-2';
+import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261014-tower-train-2';
+import {sweepSphereAABB} from './room-course.mjs?v=20261014-tower-train-2';
+import {factoryWorld,factoryGoals,factorySolids,factoryDynamicSolids,factoryStartTime} from './factory-world.mjs?v=20261014-tower-train-2';
 const TICK=ROOM_CONTACT_TICK,EPS=1e-9,SLOP=1e-5,AXES=['x','y','z'];
 const active=game=>game?.phase==='flying'||game?.phase==='settling';
 const copy=p=>({x:p.x,y:p.y,z:p.z});

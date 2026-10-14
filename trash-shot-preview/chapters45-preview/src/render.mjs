@@ -1,12 +1,12 @@
-import { predictArc } from './physics.mjs?v=20261014-night-cards-1';
-import { roomScene,roomMotionShapes,roomMonitorQuad,paintScreenQuad } from './room-scene.mjs?v=20261014-night-cards-1';
-import {schoolScene,schoolMotionShapes,schoolCameraConfig} from './school-scene.mjs?v=20261014-night-cards-1';
-import {outdoorScene,outdoorMotionShapes,outdoorCameraConfig} from './outdoor-scene.mjs?v=20261014-night-cards-1';
-import {factoryScene,factoryMotionShapes,factoryCameraConfig} from './factory-scene.mjs?v=20261014-night-cards-1';
-import {eccentricScene,eccentricMotionShapes,eccentricCameraConfig,eccentricItemMeshes} from './eccentric-scene.mjs?v=20261014-night-cards-1';
-import {drawPixelText} from './pixel-type.mjs?v=20261014-night-cards-1';
-import {getThrowable} from './throwables.mjs?v=20261014-night-cards-1';
-import {getThrowableId,throwablePose} from './throwable-physics.mjs?v=20261014-night-cards-1';
+import { predictArc } from './physics.mjs?v=20261014-tower-train-2';
+import { roomScene,roomMotionShapes,roomMonitorQuad,paintScreenQuad } from './room-scene.mjs?v=20261014-tower-train-2';
+import {schoolScene,schoolMotionShapes,schoolCameraConfig} from './school-scene.mjs?v=20261014-tower-train-2';
+import {outdoorScene,outdoorMotionShapes,outdoorCameraConfig} from './outdoor-scene.mjs?v=20261014-tower-train-2';
+import {factoryScene,factoryMotionShapes,factoryCameraConfig} from './factory-scene.mjs?v=20261014-tower-train-2';
+import {eccentricScene,eccentricMotionShapes,eccentricCameraConfig,eccentricItemMeshes} from './eccentric-scene.mjs?v=20261014-tower-train-2';
+import {drawPixelText} from './pixel-type.mjs?v=20261014-tower-train-2';
+import {getThrowable} from './throwables.mjs?v=20261014-tower-train-2';
+import {getThrowableId,throwablePose} from './throwable-physics.mjs?v=20261014-tower-train-2';
 
 const add = (a,b) => ({ x:a.x+b.x, y:a.y+b.y, z:a.z+b.z });
 const sub = (a,b) => ({ x:a.x-b.x, y:a.y-b.y, z:a.z-b.z });
@@ -29,16 +29,16 @@ export function createRenderer(canvas) {
   const defaultOrbit={azimuth:.581,elevation:.42,zoom:1};
   let orbitState={...defaultOrbit},sceneDistance=6;
   let projection='perspective',sideZoom=1,sideFrame={scale:40,left:40,floor:height-42};
-  let worldView=null;
+  let worldView=null,cameraViewOverride=null;
   let environment=null,roomCache=null,roomBuilds=0,roomCutaway=[],roomFlightKey='',roomFlight=[],revealProgress=null,revealDistance=1;
   const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
   let forward, right, up, focal,angleCueSnapshot=null,coinAccentSnapshot=null;
   const configureCamera = () => {
-    const distance=(worldView?.view.distance??(10+sceneDistance*.6))*orbitState.zoom*revealDistance;
+    const distance=(cameraViewOverride?.distance??worldView?.view.distance??(10+sceneDistance*.6))*orbitState.zoom*revealDistance;
     camera={x:target.x+Math.sin(orbitState.azimuth)*Math.cos(orbitState.elevation)*distance,y:target.y+Math.sin(orbitState.elevation)*distance,z:target.z-Math.cos(orbitState.azimuth)*Math.cos(orbitState.elevation)*distance};
     forward=unit(sub(target,camera)); right=unit(cross({x:0,y:1,z:0},forward)); up=cross(forward,right);
     const portraitRoom=([2,3,4,5].includes(worldView?.worldVersion)||['school','outdoor','factory','eccentric'].includes(worldView?.environment))&&width<600;
-    focal=Math.min(width*(portraitRoom?1.48:width<450?1.13:.92),height*1.45);
+    focal=worldView?.worldVersion===39?Math.min(width*(width<600?.88:.42),height*1.1):Math.min(width*(portraitRoom?1.48:width<450?1.13:.92),height*1.45);
   };
   const worldToCamera = point => {const p=sub(point,camera); return {x:dot(p,right),y:dot(p,up),z:dot(p,forward)};};
   const cameraToScreen = point => ({x:width/2+point.x*focal/point.z,y:height*.47-point.y*focal/point.z,depth:point.z,visible:point.z>.1});
@@ -46,12 +46,13 @@ export function createRenderer(canvas) {
   // The legal 3D orbit is retained for V1 replays; side zoom never changes it.
   function cameraSnapshot(){return {azimuth:orbitState.azimuth,elevation:orbitState.elevation,zoom:orbitState.zoom,projection,sideZoom,environment,worldVersion:worldView?.worldVersion??0,angleCue:angleCueSnapshot?structuredClone(angleCueSnapshot):null,roomBuilds,roomCutaway:[...roomCutaway],position:{...camera},target:{...target},viewport:{width,height},...(coinAccentSnapshot?{coinAccent:structuredClone(coinAccentSnapshot)}:{})};}
   function setProjection(mode){projection=mode==='side'?'side':'perspective';}
-  function setWorldView(world){if(worldView?.worldVersion!==world?.worldVersion)roomCache=null;worldView=world??null;}
+  function setWorldView(world){if(worldView?.worldVersion!==world?.worldVersion){roomCache=null;cameraViewOverride=null;}worldView=world??null;}
+  function setCameraViewOverride(view){cameraViewOverride=worldView?.worldVersion===38&&view?{target:{...view.target},distance:view.distance}:null;if(cameraViewOverride)target={...cameraViewOverride.target};configureCamera();}
   function monitorQuad(){return roomMonitorQuad(worldView).map(project);}
   function orbit(azimuth,elevation){if(projection==='side')return;orbitState.azimuth=((orbitState.azimuth+azimuth)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);orbitState.elevation=clamp(orbitState.elevation+elevation,.15,1.43);configureCamera();}
   function zoom(factor){if(projection==='side'){sideZoom=clamp(sideZoom*factor,.62,1.8);return;}orbitState.zoom=clamp(orbitState.zoom*factor,.62,1.8);configureCamera();}
   function restoreCamera(snapshot){orbitState={azimuth:snapshot.azimuth,elevation:clamp(snapshot.elevation,.15,1.43),zoom:clamp(snapshot.zoom,.62,1.8)};configureCamera();}
-  function resetCamera(){if(projection==='side'){sideZoom=1;return;}orbitState=worldView?.environment==='factory'?factoryCameraConfig(worldView):worldView?.environment==='eccentric'?eccentricCameraConfig(worldView):worldView?.environment==='outdoor'?outdoorCameraConfig(worldView):worldView?.environment==='school'?schoolCameraConfig(worldView):[2,3,4,5].includes(worldView?.worldVersion)?{azimuth:.18,elevation:.40,zoom:1}:{...defaultOrbit};configureCamera();}
+  function resetCamera(){cameraViewOverride=null;if(projection==='side'){sideZoom=1;return;}if(worldView?.worldVersion===38)target={...worldView.view.target};orbitState=worldView?.environment==='factory'?factoryCameraConfig(worldView):worldView?.environment==='eccentric'?eccentricCameraConfig(worldView):worldView?.environment==='outdoor'?outdoorCameraConfig(worldView):worldView?.environment==='school'?schoolCameraConfig(worldView):[2,3,4,5].includes(worldView?.worldVersion)?{azimuth:.18,elevation:.40,zoom:1}:{...defaultOrbit};configureCamera();}
   function resize() {
     const rect=canvas.getBoundingClientRect();
     const changed=width!==Math.max(1,rect.width)||height!==Math.max(1,rect.height);
@@ -422,7 +423,7 @@ export function createRenderer(canvas) {
     environment=projection==='perspective'?(['factory','eccentric'].includes(worldView?.environment)?worldView.environment:view.environment==='outdoor'||worldView?.environment==='outdoor'?'outdoor':view.environment==='school'||worldView?.environment==='school'?'school':view.environment==='room'?'room':null):null;
     if(!environment){roomCache=null;roomCutaway=[];}
     resizeDepthLayer();
-    const baseTarget=worldView?.view.target??{x:0,y:.45,z:distance*.47},quad=roomMonitorQuad(worldView),monitorCenter=quad.reduce((v,q)=>add(v,scale(q,.25)),{x:0,y:0,z:0});
+    const baseTarget=cameraViewOverride?.target??worldView?.view.target??{x:0,y:.45,z:distance*.47},quad=roomMonitorQuad(worldView),monitorCenter=quad.reduce((v,q)=>add(v,scale(q,.25)),{x:0,y:0,z:0});
     target=revealProgress===null?{...baseTarget}:add(scale(monitorCenter,1-revealProgress),scale(baseTarget,revealProgress));
     configureCamera();
     ctx.setTransform(pixelRatio,0,0,pixelRatio,0,0);ctx.clearRect(0,0,width,height);
@@ -436,7 +437,7 @@ export function createRenderer(canvas) {
     if(view.prediction&&(!view.course||Array.isArray(view.windArc))&&(game.phase==='ready'||game.phase==='success'||game.phase==='miss'))drawArc(game,view.aim||controls,view.windArc);
     if(game.phase!=='ready')drawTrail(game);
     if(view.aim&&!view.customCue){const heading=view.aim.yaw*Math.PI/180,p=game.phase==='ready'?game.can.position:(worldView?.origin??{x:0,y:1.05,z:0});line(p,{x:p.x+Math.sin(heading)*.75,y:p.y,z:p.z+Math.cos(heading)*.75},'#bd8632',2);}
-    const shapes=[...(room&&view.extraRoom?roomMotionShapes(view.environmentTime||0,view.fanEnabled,view.reducedMotion,worldView):[]),...(school?schoolMotionShapes(view.environmentTime||0,worldView,view.reducedMotion):[]),...(advanced?(worldView.environment==='factory'?factoryMotionShapes:eccentricMotionShapes)(view.environmentTime??0,worldView,{...view,session:view.factorySession,game,phase:game.phase,flightTime:game.time}):outdoor?outdoorMotionShapes(view.environmentTime??0,worldView,{...view,camera:{...camera},phase:game.phase,flightTime:game.time}):shapesForBin(game,room||school)),...(worldView?.worldVersion===36&&view.baseballPitch?.active?[]:shapesForCan(game,room||school||outdoor||advanced))];
+    const shapes=[...(room&&view.extraRoom?roomMotionShapes(view.environmentTime||0,view.fanEnabled,view.reducedMotion,worldView):[]),...(school?schoolMotionShapes(view.environmentTime||0,worldView,view.reducedMotion):[]),...(advanced?(worldView.environment==='factory'?factoryMotionShapes:eccentricMotionShapes)(view.environmentTime??0,worldView,{...view,...(worldView.worldVersion===39?{camera:{...camera}}:{}),session:view.factorySession,game,phase:game.phase,flightTime:game.time}):outdoor?outdoorMotionShapes(view.environmentTime??0,worldView,{...view,camera:{...camera},phase:game.phase,flightTime:game.time}):shapesForBin(game,room||school)),...(worldView?.worldVersion===36&&view.baseballPitch?.active?[]:shapesForCan(game,room||school||outdoor||advanced))];
     drawDepthShapes(shapes,backgroundDepth);
     drawCoinAccent(game,view);
     if(room&&view.extraRoom){
@@ -454,5 +455,5 @@ export function createRenderer(canvas) {
     }
   }
   resize();
-  return {resize,render,project,orbit,zoom,resetCamera,cameraSnapshot,setProjection,setWorldView,restoreCamera,monitorQuad};
+  return {resize,render,project,orbit,zoom,resetCamera,cameraSnapshot,setProjection,setWorldView,setCameraViewOverride,restoreCamera,monitorQuad};
 }

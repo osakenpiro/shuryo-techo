@@ -1,12 +1,12 @@
 // All reused simulation modules share the production query and ESM instance.
-import {createGame, setRoomWorld, throwCan, resetShot, getSnapshot} from './physics.mjs?v=20261014-night-cards-1';
-import {createRenderer} from './render.mjs?v=20261014-night-cards-1';
-import {roomWorld} from './room-course.mjs?v=20261014-night-cards-1';
-import {PULL_FEEL} from './pull-feel.mjs?v=20261014-night-cards-1';
-import {createPullScale,mapScaledPull} from './pull-scale.mjs?v=20261014-night-cards-1';
-import {createRoomContactStepper, predictRoomContactArc} from './room-contact.mjs?v=20261014-night-cards-1';
-import {roomSolidColliders} from './room-solids.mjs?v=20261014-night-cards-1';
-import {projectCueSegments,projectCuePolygon,cueDirectionPoint} from './pull-cue.mjs?v=20261014-night-cards-1';
+import {createGame, setRoomWorld, throwCan, resetShot, getSnapshot} from './physics.mjs?v=20261014-tower-train-2';
+import {createRenderer} from './render.mjs?v=20261014-tower-train-2';
+import {roomWorld} from './room-course.mjs?v=20261014-tower-train-2';
+import {PULL_FEEL} from './pull-feel.mjs?v=20261014-tower-train-2';
+import {createPullScale,mapScaledPull} from './pull-scale.mjs?v=20261014-tower-train-2';
+import {createRoomContactStepper, predictRoomContactArc} from './room-contact.mjs?v=20261014-tower-train-2';
+import {roomSolidColliders} from './room-solids.mjs?v=20261014-tower-train-2';
+import {projectCueSegments,projectCuePolygon,cueDirectionPoint} from './pull-cue.mjs?v=20261014-tower-train-2';
 
 const $ = id => document.getElementById(id), canvas = $('lab-scene'), overlay = $('lab-overlay');
 const game = createGame(), world = roomWorld('first', 2), renderer = createRenderer(canvas);

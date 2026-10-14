@@ -1,10 +1,10 @@
 // Live chapter play and training compose the approved room contacts and fan.
 // The contact adapter alone advances positions, gravity, bin entry and results.
-import {createGame, setRoomWorld, throwCan} from './physics.mjs?v=20261014-night-cards-1';
-import {roomWorld} from './room-course.mjs?v=20261014-night-cards-1';
-import {windAcceleration} from './room-gimmicks.mjs?v=20261014-night-cards-1';
-import {createRoomContactStepper, ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261014-night-cards-1';
-import {cloneThrowable,throwableWindScale} from './throwable-physics.mjs?v=20261014-night-cards-1';
+import {createGame, setRoomWorld, throwCan} from './physics.mjs?v=20261014-tower-train-2';
+import {roomWorld} from './room-course.mjs?v=20261014-tower-train-2';
+import {windAcceleration} from './room-gimmicks.mjs?v=20261014-tower-train-2';
+import {createRoomContactStepper, ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261014-tower-train-2';
+import {cloneThrowable,throwableWindScale} from './throwable-physics.mjs?v=20261014-tower-train-2';
 
 export const PLAY_ROOM_TICK = ROOM_CONTACT_TICK;
 const TICK = PLAY_ROOM_TICK, EPS = 1e-9;

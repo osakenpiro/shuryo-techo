@@ -1,9 +1,9 @@
 // Shared room-contact adapter. The established simulation still owns gravity,
 // the hollow bin, floor contact, the five-second result, and save compatibility.
-import {createGame, setRoomWorld, throwCan, stepGame,stopSplatShot} from './physics.mjs?v=20261014-night-cards-1';
-import {sweepSphereAABB} from './room-course.mjs?v=20261014-night-cards-1';
-import {roomSolidColliders} from './room-solids.mjs?v=20261014-night-cards-1';
-import {applyThrowableAir,throwableRestitution,throwableFriction,throwableContact,cloneThrowable,throwableTerminalContact} from './throwable-physics.mjs?v=20261014-night-cards-1';
+import {createGame, setRoomWorld, throwCan, stepGame,stopSplatShot,shotTimeLimit} from './physics.mjs?v=20261014-tower-train-2';
+import {sweepSphereAABB} from './room-course.mjs?v=20261014-tower-train-2';
+import {roomSolidColliders} from './room-solids.mjs?v=20261014-tower-train-2';
+import {applyThrowableAir,throwableRestitution,throwableFriction,throwableContact,cloneThrowable,throwableTerminalContact} from './throwable-physics.mjs?v=20261014-tower-train-2';
 
 const TICK = 1 / 240, GRAVITY = 9.81, EPS = 1e-9, CORE_EPS = 1.000001e-7, SLOP = 1e-5;
 const AXES = ['x', 'y', 'z'], ACTIVE = new Set(['flying', 'settling']);
@@ -224,7 +224,7 @@ export function createRoomContactStepper(world,{onContact,extra=false,solids,dyn
     if(shotId!==game.attempts || game.time===0 && substeps) {reset();shotId=game.attempts;}
     remainder+=Math.min(dt,.1);
     for(let count=0;count<25 && remainder+EPS>=TICK && active(game);count++) {
-      const h=Math.min(TICK,Math.max(0,5-game.time));
+      const h=Math.min(TICK,Math.max(0,shotTimeLimit(game)-game.time));
       if(h<=EPS){stepGame(game,TICK);remainder=0;break;}
       advanceTick(game,h);substeps++;remainder=Math.max(0,remainder-TICK);
       if(typeof afterStep==='function') afterStep(game);

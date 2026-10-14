@@ -1,15 +1,16 @@
 // World-space simulation. One metre is one unit; rendering never affects physics.
 import {throwableRadius,throwableInitialVelocity,beginThrowableShot,applyThrowableAir,
-  throwableRestitution,throwableFriction,throwableContact,getThrowableProfile,cloneThrowable,throwableTerminalContact,setThrowableWorld} from './throwable-physics.mjs?v=20261014-night-cards-1';
-import {SCHOOL_PHYSICS_WORLDS} from './school-world.mjs?v=20261014-night-cards-1';
-import {OUTDOOR_PHYSICS_WORLDS,OUTDOOR_WORLDS,outdoorWorldByVersion} from './outdoor-world.mjs?v=20261014-night-cards-1';
-import {FACTORY_PHYSICS_WORLDS,factoryWorldByVersion} from './factory-world.mjs?v=20261014-night-cards-1';
-import {ECCENTRIC_PHYSICS_WORLDS,ECCENTRIC_WORLDS} from './eccentric-world.mjs?v=20261014-night-cards-1';
+  throwableRestitution,throwableFriction,throwableContact,getThrowableProfile,cloneThrowable,throwableTerminalContact,setThrowableWorld} from './throwable-physics.mjs?v=20261014-tower-train-2';
+import {SCHOOL_PHYSICS_WORLDS} from './school-world.mjs?v=20261014-tower-train-2';
+import {OUTDOOR_PHYSICS_WORLDS,OUTDOOR_WORLDS,outdoorWorldByVersion} from './outdoor-world.mjs?v=20261014-tower-train-2';
+import {FACTORY_PHYSICS_WORLDS,factoryWorldByVersion} from './factory-world.mjs?v=20261014-tower-train-2';
+import {ECCENTRIC_PHYSICS_WORLDS,ECCENTRIC_WORLDS,eccentricWorldByVersion} from './eccentric-world.mjs?v=20261014-tower-train-2';
 const extendedPhysicsWorld=version=>OUTDOOR_PHYSICS_WORLDS[version]??FACTORY_PHYSICS_WORLDS[version]??ECCENTRIC_PHYSICS_WORLDS[version];
 const GRAVITY = 9.81;
 const SUBSTEP = 1 / 240;
 const MAX_FRAME = 0.1;
 const MAX_SHOT_TIME = 5;
+export function shotTimeLimit(gameOrVersion){const version=typeof gameOrVersion==='number'?gameOrVersion:ROOM_SETUPS.get(gameOrVersion);return version===38?12:MAX_SHOT_TIME;}
 const CAN_RADIUS = 0.14;
 const BIN_RADIUS = 0.7;
 const EPSILON = 1e-7;
@@ -175,7 +176,7 @@ export function setSetup(game, input = {}) {
 }
 
 export function setRoomWorld(game, worldVersion = 2) {
-  if (!Number.isInteger(worldVersion)||worldVersion<1||worldVersion>37) throw new RangeError('Room world version must be an integer from 1 through 37');
+  if (!Number.isInteger(worldVersion)||worldVersion<1||worldVersion>39) throw new RangeError('Room world version must be an integer from 1 through 39');
   const world = ROOM_PHYSICS_WORLDS[worldVersion]??SCHOOL_PHYSICS_WORLDS[worldVersion]??extendedPhysicsWorld(worldVersion);
   ROOM_SETUPS.set(game, worldVersion);
   setThrowableWorld(game,worldVersion);
@@ -275,7 +276,7 @@ function finish(game, success) {
 // remains unchanged, including when an earned non-terminal item is re-equipped.
 export function captureGoal(game,goal,{position=game?.can?.position,environmentTime}={}){
   if(!ACTIVE.has(game?.phase)||!extendedPhysicsWorld(ROOM_SETUPS.get(game)))return false;
-  const world=factoryWorldByVersion(ROOM_SETUPS.get(game))??outdoorWorldByVersion(ROOM_SETUPS.get(game))??Object.values(ECCENTRIC_WORLDS).find(w=>w.worldVersion===ROOM_SETUPS.get(game));
+  const world=factoryWorldByVersion(ROOM_SETUPS.get(game))??outdoorWorldByVersion(ROOM_SETUPS.get(game))??eccentricWorldByVersion(ROOM_SETUPS.get(game));
   const fixed=world.goals.find(g=>g.id===goal?.id);
   if(!fixed||fixed.role!==goal.role||!position||!['x','y','z'].every(axis=>Number.isFinite(position[axis])))return false;
   game.can.position={...position};game.phase='settling';
@@ -372,7 +373,7 @@ function advance(game, dt, airApplied=false) {
     // Goal planes are swept in the composed contact adapter before advancing
     // this substep. A near-bin position or an old opening witness never clears.
     collideFloor(game,dt);
-    if(ACTIVE.has(game.phase)&&game.time>=MAX_SHOT_TIME-EPSILON)finish(game,false);
+    if(ACTIVE.has(game.phase)&&game.time>=shotTimeLimit(game)-EPSILON)finish(game,false);
     return;
   }
 
@@ -420,13 +421,13 @@ function advance(game, dt, airApplied=false) {
     game.phase='settling';record(game,'entered');notify(game,'entered');
   }
   collideFloor(game, dt);
-  if (ACTIVE.has(game.phase) && game.time >= MAX_SHOT_TIME - EPSILON) finish(game, false);
+  if (ACTIVE.has(game.phase) && game.time >= shotTimeLimit(game) - EPSILON) finish(game, false);
 }
 
 export function stepGame(game, dtSeconds,{airApplied=false}={}) {
   if (!ACTIVE.has(game.phase) || typeof dtSeconds !== 'number'
       || !Number.isFinite(dtSeconds) || dtSeconds <= 0) return game;
-  let remaining = Math.min(MAX_FRAME, dtSeconds, MAX_SHOT_TIME - game.time);
+  let remaining = Math.min(MAX_FRAME, dtSeconds, shotTimeLimit(game) - game.time);
   while (remaining > EPSILON && ACTIVE.has(game.phase)) {
     const dt = Math.min(SUBSTEP, remaining);
     advance(game, dt,airApplied);
