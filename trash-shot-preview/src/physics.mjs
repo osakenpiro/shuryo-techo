@@ -1,7 +1,7 @@
 // World-space simulation. One metre is one unit; rendering never affects physics.
 import {throwableRadius,throwableInitialVelocity,beginThrowableShot,applyThrowableAir,
-  throwableRestitution,throwableFriction,throwableContact,getThrowableProfile,cloneThrowable} from './throwable-physics.mjs?v=20261014-night-cards-1';
-import {SCHOOL_PHYSICS_WORLDS} from './school-world.mjs?v=20261014-night-cards-1';
+  throwableRestitution,throwableFriction,throwableContact,getThrowableProfile,cloneThrowable} from './throwable-physics.mjs?v=20261014-quick-retry-1';
+import {SCHOOL_PHYSICS_WORLDS} from './school-world.mjs?v=20261014-quick-retry-1';
 const GRAVITY = 9.81;
 const SUBSTEP = 1 / 240;
 const MAX_FRAME = 0.1;
@@ -174,9 +174,9 @@ export function setRoomWorld(game, worldVersion = 2) {
 }
 export function getRoomWorldVersion(game) { return ROOM_SETUPS.get(game) ?? 0; }
 
-export function resetShot(game) {
-  if (ACTIVE.has(game.phase)) return false;
-  clearShot(game, 'reset');
+export function resetShot(game, {cancelActive=false} = {}) {
+  if (ACTIVE.has(game.phase)&&!cancelActive) return false;
+  clearShot(game, cancelActive?'retry':'reset');
   return true;
 }
 

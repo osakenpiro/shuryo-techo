@@ -1,4 +1,4 @@
-import {ballparkArchitectureGroups} from './ballpark-scene.mjs?v=20261014-tower-train-2';
+import {ballparkArchitectureGroups} from './ballpark-scene.mjs?v=20261014-quick-retry-1';
 // Architecture for the new outdoor views only. Legacy worlds 12 / 13 retain
 // their original meshes and recordings. The field, apertures and balcony
 // collision volumes remain owned by outdoor-world; these groups add a place

@@ -1,31 +1,32 @@
-import {buildGoalCue,goalCueMarkup} from './goal-cue.mjs?v=20261014-night-cards-1';
-import { STAGES, createStageProgress } from './stages.mjs?v=20261014-night-cards-1';
-import { sideAim } from './side-aim.mjs?v=20261014-night-cards-1';
-import {createPixelIntro} from './pixel-intro.mjs?v=20261014-night-cards-1';
-import {createRoomWindStepper} from './room-gimmicks.mjs?v=20261014-night-cards-1';
-import {CHAPTER_IDS,FIRST_CHAPTER_IDS,SCHOOL_CHAPTER_IDS,CHAPTERS,chapterForStage,getNextStage,isChapterBoundary,createChapterProgress} from './progress-save.mjs?v=20261014-night-cards-1';
-import {roomCourse,roomWorld,createRoomCourseStepper} from './room-course.mjs?v=20261014-night-cards-1';
-import {createPlayRoomStepper,predictPlayRoomArc} from './play-room.mjs?v=20261014-night-cards-1';
-import {createSchoolPlayStepper,predictSchoolArc} from './school-play.mjs?v=20261014-night-cards-1';
-import {COURSE_REPLAY_LIMITS,createCourseReplay,validateCourseReplay,coursePayload,courseReplayResult,createCourseReplayPlayer,courseReplayToJSON,parseCourseReplayJSON,decodeCourseReplay,buildCourseReplayURL,interpretPlayContacts,loadPlayReplays,savePlayReplay,deletePlayReplay,loadItemReplays,saveItemReplay,deleteItemReplay,loadSchoolReplays,saveSchoolReplay,deleteSchoolReplay} from './play-replay.mjs?v=20261014-night-cards-1';
-import {createPullScale,mapScaledPull} from './pull-scale.mjs?v=20261014-night-cards-1';
-import {createPlayCue,playCueMarkup,pullHandleMarkup,launchCueOrigin} from './play-cue.mjs?v=20261014-night-cards-1';
-import {launchSummary,impactSummary} from './shot-summary.mjs?v=20261014-night-cards-1';
-import { createGame, setSetup, setRoomWorld, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261014-night-cards-1';
-import { createRenderer } from './render.mjs?v=20261014-night-cards-1';
-import { createShotAnalytics } from './shot-analytics.mjs?v=20261014-night-cards-1';
-import { createRecorder, loadReplays, saveReplay, deleteReplay } from './replay.mjs?v=20261014-night-cards-1';
-import {createGameShell} from './game-shell.mjs?v=20261014-night-cards-1';
-import {createTitleScreen} from './title-screen.mjs?v=20261014-night-cards-1';
-import {createGameMenu} from './game-menu.mjs?v=20261014-night-cards-1';
-import {createPlayerSaveUI} from './player-save-ui.mjs?v=20261014-night-cards-1';
+import {buildGoalCue,goalCueMarkup} from './goal-cue.mjs?v=20261014-quick-retry-1';
+import { STAGES, createStageProgress } from './stages.mjs?v=20261014-quick-retry-1';
+import { sideAim } from './side-aim.mjs?v=20261014-quick-retry-1';
+import {createPixelIntro} from './pixel-intro.mjs?v=20261014-quick-retry-1';
+import {createRoomWindStepper} from './room-gimmicks.mjs?v=20261014-quick-retry-1';
+import {CHAPTER_IDS,FIRST_CHAPTER_IDS,SCHOOL_CHAPTER_IDS,CHAPTERS,chapterForStage,getNextStage,isChapterBoundary,createChapterProgress} from './progress-save.mjs?v=20261014-quick-retry-1';
+import {roomCourse,roomWorld,createRoomCourseStepper} from './room-course.mjs?v=20261014-quick-retry-1';
+import {createPlayRoomStepper,predictPlayRoomArc} from './play-room.mjs?v=20261014-quick-retry-1';
+import {createSchoolPlayStepper,predictSchoolArc} from './school-play.mjs?v=20261014-quick-retry-1';
+import {COURSE_REPLAY_LIMITS,createCourseReplay,validateCourseReplay,coursePayload,courseReplayResult,createCourseReplayPlayer,courseReplayToJSON,parseCourseReplayJSON,decodeCourseReplay,buildCourseReplayURL,interpretPlayContacts,loadPlayReplays,savePlayReplay,deletePlayReplay,loadItemReplays,saveItemReplay,deleteItemReplay,loadSchoolReplays,saveSchoolReplay,deleteSchoolReplay} from './play-replay.mjs?v=20261014-quick-retry-1';
+import {createPullScale,mapScaledPull} from './pull-scale.mjs?v=20261014-quick-retry-1';
+import {createPlayCue,playCueMarkup,pullHandleMarkup,launchCueOrigin} from './play-cue.mjs?v=20261014-quick-retry-1';
+import {launchSummary,impactSummary} from './shot-summary.mjs?v=20261014-quick-retry-1';
+import { createGame, setSetup, setRoomWorld, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261014-quick-retry-1';
+import { createRenderer } from './render.mjs?v=20261014-quick-retry-1';
+import { createShotAnalytics } from './shot-analytics.mjs?v=20261014-quick-retry-1';
+import { createRecorder, loadReplays, saveReplay, deleteReplay } from './replay.mjs?v=20261014-quick-retry-1';
+import {createGameShell} from './game-shell.mjs?v=20261014-quick-retry-1';
+import {createTitleScreen} from './title-screen.mjs?v=20261014-quick-retry-1';
+import {createGameMenu} from './game-menu.mjs?v=20261014-quick-retry-1';
+import {createPlayerSaveUI} from './player-save-ui.mjs?v=20261014-quick-retry-1';
+import {quickRetryKey,quickRetryStartsRun} from './quick-retry.mjs?v=20261014-quick-retry-1';
 
-import {createRewards,ACHIEVEMENTS} from './rewards.mjs?v=20261014-night-cards-1';
-import {loadPlayerSave,savePlayerSave,restorePlayerSave} from './player-save.mjs?v=20261014-night-cards-1';
-import {THROWABLE_CATALOG,getThrowable} from './throwables.mjs?v=20261014-night-cards-1';
-import {setThrowable,getThrowableId} from './throwable-physics.mjs?v=20261014-night-cards-1';
-import {createStoreUI} from './item-store.mjs?v=20261014-night-cards-1';
-import {createRewardEffects} from './reward-effects.mjs?v=20261014-night-cards-1';
+import {createRewards,ACHIEVEMENTS} from './rewards.mjs?v=20261014-quick-retry-1';
+import {loadPlayerSave,savePlayerSave,restorePlayerSave} from './player-save.mjs?v=20261014-quick-retry-1';
+import {THROWABLE_CATALOG,getThrowable} from './throwables.mjs?v=20261014-quick-retry-1';
+import {setThrowable,getThrowableId} from './throwable-physics.mjs?v=20261014-quick-retry-1';
+import {createStoreUI} from './item-store.mjs?v=20261014-quick-retry-1';
+import {createRewardEffects} from './reward-effects.mjs?v=20261014-quick-retry-1';
 
 let goalCueStage=null,goalCuePending=false,goalCueUntil=0,goalCueSource=null,goalCueState={visible:false,markers:[]};
 const GOAL_CUE_MS=3200;
@@ -83,7 +84,7 @@ const inviteDialog=$('invite-dialog');
 function openGameInvitation(){
   if(!inviteDialog||busy()||pixelIntro?.active)return false;
   cancelGesture('game-invite');
-  const url=new URL(location.href);url.hash='';url.search='';url.searchParams.set('v','20261014-night-cards-1');
+  const url=new URL(location.href);url.hash='';url.search='';url.searchParams.set('v','20261014-quick-retry-1');
   $('invite-link').value=url.href;
   $('invite-message').textContent='';
   $('invite-share').hidden=typeof navigator.share!=='function';
@@ -193,6 +194,7 @@ function updateUI(force=false){
   for(const input of inputs)input.disabled=busy();
   $('throw-button').disabled=busy();
   $('reset-button').disabled=busy()||game.phase==='ready';
+  if($('quick-retry'))$('quick-retry').disabled=!quickRetryAvailable();
   $('status-panel').dataset.phase=game.phase;
   $('attempt-count').textContent=String(game.attempts).padStart(2,'0');
   $('success-count').textContent=String(game.successes).padStart(2,'0');
@@ -287,7 +289,7 @@ if($('stage-select')){
   $('stage-select').addEventListener('change',()=>{if(!selectPlayable($('stage-select').value))$('stage-select').value=stageProgress.snapshot().id;});
   $('start-tutorial').addEventListener('click',()=>selectPlayable('tutorial'));
   $('stage-next').addEventListener('click',()=>{const state=stageProgress.snapshot();if(state.id==='tutorial'&&state.completed.includes('tutorial'))selectPlayable('first');else if(chapterProgress.snapshot().completedIDs.includes(state.id)){if(state.id==='first'&&!titleSeen&&showTitleScreen())return;const next=CHAPTER_IDS[CHAPTER_IDS.indexOf(state.id)+1];if(isChapterBoundary(state.id))showChapterTop(true,state.id);else if(next)selectPlayable(next);else showChapterTop(true,state.id);}});
-  $('stage-retry').addEventListener('click',()=>selectPlayable(stageProgress.snapshot().id));
+  $('stage-retry').addEventListener('click',()=>quickRetry('stage-button'));
 }
 function updateStageUI(){
   const state=stageProgress.snapshot();
@@ -351,6 +353,26 @@ function fire(source='numeric'){
 $('throw-button').addEventListener('click',()=>fire());
 $('reset-button').addEventListener('click',()=>{cancelGesture('reset');if(resetShot(game)){clearCurrentShot();playStepper?.reset();shotContext=null;updateUI(true);}});
 if($('fan-toggle'))$('fan-toggle').addEventListener('change',()=>{if(busy()||!extraRoom()){$('fan-toggle').checked=fanEnabled;return;}cancelGesture('fan-toggle');fanEnabled=$('fan-toggle').checked;updateUI(true);});
+$('quick-retry')?.addEventListener('click',()=>quickRetry('button'));
+function quickRetryAvailable(){
+  return !titleActive()&&!menuOpen()&&!pixelIntro?.active&&($('chapter-top')?.hidden??true)
+    &&!document.querySelector('dialog[open]:not(#chapter-result)');
+}
+function quickRetry(source='keyboard'){
+  if(!quickRetryAvailable())return false;
+  const stage=stageProgress.snapshot(),newRun=quickRetryStartsRun({phase:game.phase,stage,result:chapterResult});
+  if(newRun&&!trainingMode&&!chapterPractice&&chapterStage())persistChapter();
+  cancelGesture('retry');pointers.clear();$('chapter-result')?.close();chapterResult=null;
+  clearCurrentShot();chapterShot=null;shotContext=null;
+  if(!resetShot(game,{cancelActive:true}))return false;
+  if(newRun)stageProgress.select(stage.id);
+  roomWind.reset();courseStepper.reset();playStepper?.reset();
+  lastShotAnalysis=null;lastPresentedAim=null;lastReleasedAim=null;trainingPreview=[];cueSnapshot={visible:false};angleCueUntil=0;
+  rewardEffects.clear();view.mode='throw';previous3DMode='throw';
+  lastInput={type:'retry',source,stageId:stageProgress.snapshot().id,attempts:game.attempts};
+  previousTime=performance.now();updateControlLabels();updateUI(true);
+  canvas.focus({preventScroll:true});return true;
+}
 function inside(event,rect){return event.clientX>=rect.left&&event.clientX<=rect.right&&event.clientY>=rect.top&&event.clientY<=rect.bottom;}
 function sameLayout(gesture){const rect=canvas.getBoundingClientRect();return gesture.viewport.width===innerWidth&&gesture.viewport.height===innerHeight&&rect.width===gesture.rect.width&&rect.height===gesture.rect.height&&rect.left===gesture.rect.left&&rect.top===gesture.rect.top;}
 function gestureAim(gesture,event,time=gesture.presentationTime??gesture.started){
@@ -489,6 +511,7 @@ canvas.addEventListener('wheel',event=>{
   updateControlLabels(view.gesture?.aim?.actual);updateHint();
 },{passive:false});
 document.addEventListener('keydown',event=>{
+  if(quickRetryKey(event,{available:quickRetryAvailable()})){event.preventDefault();quickRetry('keyboard');return;}
   if(titleActive()||menuOpen()||$('replay-dialog').open)return;
   if(event.code==='Escape'){cancelGesture('escape');return;}
   if(event.repeat||event.altKey||event.ctrlKey||event.metaKey)return;
@@ -622,7 +645,7 @@ function completeChapterShot(replay=null){
 if($('chapter-result')){
   $('chapter-result').addEventListener('cancel',event=>{if(firstTitlePending()&&titleUI){event.preventDefault();$('chapter-result').close();showTitleScreen();}});
   $('chapter-result-next').addEventListener('click',()=>{const result=chapterResult;$('chapter-result').close();if(!result)return;if(firstTitlePending()&&showTitleScreen())return;const next=CHAPTER_IDS[CHAPTER_IDS.indexOf(result.stageId)+1];if(result.practice||!next||isChapterBoundary(result.stageId))showChapterTop(!result.practice,result.stageId);else selectPlayable(next);});
-  $('chapter-result-repeat').addEventListener('click',()=>{const result=chapterResult;$('chapter-result').close();if(result)selectPlayable(result.stageId,{allowPractice:result.practice});});
+  $('chapter-result-repeat').addEventListener('click',()=>quickRetry('result-button'));
   $('chapter-result-replay')?.addEventListener('click',()=>{if(!chapterResult?.replay)return;$('chapter-result').close();openReplay(chapterResult.replay,'latest');replayReturnsToResult=replayDialog.open;if(!replayDialog.open)$('chapter-result').showModal();});
   $('chapter-result-save')?.addEventListener('click',()=>{if(chapterResult?.replay)$('chapter-share-status').textContent=persistReplay(chapterResult.replay)?'この一投をこのブラウザに保存しました。':'この一投を保存できません。リプレイ画面からファイルで保存できます。';});
   $('chapter-result-share').addEventListener('click',async()=>{

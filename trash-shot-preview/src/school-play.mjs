@@ -1,10 +1,10 @@
 // The school adapter composes the established 240 Hz room contact stepper.
 // Only explicit school solids, deterministic pedestrian motion and rooftop
 // wind differ; gravity, hollow-bin entry, item profiles and results stay core.
-import {createGame,setRoomWorld,throwCan,stopBlockedShot} from './physics.mjs?v=20261014-night-cards-1';
-import {schoolWorld,schoolSolids,schoolStudentPoses} from './school-world.mjs?v=20261014-night-cards-1';
-import {createRoomContactStepper,ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261014-night-cards-1';
-import {cloneThrowable,throwableWindScale} from './throwable-physics.mjs?v=20261014-night-cards-1';
+import {createGame,setRoomWorld,throwCan,stopBlockedShot} from './physics.mjs?v=20261014-quick-retry-1';
+import {schoolWorld,schoolSolids,schoolStudentPoses} from './school-world.mjs?v=20261014-quick-retry-1';
+import {createRoomContactStepper,ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261014-quick-retry-1';
+import {cloneThrowable,throwableWindScale} from './throwable-physics.mjs?v=20261014-quick-retry-1';
 const TICK=ROOM_CONTACT_TICK,EPS=1e-9;
 const active=game=>game?.phase==='flying'||game?.phase==='settling';
 const copy=p=>({x:p.x,y:p.y,z:p.z});

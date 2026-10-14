@@ -1,4 +1,4 @@
-import {cueDirectionPoint,projectCueSegments,projectCuePolygon} from './pull-cue.mjs?v=20261014-night-cards-1';
+import {cueDirectionPoint,projectCueSegments,projectCuePolygon} from './pull-cue.mjs?v=20261014-quick-retry-1';
 
 const point=p=>`${p.x.toFixed(2)},${p.y.toFixed(2)}`;
 const path=segments=>segments.map(s=>`M ${point(s.from)} L ${point(s.to)}`).join(' ');

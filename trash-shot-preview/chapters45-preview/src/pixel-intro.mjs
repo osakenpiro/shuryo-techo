@@ -1,7 +1,7 @@
-import {createGame,throwCan,stepGame,resetShot,getSnapshot} from './physics.mjs?v=20261014-tower-train-2';
-import {sideAim} from './side-aim.mjs?v=20261014-tower-train-2';
-import {drawPixelText} from './pixel-type.mjs?v=20261014-tower-train-2';
-import {paintScreenQuad} from './room-scene.mjs?v=20261014-tower-train-2';
+import {createGame,throwCan,stepGame,resetShot,getSnapshot} from './physics.mjs?v=20261014-quick-retry-1';
+import {sideAim} from './side-aim.mjs?v=20261014-quick-retry-1';
+import {drawPixelText} from './pixel-type.mjs?v=20261014-quick-retry-1';
+import {paintScreenQuad} from './room-scene.mjs?v=20261014-quick-retry-1';
 
 export const INTRO_SETUP=Object.freeze({distance:4,height:.8});
 export function createIntroGame(){return createGame(INTRO_SETUP);}
