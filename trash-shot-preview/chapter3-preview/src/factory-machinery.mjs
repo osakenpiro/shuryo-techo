@@ -3,7 +3,7 @@
 // are AI approximations fitted to that metre-space envelope, not CAD data.
 // The caller supplies scenePrimitives so this module has no renderer imports.
 const C=Object.freeze({steel:'#84978f',bright:'#bfccc0',dark:'#355a57',teal:'#397d75',cream:'#e7d9b7',amber:'#d8ad4c',rubber:'#3c504b',chrome:'#d1d7c8',red:'#ad6552',green:'#b6d09a'});
-const supported=w=>w?.environment==='factory'&&[26,27,28,29,40,41,42,43,44,45].includes(w.worldVersion);
+const supported=w=>w?.environment==='factory'&&[26,27,28,29,40,41,42,43,44,45,46].includes(w.worldVersion);
 const mod=(value,period)=>((value%period)+period)%period;
 function tools(shapes,world,kit){
   const {p,box,limb,cylinder,flat,face}=kit;
@@ -208,11 +208,84 @@ function pistonDynamic(t,motion){
     }
   }
 }
+function conveyorFrame(belt){
+  const a=belt.min,c=belt.max,v=belt.surfaceVelocity??belt.direction??{x:0,z:1},axis=Math.abs(v.x)>Math.abs(v.z)?'x':'z',sign=(v[axis]||1)>0?1:-1,other=axis==='x'?'z':'x';
+  return {a,c,axis,other,sign,length:c[axis]-a[axis],width:c[other]-a[other],at:(along,y,across)=>axis==='x'?{x:along,y,z:across}:{x:across,y,z:along}};
+}
+function conveyorLineStatic(t,world){
+  const {p,b,rod,face}=t;
+  for(const belt of world.solids.filter(q=>q.kind==='conveyor')){
+    const q=conveyorFrame(belt),{a,c,axis,other,at,length,width}=q,meta={equipmentId:belt.id,beltId:belt.id},railY=c.y-.28;
+    const partBox=(part,along,y,across,l,h,w,col)=>{const v=at(along,y,across);b(part,v.x,v.y,v.z,axis==='x'?l:w,h,axis==='x'?w:l,col,meta);};
+    for(const edge of [a[other]-.07,c[other]+.015]){
+      partBox('line-belt-chassis',a[axis]-.03,railY,edge,length+.06,.22,.055,C.teal);
+      partBox('line-belt-safety-edge',a[axis],c.y-.048,edge,length,.045,.055,C.amber);
+      for(const z of [a[axis]+.17,c[axis]-.17]){
+        partBox('line-belt-leg',z,.06,edge,.07,railY-.06,.055,C.dark);
+        partBox('line-belt-foot',z-.055,.018,edge-.07,.18,.055,.19,C.steel);
+      }
+    }
+    for(const end of [a[axis]+.13,c[axis]-.13]){
+      rod('line-belt-end-roller',at(end,c.y-.12,a[other]-.07),at(end,c.y-.12,c[other]+.07),.105,C.rubber,meta);
+      for(const edge of [a[other]-.10,c[other]+.065])partBox('line-belt-bearing',end-.075,c.y-.23,edge,.15,.20,.045,C.bright);
+    }
+    partBox('line-belt-return-run',a[axis]+.13,c.y-.33,a[other]+.02,length-.26,.023,width-.04,C.rubber);
+    // A compact geared drive is mounted outside each belt, away from the
+    // canonical top and transfer overlap. It never becomes a collision proxy.
+    const end=c[axis]-.18,edge=c[other]+.18;
+    rod('line-belt-drive-motor',at(end-.14,c.y-.18,edge),at(end+.14,c.y-.18,edge),.115,C.teal,meta);
+    partBox('line-belt-drive-gearbox',end-.08,c.y-.29,c[other]+.05,.16,.22,.14,C.steel);
+    const mid=(a[axis]+c[axis])/2,center=(a[other]+c[other])/2,y=c.y+.012,arrow=.19,half=Math.min(.13,width*.18);
+    face('line-belt-direction-mark',[at(mid+q.sign*arrow,y,center),at(mid-q.sign*.12,y,center-half),at(mid-q.sign*.12,y,center+half)],C.cream,{...meta,direction:{...belt.surfaceVelocity}});
+  }
+  for(const press of world.mechanism.presses??[])pressFrame(t,world,press);
+}
+function pressFrame(t,world,press){
+  const {p,b,rod}=t,a=press.min,c=press.max,across=c.x-a.x>=c.z-a.z?'x':'z',other=across==='x'?'z':'x',center={x:(a.x+c.x)/2,z:(a.z+c.z)/2},mount=c.y+press.lift+.65,meta={pressId:press.id,equipmentId:press.id};
+  const at=(v,y,depth)=>across==='x'?p(v,y,depth):p(depth,y,v),width=c[across]-a[across],depth=center[other];
+  for(const v of [a[across]-.24,c[across]+.12]){
+    const pos=at(v,.04,depth-.16);
+    b('press-frame-column',pos.x,pos.y,pos.z,across==='x'?.12:.32,mount+.20,across==='x'?.32:.12,C.teal,meta);
+    const foot=at(v-.10,.018,depth-.26);
+    b('press-frame-foot',foot.x,foot.y,foot.z,across==='x'?.32:.52,.09,across==='x'?.52:.32,C.dark,meta);
+    rod('press-column-inset',at(v+.05,.35,depth-.17),at(v+.05,mount-.10,depth-.17),.025,C.bright,meta);
+  }
+  const top=at(a[across]-.25,mount+.12,depth-.21);
+  b('press-overhead-crosshead',top.x,top.y,top.z,across==='x'?width+.5:.42,.24,across==='x'?.42:width+.5,C.teal,meta);
+  rod('press-fixed-hydraulic-barrel',p(center.x,mount+.15,center.z),p(center.x,mount-.50,center.z),.16,C.teal,meta);
+  t.cy('press-hydraulic-collar',center.x,mount-.53,center.z,.19,.08,C.bright,8,meta);
+  // A small fixed control box establishes the scale of the machine.
+  const panel=at(a[across]-.38,1.05,depth-.25);
+  b('press-control-box',panel.x,panel.y,panel.z,.22,.38,.12,C.steel,meta);
+}
+function pressHead(t,world,press){
+  const {p,b,rod}=t,definition=world.mechanism.presses.find(q=>q.id===press.id),a=press.min,c=press.max,cx=(a.x+c.x)/2,cz=(a.z+c.z)/2,mount=definition.max.y+definition.lift+.65,meta={pressId:press.id,colliderId:press.id,pressLift:press.lift};
+  rod('press-live-hydraulic-rod',p(cx,mount-.50,cz),p(cx,c.y+.015,cz),.075,C.chrome,meta);
+  b('press-live-rod-coupler',cx-.14,c.y,cz-.14,.28,.10,.28,C.dark,meta);
+  for(const x of [a.x+.035,c.x-.075])b('press-live-crosshead-rib',x,c.y-.16,a.z+.025,.04,.13,c.z-a.z-.05,C.teal,meta);
+  // Narrow safety stripes are attached to the actual descending head, rather
+  // than independently animated. They mark a hazard without revealing timing.
+  const z=a.z-.005;
+  t.face('press-live-hazard-band',[p(a.x+.02,a.y+.045,z),p(c.x-.02,a.y+.045,z),p(c.x-.02,a.y+.15,z),p(a.x+.02,a.y+.15,z)],C.amber,meta);
+  for(let x=a.x+.06;x<c.x-.10;x+=.28)t.face('press-live-hazard-stripe',[p(x,a.y+.045,z-.001),p(x+.07,a.y+.045,z-.001),p(x+.14,a.y+.15,z-.001),p(x+.07,a.y+.15,z-.001)],C.dark,meta);
+}
+function conveyorLineDynamic(t,world,motion){
+  for(const belt of motion.belts??[]){
+    const solid=world.solids.find(q=>q.id===belt.id),q=conveyorFrame(solid),{a,c,at,axis,other,length}=q,gap=.40,offset=mod((belt.offset??0)*q.sign,gap),meta={equipmentId:belt.id,beltId:belt.id};
+    for(let v=a[axis]+.08+offset;v<c[axis]-.06;v+=gap){
+      t.face('line-belt-moving-link',[at(v,c.y+.007,a[other]+.035),at(v+.018,c.y+.007,a[other]+.035),at(v+.018,c.y+.007,c[other]-.035),at(v,c.y+.007,c[other]-.035)],C.chrome,meta);
+    }
+    const back=mod(-(belt.offset??0)*q.sign,gap);
+    for(let v=a[axis]+.10+back;v<a[axis]+length-.10;v+=gap)t.rod('line-belt-return-link',at(v,c.y-.302,a[other]+.04),at(v,c.y-.302,c[other]-.04),.009,C.bright,meta);
+  }
+  for(const press of motion.presses??[])pressHead(t,world,press);
+}
 export function factoryMachineryStatic(world,kit){
   if(!supported(world))return [];
   const shapes=[],t=tools(shapes,world,kit);
   if(world.factoryType==='shutter')doorFrame(t,world);
-  if(world.factoryType==='conveyor')conveyorStatic(t,world);
+  if(world.factoryType==='conveyor'&&world.worldVersion!==46)conveyorStatic(t,world);
+  if(world.worldVersion===46)conveyorLineStatic(t,world);
   if(world.factoryType==='bank'&&world.worldVersion!==45)bankStatic(t,world);
   if(world.worldVersion===45)pistonStatic(t,world);
   if(world.factoryType==='relay')relayStatic(t,world);
@@ -277,7 +350,8 @@ export function factoryMachineryDynamic(world,motion,time,kit){
   const shapes=[],t=tools(shapes,world,kit);
   const door=motion.shutter??motion.gate;
   if(door)doorDynamic(t,world,door);
-  if(motion.belt)conveyorDynamic(t,world,motion);
+  if(motion.belt&&world.worldVersion!==46)conveyorDynamic(t,world,motion);
+  if(world.worldVersion===46)conveyorLineDynamic(t,world,motion);
   if(motion.gate)relayDynamic(t,world,motion);
   if(world.worldVersion===45)pistonDynamic(t,motion);
   for(const witness of world.worldVersion===45?[]:motion.bankLights){

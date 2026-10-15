@@ -1,12 +1,12 @@
-import { predictArc } from './physics.mjs?v=20261015-factory-necessity-1';
-import { roomScene,roomMotionShapes,roomMonitorQuad,paintScreenQuad } from './room-scene.mjs?v=20261015-factory-necessity-1';
-import {schoolScene,schoolMotionShapes,schoolCameraConfig} from './school-scene.mjs?v=20261015-factory-necessity-1';
-import {outdoorScene,outdoorMotionShapes,outdoorCameraConfig} from './outdoor-scene.mjs?v=20261015-factory-necessity-1';
-import {factoryScene,factoryMotionShapes,factoryCameraConfig} from './factory-scene.mjs?v=20261015-factory-necessity-1';
-import {eccentricScene,eccentricMotionShapes,eccentricCameraConfig,eccentricItemMeshes} from './eccentric-scene.mjs?v=20261015-factory-necessity-1';
-import {drawPixelText} from './pixel-type.mjs?v=20261015-factory-necessity-1';
-import {getThrowable} from './throwables.mjs?v=20261015-factory-necessity-1';
-import {getThrowableId,throwablePose} from './throwable-physics.mjs?v=20261015-factory-necessity-1';
+import { predictArc } from './physics.mjs?v=20261015-conveyor-line-1';
+import { roomScene,roomMotionShapes,roomMonitorQuad,paintScreenQuad } from './room-scene.mjs?v=20261015-conveyor-line-1';
+import {schoolScene,schoolMotionShapes,schoolCameraConfig} from './school-scene.mjs?v=20261015-conveyor-line-1';
+import {outdoorScene,outdoorMotionShapes,outdoorCameraConfig} from './outdoor-scene.mjs?v=20261015-conveyor-line-1';
+import {factoryScene,factoryMotionShapes,factoryCameraConfig} from './factory-scene.mjs?v=20261015-conveyor-line-1';
+import {eccentricScene,eccentricMotionShapes,eccentricCameraConfig,eccentricItemMeshes} from './eccentric-scene.mjs?v=20261015-conveyor-line-1';
+import {drawPixelText} from './pixel-type.mjs?v=20261015-conveyor-line-1';
+import {getThrowable} from './throwables.mjs?v=20261015-conveyor-line-1';
+import {getThrowableId,throwablePose} from './throwable-physics.mjs?v=20261015-conveyor-line-1';
 
 const add = (a,b) => ({ x:a.x+b.x, y:a.y+b.y, z:a.z+b.z });
 const sub = (a,b) => ({ x:a.x-b.x, y:a.y-b.y, z:a.z-b.z });
@@ -437,7 +437,7 @@ export function createRenderer(canvas) {
     if(view.prediction&&(!view.course||Array.isArray(view.windArc))&&(game.phase==='ready'||game.phase==='success'||game.phase==='miss'))drawArc(game,view.aim||controls,view.windArc);
     if(game.phase!=='ready')drawTrail(game);
     if(view.aim&&!view.customCue){const heading=view.aim.yaw*Math.PI/180,p=game.phase==='ready'?game.can.position:(worldView?.origin??{x:0,y:1.05,z:0});line(p,{x:p.x+Math.sin(heading)*.75,y:p.y,z:p.z+Math.cos(heading)*.75},'#bd8632',2);}
-    const shapes=[...(room&&view.extraRoom?roomMotionShapes(view.environmentTime||0,view.fanEnabled,view.reducedMotion,worldView):[]),...(school?schoolMotionShapes(view.environmentTime||0,worldView,view.reducedMotion):[]),...(advanced?(worldView.environment==='factory'?factoryMotionShapes:eccentricMotionShapes)(view.environmentTime??0,worldView,{...view,...(worldView.worldVersion===39?{camera:{...camera}}:{}),session:view.factorySession,game,phase:game.phase,flightTime:game.time}):outdoor?outdoorMotionShapes(view.environmentTime??0,worldView,{...view,camera:{...camera},phase:game.phase,flightTime:game.time}):shapesForBin(game,room||school)),...(worldView?.worldVersion===36&&view.baseballPitch?.active?[]:shapesForCan(game,room||school||outdoor||advanced))];
+    const shapes=[...(room&&view.extraRoom?roomMotionShapes(view.environmentTime||0,view.fanEnabled,view.reducedMotion,worldView):[]),...(school?schoolMotionShapes(view.environmentTime||0,worldView,view.reducedMotion):[]),...(advanced?(worldView.environment==='factory'?factoryMotionShapes:eccentricMotionShapes)(view.environmentTime??0,worldView,{...view,...(worldView.worldVersion===39?{camera:{...camera}}:{}),session:view.factorySession,game,phase:game.phase,flightTime:game.time}):outdoor?outdoorMotionShapes(view.environmentTime??0,worldView,{...view,camera:{...camera},phase:game.phase,flightTime:game.time}):shapesForBin(game,room||school)),...(worldView?.worldVersion===36&&view.baseballPitch?.active?[]:worldView?.worldVersion===46&&game.phase==='miss'&&view.effects?.some(e=>e.type==='factory-press')?shapesForCan(game,room||school||outdoor||advanced).map(mesh=>({...mesh,pressed:true,points:mesh.points.map(p=>({...p,x:game.can.position.x+(p.x-game.can.position.x)*1.16,y:game.can.position.y-game.can.radius+.025+(p.y-game.can.position.y)*.12,z:game.can.position.z+(p.z-game.can.position.z)*1.16}))})):shapesForCan(game,room||school||outdoor||advanced))];
     drawDepthShapes(shapes,backgroundDepth);
     drawCoinAccent(game,view);
     if(room&&view.extraRoom){

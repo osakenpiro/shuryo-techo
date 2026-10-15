@@ -1,13 +1,13 @@
 // Timed Chapter 4 mechanisms compose the existing fixed 240 Hz contact solver.
 // A conveyor reaction applies only after real top contact. Relay state persists
 // across retry/throws until its owner explicitly resets or replaces the session.
-import {createGame,setRoomWorld,throwCan,captureGoal,stopBlockedShot,setShotEnvironmentStart} from './physics.mjs?v=20261015-factory-necessity-1';
-import {cloneThrowable,getThrowableId,throwableRestitution,throwableFriction} from './throwable-physics.mjs?v=20261015-factory-necessity-1';
-import {getThrowable} from './throwables.mjs?v=20261015-factory-necessity-1';
-import {createRoomContactStepper,ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261015-factory-necessity-1';
-import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261015-factory-necessity-1';
-import {sweepSphereAABB} from './room-course.mjs?v=20261015-factory-necessity-1';
-import {factoryWorld,factoryGoals,factorySolids,factoryDynamicSolids,factoryStartTime} from './factory-world.mjs?v=20261015-factory-necessity-1';
+import {createGame,setRoomWorld,throwCan,captureGoal,stopBlockedShot,setShotEnvironmentStart} from './physics.mjs?v=20261015-conveyor-line-1';
+import {cloneThrowable,getThrowableId,throwableRestitution,throwableFriction} from './throwable-physics.mjs?v=20261015-conveyor-line-1';
+import {getThrowable} from './throwables.mjs?v=20261015-conveyor-line-1';
+import {createRoomContactStepper,ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261015-conveyor-line-1';
+import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261015-conveyor-line-1';
+import {sweepSphereAABB} from './room-course.mjs?v=20261015-conveyor-line-1';
+import {factoryWorld,factoryGoals,factorySolids,factoryDynamicSolids,factoryStartTime} from './factory-world.mjs?v=20261015-conveyor-line-1';
 const TICK=ROOM_CONTACT_TICK,EPS=1e-9,SLOP=1e-5,AXES=['x','y','z'];
 const active=game=>game?.phase==='flying'||game?.phase==='settling';
 const copy=p=>({x:p.x,y:p.y,z:p.z});
@@ -32,7 +32,7 @@ export function validateFactorySession(value,world){
 }
 function requireSession(session,world){if(!session)session=createFactorySession(world);if(!validateFactorySession(session,world))throw new RangeError('Factory session does not match this world');return session;}
 export function createFactoryPlayStepper(world,{startTime=0,onContact,onEffect,session}={}){
-  world=requireWorld(world);session=requireSession(session,world);const launchTime=factoryStartTime(startTime),belt=world.solids.find(s=>s.surface==='belt');
+  world=requireWorld(world);session=requireSession(session,world);const launchTime=factoryStartTime(startTime),belts=world.solids.filter(s=>s.surface==='belt');let belt=belts[0];
   let currentGame=null,remainder=0,ticks=0,shotId=null,elapsed=0,capture=null,effects=[],movingContacts=[],pendingMoving=null,lastMovingContact=-Infinity,carry={active:false,distance:0,contactTime:null,exitTime:null};
   const effect=(type,value={})=>{const item={id:`${world.stageId}:${currentGame?.attempts??0}:${type}:${effects.length}`,type,time:currentGame?.time??elapsed,environmentTime:launchTime+(currentGame?.time??elapsed),...value};effects.push(item);if(typeof onEffect==='function')try{onEffect(structuredClone(item));}catch{/* Display cannot interrupt physics. */}};
   const moving=(time,h)=>{const a=factoryDynamicSolids(world,launchTime+time,session),b=factoryDynamicSolids(world,launchTime+time+h,session);return a.map(solid=>{const delta=sub(b.find(q=>q.id===solid.id).min,solid.min);return {...solid,delta,...(world.worldVersion===45&&solid.kind==='piston-face'?{surfaceVelocity:Object.fromEntries(AXES.map(axis=>[axis,delta[axis]/h]))}:{})};});};
@@ -93,12 +93,17 @@ export function createFactoryPlayStepper(world,{startTime=0,onContact,onEffect,s
   };
   const delegate=createRoomContactStepper(world,{solids:factorySolids(world),dynamicColliders:moving,captureSweep,impactResponse:reflectorImpact,
     onCapture(game,hit){if(captureGoal(game,hit.goal,{position:hit.position,environmentTime:launchTime+game.time})){capture={goalId:hit.goal.id,goalRole:hit.goal.role,position:copy(hit.position),normal:copy(hit.goal.normal),time:game.time};session.completed=true;}},
+    onBlockingContact(game,hit,collider){
+      if(world.worldVersion!==46||collider.kind!=='stamping-press')return;
+      carry.active=false;effect('factory-press',{sourceId:collider.id,position:copy(game.can.position),normal:copy(hit.normal)});stopBlockedShot(game,'factory-press');
+    },
     onContact(contact){
       if(pendingMoving&&contact.colliderId===pendingMoving.collider.id&&contact.normal.y<-.999&&Math.abs(contact.time-pendingMoving.time)<1e-5){const corrected=correctClosingBottom(currentGame,pendingMoving);if(corrected)contact=corrected;}
       if(world.factoryType==='bank'&&world.mechanism.requiredColliders.includes(contact.colliderId)&&!session.bankContacts.includes(contact.colliderId)){
         session.bankContacts.push(contact.colliderId);effect('factory-bank-contact',{sourceId:contact.colliderId,position:copy(contact.position),normal:copy(contact.normal)});
       }
-      if(world.factoryType==='conveyor'&&contact.colliderId===belt.id&&contact.normal.y>.999&&currentGame&&active(currentGame)){
+      if(world.factoryType==='conveyor'&&belts.some(b=>b.id===contact.colliderId)&&contact.normal.y>.999&&currentGame&&active(currentGame)){
+        if(world.worldVersion===46)belt=belts.find(b=>b.id===contact.colliderId);
         carry.active=true;carry.contactTime??=contact.time;currentGame.can.position.y=belt.max.y+currentGame.can.radius+SLOP;
         currentGame.can.velocity={...belt.surfaceVelocity};effect('factory-belt-contact',{sourceId:belt.id,position:copy(currentGame.can.position),surfaceVelocity:copy(belt.surfaceVelocity),incomingVelocity:copy(contact.beforeVelocity)});
       }
@@ -117,7 +122,7 @@ export function createFactoryPlayStepper(world,{startTime=0,onContact,onEffect,s
     if(shotId!==game.attempts||game.time===0&&ticks){reset();shotId=game.attempts;}
     currentGame=game;setShotEnvironmentStart(game,launchTime);remainder+=Math.min(dt,.1);
     for(let count=0;count<25&&remainder+EPS>=TICK&&active(game);count++){
-      const wasCarried=beltSupport(game),beforeZ=game.can.position.z;
+      const wasCarried=beltSupport(game),beforeZ=game.can.position.z,beforeX=game.can.position.x;
       if(wasCarried){game.can.position.y=belt.max.y+game.can.radius+SLOP;game.can.velocity={...belt.surfaceVelocity};}
       pendingMoving=closingBottomHit(game,TICK);
       // Record the corrected supported pose before the caller takes its frame.
@@ -129,7 +134,7 @@ export function createFactoryPlayStepper(world,{startTime=0,onContact,onEffect,s
           if(beltSupport(g)){g.can.position.y=belt.max.y+g.can.radius+SLOP;g.can.velocity={...belt.surfaceVelocity};}
           else if(wasCarried){carry.active=false;carry.exitTime=g.time;effect('factory-belt-exit',{sourceId:belt.id,position:copy(g.can.position),surfaceVelocity:copy(belt.surfaceVelocity)});}
         }
-        if(wasCarried)carry.distance+=Math.max(0,g.can.position.z-beforeZ);
+        if(wasCarried)carry.distance+=world.worldVersion===46?Math.hypot(g.can.position.x-beforeX,g.can.position.z-beforeZ):Math.max(0,g.can.position.z-beforeZ);
         if(typeof afterStep==='function')afterStep(g);
       });
       ticks++;elapsed=game.time;remainder=Math.max(0,remainder-TICK);if(!active(game))remainder=0;

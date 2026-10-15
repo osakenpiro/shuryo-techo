@@ -21,6 +21,7 @@ export const FACTORY_PHYSICS_WORLDS=freeze({
   43:{worldVersion:43,origin:p(0,1.3,0),bin:{center:p(1.15,.55,6.7),radius:.72,height:1.1}},
   44:{worldVersion:44,origin:p(0,1.65,0),bin:{center:p(0,.4,6.3),radius:.72,height:.8}},
   45:{worldVersion:45,origin:p(0,2.45,0),bin:{center:p(0,.5,5.5),radius:.8,height:1}},
+  46:{worldVersion:46,origin:p(0,1.65,0),bin:{center:p(-2.2,.4,7.25),radius:.72,height:.8}},
 });
 const binSolids=(g)=>[
   box(`${g.id}-body`,'collection-bin',p(g.center.x-g.radius,0,g.center.z-g.radius),p(g.center.x+g.radius,g.center.y-.25,g.center.z+g.radius)),
@@ -108,9 +109,32 @@ function pistonBankWorld(){
       box('factory-bank-central-shield','machine-shield',p(-.55,0,1.8),p(.55,6.3,3.15),'wall',.25),
       box('factory-bank-safety-ceiling','safety-glass',p(-4.3,5.9,-2.2),p(4.3,6.1,9.35),'ceiling',.25)]};
 }
-export const FACTORY_WORLDS=freeze({...FACTORY_ROUTE_WORLDS,'factory-conveyor':conveyorTunnelWorld(),'factory-bank':pistonBankWorld()});
+export const FACTORY_NECESSITY_WORLDS=freeze({...FACTORY_ROUTE_WORLDS,'factory-conveyor':conveyorTunnelWorld(),'factory-bank':pistonBankWorld()});
 
-const WORLD_BY_VERSION=freeze(Object.fromEntries([...Object.values(FACTORY_LEGACY_WORLDS),...Object.values(FACTORY_RELEASED_WORLDS),...Object.values(FACTORY_ROUTE_WORLDS),...Object.values(FACTORY_WORLDS)].map(w=>[w.worldVersion,w])));
+
+function conveyorLineWorld(){
+  const old=FACTORY_NECESSITY_WORLDS['factory-conveyor'],physics=FACTORY_PHYSICS_WORLDS[46],receiver=goal('factory-conveyor-bin',p(-2.2,.8,7.25),.72);
+  const belts=[
+    box('factory-line-belt-1','conveyor',p(-.6,1.3,1.7),p(1.8,1.6,2.8),'belt',.08,{surfaceVelocity:p(3.8,0,0)}),
+    box('factory-line-belt-2','conveyor',p(1.55,1.2,1.7),p(2.95,1.5,4.3),'belt',.08,{surfaceVelocity:p(0,0,3.8)}),
+    box('factory-line-belt-3','conveyor',p(-1.75,1.1,4.1),p(2.95,1.4,5.2),'belt',.08,{surfaceVelocity:p(-3.8,0,0)}),
+    box('factory-line-belt-4','conveyor',p(-2.9,1,4.1),p(-1.5,1.3,6.6),'belt',.08,{surfaceVelocity:p(0,0,1.8)})];
+  const wall=(id,z,lo,hi,bottom,top)=>[
+    box(id+'-left','safety-glass',p(-4.3,0,z),p(lo,6.3,z+.18),'wall',.2),
+    box(id+'-right','safety-glass',p(hi,0,z),p(4.3,6.3,z+.18),'wall',.2),
+    box(id+'-lintel','safety-glass',p(lo,top,z),p(hi,6.3,z+.18),'wall',.2),
+    box(id+'-sill','machine-frame',p(lo,0,z),p(hi,bottom,z+.18),'wall',.2)];
+  return {...old,worldVersion:46,physics,origin:physics.origin,bin:physics.bin,goals:[receiver],launch:{power:4.5,elevation:40,yaw:0},
+    mechanism:{...old.mechanism,id:belts[0].id,kind:'conveyor-line',speed:3.8,direction:p(1,0,0),endZ:6.6,belts:belts.map(b=>b.id),
+      presses:[{id:'factory-line-press-1',min:p(1.55,1.51,3),max:p(2.95,2.1,3.55),lift:2.5,phase:0},
+        {id:'factory-line-press-2',min:p(-.6,1.41,4.1),max:p(.1,2,5.2),lift:2.5,phase:Math.PI}],pressPeriod:4},
+    solids:[...old.solids.filter(q=>!['collection-bin','conveyor','conveyor-leg','safety-glass','machine-frame'].includes(q.kind)),...binSolids(receiver),...belts,
+      ...wall('factory-line-inlet',1.45,-.6,.6,0,2.25),...wall('factory-line-right-port',3.25,1.5,3,1.5,1.96),...wall('factory-line-left-port',5.7,-3,-1.45,1.3,1.76),
+      box('factory-line-safety-ceiling','safety-glass',p(-4.3,5.9,-2.2),p(4.3,6.1,9.35),'ceiling',.25)]};
+}
+export const FACTORY_WORLDS=freeze({...FACTORY_NECESSITY_WORLDS,'factory-conveyor':conveyorLineWorld()});
+
+const WORLD_BY_VERSION=freeze(Object.fromEntries([...Object.values(FACTORY_LEGACY_WORLDS),...Object.values(FACTORY_RELEASED_WORLDS),...Object.values(FACTORY_ROUTE_WORLDS),...Object.values(FACTORY_NECESSITY_WORLDS),...Object.values(FACTORY_WORLDS)].map(w=>[w.worldVersion,w])));
 export function factoryWorldByVersion(worldVersion){return Number.isInteger(worldVersion)&&Object.hasOwn(WORLD_BY_VERSION,worldVersion)?WORLD_BY_VERSION[worldVersion]:null;}
 export function factoryWorld(stageId,worldVersion){const world=worldVersion===undefined?typeof stageId==='string'&&Object.hasOwn(FACTORY_WORLDS,stageId)?FACTORY_WORLDS[stageId]:null:factoryWorldByVersion(worldVersion);return world?.stageId===stageId?world:null;}
 function requireWorld(world){const saved=factoryWorld(world?.stageId,world?.worldVersion);if(!saved)throw new RangeError('A supported factory world is required');return saved;}
@@ -133,14 +157,17 @@ export function factoryMotion(world,time=0,session){
     return {id:q.id,kind:'piston-face',side:q.side,offset,min:p(x-.1,0,.45),max:p(x+.1,5.8,7.25),
       surfaceVelocity:p(q.amplitude*2*Math.PI/mechanism.period*Math.cos(time*2*Math.PI/mechanism.period+q.phase),0,0)};
   });
+  const belts=world.worldVersion===46?world.solids.filter(s=>s.surface==='belt').map(s=>({id:s.id,kind:s.kind,min:{...s.min},max:{...s.max},speed:Math.hypot(s.surfaceVelocity.x,s.surfaceVelocity.z),direction:p(s.surfaceVelocity.x/Math.hypot(s.surfaceVelocity.x,s.surfaceVelocity.z),0,s.surfaceVelocity.z/Math.hypot(s.surfaceVelocity.x,s.surfaceVelocity.z)),offset:time*Math.hypot(s.surfaceVelocity.x,s.surfaceVelocity.z)})):[];
+  const presses=(mechanism.presses??[]).map(q=>{const lift=q.lift*(.5+.5*Math.cos(time*2*Math.PI/mechanism.pressPeriod+q.phase));return {id:q.id,kind:'stamping-press',lift,min:p(q.min.x,q.min.y+lift,q.min.z),max:p(q.max.x,q.max.y+lift,q.max.z),closed:lift<.35};});
   const balls=world.factoryType==='relay'&&session?.stageId===world.stageId&&session.setupBall?[structuredClone(session.setupBall)]:[];
-  return {actors:[],goals:factoryGoals(world,time,session),shutter,gate,belt,balls,...(pistons.length?{pistons}:{}),plate:{id:mechanism.plateId??null,pressed:!!(session?.stageId===world.stageId&&session.plateLatched)},
+  return {actors:[],goals:factoryGoals(world,time,session),shutter,gate,belt,balls,...(pistons.length?{pistons}:{}),...(belts.length?{belts,presses}:{}),plate:{id:mechanism.plateId??null,pressed:!!(session?.stageId===world.stageId&&session.plateLatched)},
     bankLights:world.factoryType==='bank'?mechanism.requiredColliders.map(id=>({id,lit:session?.stageId===world.stageId&&session.bankContacts?.includes(id)})):[]};
 }
 export function factoryDynamicSolids(world,time=0,session){
   world=requireWorld(world);const motion=factoryMotion(world,time,session),solids=[];
   for(const moving of [motion.shutter,motion.gate])if(moving)solids.push(box(moving.id,moving.kind,moving.min,moving.max,'machine',.22));
   for(const piston of motion.pistons??[])solids.push(box(piston.id,piston.kind,piston.min,piston.max,'machine',.8,{friction:.02,surfaceVelocity:piston.surfaceVelocity,side:piston.side}));
+  for(const press of motion.presses??[])solids.push(box(press.id,press.kind,press.min,press.max,'machine',0,{blocking:true}));
   for(const ball of motion.balls)solids.push(box(ball.id,'parked-ball',p(ball.position.x-ball.radius,ball.position.y-ball.radius,ball.position.z-ball.radius),p(ball.position.x+ball.radius,ball.position.y+ball.radius,ball.position.z+ball.radius),'ball',.2));
   return solids;
 }

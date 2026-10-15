@@ -1,10 +1,10 @@
 // Deterministic Chapter 5 input, moving launch frames and target captures reuse
 // the existing 240 Hz contact solver. Predictions call this exact same adapter.
-import {createGame,setRoomWorld,throwCan,captureGoal,stopBlockedShot,emitShotEffect,getShotEffects,setShotEnvironmentStart,shotTimeLimit} from './physics.mjs?v=20261015-factory-necessity-1';
-import {cloneThrowable,throwableWindScale,throwablePose,fixThrowablePose,throwableRestitution,throwableFriction} from './throwable-physics.mjs?v=20261015-factory-necessity-1';
-import {createRoomContactStepper,ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261015-factory-necessity-1';
-import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261015-factory-necessity-1';
-import {eccentricWorld,eccentricGoals,eccentricSolids,eccentricDynamicSolids,eccentricLaunchFrame,eccentricStartTime} from './eccentric-world.mjs?v=20261015-factory-necessity-1';
+import {createGame,setRoomWorld,throwCan,captureGoal,stopBlockedShot,emitShotEffect,getShotEffects,setShotEnvironmentStart,shotTimeLimit} from './physics.mjs?v=20261015-conveyor-line-1';
+import {cloneThrowable,throwableWindScale,throwablePose,fixThrowablePose,throwableRestitution,throwableFriction} from './throwable-physics.mjs?v=20261015-conveyor-line-1';
+import {createRoomContactStepper,ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261015-conveyor-line-1';
+import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261015-conveyor-line-1';
+import {eccentricWorld,eccentricGoals,eccentricSolids,eccentricDynamicSolids,eccentricLaunchFrame,eccentricStartTime} from './eccentric-world.mjs?v=20261015-conveyor-line-1';
 const TICK=ROOM_CONTACT_TICK,EPS=1e-9,AXES=['x','y','z'],IMPACT_POSES=new WeakMap();
 const active=game=>game?.phase==='flying'||game?.phase==='settling';
 const copy=p=>({x:p.x,y:p.y,z:p.z});

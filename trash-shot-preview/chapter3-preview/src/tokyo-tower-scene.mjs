@@ -3,7 +3,7 @@
 // 19 drawing is intentionally kept in eccentric-scene's frozen branch.
 // These meshes describe the landmark and its neighbourhood; canonical world
 // solids still own the platform, guard rails, receiver and flight contacts.
-import {scenePrimitives} from './factory-scene.mjs?v=20261015-factory-necessity-1';
+import {scenePrimitives} from './factory-scene.mjs?v=20261015-conveyor-line-1';
 const {p,face,shade,add,scale,cross,unit,box,cylinder,ellipsoid,line,flat}=scenePrimitives;
 export const TOKYO_TOWER_PALETTE=Object.freeze({
   orange:'#dd512f',orangeLight:'#ef7046',orangeDark:'#a53c29',white:'#f1eee4',

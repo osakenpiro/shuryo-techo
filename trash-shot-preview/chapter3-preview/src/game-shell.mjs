@@ -1,7 +1,7 @@
 // Presentation only. Chapter progress and stage changes stay owned by app.mjs.
-import { STAGES } from './stages.mjs?v=20261015-factory-necessity-1';
-import { CHAPTER_IDS, CHAPTERS, chapterForStage, canChooseStage, outdoorSnapshot, OUTDOOR_CHAPTER_IDS, BRANCH_CHAPTER_IDS, FACTORY_CHAPTER_IDS, ECCENTRIC_CHAPTER_IDS } from './progress-save.mjs?v=20261015-factory-necessity-1';
-import { drawPixelText, measurePixelText } from './pixel-type.mjs?v=20261015-factory-necessity-1';
+import { STAGES } from './stages.mjs?v=20261015-conveyor-line-1';
+import { CHAPTER_IDS, CHAPTERS, chapterForStage, canChooseStage, outdoorSnapshot, OUTDOOR_CHAPTER_IDS, BRANCH_CHAPTER_IDS, FACTORY_CHAPTER_IDS, ECCENTRIC_CHAPTER_IDS } from './progress-save.mjs?v=20261015-conveyor-line-1';
+import { drawPixelText, measurePixelText } from './pixel-type.mjs?v=20261015-conveyor-line-1';
 
 const $ = id => document.getElementById(id);
 const FACE_HELP = Object.freeze({
@@ -18,7 +18,7 @@ const FACE_HELP = Object.freeze({
   'outdoor-mall': '吹き抜けから、子供のコーンへアイスを落とそう。',
   'outdoor-river': '船の灯りを読んで、向こう岸の花火筒へ。',
   'factory-shutter': '開く瞬間を狙う？ 右のガイドで回り込む？',
-  'factory-conveyor': 'ベルトに乗せて、ガラス壁の向こうへ。',
+  'factory-conveyor': '4本のベルトを乗り継ごう。2基のプレスに注意。',
   'factory-bank': '動くピストンで跳ね返し、遮蔽物の向こうへ。',
   'factory-relay': '2球で扉を開けるか、右のガイドで回り込もう。',
   'eccentric-tower': '250mの展望台から、はるか下の街の箱へ。',
