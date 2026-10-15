@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f0e2">
+  <meta name="description" content="ごみシュート第5章の後半を、実際のゲーム画面から紹介。森の弓矢、体育館のバスケ、風の庭の綿毛、客間のカード、砦の大砲を試せます。">
+  <title>ごみシュート — 森から砦へ、第5章の後半</title>
+  <style>
+    :root{color-scheme:light;--paper:#f6f0e2;--surface:#fffdf6;--ink:#244e49;--muted:#61746a;--line:#c9c9b4;--teal:#28685f;--pale:#e6ecdf;--warm:#e9d5b3}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:22px}
+    body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.8 -apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif}
+    a{color:var(--teal);text-underline-offset:4px}
+    button{font:inherit}
+    a:focus-visible,button:focus-visible{outline:3px solid #a56025;outline-offset:5px}
+    .skip{position:absolute;top:8px;left:12px;z-index:10;transform:translateY(-180%);padding:8px 14px;background:var(--surface)}
+    .skip:focus{transform:translateY(0)}
+    .wrap{width:min(1120px,100% - 48px);margin-inline:auto}
+    .masthead{padding-block:24px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:16px}
+    .brand{font-weight:750;letter-spacing:.11em;font-size:14px;text-decoration:none}
+    .edition{font-size:12px;color:var(--muted);letter-spacing:.08em}
+    .hero{padding-block:54px 34px;max-width:850px}
+    .eyebrow{display:inline-block;margin:0 0 18px;padding:3px 12px;border:1px solid #9fb7a5;border-radius:999px;font-size:12px;letter-spacing:.1em;background:var(--pale)}
+    h1{margin:0 0 18px;font-size:clamp(30px,5.5vw,48px);line-height:1.4;letter-spacing:.035em;font-weight:750}
+    .lead{max-width:690px;margin:0;color:#4e655a;font-size:17px;line-height:1.95}
+    .actions{display:flex;flex-wrap:wrap;align-items:center;gap:14px 22px;margin-top:27px}
+    .play{display:inline-flex;align-items:center;justify-content:center;gap:14px;min-height:46px;padding:9px 19px;border:1px solid var(--teal);border-radius:9px;background:var(--teal);color:#fffdf6;font-weight:650;font-size:14px;text-decoration:none;transition:background .16s ease,transform .16s ease}
+    .play:hover{background:#194e47;transform:translateY(-1px)}
+    .play span[aria-hidden]{font-size:18px;line-height:1}
+    .back-link{font-size:14px}
+    .howto{display:flex;align-items:flex-start;gap:18px;margin:0 0 36px;padding:17px 21px;border:1px solid var(--line);border-radius:12px;background:#f9f7ed}
+    .howto h2{flex:none;font-size:14px;margin:1px 0;white-space:nowrap}
+    .howto p{margin:0;font-size:14px;color:#52675d}
+    kbd{display:inline-block;min-width:24px;padding:0 5px;border:1px solid #b7c1b0;border-bottom-width:2px;border-radius:4px;background:var(--surface);color:var(--ink);font-family:inherit;font-size:12px;font-weight:600;line-height:1.65;text-align:center}
+    .section-heading{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:16px}
+    .section-heading h2{margin:0;font-size:20px;letter-spacing:.03em}
+    .section-heading p{margin:0;font-size:12px;color:var(--muted)}
+    .stages{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+    .stage{min-width:0;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--surface)}
+    .stage.featured{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,1fr)}
+    .capture{position:relative;display:block;overflow:hidden;background:#e8e7d8;text-decoration:none}
+    .capture img{display:block;width:100%;height:auto;aspect-ratio:16/10;object-fit:contain;transition:filter .16s ease}
+    .capture:hover img{filter:brightness(1.04)}
+    .zoom{position:absolute;right:12px;bottom:12px;padding:3px 9px;border:1px solid #c0ccba;border-radius:6px;background:rgba(255,253,246,.94);font-size:11px;font-weight:600;color:var(--ink);box-shadow:0 1px 5px #244e4914}
+    .stage-content{padding:23px 25px 25px;display:flex;flex-direction:column;align-items:flex-start}
+    .featured .stage-content{justify-content:center;padding:30px}
+    .number{margin:0 0 8px;color:#7a7757;font-size:12px;letter-spacing:.12em;font-weight:650}
+    .stage h3{margin:0 0 12px;font-size:24px;line-height:1.5;letter-spacing:.035em}
+    .stage-copy{margin:0 0 21px;color:#52675d;font-size:14px;line-height:1.95}
+    .stage .play{margin-top:auto;background:transparent;color:var(--teal);min-height:42px;padding:7px 16px}
+    .stage .play:hover{background:var(--pale)}
+    .afterword{margin-block:36px 0;padding:23px 26px;border:1px solid var(--line);border-radius:12px;background:#edead9}
+    .afterword h2{margin:0 0 7px;font-size:17px}
+    .afterword p{margin:0;font-size:14px;color:#52675d}
+    .afterword a{display:inline-block;margin-top:10px;font-size:14px;font-weight:650}
+    footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-block:27px 34px;color:var(--muted);font-size:12px}
+    footer p{margin:0}
+    dialog{width:min(1200px,calc(100vw - 32px));max-height:calc(100dvh - 32px);margin:auto;padding:0;border:1px solid #aebda9;border-radius:14px;background:var(--surface);color:var(--ink);box-shadow:0 16px 80px #102c2955}
+    dialog::backdrop{background:rgba(17,37,33,.82)}
+    .viewer-top,.viewer-bottom{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 18px}
+    .viewer-top{border-bottom:1px solid var(--line)}
+    .viewer-top h2{margin:0;font-size:16px;line-height:1.6}
+    .viewer-button{flex:none;min-height:40px;padding:5px 13px;border:1px solid #adbeac;border-radius:7px;background:var(--surface);color:var(--ink);cursor:pointer;font-size:13px}
+    .viewer-button:hover{background:var(--pale)}
+    #viewer-image{display:block;width:100%;height:auto;max-height:calc(100dvh - 190px);object-fit:contain;background:#e8e7d8}
+    .viewer-bottom{border-top:1px solid var(--line)}
+    .viewer-nav{display:flex;gap:8px}
+    .viewer-hint{margin:0;color:var(--muted);font-size:12px}
+    @media(min-width:750px){.featured .capture{display:flex;align-items:center;border-right:1px solid var(--line)}}
+    @media(max-width:749px){.wrap{width:calc(100% - 32px)}.masthead{padding-block:20px 15px}.hero{padding-block:35px 27px}.lead{font-size:15px}.actions{gap:15px;margin-top:22px}.howto{display:block;padding:16px 18px;margin-bottom:29px}.howto h2{margin-bottom:5px}.section-heading{align-items:flex-start;flex-direction:column;gap:3px}.stages{grid-template-columns:1fr;gap:20px}.stage.featured{display:block}.stage-content,.featured .stage-content{padding:20px 21px 23px}.stage h3{font-size:23px}.edition{font-size:11px}.afterword{padding:21px;margin-top:28px}.viewer-top,.viewer-bottom{padding:10px 12px}.viewer-hint{max-width:150px;font-size:11px}dialog{width:calc(100vw - 20px)}#viewer-image{max-height:calc(100dvh - 180px)}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important}}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#stages">5つのステージへ</a>
+  <header class="masthead wrap">
+    <a class="brand" href="../../">TRASHOOT</a>
+    <span class="edition">ごみシュート / 第5章・試遊版</span>
+  </header>
+  <main class="wrap">
+    <div class="hero">
+      <p class="eyebrow">第5章の後半 · 5つの場所</p>
+      <h1>森から砦へ、<br>ひと投げずつ。</h1>
+      <p class="lead">森で弓を構え、体育館で弧を描き、庭では風を読む。<br>投げるものと場所が変わる、第5章の後半をどうぞ。</p>
+      <div class="actions">
+        <a class="play" href="../../chapters45-preview/?v=20261015-eccentric-review-1&amp;stage=eccentric-boar">第5章の後半を遊ぶ <span aria-hidden="true">↗</span></a>
+        <a class="back-link" href="../../chapters45-preview/?v=20261015-eccentric-review-1&amp;stage=factory-shutter">第4章の工場へ</a>
+      </div>
+    </div>
+
+    <aside class="howto" aria-labelledby="howto-title">
+      <h2 id="howto-title">投げ方のおさらい</h2>
+      <p>「弧」のボタンで高さを選び、画面を引っ張って、離すと投げられます。もう一度試すときは <kbd>R</kbd> または画面の「リトライ」。同じ面ですぐ次の一投へ戻れます。</p>
+    </aside>
+
+    <section id="stages" aria-labelledby="stages-title">
+      <div class="section-heading">
+        <h2 id="stages-title">今回の5つのステージ</h2>
+        <p>ゲーム画面は、選ぶと大きく表示できます。</p>
+      </div>
+      <div class="stages">
+        <article class="stage featured" aria-labelledby="boar-title">
+          <a class="capture" href="images/5-3.png" data-preview data-title="5-3 森の弓矢" aria-label="5-3 森の弓矢のゲーム画面を拡大" aria-haspopup="dialog">
+            <img src="images/5-3.png" alt="5-3「森の弓矢」のゲーム画面" width="1280" height="800" fetchpriority="high" decoding="async">
+            <span class="zoom" aria-hidden="true">＋ 画面を拡大</span>
+          </a>
+          <div class="stage-content">
+            <p class="number">5-3 / 森</p>
+            <h3 id="boar-title">木々の間を、追いかけて。</h3>
+            <p class="stage-copy">森を歩くイノシシは、足を進める向きへ体を変えます。木々の隙間と動きを見ながら、弓を構えて矢を放とう。</p>
+            <a class="play" href="../../chapters45-preview/?v=20261015-eccentric-review-1&amp;stage=eccentric-boar">森の弓矢を遊ぶ <span aria-hidden="true">↗</span></a>
+          </div>
+        </article>
+
+        <article class="stage" aria-labelledby="basket-title">
+          <a class="capture" href="images/5-4.png" data-preview data-title="5-4 体育館のバスケ" aria-label="5-4 体育館のバスケのゲーム画面を拡大" aria-haspopup="dialog">
+            <img src="images/5-4.png" alt="5-4「体育館のバスケ」のゲーム画面" width="1280" height="800" loading="lazy" decoding="async">
+            <span class="zoom" aria-hidden="true">＋ 画面を拡大</span>
+          </a>
+          <div class="stage-content">
+            <p class="number">5-4 / 体育館</p>
+            <h3 id="basket-title">屋根の下で、きれいな弧を。</h3>
+            <p class="stage-copy">窓の光が入る体育館で、リングへシュート。壁や天井にも気を配りながら、ボールの通る道を探そう。</p>
+            <a class="play" href="../../chapters45-preview/?v=20261015-eccentric-review-1&amp;stage=eccentric-basket">体育館のバスケを遊ぶ <span aria-hidden="true">↗</span></a>
+          </div>
+        </article>
+
+        <article class="stage" aria-labelledby="dandelion-title">
+          <a class="capture" href="images/5-5.png" data-preview data-title="5-5 風の庭の綿毛" aria-label="5-5 風の庭の綿毛のゲーム画面を拡大" aria-haspopup="dialog">
+            <img src="images/5-5.png" alt="5-5「風の庭の綿毛」のゲーム画面" width="1280" height="800" loading="lazy" decoding="async">
+            <span class="zoom" aria-hidden="true">＋ 画面を拡大</span>
+          </a>
+          <div class="stage-content">
+            <p class="number">5-5 / 庭</p>
+            <h3 id="dandelion-title">風に乗せて、ふわり。</h3>
+            <p class="stage-copy">庭の格子や草花の間を、軽い綿毛が漂います。風に流される時間も楽しみながら、着地先へ届けよう。</p>
+            <a class="play" href="../../chapters45-preview/?v=20261015-eccentric-review-1&amp;stage=eccentric-dandelion">風の庭の綿毛を遊ぶ <span aria-hidden="true">↗</span></a>
+          </div>
+        </article>
+
+        <article class="stage" aria-labelledby="card-title">
+          <a class="capture" href="images/5-6.png" data-preview data-title="5-6 客間のカード" aria-label="5-6 客間のカードのゲーム画面を拡大" aria-haspopup="dialog">
+            <img src="images/5-6.png" alt="5-6「客間のカード」のゲーム画面" width="1280" height="800" loading="lazy" decoding="async">
+            <span class="zoom" aria-hidden="true">＋ 画面を拡大</span>
+          </a>
+          <div class="stage-content">
+            <p class="number">5-6 / 客間</p>
+            <h3 id="card-title">細い隙間へ、一枚。</h3>
+            <p class="stage-copy">落ち着いた客間で、薄いカードを投げて刺す。仕切りの開口とカードの姿勢を見て、すっと通る一投を狙おう。</p>
+            <a class="play" href="../../chapters45-preview/?v=20261015-eccentric-review-1&amp;stage=eccentric-card">客間のカードを遊ぶ <span aria-hidden="true">↗</span></a>
+          </div>
+        </article>
+
+        <article class="stage" aria-labelledby="cannon-title">
+          <a class="capture" href="images/5-7.png" data-preview data-title="5-7 砦の大砲" aria-label="5-7 砦の大砲のゲーム画面を拡大" aria-haspopup="dialog">
+            <img src="images/5-7.png" alt="5-7「砦の大砲」のゲーム画面" width="1280" height="800" loading="lazy" decoding="async">
+            <span class="zoom" aria-hidden="true">＋ 画面を拡大</span>
+          </a>
+          <div class="stage-content">
+            <p class="number">5-7 / 砦</p>
+            <h3 id="cannon-title">堀の向こうの扉へ。</h3>
+            <p class="stage-copy">堀と城壁を備えた砦に、大砲を向けます。遮られる道と開けた道を見渡して、砦の扉へ砲弾を届けよう。</p>
+            <a class="play" href="../../chapters45-preview/?v=20261015-eccentric-review-1&amp;stage=eccentric-cannon">砦の大砲を遊ぶ <span aria-hidden="true">↗</span></a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <aside class="afterword" aria-labelledby="preview-title">
+      <h2 id="preview-title">ここは第5章の試遊ページです。</h2>
+      <p>各ステージの「遊ぶ」から、その場所へ進めます。いつものフレンド版を続けるときは、こちらへ。</p>
+      <a href="../../">フレンド版の続きを遊ぶ ↗</a>
+    </aside>
+  </main>
+  <footer class="wrap">
+    <p>ごみシュート · 第5章の後半</p>
+    <a href="#stages">ステージ一覧へ戻る ↑</a>
+  </footer>
+
+  <dialog id="viewer" aria-labelledby="viewer-title" aria-describedby="viewer-hint">
+    <div class="viewer-top">
+      <h2 id="viewer-title" aria-live="polite">ゲーム画面</h2>
+      <button class="viewer-button" id="viewer-close" type="button" autofocus>閉じる <span aria-hidden="true">×</span></button>
+    </div>
+    <img id="viewer-image" alt="">
+    <div class="viewer-bottom">
+      <p class="viewer-hint" id="viewer-hint">Escで閉じる · ← →で前後の画面</p>
+      <div class="viewer-nav" aria-label="拡大する画面を選ぶ">
+        <button class="viewer-button" id="viewer-prev" type="button" aria-label="前のステージの画面">← 前へ</button>
+        <button class="viewer-button" id="viewer-next" type="button" aria-label="次のステージの画面">次へ →</button>
+      </div>
+    </div>
+  </dialog>
+  <script>
+    (() => {
+      const viewer = document.querySelector('#viewer');
+      if (!viewer || typeof viewer.showModal !== 'function') return;
+      const links = [...document.querySelectorAll('[data-preview]')];
+      const image = document.querySelector('#viewer-image');
+      const title = document.querySelector('#viewer-title');
+      const close = document.querySelector('#viewer-close');
+      let selected = 0;
+      let opener = null;
+      function show(index) {
+        selected = (index + links.length) % links.length;
+        const link = links[selected];
+        image.src = link.href;
+        image.alt = link.querySelector('img').alt;
+        title.textContent = link.dataset.title;
+      }
+      links.forEach((link, index) => {
+        link.addEventListener('click', event => {
+          if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+          event.preventDefault();
+          opener = link;
+          show(index);
+          viewer.showModal();
+          close.focus();
+        });
+      });
+      close.addEventListener('click', () => viewer.close());
+      document.querySelector('#viewer-prev').addEventListener('click', () => show(selected - 1));
+      document.querySelector('#viewer-next').addEventListener('click', () => show(selected + 1));
+      viewer.addEventListener('keydown', event => {
+        if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+          event.preventDefault();
+          show(selected + (event.key === 'ArrowRight' ? 1 : -1));
+        }
+      });
+      viewer.addEventListener('click', event => {
+        if (event.target !== viewer) return;
+        const bounds = viewer.getBoundingClientRect();
+        if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) viewer.close();
+      });
+      viewer.addEventListener('close', () => {
+        if (opener) opener.focus();
+      });
+    })();
+  </script>
+</body>
+</html>

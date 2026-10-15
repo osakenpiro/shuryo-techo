@@ -1,19 +1,19 @@
 // V7 owns Chapter 4/5 mechanisms, revised outdoor worlds and profile-3 items. Historical codecs stay
 // fixed. Playback interpolates recorded poses; it never simulates or awards.
-import {shotTimeLimit} from './physics.mjs?v=20261015-timed-relay-1';
-import {ReplayError,REPLAY_LIMITS,REPLAY_ROLE_LABELS} from './replay.mjs?v=20261015-timed-relay-1';
-import {roomWorld,sweepSphereAABB} from './room-course.mjs?v=20261015-timed-relay-1';
-import {roomContactColliders} from './room-contact.mjs?v=20261015-timed-relay-1';
-import {schoolSolids,schoolStudentPose,schoolStudentPoses} from './school-world.mjs?v=20261015-timed-relay-1';
-import {validateSchoolStudentClearance} from './school-replay.mjs?v=20261015-timed-relay-1';
-import {outdoorGoals,outdoorMotion,outdoorDynamicSolids} from './outdoor-world.mjs?v=20261015-timed-relay-1';
-import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261015-timed-relay-1';
-import {factoryGoals,factoryMotion,factoryDynamicSolids} from './factory-world.mjs?v=20261015-timed-relay-1';
-import {createFactorySession,validateFactorySession} from './factory-play.mjs?v=20261015-timed-relay-1';
-import {eccentricGoals,eccentricMotion,eccentricDynamicSolids,eccentricLaunchFrame} from './eccentric-world.mjs?v=20261015-timed-relay-1';
-import {THROWABLE_CATALOG} from './throwables.mjs?v=20261015-timed-relay-1';
-import {throwableWorldProfile} from './throwable-world-profile.mjs?v=20261015-timed-relay-1';
-import {setThrowableWorld} from './throwable-physics.mjs?v=20261015-timed-relay-1';
+import {shotTimeLimit} from './physics.mjs?v=20261015-eccentric-review-1';
+import {ReplayError,REPLAY_LIMITS,REPLAY_ROLE_LABELS} from './replay.mjs?v=20261015-eccentric-review-1';
+import {roomWorld,sweepSphereAABB} from './room-course.mjs?v=20261015-eccentric-review-1';
+import {roomContactColliders} from './room-contact.mjs?v=20261015-eccentric-review-1';
+import {schoolSolids,schoolStudentPose,schoolStudentPoses} from './school-world.mjs?v=20261015-eccentric-review-1';
+import {validateSchoolStudentClearance} from './school-replay.mjs?v=20261015-eccentric-review-1';
+import {outdoorGoals,outdoorMotion,outdoorDynamicSolids} from './outdoor-world.mjs?v=20261015-eccentric-review-1';
+import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261015-eccentric-review-1';
+import {factoryGoals,factoryMotion,factoryDynamicSolids} from './factory-world.mjs?v=20261015-eccentric-review-1';
+import {createFactorySession,validateFactorySession} from './factory-play.mjs?v=20261015-eccentric-review-1';
+import {eccentricGoals,eccentricMotion,eccentricDynamicSolids,eccentricLaunchFrame,forestBoarPointMetric} from './eccentric-world.mjs?v=20261015-eccentric-review-1';
+import {THROWABLE_CATALOG} from './throwables.mjs?v=20261015-eccentric-review-1';
+import {throwableWorldProfile} from './throwable-world-profile.mjs?v=20261015-eccentric-review-1';
+import {setThrowableWorld} from './throwable-physics.mjs?v=20261015-eccentric-review-1';
 export const ADVANCED_REPLAY_STORAGE_KEY='trash-shot-advanced-replays-v7';
 export const ADVANCED_REPLAY_LIMITS=Object.freeze({version:7,contactModel:1,duration:5.1,frames:720,hz:60,rawBytes:1024*1024,contacts:2400,urlChars:8000,saved:5,storageBytes:5*1024*1024+100,storageKey:ADVANCED_REPLAY_STORAGE_KEY});
 const AXES=['x','y','z'],SLOP=1e-5,TOL=.0001,CONTACT_KEYS=['type','surface','object','colliderId','shotId','time','position','normal','incomingNormalSpeed','beforeVelocity','afterVelocity'];
@@ -31,7 +31,7 @@ function object(value,keys,where){
 function number(v,min,max,where,integer=false){if(typeof v!=='number'||!Number.isFinite(v)||v<min||v>max||integer&&!Number.isInteger(v))fail('INVALID_REPLAY',`${where}: number out of range`);return v;}
 function vector(v,where,normal=false,limit=100){object(v,AXES,where);const r=Object.fromEntries(AXES.map(k=>[k,number(v[k],normal?-1:-limit,normal?1:limit,`${where}.${k}`)]));if(normal&&Math.abs(Math.hypot(...AXES.map(k=>r[k]))-1)>1e-7)fail('INVALID_REPLAY','Contact normal is not unit length');return r;}
 function array(v,min,max,where){if(!Array.isArray(v)||Object.getPrototypeOf(v)!==Array.prototype||v.length<min||v.length>max||Reflect.ownKeys(v).length!==v.length+1)fail('INVALID_REPLAY',`${where}: invalid array`);for(let i=0;i<v.length;i++){const d=Object.getOwnPropertyDescriptor(v,String(i));if(!d||!('value'in d)||!d.enumerable)fail('INVALID_REPLAY',`${where}: sparse or accessor array`);}return v;}
-function worldData(stageId,worldVersion){number(worldVersion,1,47,'worldVersion',true);if(typeof stageId!=='string')fail('INVALID_REPLAY','Stage identity required');const world=roomWorld(stageId,worldVersion);if(!world)fail('INVALID_REPLAY','Unsupported fixed advanced world');return world;}
+function worldData(stageId,worldVersion){number(worldVersion,1,52,'worldVersion',true);if(typeof stageId!=='string')fail('INVALID_REPLAY','Stage identity required');const world=roomWorld(stageId,worldVersion);if(!world)fail('INVALID_REPLAY','Unsupported fixed advanced world');return world;}
 export function advancedReplayWorldLimits(worldOrVersion){const version=typeof worldOrVersion==='number'?worldOrVersion:worldOrVersion?.worldVersion;return Object.freeze({duration:shotTimeLimit(version)+.1,frames:version===38?900:720,hz:version===38?20:60,maxFrameGap:version===38?1/20:1/30,position:version===38?400:100});}
 function itemData(value){object(value,['id','profileVersion'],'item');if(typeof value.id!=='string'||!Object.hasOwn(THROWABLE_CATALOG,value.id)||![1,2,3].includes(value.profileVersion)||value.profileVersion!==THROWABLE_CATALOG[value.id].physics.version)fail('INVALID_REPLAY','Unsupported fixed advanced throwable');return {id:value.id,profileVersion:value.profileVersion};}
 function phaseData(value,world){if(world.worldVersion===47)return number(value,0,1e9,'startTime');const period=world.environment==='factory'?8:['outdoor','eccentric'].includes(world.environment)?12:world.environment==='school'?8:1;number(value,0,period,'startTime');if(value>=period||world.environment==='room'&&value!==0||world.worldVersion===30&&Math.abs(value*240-Math.round(value*240))>1e-7)fail('INVALID_REPLAY','Saved environment phase invalid');return value;}
@@ -80,6 +80,19 @@ function coreData(input,world,item,launchFrame,capture){
  const replay={version:1,id:input.id,createdAt,duration,bin,controls,camera,result,frames};if(encoder.encode(JSON.stringify(replay)).length>180*1024)fail('REPLAY_TOO_LARGE','Advanced pose recording exceeds byte limit');return replay;
 }
 function validateCapture(capture,replay,world,startTime,radius,session){
+ // The revised forest captures a point on the rotating torso, rather than a
+ // camera-facing disk. Validate its real surface and the relative approach.
+ if(world.worldVersion===48){
+  const goal=goalsAt(world,startTime+capture.time,session).find(g=>g.id===capture.goalId);
+  if(!goal||goal.role!==capture.goalRole)fail('INVALID_REPLAY','Capture differs from woodland target');
+  const at=forestBoarPointMetric(world,capture.position,radius,startTime+capture.time),prior=replay.frames.at(-2),before=forestBoarPointMetric(world,prior.position,radius,startTime+prior.time);
+  if(!at||Math.abs(at.metric-1)>.012||before.metric<.98)fail('INVALID_REPLAY','Capture detached from woodland body surface');
+  const g=at.geometry,c=Math.cos(g.heading),s=Math.sin(g.heading),q=at.local,r=at.radii,n={x:q.x/(r.x*r.x),y:q.y/(r.y*r.y),z:q.z/(r.z*r.z)},normal={x:n.x*c+n.z*s,y:n.y,z:-n.x*s+n.z*c},length=Math.hypot(...AXES.map(k=>normal[k]));
+  if(!length||Math.hypot(...AXES.map(k=>normal[k]/length-capture.normal[k]))>.035)fail('INVALID_REPLAY','Woodland surface normal differs from body');
+  const relative=sub(sub(capture.position,prior.position),sub(at.geometry.center,before.geometry.center));
+  if(dot(relative,capture.normal)>=-1e-9)fail('INVALID_REPLAY','Woodland capture lacks inward relative approach');
+  return goal;
+ }
  const goal=goalsAt(world,startTime+capture.time,session).find(g=>g.id===capture.goalId);if(!goal||goal.role!==capture.goalRole||AXES.some(k=>Math.abs(goal.normal[k]-capture.normal[k])>1e-7))fail('INVALID_REPLAY','Capture differs from fixed goal identity');
  const offset=sub(capture.position,goal.center),plane=dot(offset,goal.normal);if(Math.abs(plane)>TOL)fail('INVALID_REPLAY','Capture detached from timed goal plane');
  if(goal.shape==='circle'){if(Math.sqrt(Math.max(0,dot(offset,offset)-plane*plane))>goal.radius-(goal.landing===true?0:radius)+TOL)fail('INVALID_REPLAY','Throwable does not fit goal');}
@@ -155,7 +168,7 @@ export function createAdvancedReplayPlayer(record){
   const session=c.factorySession?clone(c.factorySession):null;if(session){session.bankContacts=world.factoryType==='bank'?world.mechanism.requiredColliders.filter(id=>c.contacts.some(v=>v.colliderId===id&&v.time<=t)):[];session.completed=t===replay.duration;}
   const goals=c.capture?goalsAt(world,environmentTime,session):undefined,motion=world.environment==='factory'?factoryMotion(world,environmentTime,session):world.environment==='eccentric'?eccentricMotion(world,environmentTime):world.environment==='outdoor'?outdoorMotion(world,environmentTime):undefined;
   const snapshot={phase:a.phase,time:t,can:{position,velocity,radius},throwableId:item.id,worldVersion:c.worldVersion,startTime:c.startTime,environmentTime,bin:{...replay.bin,center:{...replay.bin.center}},attempts:0,successes:0,lastEvent:null,events:[],shotEffects:[],awards:[],audio:false,trail:[...frames.slice(Math.max(0,lo-158),lo+1).map(f=>({...f.position})),{...position}],...(goals?{goals,motion,goalCapture:t>=c.capture.time?{...clone(c.capture),environmentTime:c.startTime+c.capture.time}:null}:{}),...(session?{factorySession:session,mechanismState:{session,carry:{active:world.factoryType==='conveyor'&&c.contacts.some(v=>v.surface==='belt'&&v.time<=t)&&position.z<=world.mechanism.endZ,distance:0,contactTime:c.contacts.find(v=>v.surface==='belt')?.time??null,exitTime:null}}}:{}),...(c.launchFrame?{eccentricLaunch:clone(c.launchFrame),launchFrame:clone(c.launchFrame)}:{}),...(c.impactPose&&t===replay.duration?{impactPose:clone(c.impactPose)}:{}),...(world.environment==='school'?{schoolStartTime:c.startTime,student:schoolStudentPose(world,environmentTime),...(c.worldVersion===10?{students:schoolStudentPoses(world,environmentTime)}:{})}: {})};
-  if(c.worldVersion===34||c.worldVersion===35||c.worldVersion===36||c.worldVersion===37)setThrowableWorld(snapshot,c.worldVersion);
+  if(c.worldVersion===34||c.worldVersion===35||c.worldVersion===36||c.worldVersion===37||c.worldVersion>=48&&c.worldVersion<=52)setThrowableWorld(snapshot,c.worldVersion);
   return snapshot;
  }
  return {duration:replay.duration,sample};

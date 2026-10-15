@@ -1,10 +1,13 @@
 // Chapter 5 changes places and objects while keeping the approved faceted,
 // warm paper / teal material language and the production metre-space camera.
-import {eccentricWorld,eccentricSolids,eccentricDynamicSolids,eccentricMotion} from './eccentric-world.mjs?v=20261015-timed-relay-1';
-import {scenePrimitives,FACTORY_PALETTE} from './factory-scene.mjs?v=20261015-timed-relay-1';
-import {throwablePose} from './throwable-physics.mjs?v=20261015-timed-relay-1';
-import {tokyoTowerStaticMeshes,tokyoTowerGroups} from './tokyo-tower-scene.mjs?v=20261015-timed-relay-1';
-import {trainWindowStaticMeshes,trainWindowDynamicMeshes,trainWindowCutaway} from './train-window-scene.mjs?v=20261015-timed-relay-1';
+import {eccentricWorld,eccentricSolids,eccentricDynamicSolids,eccentricMotion} from './eccentric-world.mjs?v=20261015-eccentric-review-1';
+import {scenePrimitives,FACTORY_PALETTE} from './factory-scene.mjs?v=20261015-eccentric-review-1';
+import {throwablePose} from './throwable-physics.mjs?v=20261015-eccentric-review-1';
+import {tokyoTowerStaticMeshes,tokyoTowerGroups} from './tokyo-tower-scene.mjs?v=20261015-eccentric-review-1';
+import {trainWindowStaticMeshes,trainWindowDynamicMeshes,trainWindowCutaway} from './train-window-scene.mjs?v=20261015-eccentric-review-1';
+import {forestHuntStaticMeshes,forestHuntDynamicMeshes} from './forest-hunt-scene.mjs?v=20261015-eccentric-review-1';
+import {gymBasketStaticMeshes,gymBasketDynamicMeshes,gymBasketCutaway} from './gym-basket-scene.mjs?v=20261015-eccentric-review-1';
+import {showcaseStaticMeshes,showcaseDynamicMeshes,showcaseCutaway} from './eccentric-showcase-scene.mjs?v=20261015-eccentric-review-1';
 const {p,face,shade,add,scale,cross,unit,box,physicalBox,cylinder,ellipsoid,line,flat,limb,basis,opening}=scenePrimitives;
 export const ECCENTRIC_PALETTE=Object.freeze({...FACTORY_PALETTE,sky:'#bfdedb',green:'#8caf7d',grass:'#a9bd8f',bark:'#9b805b',stone:'#b8b799',water:'#86b5ad'});
 const cache=new Map(),axes=['x','y','z'];
@@ -137,13 +140,16 @@ function fixedGoals(s,world){
 export function eccentricStaticMeshes(world){
   world=requireWorld(world);const key=`${world.stageId}/${world.worldVersion}`;if(cache.has(key))return cache.get(key);
   const shapes=[];
-  if(world.worldVersion===39)shapes.push(...trainWindowStaticMeshes(world));
+  if(world.worldVersion===48)shapes.push(...forestHuntStaticMeshes(world));
+  else if(world.worldVersion===49)shapes.push(...gymBasketStaticMeshes(world));
+  else if(world.worldVersion>=50&&world.worldVersion<=52)shapes.push(...showcaseStaticMeshes(world));
+  else if(world.worldVersion===39)shapes.push(...trainWindowStaticMeshes(world));
   else{
     for(const solid of eccentricSolids(world))if(!(world.worldVersion===38&&solid.renderedBy==='tokyo-tower-scene'))physicalBox(shapes,solid,colourOf(solid));
     if(world.worldVersion===38)shapes.push(...tokyoTowerStaticMeshes(world));
     else ({tower:city,train:railStation,boar:forest,basket:court,dandelion:meadow,card:cardRange,cannon:fort})[world.eccentricType](shapes,world);
   }
-  fixedGoals(shapes,world);cache.set(key,shapes);return shapes;
+  if(world.worldVersion<48)fixedGoals(shapes,world);cache.set(key,shapes);return shapes;
 }
 function boarShapes(s,actor,solid){
   const model=[],meta={actorId:actor.id},q=actor.position;
@@ -189,7 +195,10 @@ function cannonShapes(s,world,options){
   }
 }
 export function eccentricDynamicMeshes(world,time=0,options={}){
-  world=requireWorld(world);if(world.worldVersion===39)return trainWindowDynamicMeshes(world,time,options);
+  world=requireWorld(world);if(world.worldVersion===48)return forestHuntDynamicMeshes(world,time,options);
+  if(world.worldVersion===49)return gymBasketDynamicMeshes(world,time,options);
+  if(world.worldVersion>=50&&world.worldVersion<=52)return showcaseDynamicMeshes(world,time,options);
+  if(world.worldVersion===39)return trainWindowDynamicMeshes(world,time,options);
   const motion=eccentricMotion(world,time),solids=eccentricDynamicSolids(world,time),shapes=[];
   for(const solid of solids){if(solid.kind==='boar')continue;physicalBox(shapes,solid,'#629487');}
   if(motion.train)trainDetails(shapes,solids.find(c=>c.kind==='train-roof'),motion);
@@ -213,11 +222,12 @@ export function eccentricDynamicMeshes(world,time=0,options={}){
   }
   return shapes;
 }
-export function eccentricItemMeshes(game,itemOrShape){
+export function eccentricItemMeshes(game,itemOrShape,options={}){
   const shape=typeof itemOrShape==='string'?itemOrShape:itemOrShape?.shape??itemOrShape?.id;
   if(!['arrow','basketball','dandelion','playing-card','cannonball'].includes(shape))return null;
   const center=game?.can?.position,r=game?.can?.radius;if(!center||!Number.isFinite(r))return [];
-  const velocity=game.can.velocity??p(0,0,1),captured=game.impactPose??game.capturePose??game.course?.capturePose??game.courseTrace?.capturePose,dir=captured?.incomingVelocity??captured?.direction??captured?.incomingDirection??velocity;
+  const revisedArrow=shape==='arrow'&&(options.worldVersion??game.worldVersion)===48,aim=options.aim,ready=revisedArrow&&game.phase==='ready'&&aim;
+  const velocity=ready?p(Math.sin(aim.yaw*Math.PI/180)*Math.cos(aim.elevation*Math.PI/180),Math.sin(aim.elevation*Math.PI/180),Math.cos(aim.yaw*Math.PI/180)*Math.cos(aim.elevation*Math.PI/180)):game.can.velocity??p(0,0,1),captured=game.impactPose??game.capturePose??game.course?.capturePose??game.courseTrace?.capturePose,dir=captured?.incomingVelocity??captured?.direction??captured?.incomingDirection??velocity;
   const forward=unit(Math.hypot(dir.x,dir.y,dir.z)>.00001?dir:p(0,0,1)),right=unit(cross(p(0,1,0),Math.abs(forward.y)>.95?p(0,0,1):forward)),up=unit(cross(forward,right)),shapes=[],time=game.time??0;
   const pose=captured?.orientation??throwablePose(game),euler=a=>{
     const cp=Math.cos(pose.pitch),sp=Math.sin(pose.pitch),cy=Math.cos(pose.yaw),sy=Math.sin(pose.yaw),cr=Math.cos(pose.roll),sr=Math.sin(pose.roll);
@@ -227,8 +237,8 @@ export function eccentricItemMeshes(game,itemOrShape){
   const transform=a=>shape==='playing-card'||shape==='arrow'&&(captured||game.phase==='success')?euler(a):add(center,add(scale(right,a.x),add(scale(up,a.y),scale(forward,a.z))));
   const local=[];
   if(shape==='arrow'){
-    const length=Math.max(.36,r*8);limb(local,p(0,0,-length*.55),p(0,0,length*.44),Math.max(.008,r*.20),'#916d47',{itemShape:shape});
-    local.push(face([p(-r*.55,0,length*.30),p(r*.55,0,length*.30),p(0,0,length*.62)],'#47685a',null,{itemShape:shape}));
+    const length=revisedArrow ? .70 : Math.max(.36,r*8);limb(local,p(0,0,revisedArrow?-.36:-length*.55),p(0,0,revisedArrow ? .30 : length*.44),Math.max(.008,r*.20),'#916d47',{itemShape:shape});
+    local.push(face([p(-r*.55,0,length*.30),p(r*.55,0,length*.30),p(0,0,revisedArrow ? .36 : length*.62)],'#47685a',null,{itemShape:shape}));
     for(const a of [0,Math.PI/2,Math.PI])local.push(face([p(0,0,-length*.50),p(Math.cos(a)*r*.85,Math.sin(a)*r*.85,-length*.43),p(Math.cos(a)*r*.70,Math.sin(a)*r*.70,-length*.23),p(0,0,-length*.25)],'#e4d9b7',null,{itemShape:shape}));
   }else if(shape==='playing-card'){
     const w=Math.max(.045,r*1.9),h=w*1.4,point=(x,y,z=0)=>p(x,y,z);
@@ -256,5 +266,5 @@ export function eccentricItemMeshes(game,itemOrShape){
   return shapes;
 }
 export function eccentricCameraConfig(world){world=requireWorld(world);return {azimuth:world.view.azimuth,elevation:world.view.elevation,zoom:1};}
-export function eccentricScene(camera,world){world=requireWorld(world);return {shapes:eccentricStaticMeshes(world),cutaway:world.worldVersion===39?trainWindowCutaway(world,camera):[],groups:[...eccentricSolids(world).map(c=>({id:c.id,physical:true,bounds:{minX:c.min.x,maxX:c.max.x,minY:c.min.y,maxY:c.max.y,minZ:c.min.z,maxZ:c.max.z}})),...(world.worldVersion===38?tokyoTowerGroups(world):[])],stageId:world.stageId,worldVersion:world.worldVersion};}
+export function eccentricScene(camera,world){world=requireWorld(world);const cutaway=world.worldVersion===49?gymBasketCutaway(world,camera):world.worldVersion===51?showcaseCutaway(world,camera):world.worldVersion===39?trainWindowCutaway(world,camera):[];return {shapes:world.worldVersion===49||world.worldVersion===51?eccentricStaticMeshes(world).filter(m=>!cutaway.includes(m.cutawayId??m.solidId)):eccentricStaticMeshes(world),cutaway,groups:[...eccentricSolids(world).map(c=>({id:c.id,physical:true,bounds:{minX:c.min.x,maxX:c.max.x,minY:c.min.y,maxY:c.max.y,minZ:c.min.z,maxZ:c.max.z}})),...(world.worldVersion===38?tokyoTowerGroups(world):[])],stageId:world.stageId,worldVersion:world.worldVersion};}
 export const eccentricMotionShapes=(time,world,options={})=>eccentricDynamicMeshes(world,time,options);

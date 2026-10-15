@@ -1,12 +1,12 @@
-import { predictArc } from './physics.mjs?v=20261015-timed-relay-1';
-import { roomScene,roomMotionShapes,roomMonitorQuad,paintScreenQuad } from './room-scene.mjs?v=20261015-timed-relay-1';
-import {schoolScene,schoolMotionShapes,schoolCameraConfig} from './school-scene.mjs?v=20261015-timed-relay-1';
-import {outdoorScene,outdoorMotionShapes,outdoorCameraConfig} from './outdoor-scene.mjs?v=20261015-timed-relay-1';
-import {factoryScene,factoryMotionShapes,factoryCameraConfig} from './factory-scene.mjs?v=20261015-timed-relay-1';
-import {eccentricScene,eccentricMotionShapes,eccentricCameraConfig,eccentricItemMeshes} from './eccentric-scene.mjs?v=20261015-timed-relay-1';
-import {drawPixelText} from './pixel-type.mjs?v=20261015-timed-relay-1';
-import {getThrowable} from './throwables.mjs?v=20261015-timed-relay-1';
-import {getThrowableId,throwablePose} from './throwable-physics.mjs?v=20261015-timed-relay-1';
+import { predictArc } from './physics.mjs?v=20261015-eccentric-review-1';
+import { roomScene,roomMotionShapes,roomMonitorQuad,paintScreenQuad } from './room-scene.mjs?v=20261015-eccentric-review-1';
+import {schoolScene,schoolMotionShapes,schoolCameraConfig} from './school-scene.mjs?v=20261015-eccentric-review-1';
+import {outdoorScene,outdoorMotionShapes,outdoorCameraConfig} from './outdoor-scene.mjs?v=20261015-eccentric-review-1';
+import {factoryScene,factoryMotionShapes,factoryCameraConfig} from './factory-scene.mjs?v=20261015-eccentric-review-1';
+import {eccentricScene,eccentricMotionShapes,eccentricCameraConfig,eccentricItemMeshes} from './eccentric-scene.mjs?v=20261015-eccentric-review-1';
+import {drawPixelText} from './pixel-type.mjs?v=20261015-eccentric-review-1';
+import {getThrowable} from './throwables.mjs?v=20261015-eccentric-review-1';
+import {getThrowableId,throwablePose} from './throwable-physics.mjs?v=20261015-eccentric-review-1';
 
 const add = (a,b) => ({ x:a.x+b.x, y:a.y+b.y, z:a.z+b.z });
 const sub = (a,b) => ({ x:a.x-b.x, y:a.y-b.y, z:a.z-b.z });
@@ -19,6 +19,7 @@ const circle = (center,radius,y,segments=48) => Array.from({length:segments},(_,
 // Alternate live views keep the world's target and distance. Their ordinary
 // orbit tuple can therefore be recorded and restored by every existing codec.
 export function goalCameraOrbit(world){
+  if(world?.worldVersion===49)return {azimuth:Math.PI*2-.85,elevation:.36,zoom:.62};
   return {azimuth:Math.PI-(world?.outdoorType==='baseball'?.16:.1),elevation:world?.worldVersion===31?.46:world?.outdoorType==='mall'?.22:.26,zoom:world?.worldVersion===32?.9:.62};
 }
 
@@ -146,9 +147,9 @@ export function createRenderer(canvas) {
     for(let i=0;i<n;i+=6){const theta=i/n*Math.PI*2;if(dot({x:Math.cos(theta),y:0,z:Math.sin(theta)},facing)>0){shapes.push({points:[lower[i],{...upper[i],y:h-.08}],line:true,stroke:room?'rgba(25,87,82,.27)':'rgba(32,73,45,.19)'});}}
     return shapes;
   }
-  function shapesForCan(game,room=false) {
+  function shapesForCan(game,room=false,options={}) {
     const item=getThrowable(getThrowableId(game));
-    if(item.id!=='can')return shapesForItem(game,item);
+    if(item.id!=='can')return shapesForItem(game,item,options);
     const c=game.can.position,r=game.can.radius*.6,half=game.can.radius*.8,n=20,shapes=[];
     const flying=game.phase==='flying'||game.phase==='settling';
     const tilt=flying?Math.min(game.time*2.7,12):-.18;
@@ -162,8 +163,8 @@ export function createRenderer(canvas) {
     const cap=add(c,scale(axis,half+.003));shapes.push({points:[add(cap,scale(v,-.035)),add(cap,scale(w,.035)),add(cap,scale(v,.035)),add(cap,scale(w,-.035))],fill:'#939b8a',stroke:null});
     return shapes;
   }
-  function shapesForItem(game,item){
-    const specialised=eccentricItemMeshes(game,item);if(specialised)return specialised;
+  function shapesForItem(game,item,options={}){
+    const specialised=eccentricItemMeshes(game,item,options);if(specialised)return specialised;
     const center=game.can.position,radius=game.can.radius,pose=throwablePose(game),shapes=[];
     const transform=point=>{
       const cp=Math.cos(pose.pitch),sp=Math.sin(pose.pitch),cy=Math.cos(pose.yaw),sy=Math.sin(pose.yaw),cr=Math.cos(pose.roll),sr=Math.sin(pose.roll);
@@ -437,7 +438,8 @@ export function createRenderer(canvas) {
     if(view.prediction&&(!view.course||Array.isArray(view.windArc))&&(game.phase==='ready'||game.phase==='success'||game.phase==='miss'))drawArc(game,view.aim||controls,view.windArc);
     if(game.phase!=='ready')drawTrail(game);
     if(view.aim&&!view.customCue){const heading=view.aim.yaw*Math.PI/180,p=game.phase==='ready'?game.can.position:(worldView?.origin??{x:0,y:1.05,z:0});line(p,{x:p.x+Math.sin(heading)*.75,y:p.y,z:p.z+Math.cos(heading)*.75},'#bd8632',2);}
-    const shapes=[...(room&&view.extraRoom?roomMotionShapes(view.environmentTime||0,view.fanEnabled,view.reducedMotion,worldView):[]),...(school?schoolMotionShapes(view.environmentTime||0,worldView,view.reducedMotion):[]),...(advanced?(worldView.environment==='factory'?factoryMotionShapes:eccentricMotionShapes)(view.environmentTime??0,worldView,{...view,...(worldView.worldVersion===39?{camera:{...camera}}:{}),session:view.factorySession,game,phase:game.phase,flightTime:game.time}):outdoor?outdoorMotionShapes(view.environmentTime??0,worldView,{...view,camera:{...camera},phase:game.phase,flightTime:game.time}):shapesForBin(game,room||school)),...((worldView?.worldVersion===36&&view.baseballPitch?.active||worldView?.worldVersion===47&&game.phase==='miss'&&view.factorySession?.plateLatched&&view.factorySession.setupShot===game.attempts)?[]:worldView?.worldVersion===46&&game.phase==='miss'&&view.effects?.some(e=>e.type==='factory-press')?shapesForCan(game,room||school||outdoor||advanced).map(mesh=>({...mesh,pressed:true,points:mesh.points.map(p=>({...p,x:game.can.position.x+(p.x-game.can.position.x)*1.16,y:game.can.position.y-game.can.radius+.025+(p.y-game.can.position.y)*.12,z:game.can.position.z+(p.z-game.can.position.z)*1.16}))})):shapesForCan(game,room||school||outdoor||advanced))];
+    const itemView={aim:view.aim??controls,worldVersion:worldView?.worldVersion};
+    const shapes=[...(room&&view.extraRoom?roomMotionShapes(view.environmentTime||0,view.fanEnabled,view.reducedMotion,worldView):[]),...(school?schoolMotionShapes(view.environmentTime||0,worldView,view.reducedMotion):[]),...(advanced?(worldView.environment==='factory'?factoryMotionShapes:eccentricMotionShapes)(view.environmentTime??0,worldView,{...view,...(worldView.worldVersion>=48?{aim:view.aim??controls}:{}),...(worldView.worldVersion===39?{camera:{...camera}}:{}),session:view.factorySession,game,phase:game.phase,flightTime:game.time}):outdoor?outdoorMotionShapes(view.environmentTime??0,worldView,{...view,camera:{...camera},phase:game.phase,flightTime:game.time}):shapesForBin(game,room||school)),...((worldView?.worldVersion===36&&view.baseballPitch?.active||worldView?.worldVersion===47&&game.phase==='miss'&&view.factorySession?.plateLatched&&view.factorySession.setupShot===game.attempts)?[]:worldView?.worldVersion===46&&game.phase==='miss'&&view.effects?.some(e=>e.type==='factory-press')?shapesForCan(game,room||school||outdoor||advanced,itemView).map(mesh=>({...mesh,pressed:true,points:mesh.points.map(p=>({...p,x:game.can.position.x+(p.x-game.can.position.x)*1.16,y:game.can.position.y-game.can.radius+.025+(p.y-game.can.position.y)*.12,z:game.can.position.z+(p.z-game.can.position.z)*1.16}))})):shapesForCan(game,room||school||outdoor||advanced,itemView))];
     drawDepthShapes(shapes,backgroundDepth);
     drawCoinAccent(game,view);
     if(room&&view.extraRoom){

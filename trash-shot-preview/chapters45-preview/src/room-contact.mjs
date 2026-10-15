@@ -1,9 +1,9 @@
 // Shared room-contact adapter. The established simulation still owns gravity,
 // the hollow bin, floor contact, the five-second result, and save compatibility.
-import {createGame, setRoomWorld, throwCan, stepGame,stopSplatShot,shotTimeLimit} from './physics.mjs?v=20261015-timed-relay-1';
-import {sweepSphereAABB} from './room-course.mjs?v=20261015-timed-relay-1';
-import {roomSolidColliders} from './room-solids.mjs?v=20261015-timed-relay-1';
-import {applyThrowableAir,throwableRestitution,throwableFriction,throwableContact,cloneThrowable,throwableTerminalContact} from './throwable-physics.mjs?v=20261015-timed-relay-1';
+import {createGame, setRoomWorld, throwCan, stepGame,stopSplatShot,shotTimeLimit} from './physics.mjs?v=20261015-eccentric-review-1';
+import {sweepSphereAABB} from './room-course.mjs?v=20261015-eccentric-review-1';
+import {roomSolidColliders} from './room-solids.mjs?v=20261015-eccentric-review-1';
+import {applyThrowableAir,throwableRestitution,throwableFriction,throwableContact,cloneThrowable,throwableTerminalContact} from './throwable-physics.mjs?v=20261015-eccentric-review-1';
 
 const TICK = 1 / 240, GRAVITY = 9.81, EPS = 1e-9, CORE_EPS = 1.000001e-7, SLOP = 1e-5;
 const AXES = ['x', 'y', 'z'], ACTIVE = new Set(['flying', 'settling']);

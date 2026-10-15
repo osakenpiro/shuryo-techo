@@ -1,10 +1,10 @@
 // Deterministic Chapter 5 input, moving launch frames and target captures reuse
 // the existing 240 Hz contact solver. Predictions call this exact same adapter.
-import {createGame,setRoomWorld,throwCan,captureGoal,stopBlockedShot,emitShotEffect,getShotEffects,setShotEnvironmentStart,shotTimeLimit} from './physics.mjs?v=20261015-timed-relay-1';
-import {cloneThrowable,throwableWindScale,throwablePose,fixThrowablePose,throwableRestitution,throwableFriction} from './throwable-physics.mjs?v=20261015-timed-relay-1';
-import {createRoomContactStepper,ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261015-timed-relay-1';
-import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261015-timed-relay-1';
-import {eccentricWorld,eccentricGoals,eccentricSolids,eccentricDynamicSolids,eccentricLaunchFrame,eccentricStartTime} from './eccentric-world.mjs?v=20261015-timed-relay-1';
+import {createGame,setRoomWorld,throwCan,captureGoal,stopBlockedShot,emitShotEffect,getShotEffects,setShotEnvironmentStart,shotTimeLimit} from './physics.mjs?v=20261015-eccentric-review-1';
+import {cloneThrowable,throwableWindScale,throwablePose,fixThrowablePose,throwableRestitution,throwableFriction} from './throwable-physics.mjs?v=20261015-eccentric-review-1';
+import {createRoomContactStepper,ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261015-eccentric-review-1';
+import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261015-eccentric-review-1';
+import {eccentricWorld,eccentricGoals,eccentricSolids,eccentricDynamicSolids,eccentricLaunchFrame,eccentricStartTime,sweepWoodlandBoar} from './eccentric-world.mjs?v=20261015-eccentric-review-1';
 const TICK=ROOM_CONTACT_TICK,EPS=1e-9,AXES=['x','y','z'],IMPACT_POSES=new WeakMap();
 const active=game=>game?.phase==='flying'||game?.phase==='settling';
 const copy=p=>({x:p.x,y:p.y,z:p.z});
@@ -34,6 +34,7 @@ export function createEccentricPlayStepper(world,{startTime=0,onContact,onEffect
     return a.map(solid=>({...solid,delta:sub(b.find(q=>q.id===solid.id).min,solid.min)}));
   };
   const captureSweep=(game,start,end,h)=>{
+    if(world.worldVersion===48)return sweepWoodlandBoar(world,start,end,game.can.radius,launchTime+game.time,h);
     const a=eccentricGoals(world,launchTime+game.time),b=eccentricGoals(world,launchTime+game.time+h);let selected=null;
     for(const goal of a){const hit=sweepOutdoorGoal(start,end,game.can.radius,goal,b.find(q=>q.id===goal.id));if(hit&&(!selected||hit.time<selected.time-EPS))selected=hit;}
     return selected;
@@ -49,7 +50,7 @@ export function createEccentricPlayStepper(world,{startTime=0,onContact,onEffect
       }
       if(captureGoal(game,hit.goal,{position:hit.position,environmentTime:launchTime+game.time}))capture={goalId:hit.goal.id,goalRole:hit.goal.role,position:copy(hit.position),normal:copy(hit.goal.normal),time:game.time};
     },
-    onBlockingContact(game,hit,collider){stopBlockedShot(game,collider.surface==='person'?'person':'blocked');},
+    onBlockingContact(game,hit,collider){if(world.worldVersion===52&&collider.surface==='water')effect(game,{id:`${game.attempts}:cannon-splash`,type:'cannon-splash',sourceId:collider.id,position:hit.position,normal:hit.normal});stopBlockedShot(game,collider.surface==='person'?'person':collider.surface==='water'?'water':'blocked');},
     onContact(contact){if(typeof onContact==='function')try{onContact(contact);}catch{/* Observation cannot stop physics. */}},
   });
   function reset(){remainder=0;ticks=0;windSteps=0;shotId=null;elapsed=0;capture=null;impactPose=null;effects=[];delegate.reset();}

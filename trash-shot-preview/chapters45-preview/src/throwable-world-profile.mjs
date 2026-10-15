@@ -1,7 +1,7 @@
 // The catalog and its historical profiles are immutable. Revised metre-space
 // courses may specify a smaller physical object; their world version records
 // that choice in both a live shot and its replay.
-import {getThrowable} from './throwables.mjs?v=20261015-timed-relay-1';
+import {getThrowable} from './throwables.mjs?v=20261015-eccentric-review-1';
 const OVERRIDES=Object.freeze({
   34:Object.freeze({'ice-scoop':Object.freeze({...getThrowable('ice-scoop').physics,radius:.035})}),
   35:Object.freeze({'firework-ball':Object.freeze({...getThrowable('firework-ball').physics,radius:.12})}),

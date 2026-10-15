@@ -1,42 +1,42 @@
-import {buildGoalCue,goalCueMarkup} from './goal-cue.mjs?v=20261015-timed-relay-1';
-import { STAGES, createStageProgress } from './stages.mjs?v=20261015-timed-relay-1';
-import { sideAim } from './side-aim.mjs?v=20261015-timed-relay-1';
-import {createPixelIntro} from './pixel-intro.mjs?v=20261015-timed-relay-1';
-import {createRoomWindStepper} from './room-gimmicks.mjs?v=20261015-timed-relay-1';
-import {CHAPTER_IDS,FIRST_CHAPTER_IDS,SCHOOL_CHAPTER_IDS,OUTDOOR_CHAPTER_IDS,FACTORY_CHAPTER_IDS,ECCENTRIC_CHAPTER_IDS,BRANCH_CHAPTER_IDS,STAGE_THROWABLE_ITEMS,CHAPTERS,chapterForStage,getNextStage,isChapterBoundary,createChapterProgress,outdoorSnapshot,canChooseStage} from './progress-save.mjs?v=20261015-timed-relay-1';
-import {roomCourse,roomWorld,createRoomCourseStepper} from './room-course.mjs?v=20261015-timed-relay-1';
-import {createPlayRoomStepper,predictPlayRoomArc} from './play-room.mjs?v=20261015-timed-relay-1';
-import {createSchoolPlayStepper,predictSchoolArc} from './school-play.mjs?v=20261015-timed-relay-1';
-import {createOutdoorPlayStepper,predictOutdoorArc} from './outdoor-play.mjs?v=20261015-timed-relay-1';
-import {outdoorStartTime,shrineStartTime,outdoorGoals,outdoorMotion} from './outdoor-world.mjs?v=20261015-timed-relay-1';
-import {factoryStartTime,factoryGoals,factoryMotion} from './factory-world.mjs?v=20261015-timed-relay-1';
-import {createFactoryPlayStepper,createFactorySession,resetFactorySession,predictFactoryArc} from './factory-play.mjs?v=20261015-timed-relay-1';
-import {eccentricStartTime,eccentricLaunchFrame,eccentricGoals,eccentricMotion} from './eccentric-world.mjs?v=20261015-timed-relay-1';
-import {createEccentricPlayStepper,throwEccentric,predictEccentricArc} from './eccentric-play.mjs?v=20261015-timed-relay-1';
-import {createOutdoorEffects} from './outdoor-effects.mjs?v=20261015-timed-relay-1';
-import {createBaseballIntro} from './baseball-intro.mjs?v=20261015-timed-relay-1';
-import {loadOutdoorReplays,saveOutdoorReplay,deleteOutdoorReplay,createAdvancedRecorder,loadAdvancedReplays,saveAdvancedReplay,deleteAdvancedReplay} from './play-replay.mjs?v=20261015-timed-relay-1';
-import {COURSE_REPLAY_LIMITS,createCourseReplay,validateCourseReplay,coursePayload,courseReplayResult,createCourseReplayPlayer,courseReplayToJSON,parseCourseReplayJSON,decodeCourseReplay,buildCourseReplayURL,interpretCourseContacts,loadPlayReplays,savePlayReplay,deletePlayReplay,loadItemReplays,saveItemReplay,deleteItemReplay,loadSchoolReplays,saveSchoolReplay,deleteSchoolReplay} from './play-replay.mjs?v=20261015-timed-relay-1';
-import {createPullScale,mapScaledPull,screenPullBasis} from './pull-scale.mjs?v=20261015-timed-relay-1';
-import {createPlayCue,playCueMarkup,pullHandleMarkup,launchCueOrigin} from './play-cue.mjs?v=20261015-timed-relay-1';
-import {launchSummary,impactSummary} from './shot-summary.mjs?v=20261015-timed-relay-1';
-import { createGame, setSetup, setRoomWorld, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261015-timed-relay-1';
-import { createRenderer } from './render.mjs?v=20261015-timed-relay-1';
-import { createShotAnalytics } from './shot-analytics.mjs?v=20261015-timed-relay-1';
-import { createRecorder, loadReplays, saveReplay, deleteReplay } from './replay.mjs?v=20261015-timed-relay-1';
-import {createGameShell} from './game-shell.mjs?v=20261015-timed-relay-1';
-import {createTitleScreen} from './title-screen.mjs?v=20261015-timed-relay-1';
-import {createGameMenu} from './game-menu.mjs?v=20261015-timed-relay-1';
-import {createPlayerSaveUI} from './player-save-ui.mjs?v=20261015-timed-relay-1';
-import {quickRetryKey,quickRetryStartsRun,createResultDelay} from './quick-retry.mjs?v=20261015-timed-relay-1';
+import {buildGoalCue,goalCueMarkup} from './goal-cue.mjs?v=20261015-eccentric-review-1';
+import { STAGES, createStageProgress } from './stages.mjs?v=20261015-eccentric-review-1';
+import { sideAim } from './side-aim.mjs?v=20261015-eccentric-review-1';
+import {createPixelIntro} from './pixel-intro.mjs?v=20261015-eccentric-review-1';
+import {createRoomWindStepper} from './room-gimmicks.mjs?v=20261015-eccentric-review-1';
+import {CHAPTER_IDS,FIRST_CHAPTER_IDS,SCHOOL_CHAPTER_IDS,OUTDOOR_CHAPTER_IDS,FACTORY_CHAPTER_IDS,ECCENTRIC_CHAPTER_IDS,BRANCH_CHAPTER_IDS,STAGE_THROWABLE_ITEMS,CHAPTERS,chapterForStage,getNextStage,isChapterBoundary,createChapterProgress,outdoorSnapshot,canChooseStage} from './progress-save.mjs?v=20261015-eccentric-review-1';
+import {roomCourse,roomWorld,createRoomCourseStepper} from './room-course.mjs?v=20261015-eccentric-review-1';
+import {createPlayRoomStepper,predictPlayRoomArc} from './play-room.mjs?v=20261015-eccentric-review-1';
+import {createSchoolPlayStepper,predictSchoolArc} from './school-play.mjs?v=20261015-eccentric-review-1';
+import {createOutdoorPlayStepper,predictOutdoorArc} from './outdoor-play.mjs?v=20261015-eccentric-review-1';
+import {outdoorStartTime,shrineStartTime,outdoorGoals,outdoorMotion} from './outdoor-world.mjs?v=20261015-eccentric-review-1';
+import {factoryStartTime,factoryGoals,factoryMotion} from './factory-world.mjs?v=20261015-eccentric-review-1';
+import {createFactoryPlayStepper,createFactorySession,resetFactorySession,predictFactoryArc} from './factory-play.mjs?v=20261015-eccentric-review-1';
+import {eccentricStartTime,eccentricLaunchFrame,eccentricGoals,eccentricMotion} from './eccentric-world.mjs?v=20261015-eccentric-review-1';
+import {createEccentricPlayStepper,throwEccentric,predictEccentricArc} from './eccentric-play.mjs?v=20261015-eccentric-review-1';
+import {createOutdoorEffects} from './outdoor-effects.mjs?v=20261015-eccentric-review-1';
+import {createBaseballIntro} from './baseball-intro.mjs?v=20261015-eccentric-review-1';
+import {loadOutdoorReplays,saveOutdoorReplay,deleteOutdoorReplay,createAdvancedRecorder,loadAdvancedReplays,saveAdvancedReplay,deleteAdvancedReplay} from './play-replay.mjs?v=20261015-eccentric-review-1';
+import {COURSE_REPLAY_LIMITS,createCourseReplay,validateCourseReplay,coursePayload,courseReplayResult,createCourseReplayPlayer,courseReplayToJSON,parseCourseReplayJSON,decodeCourseReplay,buildCourseReplayURL,interpretCourseContacts,loadPlayReplays,savePlayReplay,deletePlayReplay,loadItemReplays,saveItemReplay,deleteItemReplay,loadSchoolReplays,saveSchoolReplay,deleteSchoolReplay} from './play-replay.mjs?v=20261015-eccentric-review-1';
+import {createPullScale,mapScaledPull,screenPullBasis} from './pull-scale.mjs?v=20261015-eccentric-review-1';
+import {createPlayCue,playCueMarkup,pullHandleMarkup,launchCueOrigin} from './play-cue.mjs?v=20261015-eccentric-review-1';
+import {launchSummary,impactSummary} from './shot-summary.mjs?v=20261015-eccentric-review-1';
+import { createGame, setSetup, setRoomWorld, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261015-eccentric-review-1';
+import { createRenderer } from './render.mjs?v=20261015-eccentric-review-1';
+import { createShotAnalytics } from './shot-analytics.mjs?v=20261015-eccentric-review-1';
+import { createRecorder, loadReplays, saveReplay, deleteReplay } from './replay.mjs?v=20261015-eccentric-review-1';
+import {createGameShell} from './game-shell.mjs?v=20261015-eccentric-review-1';
+import {createTitleScreen} from './title-screen.mjs?v=20261015-eccentric-review-1';
+import {createGameMenu} from './game-menu.mjs?v=20261015-eccentric-review-1';
+import {createPlayerSaveUI} from './player-save-ui.mjs?v=20261015-eccentric-review-1';
+import {quickRetryKey,quickRetryStartsRun,createResultDelay} from './quick-retry.mjs?v=20261015-eccentric-review-1';
 
-import {createRewards,ACHIEVEMENTS} from './rewards.mjs?v=20261015-timed-relay-1';
-import {loadPlayerSave,savePlayerSave,restorePlayerSave} from './player-save.mjs?v=20261015-timed-relay-1';
-import {THROWABLE_CATALOG,getThrowable} from './throwables.mjs?v=20261015-timed-relay-1';
-import {setThrowable,getThrowableId,getThrowableProfile} from './throwable-physics.mjs?v=20261015-timed-relay-1';
-import {createStoreUI} from './item-store.mjs?v=20261015-timed-relay-1';
-import {createRewardEffects} from './reward-effects.mjs?v=20261015-timed-relay-1';
-import {createPreviewStorage} from './preview-storage.mjs?v=20261015-timed-relay-1';
+import {createRewards,ACHIEVEMENTS} from './rewards.mjs?v=20261015-eccentric-review-1';
+import {loadPlayerSave,savePlayerSave,restorePlayerSave} from './player-save.mjs?v=20261015-eccentric-review-1';
+import {THROWABLE_CATALOG,getThrowable} from './throwables.mjs?v=20261015-eccentric-review-1';
+import {setThrowable,getThrowableId,getThrowableProfile} from './throwable-physics.mjs?v=20261015-eccentric-review-1';
+import {createStoreUI} from './item-store.mjs?v=20261015-eccentric-review-1';
+import {createRewardEffects} from './reward-effects.mjs?v=20261015-eccentric-review-1';
+import {createPreviewStorage} from './preview-storage.mjs?v=20261015-eccentric-review-1';
 
 let goalCueStage=null,goalCuePending=false,goalCueUntil=0,goalCueSource=null,goalCueState={visible:false,markers:[]};
 const GOAL_CUE_MS=3200;
@@ -83,7 +83,7 @@ const makePlayStepper=(world,startTime=environmentStartTime())=>world?world.envi
 const chapterOf=(id=stageProgress.snapshot().id)=>chapterForStage(id)??chapterForStage(chapterProgress.snapshot().resumeStage)??CHAPTERS[0];
 const chapterCount=(chapter,state=chapterProgress.snapshot())=>chapter.ids.filter(id=>state.completedIDs.includes(id)).length;
 // A moving goal's pose freezes to its recorded shot clock through the result.
-const sceneTime=()=>liveWorld()?.worldVersion===47?(busy()&&shotContext?.worldVersion===47?shotContext.startTime+game.time:environmentTime):((schoolStage()&&['flying','settling'].includes(game.phase))||((outdoorStage()||advancedStage())&&game.phase!=='ready'))&&shotContext?.worldVersion===liveWorld()?.worldVersion?shotContext.startTime+game.time+(outdoorStage()&&shotContext.endEnvironmentTime!=null?Math.max(0,environmentTime-shotContext.endEnvironmentTime):0):liveWorld()?.worldVersion===39?eccentricStartTime(environmentTime):environmentTime;
+const sceneTime=()=>liveWorld()?.worldVersion===48?(shotContext?.worldVersion===48&&(busy()||game.phase==='success')?shotContext.startTime+game.time:environmentTime):liveWorld()?.worldVersion===47?(busy()&&shotContext?.worldVersion===47?shotContext.startTime+game.time:environmentTime):((schoolStage()&&['flying','settling'].includes(game.phase))||((outdoorStage()||advancedStage())&&game.phase!=='ready'))&&shotContext?.worldVersion===liveWorld()?.worldVersion?shotContext.startTime+game.time+(outdoorStage()&&shotContext.endEnvironmentTime!=null?Math.max(0,environmentTime-shotContext.endEnvironmentTime):0):liveWorld()?.worldVersion===39?eccentricStartTime(environmentTime):environmentTime;
 const unlockedStage=id=>!CHAPTER_IDS.includes(id)||canChooseStage(chapterProgress.snapshot(),id);
 let freeSetup={distance:6,height:1.3};
 let previous3DMode='throw';
@@ -115,7 +115,7 @@ const inviteDialog=$('invite-dialog');
 function openGameInvitation(){
   if(!inviteDialog||busy()||pixelIntro?.active)return false;
   cancelGesture('game-invite');
-  const url=new URL(location.href);url.hash='';url.search='';url.searchParams.set('v','20261015-timed-relay-1');
+  const url=new URL(location.href);url.hash='';url.search='';url.searchParams.set('v','20261015-eccentric-review-1');
   $('invite-link').value=url.href;
   $('invite-message').textContent='';
   $('invite-share').hidden=typeof navigator.share!=='function';
@@ -398,11 +398,11 @@ function updateStageUI(){
     'factory-relay':liveWorld()?.worldVersion===47?(factorySession?.plateLatched?(timedRelayState()?.expired?'扉が閉じました。リトライ R で一球目から。':'一球目が流れる間に二球目を箱へ。構えている間も扉は動きます。'):'一球目を左の受け口へ。球がレールを流れる間だけ扉が開きます。'):factorySession?.plateLatched?'扉が開いた！ 次の球を右奥の箱へ。リトライで装置も戻ります。':'左の板を1球目で押して扉を開ける？ 右のガイドで1球で入れる？ 同じ箱への道を探そう。',
     'eccentric-tower':'250mの展望台から、街のごみ箱へ。低い弧で落とすように投げよう。「タワー全景」で塔を見渡せます。',
     'eccentric-train':'自分の車窓から、隣の電車の開いた窓へ。少し先のごみ箱を狙って、窓が並ぶタイミングで離そう。',
-    'eccentric-boar':'森のイノシシに矢を当てよう。歩く速さを見て、少し先へ狙います。',
-    'eccentric-basket':'バスケットのリングを上から通そう。ふちやボードには跳ね返ります。',
-    'eccentric-dandelion':'綿毛は軽く、風でふわり。力を控えて花壇へ。風向きは流れる綿毛を目印に。',
-    'eccentric-card':'トランプを的へ。命中すると、その向きで刺さって止まります。',
-    'eccentric-cannon':'引っぱって離すと大砲発射！ 砦の扉に当てよう。箱へ入れる面とは違う命中勝負。'
+    'eccentric-boar':'木々の間を歩くイノシシへ。立ち止まりや向きを見て、少し先を狙おう。弓を引いて離すと矢が飛びます。',
+    'eccentric-basket':'体育館のリングへ。高い弧で直接狙うか、ボードを使おう。壁や天井にも跳ね返ります。',
+    'eccentric-dandelion':'風を読んで、トレリスの開口の向こうの花壇へ。綿毛は風に大きく流されます。強く投げすぎず、抜ける高さを探そう。',
+    'eccentric-card':'部屋の開口を抜けて、奥のコルクへ。カードは薄い姿勢で飛び、当たるとその向きで刺さります。',
+    'eccentric-cannon':'防壁の向こう、砦の門へ。低すぎる弧は防壁に当たります。大砲の射角と強さを合わせよう。'
   }[state.id];}
   $('prediction-toggle').disabled=!trainingMode;if(!trainingMode){view.prediction=false;$('prediction-toggle').checked=false;}
   if(extraRoom()&&$('stage-help')){$('stage-help').hidden=false;$('stage-help').textContent='箱の手前で、風が右へ。左を狙って補正しよう。猫はのんびり散歩中。';}
@@ -1168,7 +1168,7 @@ function presentGoalCamera(world,stage){
     if(smallRiver)target.y+=1;
     // The factory receiver camera sits past the shutter/gate and between bank
     // walls. It stays fixed there while showing the same live shot and clock.
-    goalCameraWorld={...world,view:{...world.view,target,distance:conveyorGoal?1.65:factoryGoal?1.85:baseball?Math.max(14,goalWidth*.95+1.5):smallMall?2.2:smallRiver?5.5:mall?6.5:7}};
+    goalCameraWorld={...world,view:{...world.view,target,distance:world.worldVersion===49?3.8:world.worldVersion===50?2.4:world.worldVersion===51?2.8:world.worldVersion===52?4.5:conveyorGoal?1.65:factoryGoal?1.85:baseball?Math.max(14,goalWidth*.95+1.5):smallMall?2.2:smallRiver?5.5:mall?6.5:7}};
     goalRenderer.setWorldView(goalCameraWorld);goalRenderer.resize();
     // Front/three-quarter placement keeps the receiver readable and avoids
     // looking through the scoreboard behind the baseball stand.
@@ -1189,7 +1189,7 @@ function presentGoalCamera(world,stage){
       goalRenderer.restoreCamera({azimuth:.14,elevation:.36,zoom:1});
     }
   }
-  goalRenderer.render(game,controls,{baseballPitch:baseballIntro.snapshot(liveWorld(),game.can.radius),world:goalCameraWorld,environment:world.environment,prediction:false,numericLabels:false,customCue:true,angleCue:false,windArc:[],factorySession,impactPose:snapshot?.impactPose??null,capture:shotContext?.capture??getSnapshot(game).goalCapture??null,effects:outdoorStage()||world.worldVersion===46?snapshot?.effects??[]:[],environmentTime,reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches});
+  goalRenderer.render(game,controls,{baseballPitch:baseballIntro.snapshot(liveWorld(),game.can.radius),world:goalCameraWorld,environment:world.environment,prediction:false,numericLabels:false,customCue:true,angleCue:false,windArc:[],factorySession,impactPose:snapshot?.impactPose??null,capture:shotContext?.capture??getSnapshot(game).goalCapture??null,effects:outdoorStage()||world.worldVersion===46||eccentricStage()?snapshot?.effects??[]:[],environmentTime,reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches});
   goalCameraPresented={shotId:game.attempts,time:game.time,environmentTime,phase:game.phase,position:{...game.can.position}};
   if($('goal-camera'))$('goal-camera').dataset.aiming=String(view.gesture?.kind==='throw');
 }
@@ -1201,9 +1201,9 @@ function presentLive(now){
   // An empty room fade path supplies no unseen future flight in normal play.
   const roomPath=preloadRoom?undefined:trainingMode&&view.prediction?(trainingPreview??undefined):[];
   renderer.render(game,controls,{baseballPitch:baseballIntro.snapshot(liveWorld(),game.can.radius),environment:preloadRoom?'room':stage?.environment,world:preloadRoom?roomWorld('first',2):liveWorld(),course:liveCourse(),angleCue:false,customCue:!preloadRoom,numericLabels:trainingMode&&!preloadRoom,
-    extraRoom:extraRoom(),fanEnabled,environmentTime:sceneTime(),factorySession,impactPose:playStepper?.snapshot().impactPose??null,capture:shotContext?.capture??getSnapshot(game).goalCapture??null,effects:outdoorStage()||liveWorld()?.worldVersion===46?playStepper?.snapshot().effects??[]:[],reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,windArc:roomPath,
+    extraRoom:extraRoom(),fanEnabled,environmentTime:sceneTime(),factorySession,impactPose:playStepper?.snapshot().impactPose??null,capture:shotContext?.capture??getSnapshot(game).goalCapture??null,effects:outdoorStage()||liveWorld()?.worldVersion===46||eccentricStage()?playStepper?.snapshot().effects??[]:[],reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,windArc:roomPath,
     stageNumber:stage?.number??(stageProgress.snapshot().id==='first'?'1-1':extraRoom()?'1-4':null),monitorCanvas:pixelIntro?.image,revealProgress:pixelIntro?.cameraProgress,
-    prediction:trainingMode&&view.prediction&&!preloadRoom,aim:mapped?.actual??null});
+    prediction:trainingMode&&view.prediction&&!preloadRoom,pullFraction:mapped?.valid?Math.max(0,Math.min(1,mapped.actual.power/14)):0,aim:mapped?.actual??null});
   paintPlayCue(!preloadRoom&&(mapped||now<angleCueUntil)?effectiveAim:null);
   if(!preloadRoom)presentGoalCamera(liveWorld(),stage);
 }
