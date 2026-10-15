@@ -1,10 +1,10 @@
 // Chapter 5 changes places and objects while keeping the approved faceted,
 // warm paper / teal material language and the production metre-space camera.
-import {eccentricWorld,eccentricSolids,eccentricDynamicSolids,eccentricMotion} from './eccentric-world.mjs?v=20261015-screen-pull-1';
-import {scenePrimitives,FACTORY_PALETTE} from './factory-scene.mjs?v=20261015-screen-pull-1';
-import {throwablePose} from './throwable-physics.mjs?v=20261015-screen-pull-1';
-import {tokyoTowerStaticMeshes,tokyoTowerGroups} from './tokyo-tower-scene.mjs?v=20261015-screen-pull-1';
-import {trainWindowStaticMeshes,trainWindowDynamicMeshes,trainWindowCutaway} from './train-window-scene.mjs?v=20261015-screen-pull-1';
+import {eccentricWorld,eccentricSolids,eccentricDynamicSolids,eccentricMotion} from './eccentric-world.mjs?v=20261015-factory-necessity-1';
+import {scenePrimitives,FACTORY_PALETTE} from './factory-scene.mjs?v=20261015-factory-necessity-1';
+import {throwablePose} from './throwable-physics.mjs?v=20261015-factory-necessity-1';
+import {tokyoTowerStaticMeshes,tokyoTowerGroups} from './tokyo-tower-scene.mjs?v=20261015-factory-necessity-1';
+import {trainWindowStaticMeshes,trainWindowDynamicMeshes,trainWindowCutaway} from './train-window-scene.mjs?v=20261015-factory-necessity-1';
 const {p,face,shade,add,scale,cross,unit,box,physicalBox,cylinder,ellipsoid,line,flat,limb,basis,opening}=scenePrimitives;
 export const ECCENTRIC_PALETTE=Object.freeze({...FACTORY_PALETTE,sky:'#bfdedb',green:'#8caf7d',grass:'#a9bd8f',bark:'#9b805b',stone:'#b8b799',water:'#86b5ad'});
 const cache=new Map(),axes=['x','y','z'];

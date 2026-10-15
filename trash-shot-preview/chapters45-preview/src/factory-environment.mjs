@@ -3,7 +3,7 @@
 // A primitive kit is supplied by factory-scene to avoid a circular renderer import.
 const C=Object.freeze({steel:'#82978e',dark:'#315b56',teal:'#4a948b',cream:'#e7dfcb',floor:'#c8c7b6',amber:'#d6a647',black:'#4f5a53',pipe:'#a9b6a7',copper:'#b98a62',light:'#fff0c0'});
 const point=(x,y,z)=>({x,y,z});
-const enabled=world=>world?.environment==='factory'&&[26,27,28,29,40,41,42,43].includes(world.worldVersion);
+const enabled=world=>world?.environment==='factory'&&[26,27,28,29,40,41,42,43,44,45].includes(world.worldVersion);
 const metadata=(equipmentId,machinePart,extra={})=>({factoryAtmosphere:true,decoration:true,equipmentId,machinePart,...extra});
 const finiteTime=time=>{if(!Number.isFinite(time))throw new TypeError('Factory environment time must be finite');return time;};
 const phase=(time,period)=>((time%period)+period)%period/period;

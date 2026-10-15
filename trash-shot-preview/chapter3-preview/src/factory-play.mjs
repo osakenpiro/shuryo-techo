@@ -1,13 +1,13 @@
 // Timed Chapter 4 mechanisms compose the existing fixed 240 Hz contact solver.
 // A conveyor reaction applies only after real top contact. Relay state persists
 // across retry/throws until its owner explicitly resets or replaces the session.
-import {createGame,setRoomWorld,throwCan,captureGoal,stopBlockedShot,setShotEnvironmentStart} from './physics.mjs?v=20261015-screen-pull-1';
-import {cloneThrowable,getThrowableId,throwableRestitution,throwableFriction} from './throwable-physics.mjs?v=20261015-screen-pull-1';
-import {getThrowable} from './throwables.mjs?v=20261015-screen-pull-1';
-import {createRoomContactStepper,ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261015-screen-pull-1';
-import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261015-screen-pull-1';
-import {sweepSphereAABB} from './room-course.mjs?v=20261015-screen-pull-1';
-import {factoryWorld,factoryGoals,factorySolids,factoryDynamicSolids,factoryStartTime} from './factory-world.mjs?v=20261015-screen-pull-1';
+import {createGame,setRoomWorld,throwCan,captureGoal,stopBlockedShot,setShotEnvironmentStart} from './physics.mjs?v=20261015-factory-necessity-1';
+import {cloneThrowable,getThrowableId,throwableRestitution,throwableFriction} from './throwable-physics.mjs?v=20261015-factory-necessity-1';
+import {getThrowable} from './throwables.mjs?v=20261015-factory-necessity-1';
+import {createRoomContactStepper,ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261015-factory-necessity-1';
+import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261015-factory-necessity-1';
+import {sweepSphereAABB} from './room-course.mjs?v=20261015-factory-necessity-1';
+import {factoryWorld,factoryGoals,factorySolids,factoryDynamicSolids,factoryStartTime} from './factory-world.mjs?v=20261015-factory-necessity-1';
 const TICK=ROOM_CONTACT_TICK,EPS=1e-9,SLOP=1e-5,AXES=['x','y','z'];
 const active=game=>game?.phase==='flying'||game?.phase==='settling';
 const copy=p=>({x:p.x,y:p.y,z:p.z});
@@ -35,7 +35,7 @@ export function createFactoryPlayStepper(world,{startTime=0,onContact,onEffect,s
   world=requireWorld(world);session=requireSession(session,world);const launchTime=factoryStartTime(startTime),belt=world.solids.find(s=>s.surface==='belt');
   let currentGame=null,remainder=0,ticks=0,shotId=null,elapsed=0,capture=null,effects=[],movingContacts=[],pendingMoving=null,lastMovingContact=-Infinity,carry={active:false,distance:0,contactTime:null,exitTime:null};
   const effect=(type,value={})=>{const item={id:`${world.stageId}:${currentGame?.attempts??0}:${type}:${effects.length}`,type,time:currentGame?.time??elapsed,environmentTime:launchTime+(currentGame?.time??elapsed),...value};effects.push(item);if(typeof onEffect==='function')try{onEffect(structuredClone(item));}catch{/* Display cannot interrupt physics. */}};
-  const moving=(time,h)=>{const a=factoryDynamicSolids(world,launchTime+time,session),b=factoryDynamicSolids(world,launchTime+time+h,session);return a.map(solid=>({...solid,delta:sub(b.find(q=>q.id===solid.id).min,solid.min)}));};
+  const moving=(time,h)=>{const a=factoryDynamicSolids(world,launchTime+time,session),b=factoryDynamicSolids(world,launchTime+time+h,session);return a.map(solid=>{const delta=sub(b.find(q=>q.id===solid.id).min,solid.min);return {...solid,delta,...(world.worldVersion===45&&solid.kind==='piston-face'?{surfaceVelocity:Object.fromEntries(AXES.map(axis=>[axis,delta[axis]/h]))}:{})};});};
   // The shared adapter deliberately keeps its historical absolute-velocity
   // response. A closing machine bottom needs an additional relative impulse:
   // even a momentarily still ball receives momentum from the descending door.
@@ -76,6 +76,13 @@ export function createFactoryPlayStepper(world,{startTime=0,onContact,onEffect,s
   // lower tangential friction declared by the physical world descriptor.
   // Only new route-world machine reflectors use this reused response hook.
   const reflectorImpact=({game,collider,normal,beforeVelocity,materialBounce,supported})=>{
+    if(world.worldVersion===45&&collider.kind==='piston-face'){
+      const surface=collider.surfaceVelocity,relative=Object.fromEntries(AXES.map(a=>[a,beforeVelocity[a]-surface[a]])),normalSpeed=AXES.reduce((sum,a)=>sum+relative[a]*normal[a],0);
+      if(normalSpeed>=0)return null;
+      const incoming=-normalSpeed,bounce=throwableRestitution(game,collider.surface,materialBounce),outward=incoming*bounce;
+      const tangent=Object.fromEntries(AXES.map(a=>[a,relative[a]-normalSpeed*normal[a]])),speed=Math.hypot(...AXES.map(a=>tangent[a])),remaining=Math.max(0,speed-incoming*(1+bounce)*throwableFriction(game,collider.friction));
+      return {velocity:Object.fromEntries(AXES.map(a=>[a,surface[a]+outward*normal[a]+(speed>EPS?tangent[a]*remaining/speed:0)])),incomingNormalSpeed:incoming,supported:false};
+    }
     if(world.mechanism.routeRequired!==false||collider.kind!=='machine-reflector')return null;
     const normalSpeed=AXES.reduce((sum,a)=>sum+beforeVelocity[a]*normal[a],0),incoming=Math.max(0,-normalSpeed);
     if(normalSpeed>=0)return null;

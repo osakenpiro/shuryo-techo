@@ -1,8 +1,8 @@
 // Shared metre-space primitives keep the approved paper/wood/teal art family.
 // Canonical world solids own every gameplay surface; trim is decorative.
-import {factoryWorld,factorySolids,factoryGoals,factoryMotion,factoryDynamicSolids} from './factory-world.mjs?v=20261015-screen-pull-1';
-import {factoryEnvironmentStatic,factoryEnvironmentDynamic} from './factory-environment.mjs?v=20261015-screen-pull-1';
-import {factoryMachineryStatic,factoryMachineryDynamic} from './factory-machinery.mjs?v=20261015-screen-pull-1';
+import {factoryWorld,factorySolids,factoryGoals,factoryMotion,factoryDynamicSolids} from './factory-world.mjs?v=20261015-factory-necessity-1';
+import {factoryEnvironmentStatic,factoryEnvironmentDynamic} from './factory-environment.mjs?v=20261015-factory-necessity-1';
+import {factoryMachineryStatic,factoryMachineryDynamic} from './factory-machinery.mjs?v=20261015-factory-necessity-1';
 export const FACTORY_PALETTE=Object.freeze({cream:'#f4ead5',wall:'#eee2c6',wood:'#c89b61',teal:'#4a948b',darkTeal:'#286864',gold:'#e8b54e',orange:'#e98238',steel:'#8da69c',floor:'#d7c9ad'});
 const p=(x,y,z)=>({x,y,z});
 const face=(points,fill,stroke=null,meta={})=>({points,fill,stroke,...meta});
@@ -17,6 +17,26 @@ function box(s,x,y,z,w,h,d,color,meta={}){
 function physicalBox(s,c,color){
   const a=c.min,b=c.max,lo=[p(a.x,a.y,a.z),p(b.x,a.y,a.z),p(b.x,a.y,b.z),p(a.x,a.y,b.z)],hi=lo.map(q=>({...q,y:b.y})),meta={solidId:c.id,physical:true,actorId:c.actorId??c.object};
   for(const [points,n] of [[[lo[0],lo[1],hi[1],hi[0]],0],[[lo[1],lo[2],hi[2],hi[1]],-13],[[lo[2],lo[3],hi[3],hi[2]],-5],[[lo[3],lo[0],hi[0],hi[3]],7],[[hi[0],hi[1],hi[2],hi[3]],17],[[lo[3],lo[2],lo[1],lo[0]],-18]])s.push(face(points,shade(color,n),null,meta));
+}
+// The divider is its canonical collider, with translucent glazing instead of
+// an opaque wall. Edge highlights identify its extent without hiding the goal.
+function safetyGlass(s,c){
+  const a=c.min,b=c.max,z=(a.z+b.z)/2,meta={solidId:c.id,physical:true,glass:true,depthWrite:false};
+  const lo=[p(a.x,a.y,a.z),p(b.x,a.y,a.z),p(b.x,a.y,b.z),p(a.x,a.y,b.z)],hi=lo.map(q=>({...q,y:b.y}));
+  for(const points of [[lo[0],lo[1],hi[1],hi[0]],[lo[1],lo[2],hi[2],hi[1]],[lo[2],lo[3],hi[3],hi[2]],[lo[3],lo[0],hi[0],hi[3]],[hi[0],hi[1],hi[2],hi[3]],[lo[3],lo[2],lo[1],lo[0]]])s.push(face(points,'rgba(135,202,201,.12)','rgba(87,145,142,.33)',meta));
+  // Thin metal mullions sit on the edge of each glass section, including the
+  // low tunnel opening; these marks do not invent an invisible aperture.
+  const trim={decoration:true,glassFrameFor:c.id};
+  for(const x of [a.x,b.x-.045])box(s,x,a.y,a.z-.018,.045,b.y-a.y,b.z-a.z+.036,'#527b73',trim);
+  for(const y of [a.y,b.y-.045])box(s,a.x,y,a.z-.018,b.x-a.x,.045,b.z-a.z+.036,'#8ba99c',trim);
+  const w=b.x-a.x,h=b.y-a.y;
+  if(w>.4&&h>.6){
+    for(const f of [.27,.64]){
+      const x=a.x+w*f,y=a.y+h*.40,dx=Math.min(.23,w*.16),dy=Math.min(.65,h*.18);
+      line(s,p(x,y,z-.13),p(x+dx,y+dy,z-.13),'rgba(247,255,246,.78)',{decoration:true,glassReflectionFor:c.id});
+      line(s,p(x+.07,y,z-.13),p(x+dx+.07,y+dy,z-.13),'rgba(211,242,231,.65)',{decoration:true,glassReflectionFor:c.id});
+    }
+  }
 }
 function cylinder(s,x,y,z,r,h,color,n=10,meta={}){
   const lo=Array.from({length:n},(_,i)=>p(x+Math.cos(i/n*Math.PI*2)*r,y,z+Math.sin(i/n*Math.PI*2)*r)),hi=lo.map(a=>({...a,y:y+h}));
@@ -89,9 +109,10 @@ function factoryDecor(s,world){
 }
 export function factoryStaticMeshes(world){
   world=requireWorld(world);const key=`${world.stageId}:${world.worldVersion}`;if(cache.has(key))return cache.get(key);
-  const shapes=[];for(const solid of factorySolids(world))physicalBox(shapes,solid,colourOf(solid));
+  const shapes=[],glazing=[];for(const solid of factorySolids(world)){if([44,45].includes(world.worldVersion)&&solid.kind==='safety-glass')glazing.push(solid);else physicalBox(shapes,solid,colourOf(solid));}
   factoryDecor(shapes,world);for(const goal of factoryGoals(world,0))opening(shapes,goal);
   shapes.push(...factoryMachineryStatic(world,scenePrimitives),...factoryEnvironmentStatic(world,scenePrimitives));
+  for(const glass of glazing)safetyGlass(shapes,glass);
   cache.set(key,shapes);return shapes;
 }
 function doorDetail(s,door,time){
@@ -103,7 +124,7 @@ function doorDetail(s,door,time){
 function parkedBall(s,ball){const q=ball.position;ellipsoid(s,q.x,q.y,q.z,ball.radius,ball.radius,ball.radius,'#7a8b88',12,6,{actorId:ball.id,parkedBall:true,physical:true,itemId:ball.itemId});}
 export function factoryDynamicMeshes(world,time=0,options={}){
   world=requireWorld(world);const session=options.session??options.game?.factorySession??options.game?.session,motion=factoryMotion(world,time,session),shapes=[];
-  for(const solid of factoryDynamicSolids(world,time,session)){if(solid.kind==='parked-ball')continue;physicalBox(shapes,solid,'#91aaa0');}
+  for(const solid of factoryDynamicSolids(world,time,session)){if(solid.kind==='parked-ball')continue;physicalBox(shapes,solid,world.worldVersion===45&&solid.kind==='piston-face'?'#b7c9bc':'#91aaa0');}
   for(const door of [motion.shutter,motion.gate])if(door)doorDetail(shapes,door,time);
   if(motion.belt){
     const belt=factorySolids(world).find(c=>c.kind==='conveyor'),gap=.44,offset=((motion.belt.offset%gap)+gap)%gap,y=belt.max.y+.006;
@@ -115,7 +136,7 @@ export function factoryDynamicMeshes(world,time=0,options={}){
     const plate=factorySolids(world).find(c=>c.kind==='pressure-plate'),color=motion.plate.pressed?'#e6c264':'#9fac91';
     flat(shapes,plate.min.x+.045,plate.max.y+.008,plate.min.z+.045,plate.max.x-plate.min.x-.09,plate.max.z-plate.min.z-.09,color,{plateId:plate.id,pressed:motion.plate.pressed});
   }
-  for(const witness of motion.bankLights){const rail=factorySolids(world).find(c=>c.id===witness.id),x=(rail.min.x+rail.max.x)/2;ellipsoid(shapes,x,rail.max.y+.10,rail.min.z+.13,.07,.07,.07,witness.lit?'#f2d378':'#819b88',8,3,{bankWitnessId:witness.id,lit:!!witness.lit});}
+  for(const witness of world.worldVersion===45?[]:motion.bankLights){const rail=factorySolids(world).find(c=>c.id===witness.id),x=(rail.min.x+rail.max.x)/2;ellipsoid(shapes,x,rail.max.y+.10,rail.min.z+.13,.07,.07,.07,witness.lit?'#f2d378':'#819b88',8,3,{bankWitnessId:witness.id,lit:!!witness.lit});}
   shapes.push(...factoryMachineryDynamic(world,motion,time,scenePrimitives),...factoryEnvironmentDynamic(world,time,scenePrimitives,{reducedMotion:options.reducedMotion===true}));
   return shapes;
 }

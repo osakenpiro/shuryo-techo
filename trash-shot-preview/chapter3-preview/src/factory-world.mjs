@@ -19,6 +19,8 @@ export const FACTORY_PHYSICS_WORLDS=freeze({
   41:{worldVersion:41,origin:p(0,1.65,0),bin:{center:p(0,.4,6.3),radius:.72,height:.8}},
   42:{worldVersion:42,origin:p(0,2.45,0),bin:{center:p(0,.5,5.5),radius:.8,height:1}},
   43:{worldVersion:43,origin:p(0,1.3,0),bin:{center:p(1.15,.55,6.7),radius:.72,height:1.1}},
+  44:{worldVersion:44,origin:p(0,1.65,0),bin:{center:p(0,.4,6.3),radius:.72,height:.8}},
+  45:{worldVersion:45,origin:p(0,2.45,0),bin:{center:p(0,.5,5.5),radius:.8,height:1}},
 });
 const binSolids=(g)=>[
   box(`${g.id}-body`,'collection-bin',p(g.center.x-g.radius,0,g.center.z-g.radius),p(g.center.x+g.radius,g.center.y-.25,g.center.z+g.radius)),
@@ -81,8 +83,34 @@ const multiRouteWorld=(id,version)=>{
   if(['shutter','relay'].includes(old.factoryType))world.solids.push(bypassReflector(`${id}-right-reflector`,old.factoryType==='relay'?2.45:3.45));
   world.solids.push(...buildingSolids(world));return world;
 };
-export const FACTORY_WORLDS=freeze(Object.fromEntries(Object.keys(FACTORY_LEGACY_WORLDS).map((id,index)=>[id,multiRouteWorld(id,40+index)])));
-const WORLD_BY_VERSION=freeze(Object.fromEntries([...Object.values(FACTORY_LEGACY_WORLDS),...Object.values(FACTORY_RELEASED_WORLDS),...Object.values(FACTORY_WORLDS)].map(w=>[w.worldVersion,w])));
+export const FACTORY_ROUTE_WORLDS=freeze(Object.fromEntries(Object.keys(FACTORY_LEGACY_WORLDS).map((id,index)=>[id,multiRouteWorld(id,40+index)])));
+
+// The glass is a complete room-height partition; the only passage is the
+// conveyor's low tunnel. No goal contact or score flag enforces this route.
+function conveyorTunnelWorld(){
+  const old=FACTORY_ROUTE_WORLDS['factory-conveyor'],physics=FACTORY_PHYSICS_WORLDS[44];
+  return {...old,worldVersion:44,physics,origin:physics.origin,bin:physics.bin,
+    mechanism:{...old.mechanism,tunnel:{min:p(-.7,1.2,3.7),max:p(.7,1.66,3.94)}},
+    solids:[...old.solids,
+      box('factory-glass-left','safety-glass',p(-4.3,0,3.7),p(-.7,6.3,3.94),'wall',.25),
+      box('factory-glass-right','safety-glass',p(.7,0,3.7),p(4.3,6.3,3.94),'wall',.25),
+      box('factory-glass-above-belt','safety-glass',p(-.7,1.66,3.7),p(.7,6.3,3.94),'wall',.25),
+      box('factory-glass-belt-sill','machine-frame',p(-.7,0,3.7),p(.7,1.2,3.94),'wall',.25),
+      box('factory-conveyor-safety-ceiling','safety-glass',p(-4.3,5.9,-2.2),p(4.3,6.1,9.35),'ceiling',.25)]};
+}
+function pistonBankWorld(){
+  const old=FACTORY_ROUTE_WORLDS['factory-bank'],physics=FACTORY_PHYSICS_WORLDS[45];
+  return {...old,worldVersion:45,physics,origin:physics.origin,bin:physics.bin,
+    mechanism:{...old.mechanism,kind:'piston-bank',requiredColliders:['factory-bank-left-piston','factory-bank-right-piston'],
+      pistons:[{id:'factory-bank-left-piston',side:'left',baseX:-1.75,amplitude:.2,phase:0},{id:'factory-bank-right-piston',side:'right',baseX:1.75,amplitude:.2,phase:Math.PI}],period:4},
+    launch:{power:6,elevation:42,yaw:40},
+    solids:[...old.solids.filter(s=>s.kind!=='bank-rail'),
+      box('factory-bank-central-shield','machine-shield',p(-.55,0,1.8),p(.55,6.3,3.15),'wall',.25),
+      box('factory-bank-safety-ceiling','safety-glass',p(-4.3,5.9,-2.2),p(4.3,6.1,9.35),'ceiling',.25)]};
+}
+export const FACTORY_WORLDS=freeze({...FACTORY_ROUTE_WORLDS,'factory-conveyor':conveyorTunnelWorld(),'factory-bank':pistonBankWorld()});
+
+const WORLD_BY_VERSION=freeze(Object.fromEntries([...Object.values(FACTORY_LEGACY_WORLDS),...Object.values(FACTORY_RELEASED_WORLDS),...Object.values(FACTORY_ROUTE_WORLDS),...Object.values(FACTORY_WORLDS)].map(w=>[w.worldVersion,w])));
 export function factoryWorldByVersion(worldVersion){return Number.isInteger(worldVersion)&&Object.hasOwn(WORLD_BY_VERSION,worldVersion)?WORLD_BY_VERSION[worldVersion]:null;}
 export function factoryWorld(stageId,worldVersion){const world=worldVersion===undefined?typeof stageId==='string'&&Object.hasOwn(FACTORY_WORLDS,stageId)?FACTORY_WORLDS[stageId]:null:factoryWorldByVersion(worldVersion);return world?.stageId===stageId?world:null;}
 function requireWorld(world){const saved=factoryWorld(world?.stageId,world?.worldVersion);if(!saved)throw new RangeError('A supported factory world is required');return saved;}
@@ -100,13 +128,19 @@ export function factoryMotion(world,time=0,session){
     const lift=session?.stageId===world.stageId&&session?.plateLatched?mechanism.lift:0;
     gate={id:mechanism.id,kind:'relay-gate',lift,min:p(mechanism.min.x,mechanism.min.y+lift,mechanism.min.z),max:p(mechanism.max.x,mechanism.max.y+lift,mechanism.max.z),open:lift>0};
   }
+  const pistons=(mechanism.pistons??[]).map(q=>{
+    const offset=q.amplitude*Math.sin(time*2*Math.PI/mechanism.period+q.phase),x=q.baseX+offset;
+    return {id:q.id,kind:'piston-face',side:q.side,offset,min:p(x-.1,0,.45),max:p(x+.1,5.8,7.25),
+      surfaceVelocity:p(q.amplitude*2*Math.PI/mechanism.period*Math.cos(time*2*Math.PI/mechanism.period+q.phase),0,0)};
+  });
   const balls=world.factoryType==='relay'&&session?.stageId===world.stageId&&session.setupBall?[structuredClone(session.setupBall)]:[];
-  return {actors:[],goals:factoryGoals(world,time,session),shutter,gate,belt,balls,plate:{id:mechanism.plateId??null,pressed:!!(session?.stageId===world.stageId&&session.plateLatched)},
+  return {actors:[],goals:factoryGoals(world,time,session),shutter,gate,belt,balls,...(pistons.length?{pistons}:{}),plate:{id:mechanism.plateId??null,pressed:!!(session?.stageId===world.stageId&&session.plateLatched)},
     bankLights:world.factoryType==='bank'?mechanism.requiredColliders.map(id=>({id,lit:session?.stageId===world.stageId&&session.bankContacts?.includes(id)})):[]};
 }
 export function factoryDynamicSolids(world,time=0,session){
   world=requireWorld(world);const motion=factoryMotion(world,time,session),solids=[];
   for(const moving of [motion.shutter,motion.gate])if(moving)solids.push(box(moving.id,moving.kind,moving.min,moving.max,'machine',.22));
+  for(const piston of motion.pistons??[])solids.push(box(piston.id,piston.kind,piston.min,piston.max,'machine',.8,{friction:.02,surfaceVelocity:piston.surfaceVelocity,side:piston.side}));
   for(const ball of motion.balls)solids.push(box(ball.id,'parked-ball',p(ball.position.x-ball.radius,ball.position.y-ball.radius,ball.position.z-ball.radius),p(ball.position.x+ball.radius,ball.position.y+ball.radius,ball.position.z+ball.radius),'ball',.2));
   return solids;
 }

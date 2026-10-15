@@ -3,7 +3,7 @@
 // are AI approximations fitted to that metre-space envelope, not CAD data.
 // The caller supplies scenePrimitives so this module has no renderer imports.
 const C=Object.freeze({steel:'#84978f',bright:'#bfccc0',dark:'#355a57',teal:'#397d75',cream:'#e7d9b7',amber:'#d8ad4c',rubber:'#3c504b',chrome:'#d1d7c8',red:'#ad6552',green:'#b6d09a'});
-const supported=w=>w?.environment==='factory'&&[26,27,28,29,40,41,42,43].includes(w.worldVersion);
+const supported=w=>w?.environment==='factory'&&[26,27,28,29,40,41,42,43,44,45].includes(w.worldVersion);
 const mod=(value,period)=>((value%period)+period)%period;
 function tools(shapes,world,kit){
   const {p,box,limb,cylinder,flat,face}=kit;
@@ -171,12 +171,50 @@ function rightGuideStatic(t,guide){
   cy('right-guide-service-motor',hi.x+.15,hi.y+.36,z0+.20,.088,.19,C.steel,6,meta);
   rod('right-guide-service-shaft',p(lo.x+.09,hi.y-.02,z0-.10),p(lo.x+.09,hi.y+.22,z0-.10),.033,C.chrome,meta);
 }
+function pistonStatic(t,world){
+  const {p,b,rod}=t;
+  // Two fixed hydraulic cylinders support each impact paddle. The ram itself
+  // is drawn from the live collider below, using the shared physics clock.
+  for(const q of world.mechanism.pistons){
+    const side=q.side==='left'?-1:1,x=side*3.30;
+    for(const z of [1.4,5.8]){
+      b('piston-anchor-plinth',x-.23,.025,z-.28,.46,.12,.56,C.dark,{pistonId:q.id});
+      b('piston-anchor-upright',x-.14,.14,z-.17,.28,2.76,.34,C.teal,{pistonId:q.id});
+      for(const y of [1.0,2.6]){
+        rod('piston-fixed-barrel',p(x,y,z),p(x-side*.65,y,z),.14,C.teal,{pistonId:q.id});
+        rod('piston-barrel-collar',p(x-side*.60,y,z),p(x-side*.69,y,z),.18,C.bright,{pistonId:q.id});
+      }
+      rod('piston-anchor-brace',p(x,.25,z-.19),p(x,1.9,z-.53),.045,C.steel,{pistonId:q.id});
+    }
+  }
+}
+function pistonDynamic(t,motion){
+  const {p,b,rod}=t;
+  for(const q of motion.pistons??[]){
+    const side=q.side==='left'?-1:1,outer=side<0?q.min.x:q.max.x,x=side*3.30,meta={pistonId:q.id,colliderId:q.id,colliderOffset:q.offset};
+    for(const z of [1.4,5.8])for(const y of [1.0,2.6]){
+      rod('piston-live-chrome-rod',p(x-side*.65,y,z),p(outer,y,z),.065,C.chrome,meta);
+      b('piston-live-clevis',outer-.09,y-.12,z-.13,.18,.24,.26,C.dark,meta);
+    }
+    // The pale impact surface itself is drawn by physicalBox at the exact
+    // collider coordinates. Ribs stay behind that plane, never in the lane.
+    for(const z of [q.min.z+.07,(q.min.z+q.max.z)/2,q.max.z-.14]){
+      const back=outer+side*.025;
+      b('piston-paddle-back-rib',back-.045,q.min.y+.12,z,.09,q.max.y-q.min.y-.24,.07,C.teal,meta);
+    }
+    const front=side<0?q.max.x+.003:q.min.x-.003;
+    for(const y of [q.min.y+.13,q.max.y-.20]){
+      t.face('piston-paddle-safety-band',[p(front,y,q.min.z+.04),p(front,y+.065,q.min.z+.04),p(front,y+.065,q.max.z-.04),p(front,y,q.max.z-.04)],C.amber,meta);
+    }
+  }
+}
 export function factoryMachineryStatic(world,kit){
   if(!supported(world))return [];
   const shapes=[],t=tools(shapes,world,kit);
   if(world.factoryType==='shutter')doorFrame(t,world);
   if(world.factoryType==='conveyor')conveyorStatic(t,world);
-  if(world.factoryType==='bank')bankStatic(t,world);
+  if(world.factoryType==='bank'&&world.worldVersion!==45)bankStatic(t,world);
+  if(world.worldVersion===45)pistonStatic(t,world);
   if(world.factoryType==='relay')relayStatic(t,world);
   for(const guide of world.solids.filter(s=>s.kind==='machine-reflector'))rightGuideStatic(t,guide);
   return shapes;
@@ -241,7 +279,8 @@ export function factoryMachineryDynamic(world,motion,time,kit){
   if(door)doorDynamic(t,world,door);
   if(motion.belt)conveyorDynamic(t,world,motion);
   if(motion.gate)relayDynamic(t,world,motion);
-  for(const witness of motion.bankLights){
+  if(world.worldVersion===45)pistonDynamic(t,motion);
+  for(const witness of world.worldVersion===45?[]:motion.bankLights){
     const rail=world.solids.find(s=>s.id===witness.id),side=rail.min.x<0?-1:1,x=side<0?rail.min.x-.060:rail.max.x+.060;
     t.cy('bank-contact-witness',x,4.66,rail.min.z+.135,.078,.041,witness.lit?C.green:C.dark,8,{contactWitnessId:witness.id,lit:!!witness.lit});
     t.cy('bank-contact-bezel',x,4.651,rail.min.z+.135,.105,.013,C.amber,8,{contactWitnessId:witness.id,lit:!!witness.lit});
