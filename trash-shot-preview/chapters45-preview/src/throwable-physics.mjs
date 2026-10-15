@@ -1,7 +1,7 @@
 // Profiles extend the existing fixed-step simulation; the default can takes
 // every original arithmetic path. No item changes gravitational acceleration.
-import {DEFAULT_THROWABLE_ID,getThrowable} from './throwables.mjs?v=20261014-quick-retry-1';
-import {throwableWorldProfile} from './throwable-world-profile.mjs?v=20261014-quick-retry-1';
+import {DEFAULT_THROWABLE_ID,getThrowable} from './throwables.mjs?v=20261015-factory-machines-2';
+import {throwableWorldProfile} from './throwable-world-profile.mjs?v=20261015-factory-machines-2';
 const ITEMS=new WeakMap(),EPS=1e-9,MAX_RESTITUTION=.8;
 const WORLDS=new WeakMap();
 const FIXED_POSES=new WeakMap();

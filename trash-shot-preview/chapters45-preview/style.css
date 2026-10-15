@@ -465,11 +465,11 @@ body.title-is-open{overflow:hidden}
 .chapter-shell .chapter-stage-heading{grid-column:1/-1;margin:18px 0 0;color:#286864;font-size:17px;letter-spacing:.09em}
 .chapter-shell .chapter-stage-heading:first-child{margin-top:0}
 .chapter-shell .chapter-school-card .stage-thumbnail{background-size:cover;background-position:center}
-.chapter-shell .stage-school-classroom .stage-thumbnail{background-image:url("./art/school/20261011/school-classroom.png?v=20261014-quick-retry-1")}
-.chapter-shell .stage-school-vending .stage-thumbnail{background-image:url("./art/school/20261011/school-vending.png?v=20261014-quick-retry-1")}
-.chapter-shell .stage-school-passage .stage-thumbnail{background-image:url("./art/school/20261011/school-passage.png?v=20261014-quick-retry-1")}
-.chapter-shell .stage-school-rooftop .stage-thumbnail{background-image:url("./art/school/20261011/school-rooftop.png?v=20261014-quick-retry-1")}
-.chapter-shell .chapter-top[data-chapter="2"] .home-art{background-image:url("./art/school/20261011/school-classroom.png?v=20261014-quick-retry-1");background-size:cover;background-position:center}
+.chapter-shell .stage-school-classroom .stage-thumbnail{background-image:url("./art/school/20261011/school-classroom.png?v=20261015-factory-machines-2")}
+.chapter-shell .stage-school-vending .stage-thumbnail{background-image:url("./art/school/20261011/school-vending.png?v=20261015-factory-machines-2")}
+.chapter-shell .stage-school-passage .stage-thumbnail{background-image:url("./art/school/20261011/school-passage.png?v=20261015-factory-machines-2")}
+.chapter-shell .stage-school-rooftop .stage-thumbnail{background-image:url("./art/school/20261011/school-rooftop.png?v=20261015-factory-machines-2")}
+.chapter-shell .chapter-top[data-chapter="2"] .home-art{background-image:url("./art/school/20261011/school-classroom.png?v=20261015-factory-machines-2");background-size:cover;background-position:center}
 .chapter3-preview-note{margin:0 0 12px;padding:10px 16px;border-left:3px solid #b58d43;background:#f8edce;color:#76603f;font-size:12px;line-height:1.7}
 .chapter-shell .chapter-outdoor-card .stage-thumbnail{background-size:cover;background-position:center}
 .chapter-shell .stage-outdoor-shrine .stage-thumbnail{background-image:url('./art/outdoor/20261012/outdoor-shrine.png')}
@@ -541,27 +541,27 @@ body.title-is-open{overflow:hidden}
   pointer-events:none;
 }
 .chapter-shell .stage-art-4 .stage-fan-symbol,.chapter-shell .stage-art-4 .stage-cat-symbol{display:none}
-.chapter-shell .stage-art-4{--card-atlas:url('./art/stage-cards/20261014/room-school.png?v=20261014-quick-retry-1');--card-x:0%;--card-y:0%;--card-focus:64%}
-.chapter-shell .stage-school-classroom{--card-atlas:url('./art/stage-cards/20261014/room-school.png?v=20261014-quick-retry-1');--card-x:100%;--card-y:0%;--card-focus:65%}
-.chapter-shell .stage-school-vending{--card-atlas:url('./art/stage-cards/20261014/room-school.png?v=20261014-quick-retry-1');--card-x:0%;--card-y:50%}
-.chapter-shell .stage-school-passage{--card-atlas:url('./art/stage-cards/20261014/room-school.png?v=20261014-quick-retry-1');--card-x:100%;--card-y:50%;--card-focus:55%}
-.chapter-shell .stage-school-rooftop{--card-atlas:url('./art/stage-cards/20261014/room-school.png?v=20261014-quick-retry-1');--card-x:0%;--card-y:100%;--card-focus:66%}
-.chapter-shell .stage-outdoor-shrine{--card-atlas:url('./art/stage-cards/20261014/room-school.png?v=20261014-quick-retry-1');--card-x:100%;--card-y:100%}
-.chapter-shell .stage-outdoor-baseball{--card-atlas:url('./art/stage-cards/20261014/outdoor-factory.png?v=20261014-quick-retry-1');--card-x:0%;--card-y:0%}
-.chapter-shell .stage-outdoor-mall{--card-atlas:url('./art/stage-cards/20261014/outdoor-factory.png?v=20261014-quick-retry-1');--card-x:100%;--card-y:0%;--card-focus:52%}
-.chapter-shell .stage-outdoor-river{--card-atlas:url('./art/stage-cards/20261014/outdoor-factory.png?v=20261014-quick-retry-1');--card-x:0%;--card-y:50%;--card-focus:58%}
-.chapter-shell .stage-factory-shutter{--card-atlas:url('./art/stage-cards/20261014/outdoor-factory.png?v=20261014-quick-retry-1');--card-x:100%;--card-y:50%}
-.chapter-shell .stage-factory-conveyor{--card-atlas:url('./art/stage-cards/20261014/outdoor-factory.png?v=20261014-quick-retry-1');--card-x:0%;--card-y:100%}
-.chapter-shell .stage-factory-bank{--card-atlas:url('./art/stage-cards/20261014/outdoor-factory.png?v=20261014-quick-retry-1');--card-x:100%;--card-y:100%}
-.chapter-shell .stage-factory-relay{--card-atlas:url('./art/stage-cards/20261014/factory-eccentric.png?v=20261014-quick-retry-1');--card-x:0%;--card-y:0%}
-.chapter-shell .stage-eccentric-tower{--card-atlas:url('./art/stage-cards/20261014/factory-eccentric.png?v=20261014-quick-retry-1');--card-x:100%;--card-y:0%;--card-focus:65%}
-.chapter-shell .stage-eccentric-train{--card-atlas:url('./art/stage-cards/20261014/train-window.png?v=20261014-quick-retry-1');--card-focus:52%}
+.chapter-shell .stage-art-4{--card-atlas:url('./art/stage-cards/20261014/room-school.png?v=20261015-factory-machines-2');--card-x:0%;--card-y:0%;--card-focus:64%}
+.chapter-shell .stage-school-classroom{--card-atlas:url('./art/stage-cards/20261014/room-school.png?v=20261015-factory-machines-2');--card-x:100%;--card-y:0%;--card-focus:65%}
+.chapter-shell .stage-school-vending{--card-atlas:url('./art/stage-cards/20261014/room-school.png?v=20261015-factory-machines-2');--card-x:0%;--card-y:50%}
+.chapter-shell .stage-school-passage{--card-atlas:url('./art/stage-cards/20261014/room-school.png?v=20261015-factory-machines-2');--card-x:100%;--card-y:50%;--card-focus:55%}
+.chapter-shell .stage-school-rooftop{--card-atlas:url('./art/stage-cards/20261014/room-school.png?v=20261015-factory-machines-2');--card-x:0%;--card-y:100%;--card-focus:66%}
+.chapter-shell .stage-outdoor-shrine{--card-atlas:url('./art/stage-cards/20261014/room-school.png?v=20261015-factory-machines-2');--card-x:100%;--card-y:100%}
+.chapter-shell .stage-outdoor-baseball{--card-atlas:url('./art/stage-cards/20261014/outdoor-factory.png?v=20261015-factory-machines-2');--card-x:0%;--card-y:0%}
+.chapter-shell .stage-outdoor-mall{--card-atlas:url('./art/stage-cards/20261014/outdoor-factory.png?v=20261015-factory-machines-2');--card-x:100%;--card-y:0%;--card-focus:52%}
+.chapter-shell .stage-outdoor-river{--card-atlas:url('./art/stage-cards/20261014/outdoor-factory.png?v=20261015-factory-machines-2');--card-x:0%;--card-y:50%;--card-focus:58%}
+.chapter-shell .stage-factory-shutter{--card-atlas:url('./art/stage-cards/20261014/outdoor-factory.png?v=20261015-factory-machines-2');--card-x:100%;--card-y:50%}
+.chapter-shell .stage-factory-conveyor{--card-atlas:url('./art/stage-cards/20261014/outdoor-factory.png?v=20261015-factory-machines-2');--card-x:0%;--card-y:100%}
+.chapter-shell .stage-factory-bank{--card-atlas:url('./art/stage-cards/20261014/outdoor-factory.png?v=20261015-factory-machines-2');--card-x:100%;--card-y:100%}
+.chapter-shell .stage-factory-relay{--card-atlas:url('./art/stage-cards/20261014/factory-eccentric.png?v=20261015-factory-machines-2');--card-x:0%;--card-y:0%}
+.chapter-shell .stage-eccentric-tower{--card-atlas:url('./art/stage-cards/20261014/factory-eccentric.png?v=20261015-factory-machines-2');--card-x:100%;--card-y:0%;--card-focus:65%}
+.chapter-shell .stage-eccentric-train{--card-atlas:url('./art/stage-cards/20261014/train-window.png?v=20261015-factory-machines-2');--card-focus:52%}
 .chapter-shell .stage-eccentric-train .stage-thumbnail::before{background-size:cover;background-position:center}
-.chapter-shell .stage-eccentric-boar{--card-atlas:url('./art/stage-cards/20261014/factory-eccentric.png?v=20261014-quick-retry-1');--card-x:100%;--card-y:50%}
-.chapter-shell .stage-eccentric-basket{--card-atlas:url('./art/stage-cards/20261014/factory-eccentric.png?v=20261014-quick-retry-1');--card-x:0%;--card-y:100%;--card-focus:55%}
-.chapter-shell .stage-eccentric-dandelion{--card-atlas:url('./art/stage-cards/20261014/factory-eccentric.png?v=20261014-quick-retry-1');--card-x:100%;--card-y:100%}
-.chapter-shell .stage-eccentric-card{--card-atlas:url('./art/stage-cards/20261014/cards-cannon.png?v=20261014-quick-retry-1');--card-x:0%;--card-y:0%;--card-focus:62%}
-.chapter-shell .stage-eccentric-cannon{--card-atlas:url('./art/stage-cards/20261014/cards-cannon.png?v=20261014-quick-retry-1');--card-x:100%;--card-y:0%;--card-focus:59%}
+.chapter-shell .stage-eccentric-boar{--card-atlas:url('./art/stage-cards/20261014/factory-eccentric.png?v=20261015-factory-machines-2');--card-x:100%;--card-y:50%}
+.chapter-shell .stage-eccentric-basket{--card-atlas:url('./art/stage-cards/20261014/factory-eccentric.png?v=20261015-factory-machines-2');--card-x:0%;--card-y:100%;--card-focus:55%}
+.chapter-shell .stage-eccentric-dandelion{--card-atlas:url('./art/stage-cards/20261014/factory-eccentric.png?v=20261015-factory-machines-2');--card-x:100%;--card-y:100%}
+.chapter-shell .stage-eccentric-card{--card-atlas:url('./art/stage-cards/20261014/cards-cannon.png?v=20261015-factory-machines-2');--card-x:0%;--card-y:0%;--card-focus:62%}
+.chapter-shell .stage-eccentric-cannon{--card-atlas:url('./art/stage-cards/20261014/cards-cannon.png?v=20261015-factory-machines-2');--card-x:100%;--card-y:0%;--card-focus:59%}
 @media(max-width:430px){
   .chapter-shell :is(.stage-art-4,.chapter-school-card,.chapter-outdoor-card,.stage-factory-shutter,.stage-factory-conveyor,.stage-factory-bank,.stage-factory-relay,.stage-eccentric-tower,.stage-eccentric-train,.stage-eccentric-boar,.stage-eccentric-basket,.stage-eccentric-dandelion,.stage-eccentric-card,.stage-eccentric-cannon) .stage-thumbnail{height:142px;align-self:stretch}
 }

@@ -1,8 +1,8 @@
 // A carriage interior and a neighbouring commuter train share the physical
 // metre-space world. Window frames are the actual collision panels; scenery
 // scrolls in the player's train frame rather than making the launcher rock.
-import {eccentricWorld,eccentricSolids,eccentricDynamicSolids,eccentricMotion,TRAIN_WINDOW_PROPS} from './eccentric-world.mjs?v=20261014-quick-retry-1';
-import {scenePrimitives} from './factory-scene.mjs?v=20261014-quick-retry-1';
+import {eccentricWorld,eccentricSolids,eccentricDynamicSolids,eccentricMotion,TRAIN_WINDOW_PROPS} from './eccentric-world.mjs?v=20261015-factory-machines-2';
+import {scenePrimitives} from './factory-scene.mjs?v=20261015-factory-machines-2';
 const {p,face,box,physicalBox,line,flat,opening}=scenePrimitives;
 const MATERIAL=Object.freeze({body:'#d7dfd5',edge:'#748d86',trim:'#4d8f89',floor:'#adb4a1',wall:'#e9e2ca',seat:'#679c90',seatEdge:'#396f69',dark:'#3d605b',rail:'#72857d',ballast:'#aaa895',sleeper:'#827d68',warm:'#d8b974',ownWall:'#f1e3c7',ownFloor:'#c6b493',innerFrame:'#a18c68'});
 const axes=['x','y','z'];

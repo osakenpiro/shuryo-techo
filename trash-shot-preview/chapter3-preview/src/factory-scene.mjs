@@ -1,6 +1,8 @@
 // Shared metre-space primitives keep the approved paper/wood/teal art family.
 // Canonical world solids own every gameplay surface; trim is decorative.
-import {factoryWorld,factorySolids,factoryGoals,factoryMotion,factoryDynamicSolids} from './factory-world.mjs?v=20261014-quick-retry-1';
+import {factoryWorld,factorySolids,factoryGoals,factoryMotion,factoryDynamicSolids} from './factory-world.mjs?v=20261015-factory-machines-2';
+import {factoryEnvironmentStatic,factoryEnvironmentDynamic} from './factory-environment.mjs?v=20261015-factory-machines-2';
+import {factoryMachineryStatic,factoryMachineryDynamic} from './factory-machinery.mjs?v=20261015-factory-machines-2';
 export const FACTORY_PALETTE=Object.freeze({cream:'#f4ead5',wall:'#eee2c6',wood:'#c89b61',teal:'#4a948b',darkTeal:'#286864',gold:'#e8b54e',orange:'#e98238',steel:'#8da69c',floor:'#d7c9ad'});
 const p=(x,y,z)=>({x,y,z});
 const face=(points,fill,stroke=null,meta={})=>({points,fill,stroke,...meta});
@@ -89,6 +91,7 @@ export function factoryStaticMeshes(world){
   world=requireWorld(world);const key=`${world.stageId}:${world.worldVersion}`;if(cache.has(key))return cache.get(key);
   const shapes=[];for(const solid of factorySolids(world))physicalBox(shapes,solid,colourOf(solid));
   factoryDecor(shapes,world);for(const goal of factoryGoals(world,0))opening(shapes,goal);
+  shapes.push(...factoryMachineryStatic(world,scenePrimitives),...factoryEnvironmentStatic(world,scenePrimitives));
   cache.set(key,shapes);return shapes;
 }
 function doorDetail(s,door,time){
@@ -113,6 +116,7 @@ export function factoryDynamicMeshes(world,time=0,options={}){
     flat(shapes,plate.min.x+.045,plate.max.y+.008,plate.min.z+.045,plate.max.x-plate.min.x-.09,plate.max.z-plate.min.z-.09,color,{plateId:plate.id,pressed:motion.plate.pressed});
   }
   for(const witness of motion.bankLights){const rail=factorySolids(world).find(c=>c.id===witness.id),x=(rail.min.x+rail.max.x)/2;ellipsoid(shapes,x,rail.max.y+.10,rail.min.z+.13,.07,.07,.07,witness.lit?'#f2d378':'#819b88',8,3,{bankWitnessId:witness.id,lit:!!witness.lit});}
+  shapes.push(...factoryMachineryDynamic(world,motion,time,scenePrimitives),...factoryEnvironmentDynamic(world,time,scenePrimitives,{reducedMotion:options.reducedMotion===true}));
   return shapes;
 }
 export function factoryCameraConfig(world){world=requireWorld(world);return {azimuth:world.view.azimuth,elevation:world.view.elevation,zoom:1};}

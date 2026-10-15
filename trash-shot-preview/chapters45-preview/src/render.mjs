@@ -1,12 +1,12 @@
-import { predictArc } from './physics.mjs?v=20261014-quick-retry-1';
-import { roomScene,roomMotionShapes,roomMonitorQuad,paintScreenQuad } from './room-scene.mjs?v=20261014-quick-retry-1';
-import {schoolScene,schoolMotionShapes,schoolCameraConfig} from './school-scene.mjs?v=20261014-quick-retry-1';
-import {outdoorScene,outdoorMotionShapes,outdoorCameraConfig} from './outdoor-scene.mjs?v=20261014-quick-retry-1';
-import {factoryScene,factoryMotionShapes,factoryCameraConfig} from './factory-scene.mjs?v=20261014-quick-retry-1';
-import {eccentricScene,eccentricMotionShapes,eccentricCameraConfig,eccentricItemMeshes} from './eccentric-scene.mjs?v=20261014-quick-retry-1';
-import {drawPixelText} from './pixel-type.mjs?v=20261014-quick-retry-1';
-import {getThrowable} from './throwables.mjs?v=20261014-quick-retry-1';
-import {getThrowableId,throwablePose} from './throwable-physics.mjs?v=20261014-quick-retry-1';
+import { predictArc } from './physics.mjs?v=20261015-factory-machines-2';
+import { roomScene,roomMotionShapes,roomMonitorQuad,paintScreenQuad } from './room-scene.mjs?v=20261015-factory-machines-2';
+import {schoolScene,schoolMotionShapes,schoolCameraConfig} from './school-scene.mjs?v=20261015-factory-machines-2';
+import {outdoorScene,outdoorMotionShapes,outdoorCameraConfig} from './outdoor-scene.mjs?v=20261015-factory-machines-2';
+import {factoryScene,factoryMotionShapes,factoryCameraConfig} from './factory-scene.mjs?v=20261015-factory-machines-2';
+import {eccentricScene,eccentricMotionShapes,eccentricCameraConfig,eccentricItemMeshes} from './eccentric-scene.mjs?v=20261015-factory-machines-2';
+import {drawPixelText} from './pixel-type.mjs?v=20261015-factory-machines-2';
+import {getThrowable} from './throwables.mjs?v=20261015-factory-machines-2';
+import {getThrowableId,throwablePose} from './throwable-physics.mjs?v=20261015-factory-machines-2';
 
 const add = (a,b) => ({ x:a.x+b.x, y:a.y+b.y, z:a.z+b.z });
 const sub = (a,b) => ({ x:a.x-b.x, y:a.y-b.y, z:a.z-b.z });

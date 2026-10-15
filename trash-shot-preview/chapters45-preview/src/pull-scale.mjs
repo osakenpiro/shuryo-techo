@@ -1,5 +1,5 @@
 // Comparison-lab input calibration. This does not change physics or saved input.
-import {pullAim, PULL_FEEL} from './pull-feel.mjs?v=20261014-quick-retry-1';
+import {pullAim, PULL_FEEL} from './pull-feel.mjs?v=20261015-factory-machines-2';
 
 export const CAN_PULL_PROFILE = Object.freeze({id:'can',radius:.14,minPower:.5,
   maxPower:14,normalPowerMultiplier:1});

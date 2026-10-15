@@ -1,19 +1,19 @@
 // V7 owns Chapter 4/5 mechanisms, revised outdoor worlds and profile-3 items. Historical codecs stay
 // fixed. Playback interpolates recorded poses; it never simulates or awards.
-import {shotTimeLimit} from './physics.mjs?v=20261014-quick-retry-1';
-import {ReplayError,REPLAY_LIMITS,REPLAY_ROLE_LABELS} from './replay.mjs?v=20261014-quick-retry-1';
-import {roomWorld,sweepSphereAABB} from './room-course.mjs?v=20261014-quick-retry-1';
-import {roomContactColliders} from './room-contact.mjs?v=20261014-quick-retry-1';
-import {schoolSolids,schoolStudentPose,schoolStudentPoses} from './school-world.mjs?v=20261014-quick-retry-1';
-import {validateSchoolStudentClearance} from './school-replay.mjs?v=20261014-quick-retry-1';
-import {outdoorGoals,outdoorMotion,outdoorDynamicSolids} from './outdoor-world.mjs?v=20261014-quick-retry-1';
-import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261014-quick-retry-1';
-import {factoryGoals,factoryMotion,factoryDynamicSolids} from './factory-world.mjs?v=20261014-quick-retry-1';
-import {createFactorySession,validateFactorySession} from './factory-play.mjs?v=20261014-quick-retry-1';
-import {eccentricGoals,eccentricMotion,eccentricDynamicSolids,eccentricLaunchFrame} from './eccentric-world.mjs?v=20261014-quick-retry-1';
-import {THROWABLE_CATALOG} from './throwables.mjs?v=20261014-quick-retry-1';
-import {throwableWorldProfile} from './throwable-world-profile.mjs?v=20261014-quick-retry-1';
-import {setThrowableWorld} from './throwable-physics.mjs?v=20261014-quick-retry-1';
+import {shotTimeLimit} from './physics.mjs?v=20261015-factory-machines-2';
+import {ReplayError,REPLAY_LIMITS,REPLAY_ROLE_LABELS} from './replay.mjs?v=20261015-factory-machines-2';
+import {roomWorld,sweepSphereAABB} from './room-course.mjs?v=20261015-factory-machines-2';
+import {roomContactColliders} from './room-contact.mjs?v=20261015-factory-machines-2';
+import {schoolSolids,schoolStudentPose,schoolStudentPoses} from './school-world.mjs?v=20261015-factory-machines-2';
+import {validateSchoolStudentClearance} from './school-replay.mjs?v=20261015-factory-machines-2';
+import {outdoorGoals,outdoorMotion,outdoorDynamicSolids} from './outdoor-world.mjs?v=20261015-factory-machines-2';
+import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261015-factory-machines-2';
+import {factoryGoals,factoryMotion,factoryDynamicSolids} from './factory-world.mjs?v=20261015-factory-machines-2';
+import {createFactorySession,validateFactorySession} from './factory-play.mjs?v=20261015-factory-machines-2';
+import {eccentricGoals,eccentricMotion,eccentricDynamicSolids,eccentricLaunchFrame} from './eccentric-world.mjs?v=20261015-factory-machines-2';
+import {THROWABLE_CATALOG} from './throwables.mjs?v=20261015-factory-machines-2';
+import {throwableWorldProfile} from './throwable-world-profile.mjs?v=20261015-factory-machines-2';
+import {setThrowableWorld} from './throwable-physics.mjs?v=20261015-factory-machines-2';
 export const ADVANCED_REPLAY_STORAGE_KEY='trash-shot-advanced-replays-v7';
 export const ADVANCED_REPLAY_LIMITS=Object.freeze({version:7,contactModel:1,duration:5.1,frames:720,hz:60,rawBytes:1024*1024,contacts:2400,urlChars:8000,saved:5,storageBytes:5*1024*1024+100,storageKey:ADVANCED_REPLAY_STORAGE_KEY});
 const AXES=['x','y','z'],SLOP=1e-5,TOL=.0001,CONTACT_KEYS=['type','surface','object','colliderId','shotId','time','position','normal','incomingNormalSpeed','beforeVelocity','afterVelocity'];

@@ -1,7 +1,7 @@
 // Two owned local keys with verified paired writes and rollback. TS2/TS3 detect
 // typos, not forgery. Existing TS1–TS4 bytes and validation remain strict.
-import {PROGRESS_STORAGE_KEY,PROGRESS_BACKUP_KEY,PROGRESS_BACKUP_LIMIT,CHAPTER_IDS,PREVIOUS_CHAPTER_IDS,FIRST_CHAPTER_IDS,LEGACY_CHAPTER_IDS,validateProgress,decodeProgressCode} from './progress-save.mjs?v=20261014-quick-retry-1';
-import {validateRewards,validateLegacyRewards,validateSchoolRewards,validateOutdoorRewards} from './rewards.mjs?v=20261014-quick-retry-1';
+import {PROGRESS_STORAGE_KEY,PROGRESS_BACKUP_KEY,PROGRESS_BACKUP_LIMIT,CHAPTER_IDS,PREVIOUS_CHAPTER_IDS,FIRST_CHAPTER_IDS,LEGACY_CHAPTER_IDS,validateProgress,decodeProgressCode} from './progress-save.mjs?v=20261015-factory-machines-2';
+import {validateRewards,validateLegacyRewards,validateSchoolRewards,validateOutdoorRewards} from './rewards.mjs?v=20261015-factory-machines-2';
 
 export const REWARDS_STORAGE_KEY='trash-shot-player-rewards-v1';
 export const REWARDS_BACKUP_KEY='trash-shot-player-rewards-v1-corrupt-backup';

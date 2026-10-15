@@ -1,42 +1,42 @@
-import {buildGoalCue,goalCueMarkup} from './goal-cue.mjs?v=20261014-quick-retry-1';
-import { STAGES, createStageProgress } from './stages.mjs?v=20261014-quick-retry-1';
-import { sideAim } from './side-aim.mjs?v=20261014-quick-retry-1';
-import {createPixelIntro} from './pixel-intro.mjs?v=20261014-quick-retry-1';
-import {createRoomWindStepper} from './room-gimmicks.mjs?v=20261014-quick-retry-1';
-import {CHAPTER_IDS,FIRST_CHAPTER_IDS,SCHOOL_CHAPTER_IDS,OUTDOOR_CHAPTER_IDS,FACTORY_CHAPTER_IDS,ECCENTRIC_CHAPTER_IDS,BRANCH_CHAPTER_IDS,STAGE_THROWABLE_ITEMS,CHAPTERS,chapterForStage,getNextStage,isChapterBoundary,createChapterProgress,outdoorSnapshot,canChooseStage} from './progress-save.mjs?v=20261014-quick-retry-1';
-import {roomCourse,roomWorld,createRoomCourseStepper} from './room-course.mjs?v=20261014-quick-retry-1';
-import {createPlayRoomStepper,predictPlayRoomArc} from './play-room.mjs?v=20261014-quick-retry-1';
-import {createSchoolPlayStepper,predictSchoolArc} from './school-play.mjs?v=20261014-quick-retry-1';
-import {createOutdoorPlayStepper,predictOutdoorArc} from './outdoor-play.mjs?v=20261014-quick-retry-1';
-import {outdoorStartTime,shrineStartTime,outdoorGoals,outdoorMotion} from './outdoor-world.mjs?v=20261014-quick-retry-1';
-import {factoryStartTime,factoryGoals} from './factory-world.mjs?v=20261014-quick-retry-1';
-import {createFactoryPlayStepper,createFactorySession,resetFactorySession,predictFactoryArc} from './factory-play.mjs?v=20261014-quick-retry-1';
-import {eccentricStartTime,eccentricLaunchFrame,eccentricGoals,eccentricMotion} from './eccentric-world.mjs?v=20261014-quick-retry-1';
-import {createEccentricPlayStepper,throwEccentric,predictEccentricArc} from './eccentric-play.mjs?v=20261014-quick-retry-1';
-import {createOutdoorEffects} from './outdoor-effects.mjs?v=20261014-quick-retry-1';
-import {createBaseballIntro} from './baseball-intro.mjs?v=20261014-quick-retry-1';
-import {loadOutdoorReplays,saveOutdoorReplay,deleteOutdoorReplay,createAdvancedRecorder,loadAdvancedReplays,saveAdvancedReplay,deleteAdvancedReplay} from './play-replay.mjs?v=20261014-quick-retry-1';
-import {COURSE_REPLAY_LIMITS,createCourseReplay,validateCourseReplay,coursePayload,courseReplayResult,createCourseReplayPlayer,courseReplayToJSON,parseCourseReplayJSON,decodeCourseReplay,buildCourseReplayURL,interpretCourseContacts,loadPlayReplays,savePlayReplay,deletePlayReplay,loadItemReplays,saveItemReplay,deleteItemReplay,loadSchoolReplays,saveSchoolReplay,deleteSchoolReplay} from './play-replay.mjs?v=20261014-quick-retry-1';
-import {createPullScale,mapScaledPull} from './pull-scale.mjs?v=20261014-quick-retry-1';
-import {createPlayCue,playCueMarkup,pullHandleMarkup,launchCueOrigin} from './play-cue.mjs?v=20261014-quick-retry-1';
-import {launchSummary,impactSummary} from './shot-summary.mjs?v=20261014-quick-retry-1';
-import { createGame, setSetup, setRoomWorld, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261014-quick-retry-1';
-import { createRenderer } from './render.mjs?v=20261014-quick-retry-1';
-import { createShotAnalytics } from './shot-analytics.mjs?v=20261014-quick-retry-1';
-import { createRecorder, loadReplays, saveReplay, deleteReplay } from './replay.mjs?v=20261014-quick-retry-1';
-import {createGameShell} from './game-shell.mjs?v=20261014-quick-retry-1';
-import {createTitleScreen} from './title-screen.mjs?v=20261014-quick-retry-1';
-import {createGameMenu} from './game-menu.mjs?v=20261014-quick-retry-1';
-import {createPlayerSaveUI} from './player-save-ui.mjs?v=20261014-quick-retry-1';
-import {quickRetryKey,quickRetryStartsRun,createResultDelay} from './quick-retry.mjs?v=20261014-quick-retry-1';
+import {buildGoalCue,goalCueMarkup} from './goal-cue.mjs?v=20261015-factory-machines-2';
+import { STAGES, createStageProgress } from './stages.mjs?v=20261015-factory-machines-2';
+import { sideAim } from './side-aim.mjs?v=20261015-factory-machines-2';
+import {createPixelIntro} from './pixel-intro.mjs?v=20261015-factory-machines-2';
+import {createRoomWindStepper} from './room-gimmicks.mjs?v=20261015-factory-machines-2';
+import {CHAPTER_IDS,FIRST_CHAPTER_IDS,SCHOOL_CHAPTER_IDS,OUTDOOR_CHAPTER_IDS,FACTORY_CHAPTER_IDS,ECCENTRIC_CHAPTER_IDS,BRANCH_CHAPTER_IDS,STAGE_THROWABLE_ITEMS,CHAPTERS,chapterForStage,getNextStage,isChapterBoundary,createChapterProgress,outdoorSnapshot,canChooseStage} from './progress-save.mjs?v=20261015-factory-machines-2';
+import {roomCourse,roomWorld,createRoomCourseStepper} from './room-course.mjs?v=20261015-factory-machines-2';
+import {createPlayRoomStepper,predictPlayRoomArc} from './play-room.mjs?v=20261015-factory-machines-2';
+import {createSchoolPlayStepper,predictSchoolArc} from './school-play.mjs?v=20261015-factory-machines-2';
+import {createOutdoorPlayStepper,predictOutdoorArc} from './outdoor-play.mjs?v=20261015-factory-machines-2';
+import {outdoorStartTime,shrineStartTime,outdoorGoals,outdoorMotion} from './outdoor-world.mjs?v=20261015-factory-machines-2';
+import {factoryStartTime,factoryGoals} from './factory-world.mjs?v=20261015-factory-machines-2';
+import {createFactoryPlayStepper,createFactorySession,resetFactorySession,predictFactoryArc} from './factory-play.mjs?v=20261015-factory-machines-2';
+import {eccentricStartTime,eccentricLaunchFrame,eccentricGoals,eccentricMotion} from './eccentric-world.mjs?v=20261015-factory-machines-2';
+import {createEccentricPlayStepper,throwEccentric,predictEccentricArc} from './eccentric-play.mjs?v=20261015-factory-machines-2';
+import {createOutdoorEffects} from './outdoor-effects.mjs?v=20261015-factory-machines-2';
+import {createBaseballIntro} from './baseball-intro.mjs?v=20261015-factory-machines-2';
+import {loadOutdoorReplays,saveOutdoorReplay,deleteOutdoorReplay,createAdvancedRecorder,loadAdvancedReplays,saveAdvancedReplay,deleteAdvancedReplay} from './play-replay.mjs?v=20261015-factory-machines-2';
+import {COURSE_REPLAY_LIMITS,createCourseReplay,validateCourseReplay,coursePayload,courseReplayResult,createCourseReplayPlayer,courseReplayToJSON,parseCourseReplayJSON,decodeCourseReplay,buildCourseReplayURL,interpretCourseContacts,loadPlayReplays,savePlayReplay,deletePlayReplay,loadItemReplays,saveItemReplay,deleteItemReplay,loadSchoolReplays,saveSchoolReplay,deleteSchoolReplay} from './play-replay.mjs?v=20261015-factory-machines-2';
+import {createPullScale,mapScaledPull} from './pull-scale.mjs?v=20261015-factory-machines-2';
+import {createPlayCue,playCueMarkup,pullHandleMarkup,launchCueOrigin} from './play-cue.mjs?v=20261015-factory-machines-2';
+import {launchSummary,impactSummary} from './shot-summary.mjs?v=20261015-factory-machines-2';
+import { createGame, setSetup, setRoomWorld, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261015-factory-machines-2';
+import { createRenderer } from './render.mjs?v=20261015-factory-machines-2';
+import { createShotAnalytics } from './shot-analytics.mjs?v=20261015-factory-machines-2';
+import { createRecorder, loadReplays, saveReplay, deleteReplay } from './replay.mjs?v=20261015-factory-machines-2';
+import {createGameShell} from './game-shell.mjs?v=20261015-factory-machines-2';
+import {createTitleScreen} from './title-screen.mjs?v=20261015-factory-machines-2';
+import {createGameMenu} from './game-menu.mjs?v=20261015-factory-machines-2';
+import {createPlayerSaveUI} from './player-save-ui.mjs?v=20261015-factory-machines-2';
+import {quickRetryKey,quickRetryStartsRun,createResultDelay} from './quick-retry.mjs?v=20261015-factory-machines-2';
 
-import {createRewards,ACHIEVEMENTS} from './rewards.mjs?v=20261014-quick-retry-1';
-import {loadPlayerSave,savePlayerSave,restorePlayerSave} from './player-save.mjs?v=20261014-quick-retry-1';
-import {THROWABLE_CATALOG,getThrowable} from './throwables.mjs?v=20261014-quick-retry-1';
-import {setThrowable,getThrowableId,getThrowableProfile} from './throwable-physics.mjs?v=20261014-quick-retry-1';
-import {createStoreUI} from './item-store.mjs?v=20261014-quick-retry-1';
-import {createRewardEffects} from './reward-effects.mjs?v=20261014-quick-retry-1';
-import {createPreviewStorage} from './preview-storage.mjs?v=20261014-quick-retry-1';
+import {createRewards,ACHIEVEMENTS} from './rewards.mjs?v=20261015-factory-machines-2';
+import {loadPlayerSave,savePlayerSave,restorePlayerSave} from './player-save.mjs?v=20261015-factory-machines-2';
+import {THROWABLE_CATALOG,getThrowable} from './throwables.mjs?v=20261015-factory-machines-2';
+import {setThrowable,getThrowableId,getThrowableProfile} from './throwable-physics.mjs?v=20261015-factory-machines-2';
+import {createStoreUI} from './item-store.mjs?v=20261015-factory-machines-2';
+import {createRewardEffects} from './reward-effects.mjs?v=20261015-factory-machines-2';
+import {createPreviewStorage} from './preview-storage.mjs?v=20261015-factory-machines-2';
 
 let goalCueStage=null,goalCuePending=false,goalCueUntil=0,goalCueSource=null,goalCueState={visible:false,markers:[]};
 const GOAL_CUE_MS=3200;
@@ -115,7 +115,7 @@ const inviteDialog=$('invite-dialog');
 function openGameInvitation(){
   if(!inviteDialog||busy()||pixelIntro?.active)return false;
   cancelGesture('game-invite');
-  const url=new URL(location.href);url.hash='';url.search='';url.searchParams.set('v','20261014-quick-retry-1');
+  const url=new URL(location.href);url.hash='';url.search='';url.searchParams.set('v','20261015-factory-machines-2');
   $('invite-link').value=url.href;
   $('invite-message').textContent='';
   $('invite-share').hidden=typeof navigator.share!=='function';
@@ -1154,16 +1154,20 @@ function presentGoalCamera(world,stage){
     // or the ball. Dynamic poses still use the main view's exact live clock.
     const goals=world.goals?.filter(goal=>goal.role==='normal')??[],target=goals.length?goals.reduce((point,goal)=>({x:point.x+goal.center.x/goals.length,y:point.y+goal.center.y/goals.length,z:point.z+goal.center.z/goals.length}),{x:0,y:0,z:0}):{x:world.bin.center.x,y:world.bin.height,z:world.bin.center.z};
     const baseball=world.outdoorType==='baseball',mall=world.outdoorType==='mall',river=world.outdoorType==='river';
+    const factoryGoal=world.environment==='factory'&&[26,27,28,29].includes(world.worldVersion);
+    const conveyorGoal=factoryGoal&&world.factoryType==='conveyor';
     const smallMall=mall&&goals.some(goal=>goal.kind==='cone'&&goal.radius<=.1),smallRiver=river&&world.props?.tube?.mouthRadius<=.2;
     const goalWidth=goals.length?Math.max(...goals.map(goal=>goal.center.x+(goal.radius??goal.halfWidth??0)))-Math.min(...goals.map(goal=>goal.center.x-(goal.radius??goal.halfWidth??0))):0;
     if(baseball)target.y-=.55;
     if(smallMall)target.y-=.35;
     if(smallRiver)target.y+=1;
-    goalCameraWorld={...world,view:{...world.view,target,distance:baseball?Math.max(14,goalWidth*.95+1.5):smallMall?2.2:smallRiver?5.5:mall?6.5:7}};
+    // The factory receiver camera sits past the shutter/gate and between bank
+    // walls. It stays fixed there while showing the same live shot and clock.
+    goalCameraWorld={...world,view:{...world.view,target,distance:conveyorGoal?1.65:factoryGoal?1.85:baseball?Math.max(14,goalWidth*.95+1.5):smallMall?2.2:smallRiver?5.5:mall?6.5:7}};
     goalRenderer.setWorldView(goalCameraWorld);goalRenderer.resize();
     // Front/three-quarter placement keeps the receiver readable and avoids
     // looking through the scoreboard behind the baseball stand.
-    goalRenderer.restoreCamera({azimuth:baseball?.12:smallRiver?Math.PI:.35,elevation:baseball?.24:smallMall?.35:mall?.42:smallRiver?.24:.32,zoom:1});
+    goalRenderer.restoreCamera({azimuth:factoryGoal?0:baseball?.12:smallRiver?Math.PI:.35,elevation:conveyorGoal?1.15:factoryGoal?.6:baseball?.24:smallMall?.35:mall?.42:smallRiver?.24:.32,zoom:1});
     goalCameraStage=stageProgress.snapshot().id;
   }
   const environmentTime=sceneTime(),snapshot=playStepper?.snapshot();
