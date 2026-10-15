@@ -22,6 +22,7 @@ export const FACTORY_PHYSICS_WORLDS=freeze({
   44:{worldVersion:44,origin:p(0,1.65,0),bin:{center:p(0,.4,6.3),radius:.72,height:.8}},
   45:{worldVersion:45,origin:p(0,2.45,0),bin:{center:p(0,.5,5.5),radius:.8,height:1}},
   46:{worldVersion:46,origin:p(0,1.65,0),bin:{center:p(-2.2,.4,7.25),radius:.72,height:.8}},
+  47:{worldVersion:47,origin:p(0,1.3,0),bin:{center:p(1.15,.55,6.7),radius:.72,height:1.1}},
 });
 const binSolids=(g)=>[
   box(`${g.id}-body`,'collection-bin',p(g.center.x-g.radius,0,g.center.z-g.radius),p(g.center.x+g.radius,g.center.y-.25,g.center.z+g.radius)),
@@ -132,24 +133,46 @@ function conveyorLineWorld(){
       ...wall('factory-line-inlet',1.45,-.6,.6,0,2.25),...wall('factory-line-right-port',3.25,1.5,3,1.5,1.96),...wall('factory-line-left-port',5.7,-3,-1.45,1.3,1.76),
       box('factory-line-safety-ceiling','safety-glass',p(-4.3,5.9,-2.2),p(4.3,6.1,9.35),'ceiling',.25)]};
 }
-export const FACTORY_WORLDS=freeze({...FACTORY_NECESSITY_WORLDS,'factory-conveyor':conveyorLineWorld()});
+export const FACTORY_CONVEYOR_WORLDS=freeze({...FACTORY_NECESSITY_WORLDS,'factory-conveyor':conveyorLineWorld()});
 
-const WORLD_BY_VERSION=freeze(Object.fromEntries([...Object.values(FACTORY_LEGACY_WORLDS),...Object.values(FACTORY_RELEASED_WORLDS),...Object.values(FACTORY_ROUTE_WORLDS),...Object.values(FACTORY_NECESSITY_WORLDS),...Object.values(FACTORY_WORLDS)].map(w=>[w.worldVersion,w])));
+
+function timedRelayWorld(){
+  const old=FACTORY_CONVEYOR_WORLDS['factory-relay'],physics=FACTORY_PHYSICS_WORLDS[47];
+  const mechanism={...old.mechanism,kind:'timed-relay',min:p(-4.3,0,4.4),max:p(4.3,5.9,4.6),lift:6,
+    track:{points:[p(-2.7,.84,3.6),p(-2.7,.65,6.6),p(-3.1,.5,7.2)],duration:7,openFrom:1,openUntil:6,ramp:.6}};
+  return {...old,worldVersion:47,physics,origin:physics.origin,bin:physics.bin,mechanism,launch:mechanism.setupLaunch,
+    solids:[...old.solids.filter(s=>s.kind!=='machine-reflector'&&!s.id.startsWith('factory-relay-gate-')),
+      box('factory-relay-safety-ceiling','safety-glass',p(-4.3,5.9,-2.2),p(4.3,6.1,9.35),'ceiling',.25),
+      ...[[-2.86,-2.78],[-2.62,-2.54]].map(([a,b],i)=>box('factory-relay-track-rail-'+i,'relay-track-rail',p(a,.36,3.6),p(b,.48,6.8),'furniture',.28))]};
+}
+export const FACTORY_WORLDS=freeze({...FACTORY_CONVEYOR_WORLDS,'factory-relay':timedRelayWorld()});
+function timedRelayMotion(world,time,session){
+  const track=world.mechanism.track,activated=session?.version===2&&session.stageId===world.stageId&&session.plateLatched&&Number.isFinite(session.activatedAt),age=activated?Math.max(0,time-session.activatedAt):0;
+  const progress=activated?Math.min(1,age/track.duration):0,remaining=activated?Math.max(0,track.openUntil-age):0;
+  const opening=activated?Math.max(0,Math.min(1,(age-(track.openFrom-track.ramp))/track.ramp,(track.openUntil+track.ramp-age)/track.ramp)):0;
+  const points=[...(activated?[{...session.setupBall.position}]:[{...world.mechanism.plateCenter,y:world.mechanism.plateCenter.y+.14}]),...track.points.map(q=>({...q}))];
+  const lengths=points.slice(1).map((q,i)=>Math.hypot(q.x-points[i].x,q.y-points[i].y,q.z-points[i].z));let distance=lengths.reduce((a,b)=>a+b,0)*progress,position={...points[0]};
+  for(let i=0;i<lengths.length;i++){const ratio=Math.min(1,distance/lengths[i]);position=Object.fromEntries(['x','y','z'].map(a=>[a,points[i][a]+(points[i+1][a]-points[i][a])*ratio]));if(distance<=lengths[i])break;distance-=lengths[i];}
+  return {relayClock:{activated,age,remaining,progress,open:opening>.999,expired:activated&&age>=track.duration,sensorActive:activated&&age>=track.openFrom-track.ramp&&age<track.openUntil+track.ramp},track:{...track,points},lift:world.mechanism.lift*opening,
+    balls:activated?[{...structuredClone(session.setupBall),position,rolling:progress<1,progress}]:[]};
+}
+
+const WORLD_BY_VERSION=freeze(Object.fromEntries([...Object.values(FACTORY_LEGACY_WORLDS),...Object.values(FACTORY_RELEASED_WORLDS),...Object.values(FACTORY_ROUTE_WORLDS),...Object.values(FACTORY_NECESSITY_WORLDS),...Object.values(FACTORY_CONVEYOR_WORLDS),...Object.values(FACTORY_WORLDS)].map(w=>[w.worldVersion,w])));
 export function factoryWorldByVersion(worldVersion){return Number.isInteger(worldVersion)&&Object.hasOwn(WORLD_BY_VERSION,worldVersion)?WORLD_BY_VERSION[worldVersion]:null;}
 export function factoryWorld(stageId,worldVersion){const world=worldVersion===undefined?typeof stageId==='string'&&Object.hasOwn(FACTORY_WORLDS,stageId)?FACTORY_WORLDS[stageId]:null:factoryWorldByVersion(worldVersion);return world?.stageId===stageId?world:null;}
 function requireWorld(world){const saved=factoryWorld(world?.stageId,world?.worldVersion);if(!saved)throw new RangeError('A supported factory world is required');return saved;}
 export function factorySolids(world){return requireWorld(world).solids;}
 export function factoryGoals(world,time=0,session){world=requireWorld(world);if(!Number.isFinite(time))throw new TypeError('Factory time must be finite');return world.goals.map(value=>({...value,center:{...value.center}}));}
 export function factoryMotion(world,time=0,session){
-  world=requireWorld(world);if(!Number.isFinite(time))throw new TypeError('Factory time must be finite');
-  const mechanism=world.mechanism;let shutter=null,gate=null,belt=null;
+  world=requireWorld(world);if(!Number.isFinite(time))throw new TypeError('Factory time must be finite');if(world.worldVersion===47&&(time<0||time>1e9))throw new RangeError('Timed relay clock is outside its absolute range');
+  const mechanism=world.mechanism,timed=world.worldVersion===47?timedRelayMotion(world,time,session):null;let shutter=null,gate=null,belt=null;
   if(world.factoryType==='shutter'){
     const phase=factoryStartTime(time),lift=mechanism.lift*(.5-.5*Math.cos(phase*Math.PI/4));
     shutter={id:mechanism.id,kind:'shutter',lift,min:p(mechanism.min.x,mechanism.min.y+lift,mechanism.min.z),max:p(mechanism.max.x,mechanism.max.y+lift,mechanism.max.z),open:lift>2.3};
   }
   if(world.factoryType==='conveyor')belt={id:mechanism.id,kind:'conveyor',speed:mechanism.speed,direction:{...mechanism.direction},offset:time*mechanism.speed,endZ:mechanism.endZ};
   if(world.factoryType==='relay'){
-    const lift=session?.stageId===world.stageId&&session?.plateLatched?mechanism.lift:0;
+    const lift=timed?timed.lift:session?.stageId===world.stageId&&session?.plateLatched?mechanism.lift:0;
     gate={id:mechanism.id,kind:'relay-gate',lift,min:p(mechanism.min.x,mechanism.min.y+lift,mechanism.min.z),max:p(mechanism.max.x,mechanism.max.y+lift,mechanism.max.z),open:lift>0};
   }
   const pistons=(mechanism.pistons??[]).map(q=>{
@@ -159,8 +182,8 @@ export function factoryMotion(world,time=0,session){
   });
   const belts=world.worldVersion===46?world.solids.filter(s=>s.surface==='belt').map(s=>({id:s.id,kind:s.kind,min:{...s.min},max:{...s.max},speed:Math.hypot(s.surfaceVelocity.x,s.surfaceVelocity.z),direction:p(s.surfaceVelocity.x/Math.hypot(s.surfaceVelocity.x,s.surfaceVelocity.z),0,s.surfaceVelocity.z/Math.hypot(s.surfaceVelocity.x,s.surfaceVelocity.z)),offset:time*Math.hypot(s.surfaceVelocity.x,s.surfaceVelocity.z)})):[];
   const presses=(mechanism.presses??[]).map(q=>{const lift=q.lift*(.5+.5*Math.cos(time*2*Math.PI/mechanism.pressPeriod+q.phase));return {id:q.id,kind:'stamping-press',lift,min:p(q.min.x,q.min.y+lift,q.min.z),max:p(q.max.x,q.max.y+lift,q.max.z),closed:lift<.35};});
-  const balls=world.factoryType==='relay'&&session?.stageId===world.stageId&&session.setupBall?[structuredClone(session.setupBall)]:[];
-  return {actors:[],goals:factoryGoals(world,time,session),shutter,gate,belt,balls,...(pistons.length?{pistons}:{}),...(belts.length?{belts,presses}:{}),plate:{id:mechanism.plateId??null,pressed:!!(session?.stageId===world.stageId&&session.plateLatched)},
+  const balls=timed?timed.balls:world.factoryType==='relay'&&session?.stageId===world.stageId&&session.setupBall?[structuredClone(session.setupBall)]:[];
+  return {actors:[],goals:factoryGoals(world,time,session),shutter,gate,belt,balls,...(pistons.length?{pistons}:{}),...(belts.length?{belts,presses}:{}),...(timed?{relayClock:timed.relayClock,track:timed.track}:{}),plate:{id:mechanism.plateId??null,pressed:!!(session?.stageId===world.stageId&&session.plateLatched)},
     bankLights:world.factoryType==='bank'?mechanism.requiredColliders.map(id=>({id,lit:session?.stageId===world.stageId&&session.bankContacts?.includes(id)})):[]};
 }
 export function factoryDynamicSolids(world,time=0,session){

@@ -1,42 +1,42 @@
-import {buildGoalCue,goalCueMarkup} from './goal-cue.mjs?v=20261015-conveyor-line-1';
-import { STAGES, createStageProgress } from './stages.mjs?v=20261015-conveyor-line-1';
-import { sideAim } from './side-aim.mjs?v=20261015-conveyor-line-1';
-import {createPixelIntro} from './pixel-intro.mjs?v=20261015-conveyor-line-1';
-import {createRoomWindStepper} from './room-gimmicks.mjs?v=20261015-conveyor-line-1';
-import {CHAPTER_IDS,FIRST_CHAPTER_IDS,SCHOOL_CHAPTER_IDS,OUTDOOR_CHAPTER_IDS,FACTORY_CHAPTER_IDS,ECCENTRIC_CHAPTER_IDS,BRANCH_CHAPTER_IDS,STAGE_THROWABLE_ITEMS,CHAPTERS,chapterForStage,getNextStage,isChapterBoundary,createChapterProgress,outdoorSnapshot,canChooseStage} from './progress-save.mjs?v=20261015-conveyor-line-1';
-import {roomCourse,roomWorld,createRoomCourseStepper} from './room-course.mjs?v=20261015-conveyor-line-1';
-import {createPlayRoomStepper,predictPlayRoomArc} from './play-room.mjs?v=20261015-conveyor-line-1';
-import {createSchoolPlayStepper,predictSchoolArc} from './school-play.mjs?v=20261015-conveyor-line-1';
-import {createOutdoorPlayStepper,predictOutdoorArc} from './outdoor-play.mjs?v=20261015-conveyor-line-1';
-import {outdoorStartTime,shrineStartTime,outdoorGoals,outdoorMotion} from './outdoor-world.mjs?v=20261015-conveyor-line-1';
-import {factoryStartTime,factoryGoals} from './factory-world.mjs?v=20261015-conveyor-line-1';
-import {createFactoryPlayStepper,createFactorySession,resetFactorySession,predictFactoryArc} from './factory-play.mjs?v=20261015-conveyor-line-1';
-import {eccentricStartTime,eccentricLaunchFrame,eccentricGoals,eccentricMotion} from './eccentric-world.mjs?v=20261015-conveyor-line-1';
-import {createEccentricPlayStepper,throwEccentric,predictEccentricArc} from './eccentric-play.mjs?v=20261015-conveyor-line-1';
-import {createOutdoorEffects} from './outdoor-effects.mjs?v=20261015-conveyor-line-1';
-import {createBaseballIntro} from './baseball-intro.mjs?v=20261015-conveyor-line-1';
-import {loadOutdoorReplays,saveOutdoorReplay,deleteOutdoorReplay,createAdvancedRecorder,loadAdvancedReplays,saveAdvancedReplay,deleteAdvancedReplay} from './play-replay.mjs?v=20261015-conveyor-line-1';
-import {COURSE_REPLAY_LIMITS,createCourseReplay,validateCourseReplay,coursePayload,courseReplayResult,createCourseReplayPlayer,courseReplayToJSON,parseCourseReplayJSON,decodeCourseReplay,buildCourseReplayURL,interpretCourseContacts,loadPlayReplays,savePlayReplay,deletePlayReplay,loadItemReplays,saveItemReplay,deleteItemReplay,loadSchoolReplays,saveSchoolReplay,deleteSchoolReplay} from './play-replay.mjs?v=20261015-conveyor-line-1';
-import {createPullScale,mapScaledPull,screenPullBasis} from './pull-scale.mjs?v=20261015-conveyor-line-1';
-import {createPlayCue,playCueMarkup,pullHandleMarkup,launchCueOrigin} from './play-cue.mjs?v=20261015-conveyor-line-1';
-import {launchSummary,impactSummary} from './shot-summary.mjs?v=20261015-conveyor-line-1';
-import { createGame, setSetup, setRoomWorld, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261015-conveyor-line-1';
-import { createRenderer } from './render.mjs?v=20261015-conveyor-line-1';
-import { createShotAnalytics } from './shot-analytics.mjs?v=20261015-conveyor-line-1';
-import { createRecorder, loadReplays, saveReplay, deleteReplay } from './replay.mjs?v=20261015-conveyor-line-1';
-import {createGameShell} from './game-shell.mjs?v=20261015-conveyor-line-1';
-import {createTitleScreen} from './title-screen.mjs?v=20261015-conveyor-line-1';
-import {createGameMenu} from './game-menu.mjs?v=20261015-conveyor-line-1';
-import {createPlayerSaveUI} from './player-save-ui.mjs?v=20261015-conveyor-line-1';
-import {quickRetryKey,quickRetryStartsRun,createResultDelay} from './quick-retry.mjs?v=20261015-conveyor-line-1';
+import {buildGoalCue,goalCueMarkup} from './goal-cue.mjs?v=20261015-timed-relay-1';
+import { STAGES, createStageProgress } from './stages.mjs?v=20261015-timed-relay-1';
+import { sideAim } from './side-aim.mjs?v=20261015-timed-relay-1';
+import {createPixelIntro} from './pixel-intro.mjs?v=20261015-timed-relay-1';
+import {createRoomWindStepper} from './room-gimmicks.mjs?v=20261015-timed-relay-1';
+import {CHAPTER_IDS,FIRST_CHAPTER_IDS,SCHOOL_CHAPTER_IDS,OUTDOOR_CHAPTER_IDS,FACTORY_CHAPTER_IDS,ECCENTRIC_CHAPTER_IDS,BRANCH_CHAPTER_IDS,STAGE_THROWABLE_ITEMS,CHAPTERS,chapterForStage,getNextStage,isChapterBoundary,createChapterProgress,outdoorSnapshot,canChooseStage} from './progress-save.mjs?v=20261015-timed-relay-1';
+import {roomCourse,roomWorld,createRoomCourseStepper} from './room-course.mjs?v=20261015-timed-relay-1';
+import {createPlayRoomStepper,predictPlayRoomArc} from './play-room.mjs?v=20261015-timed-relay-1';
+import {createSchoolPlayStepper,predictSchoolArc} from './school-play.mjs?v=20261015-timed-relay-1';
+import {createOutdoorPlayStepper,predictOutdoorArc} from './outdoor-play.mjs?v=20261015-timed-relay-1';
+import {outdoorStartTime,shrineStartTime,outdoorGoals,outdoorMotion} from './outdoor-world.mjs?v=20261015-timed-relay-1';
+import {factoryStartTime,factoryGoals,factoryMotion} from './factory-world.mjs?v=20261015-timed-relay-1';
+import {createFactoryPlayStepper,createFactorySession,resetFactorySession,predictFactoryArc} from './factory-play.mjs?v=20261015-timed-relay-1';
+import {eccentricStartTime,eccentricLaunchFrame,eccentricGoals,eccentricMotion} from './eccentric-world.mjs?v=20261015-timed-relay-1';
+import {createEccentricPlayStepper,throwEccentric,predictEccentricArc} from './eccentric-play.mjs?v=20261015-timed-relay-1';
+import {createOutdoorEffects} from './outdoor-effects.mjs?v=20261015-timed-relay-1';
+import {createBaseballIntro} from './baseball-intro.mjs?v=20261015-timed-relay-1';
+import {loadOutdoorReplays,saveOutdoorReplay,deleteOutdoorReplay,createAdvancedRecorder,loadAdvancedReplays,saveAdvancedReplay,deleteAdvancedReplay} from './play-replay.mjs?v=20261015-timed-relay-1';
+import {COURSE_REPLAY_LIMITS,createCourseReplay,validateCourseReplay,coursePayload,courseReplayResult,createCourseReplayPlayer,courseReplayToJSON,parseCourseReplayJSON,decodeCourseReplay,buildCourseReplayURL,interpretCourseContacts,loadPlayReplays,savePlayReplay,deletePlayReplay,loadItemReplays,saveItemReplay,deleteItemReplay,loadSchoolReplays,saveSchoolReplay,deleteSchoolReplay} from './play-replay.mjs?v=20261015-timed-relay-1';
+import {createPullScale,mapScaledPull,screenPullBasis} from './pull-scale.mjs?v=20261015-timed-relay-1';
+import {createPlayCue,playCueMarkup,pullHandleMarkup,launchCueOrigin} from './play-cue.mjs?v=20261015-timed-relay-1';
+import {launchSummary,impactSummary} from './shot-summary.mjs?v=20261015-timed-relay-1';
+import { createGame, setSetup, setRoomWorld, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261015-timed-relay-1';
+import { createRenderer } from './render.mjs?v=20261015-timed-relay-1';
+import { createShotAnalytics } from './shot-analytics.mjs?v=20261015-timed-relay-1';
+import { createRecorder, loadReplays, saveReplay, deleteReplay } from './replay.mjs?v=20261015-timed-relay-1';
+import {createGameShell} from './game-shell.mjs?v=20261015-timed-relay-1';
+import {createTitleScreen} from './title-screen.mjs?v=20261015-timed-relay-1';
+import {createGameMenu} from './game-menu.mjs?v=20261015-timed-relay-1';
+import {createPlayerSaveUI} from './player-save-ui.mjs?v=20261015-timed-relay-1';
+import {quickRetryKey,quickRetryStartsRun,createResultDelay} from './quick-retry.mjs?v=20261015-timed-relay-1';
 
-import {createRewards,ACHIEVEMENTS} from './rewards.mjs?v=20261015-conveyor-line-1';
-import {loadPlayerSave,savePlayerSave,restorePlayerSave} from './player-save.mjs?v=20261015-conveyor-line-1';
-import {THROWABLE_CATALOG,getThrowable} from './throwables.mjs?v=20261015-conveyor-line-1';
-import {setThrowable,getThrowableId,getThrowableProfile} from './throwable-physics.mjs?v=20261015-conveyor-line-1';
-import {createStoreUI} from './item-store.mjs?v=20261015-conveyor-line-1';
-import {createRewardEffects} from './reward-effects.mjs?v=20261015-conveyor-line-1';
-import {createPreviewStorage} from './preview-storage.mjs?v=20261015-conveyor-line-1';
+import {createRewards,ACHIEVEMENTS} from './rewards.mjs?v=20261015-timed-relay-1';
+import {loadPlayerSave,savePlayerSave,restorePlayerSave} from './player-save.mjs?v=20261015-timed-relay-1';
+import {THROWABLE_CATALOG,getThrowable} from './throwables.mjs?v=20261015-timed-relay-1';
+import {setThrowable,getThrowableId,getThrowableProfile} from './throwable-physics.mjs?v=20261015-timed-relay-1';
+import {createStoreUI} from './item-store.mjs?v=20261015-timed-relay-1';
+import {createRewardEffects} from './reward-effects.mjs?v=20261015-timed-relay-1';
+import {createPreviewStorage} from './preview-storage.mjs?v=20261015-timed-relay-1';
 
 let goalCueStage=null,goalCuePending=false,goalCueUntil=0,goalCueSource=null,goalCueState={visible:false,markers:[]};
 const GOAL_CUE_MS=3200;
@@ -76,14 +76,14 @@ const outdoorStage=()=>OUTDOOR_CHAPTER_IDS.includes(stageProgress.snapshot().id)
 const factoryStage=()=>FACTORY_CHAPTER_IDS.includes(stageProgress.snapshot().id);
 const eccentricStage=()=>ECCENTRIC_CHAPTER_IDS.includes(stageProgress.snapshot().id);
 const advancedStage=()=>factoryStage()||eccentricStage();
-const environmentStartTime=()=>factoryStage()?factoryStartTime(environmentTime):eccentricStage()?eccentricStartTime(environmentTime):outdoorStage()?liveWorld()?.worldVersion===30?shrineStartTime(environmentTime):outdoorStartTime(environmentTime):schoolStage()?schoolStartTime():0;
+const environmentStartTime=()=>factoryStage()?(liveWorld()?.worldVersion===47?environmentTime:factoryStartTime(environmentTime)):eccentricStage()?eccentricStartTime(environmentTime):outdoorStage()?liveWorld()?.worldVersion===30?shrineStartTime(environmentTime):outdoorStartTime(environmentTime):schoolStage()?schoolStartTime():0;
 const inputLimits=()=>liveWorld()?.physics.launchLimits??{minPower:.5,maxPower:14,minElevation:sideStage()?5:15,maxElevation:sideStage()?85:75};
 const schoolStartTime=()=>((environmentTime%8)+8)%8;
 const makePlayStepper=(world,startTime=environmentStartTime())=>world?world.environment==='factory'?createFactoryPlayStepper(world,{startTime,session:factorySession}):world.environment==='eccentric'?createEccentricPlayStepper(world,{startTime}):world.environment==='outdoor'?createOutdoorPlayStepper(world,{startTime,onEffect:effect=>outdoorEffects.onLiveEffects([effect],world)}):world.environment==='school'?createSchoolPlayStepper(world,{startTime}):createPlayRoomStepper(world,{extra:world.stageId==='room-extra'}):null;
 const chapterOf=(id=stageProgress.snapshot().id)=>chapterForStage(id)??chapterForStage(chapterProgress.snapshot().resumeStage)??CHAPTERS[0];
 const chapterCount=(chapter,state=chapterProgress.snapshot())=>chapter.ids.filter(id=>state.completedIDs.includes(id)).length;
 // A moving goal's pose freezes to its recorded shot clock through the result.
-const sceneTime=()=>((schoolStage()&&['flying','settling'].includes(game.phase))||((outdoorStage()||advancedStage())&&game.phase!=='ready'))&&shotContext?.worldVersion===liveWorld()?.worldVersion?shotContext.startTime+game.time+(outdoorStage()&&shotContext.endEnvironmentTime!=null?Math.max(0,environmentTime-shotContext.endEnvironmentTime):0):liveWorld()?.worldVersion===39?eccentricStartTime(environmentTime):environmentTime;
+const sceneTime=()=>liveWorld()?.worldVersion===47?(busy()&&shotContext?.worldVersion===47?shotContext.startTime+game.time:environmentTime):((schoolStage()&&['flying','settling'].includes(game.phase))||((outdoorStage()||advancedStage())&&game.phase!=='ready'))&&shotContext?.worldVersion===liveWorld()?.worldVersion?shotContext.startTime+game.time+(outdoorStage()&&shotContext.endEnvironmentTime!=null?Math.max(0,environmentTime-shotContext.endEnvironmentTime):0):liveWorld()?.worldVersion===39?eccentricStartTime(environmentTime):environmentTime;
 const unlockedStage=id=>!CHAPTER_IDS.includes(id)||canChooseStage(chapterProgress.snapshot(),id);
 let freeSetup={distance:6,height:1.3};
 let previous3DMode='throw';
@@ -115,7 +115,7 @@ const inviteDialog=$('invite-dialog');
 function openGameInvitation(){
   if(!inviteDialog||busy()||pixelIntro?.active)return false;
   cancelGesture('game-invite');
-  const url=new URL(location.href);url.hash='';url.search='';url.searchParams.set('v','20261015-conveyor-line-1');
+  const url=new URL(location.href);url.hash='';url.search='';url.searchParams.set('v','20261015-timed-relay-1');
   $('invite-link').value=url.href;
   $('invite-message').textContent='';
   $('invite-share').hidden=typeof navigator.share!=='function';
@@ -219,7 +219,7 @@ function updateScoreSummary(){
 }
 function updateAnalysisUI(){const element=$('live-shot-analysis');if(!element)return;const settled=['success','miss'].includes(game.phase)&&lastShotAnalysis?.shotId===game.attempts;element.hidden=!settled;element.textContent=settled?lastShotAnalysis.launch.text:'';}
 function updateUI(force=false){
-  const key=[game.phase,game.lastEvent,game.attempts,game.successes,game.bin.center.z,game.bin.height,pixelIntro?.active===true,fanEnabled,baseballIntro.active].join('|');
+  const key=[game.phase,game.lastEvent,game.attempts,game.successes,game.bin.center.z,game.bin.height,pixelIntro?.active===true,fanEnabled,baseballIntro.active,...(liveWorld()?.worldVersion===47?[timedRelayState()?.activated,timedRelayState()?.open,timedRelayState()?.expired,timedRelayState()?.sensorActive]:[])].join('|');
   if(key===lastUIKey&&!force)return;
   lastUIKey=key;
   for(const input of inputs)input.disabled=busy();
@@ -248,6 +248,7 @@ function updateUI(force=false){
   if(busy()&&game.lastEvent==='side-hit')$('status-detail').textContent='箱の横に当たった。';
   if(game.phase==='miss'&&game.events.some(event=>event.type==='student-blocked'))$('status-detail').textContent='生徒が通り過ぎるのを待って、もう一投。';
   if(liveWorld()?.worldVersion===46&&game.phase==='miss'&&playStepper?.snapshot().effects?.some(e=>e.type==='factory-press')){$('status').textContent='プレスに挟まれた！';$('status-detail').textContent='動きを見て、投げるタイミングを変えよう。リトライ R でもう一投。';}
+  if(liveWorld()?.worldVersion===47&&game.phase!=='success'&&factorySession?.plateLatched){const relay=timedRelayState();$('status').textContent=relay.expired?'扉が閉じた！':relay.open?'扉が開いている！':'一球目が仕掛けを動かしています';$('status-detail').textContent=relay.expired?'リトライ R で一球目から、もう一度。':'球がレールを流れる間に、二球目を箱へ。構えている間も動きます。';}
   if(busy()&&game.lastEvent==='entered')$('status-detail').textContent='箱の中へ！ 投げたものが落ち着くのを待とう。';
   if(baseballIntro.active){$('status').textContent='投球から、打球へ。';$('status-detail').textContent='投手の球を打ち返します。';$('live-shot-result').textContent='投手が投げています…';}
   updateHint();
@@ -394,7 +395,7 @@ function updateStageUI(){
     'factory-shutter':'箱はひとつ。開く瞬間を狙うか、右の反射ガイドで回り込もう。',
     'factory-conveyor':'右へ、奥へ、左へ。4本のベルトを乗り継いで箱へ。途中の2基のプレスを見て投げよう。',
     'factory-bank':'正面は遮蔽物。左右に動くピストンの面で跳ね返し、向こうの箱を狙おう。',
-    'factory-relay':factorySession?.plateLatched?'扉が開いた！ 次の球を右奥の箱へ。リトライで装置も戻ります。':'左の板を1球目で押して扉を開ける？ 右のガイドで1球で入れる？ 同じ箱への道を探そう。',
+    'factory-relay':liveWorld()?.worldVersion===47?(factorySession?.plateLatched?(timedRelayState()?.expired?'扉が閉じました。リトライ R で一球目から。':'一球目が流れる間に二球目を箱へ。構えている間も扉は動きます。'):'一球目を左の受け口へ。球がレールを流れる間だけ扉が開きます。'):factorySession?.plateLatched?'扉が開いた！ 次の球を右奥の箱へ。リトライで装置も戻ります。':'左の板を1球目で押して扉を開ける？ 右のガイドで1球で入れる？ 同じ箱への道を探そう。',
     'eccentric-tower':'250mの展望台から、街のごみ箱へ。低い弧で落とすように投げよう。「タワー全景」で塔を見渡せます。',
     'eccentric-train':'自分の車窓から、隣の電車の開いた窓へ。少し先のごみ箱を狙って、窓が並ぶタイミングで離そう。',
     'eccentric-boar':'森のイノシシに矢を当てよう。歩く速さを見て、少し先へ狙います。',
@@ -424,7 +425,7 @@ function updateStageUI(){
   $('tutorial-card').hidden=state.id!=='tutorial';
   const clear=chapterStage()?!trainingMode&&!chapterPractice&&chapterProgress.snapshot().completedIDs.includes(state.id):state.completed.includes(state.id);
   $('stage-progress').textContent=trainingMode?'トレーニング · 本編の投数・成功・ベストには入りません':chapterPractice?'プレビュー練習 · 本編の記録には入りません':state.id==='free'?'自由投球 · このプレイの記録':`${clear?'クリア済み · ':''}${state.attempts}投 / ${state.successes}成功`;
-  $('stage-message').textContent=factoryStage()&&liveWorld()?.factoryType==='relay'&&game.phase==='miss'&&factorySession?.plateLatched?'仕掛けが動いた！ 次の球で箱へ。':busy()?'投球が落ち着いたら、ステージを変えられます。':state.id==='tutorial'&&clear?'できた！ 次は、1-1のゴミ箱へ。':chapterStage()&&clear?'もう一度挑戦するか、次の面へ。':side&&clear?'脇道クリア！ 本編とは別の挑戦です。':game.phase==='miss'&&state.id!=='free'?'向きや強さを変えて、もう一投。':'';
+  $('stage-message').textContent=factoryStage()&&liveWorld()?.factoryType==='relay'&&game.phase==='miss'&&factorySession?.plateLatched?(liveWorld()?.worldVersion===47?(timedRelayState()?.expired?'時間切れ。リトライ R でもう一度。':'一球目が流れている！ その間に二球目を。'):'仕掛けが動いた！ 次の球で箱へ。'):busy()?'投球が落ち着いたら、ステージを変えられます。':state.id==='tutorial'&&clear?'できた！ 次は、1-1のゴミ箱へ。':chapterStage()&&clear?'もう一度挑戦するか、次の面へ。':side&&clear?'脇道クリア！ 本編とは別の挑戦です。':game.phase==='miss'&&state.id!=='free'?'向きや強さを変えて、もう一投。':'';
   $('stage-next').hidden=!(state.id==='tutorial'||chapterStage())||!clear;$('stage-next').disabled=busy();
   const next=getNextStage(state.id,chapterProgress.snapshot());$('stage-next').textContent=chapterStage()?next?`${STAGES[next].label}へ`:`第${chapterOf().number}章のトップへ`:'1-1へ';
   for(const option of $('stage-select').options){const preview=reviewStage(option.value);option.disabled=!preview&&!unlockedStage(option.value)&&option.value!==state.id;option.textContent=STAGES[option.value].label+(!unlockedStage(option.value)?preview?'（プレビュー練習）':'（未開放）':'');}
@@ -683,6 +684,7 @@ function replayMessage(text,viewer=false,code=''){
   const element=$(viewer?'replay-view-message':'replay-message');element.textContent=text;element.dataset.errorCode=code;
 }
 function roleText(replay){return courseReplayResult(replay).roles.map(role=>role.label).join(' · ');}
+const timedRelayState=()=>liveWorld()?.worldVersion===47?factoryMotion(liveWorld(),sceneTime(),factorySession).relayClock:null;
 function clearCurrentShot(){shotRecorder=null;lastReplay=null;$('shot-result').hidden=true;$('shot-roles').textContent='';$('shot-role-detail').textContent='';$('share-controls').hidden=true;$('share-link').value='';replayMessage('');}
 function captureShot(){
   if((outdoorStage()||advancedStage())&&['success','miss'].includes(game.phase)&&shotContext?.endEnvironmentTime==null){shotContext.endEnvironmentTime=environmentTime;const capture=getSnapshot(game).goalCapture??null;shotContext.capture=capture?{...capture,environmentTime:shotContext.startTime+capture.time}:null;}
@@ -695,7 +697,7 @@ function captureShot(){
       witnessedContacts:{core:analyticsTrace.contacts.length,room:roomContacts.length},finalEntryTime:game.phase==='success'?result?.finalEntryTime??null:null};
     updateAnalysisUI();
   }
-  if(factoryStage()&&liveWorld()?.factoryType==='relay'&&game.phase==='miss'&&factorySession?.plateLatched&&shotContext&&!shotContext.setupPresented){
+  if(factoryStage()&&liveWorld()?.factoryType==='relay'&&game.phase==='miss'&&factorySession?.plateLatched&&shotContext&&!shotContext.setupPresented&&(liveWorld()?.worldVersion!==47||factorySession.setupShot===game.attempts)){
     shotContext.setupPresented=true;Object.assign(controls,liveWorld().mechanism.goalLaunch);updateControlLabels();updateStageUI();
   }
   if(!shotRecorder){if(game.phase==='success')completeChapterShot();return;}
@@ -958,7 +960,7 @@ async function loadSharedReplay(){
 }
 window.addEventListener('hashchange',loadSharedReplay);
 loadSharedReplay();
-window.__trashShot={goalCueSnapshot:()=>structuredClone(goalCueState),game,controls,pitchSnapshot:()=>baseballIntro.snapshot(liveWorld(),game.can.radius),advancedSnapshot:()=>({active:advancedStage(),preview:reviewChapters45,stageId:stageProgress.snapshot().id,environmentTime,startTime:environmentStartTime(),sceneTime:sceneTime(),towerViewMode,goalCameraGoalId,motion:eccentricStage()?structuredClone(eccentricMotion(liveWorld(),sceneTime())):null,factorySession:factorySession?structuredClone(factorySession):null,impactPose:playStepper?.snapshot().impactPose??null}),outdoorSnapshot:()=>({active:outdoorStage(),preview:reviewChapter3,stageId:stageProgress.snapshot().id,environmentTime,startTime:environmentStartTime(),sceneTime:sceneTime(),motion:outdoorStage()?structuredClone(outdoorMotion(liveWorld(),sceneTime())):null,facts:outdoorSnapshot(chapterProgress.snapshot()),audio:outdoorEffects.snapshot(),goalCamera:{enabled:goalCameraVisible,visible:goalCameraShown(),mode:'inset',mainMode:'thrower',stageId:goalCameraShown()?stageProgress.snapshot().id:null,camera:renderer.cameraSnapshot(),insetVisible:goalCameraShown(),insetCamera:goalRenderer?.cameraSnapshot()??null,presented:goalCameraPresented?{...goalCameraPresented}:null,prediction:false,numericLabels:false}}),schoolSnapshot:()=>({active:schoolStage(),stageId:stageProgress.snapshot().id,environmentTime,phase:schoolStartTime(),sceneTime:sceneTime()}),menuSnapshot:()=>({selected:menuUI?.selected()??null,open:$('game-menu')?.open===true,arcTipVisible:$('arc-tip')?.hidden===false,arcTipLearned}),titleSnapshot:()=>({active:titleActive(),seen:titleSeen,unlocked:titleUnlocked(),firstResultPending:firstTitlePending()}),stageSnapshot:()=>({...stageProgress.snapshot(),completed:[...stageProgress.snapshot().completed.filter(id=>!CHAPTER_IDS.includes(id)),...chapterProgress.snapshot().completedIDs]}),chapterSnapshot:()=>({...chapterProgress.snapshot(),training:trainingMode,practice:chapterPractice,currentStage:stageProgress.snapshot().id,result:chapterResult?{stageId:chapterResult.stageId,attempts:chapterResult.attempts,roles:structuredClone(chapterResult.roles),best:chapterResult.best,practice:chapterResult.practice,itemId:chapterResult.itemId,reward:structuredClone(chapterResult.reward),analysis:structuredClone(chapterResult.analysis)}:null}),courseSnapshot:()=>playStepper?.snapshot()??courseStepper.snapshot(),rewardSnapshot:()=>rewards.snapshot(),throwableSnapshot:()=>({id:getThrowableId(game),profile:getThrowableProfile(game)??getThrowable(getThrowableId(game)).physics}),playSnapshot:()=>structuredClone({roomContacts:playStepper?.snapshot()??null,cue:cueSnapshot,trainingPreview:trainingPreview??[],frozenScale:view.gesture?.scale??null,presentedAim:lastPresentedAim,releasedAim:lastReleasedAim,resultAnalysis:lastShotAnalysis,numericLabels:trainingMode,predictionVisible:trainingMode&&view.prediction}),snapshot:()=>getSnapshot(game),cameraSnapshot:()=>renderer.cameraSnapshot(),introSnapshot:()=>pixelIntro?.snapshot()??null,gimmickSnapshot:()=>({active:extraRoom(),fanEnabled,...(playStepper?.snapshot()??roomWind.snapshot()),windArc:(trainingPreview??[]).map(p=>({...p}))}),inputSnapshot:()=>({scheme:chapterProgress.snapshot().inputScheme,training:trainingMode,trainingStats:{...trainingStats},worldVersion:liveWorld()?.worldVersion??1,mode:view.mode,prediction:view.prediction,activeGesture:view.gesture?.kind||null,heldAim:view.gesture?.kind==='throw'?{...view.gesture.aim.actual,valid:view.gesture.aim.valid,risk:view.gesture.aim.risk,rawDistance:view.gesture.aim.rawDistance}:null,lastPaintedPhase:view.gesture?.kind==='throw'?(view.gesture.presentationTime-view.gesture.started)/1000:null,activePointers:pointers.size,cancellations,lastInput:lastInput?structuredClone(lastInput):null}),analyticsSnapshot:()=>({...analytics.snapshot(),result:actualLiveResult()}),replaySnapshot:()=>({active:replayDialog.open,playing:replayPlaying,time:replayTime,duration:replayPlayer?.duration||0,sourceId:viewedPayload?.id||null,sourceType:replaySource,recordedFrames:viewedPayload?.frames.length||0,current:replayPlayer?structuredClone(replayPlayer.sample(replayTime)):null,result:viewedResult?structuredClone(viewedResult):null,course:viewedReplay?.course?structuredClone(viewedReplay.course):null,savedCount:savedReplays.length,latestId:lastReplay?coursePayload(lastReplay).id:null,recording:Boolean(videoState),video:videoBlob?{size:videoBlob.size,mime:videoBlob.type}:null})};
+window.__trashShot={goalCueSnapshot:()=>structuredClone(goalCueState),game,controls,pitchSnapshot:()=>baseballIntro.snapshot(liveWorld(),game.can.radius),advancedSnapshot:()=>({active:advancedStage(),preview:reviewChapters45,stageId:stageProgress.snapshot().id,environmentTime,startTime:environmentStartTime(),sceneTime:sceneTime(),towerViewMode,goalCameraGoalId,motion:eccentricStage()?structuredClone(eccentricMotion(liveWorld(),sceneTime())):null,factorySession:factorySession?structuredClone(factorySession):null,timedRelay:liveWorld()?.worldVersion===47?structuredClone(factoryMotion(liveWorld(),sceneTime(),factorySession)):null,impactPose:playStepper?.snapshot().impactPose??null}),outdoorSnapshot:()=>({active:outdoorStage(),preview:reviewChapter3,stageId:stageProgress.snapshot().id,environmentTime,startTime:environmentStartTime(),sceneTime:sceneTime(),motion:outdoorStage()?structuredClone(outdoorMotion(liveWorld(),sceneTime())):null,facts:outdoorSnapshot(chapterProgress.snapshot()),audio:outdoorEffects.snapshot(),goalCamera:{enabled:goalCameraVisible,visible:goalCameraShown(),mode:'inset',mainMode:'thrower',stageId:goalCameraShown()?stageProgress.snapshot().id:null,camera:renderer.cameraSnapshot(),insetVisible:goalCameraShown(),insetCamera:goalRenderer?.cameraSnapshot()??null,presented:goalCameraPresented?{...goalCameraPresented}:null,prediction:false,numericLabels:false}}),schoolSnapshot:()=>({active:schoolStage(),stageId:stageProgress.snapshot().id,environmentTime,phase:schoolStartTime(),sceneTime:sceneTime()}),menuSnapshot:()=>({selected:menuUI?.selected()??null,open:$('game-menu')?.open===true,arcTipVisible:$('arc-tip')?.hidden===false,arcTipLearned}),titleSnapshot:()=>({active:titleActive(),seen:titleSeen,unlocked:titleUnlocked(),firstResultPending:firstTitlePending()}),stageSnapshot:()=>({...stageProgress.snapshot(),completed:[...stageProgress.snapshot().completed.filter(id=>!CHAPTER_IDS.includes(id)),...chapterProgress.snapshot().completedIDs]}),chapterSnapshot:()=>({...chapterProgress.snapshot(),training:trainingMode,practice:chapterPractice,currentStage:stageProgress.snapshot().id,result:chapterResult?{stageId:chapterResult.stageId,attempts:chapterResult.attempts,roles:structuredClone(chapterResult.roles),best:chapterResult.best,practice:chapterResult.practice,itemId:chapterResult.itemId,reward:structuredClone(chapterResult.reward),analysis:structuredClone(chapterResult.analysis)}:null}),courseSnapshot:()=>playStepper?.snapshot()??courseStepper.snapshot(),rewardSnapshot:()=>rewards.snapshot(),throwableSnapshot:()=>({id:getThrowableId(game),profile:getThrowableProfile(game)??getThrowable(getThrowableId(game)).physics}),playSnapshot:()=>structuredClone({roomContacts:playStepper?.snapshot()??null,cue:cueSnapshot,trainingPreview:trainingPreview??[],frozenScale:view.gesture?.scale??null,presentedAim:lastPresentedAim,releasedAim:lastReleasedAim,resultAnalysis:lastShotAnalysis,numericLabels:trainingMode,predictionVisible:trainingMode&&view.prediction}),snapshot:()=>getSnapshot(game),cameraSnapshot:()=>renderer.cameraSnapshot(),introSnapshot:()=>pixelIntro?.snapshot()??null,gimmickSnapshot:()=>({active:extraRoom(),fanEnabled,...(playStepper?.snapshot()??roomWind.snapshot()),windArc:(trainingPreview??[]).map(p=>({...p}))}),inputSnapshot:()=>({scheme:chapterProgress.snapshot().inputScheme,training:trainingMode,trainingStats:{...trainingStats},worldVersion:liveWorld()?.worldVersion??1,mode:view.mode,prediction:view.prediction,activeGesture:view.gesture?.kind||null,heldAim:view.gesture?.kind==='throw'?{...view.gesture.aim.actual,valid:view.gesture.aim.valid,risk:view.gesture.aim.risk,rawDistance:view.gesture.aim.rawDistance}:null,lastPaintedPhase:view.gesture?.kind==='throw'?(view.gesture.presentationTime-view.gesture.started)/1000:null,activePointers:pointers.size,cancellations,lastInput:lastInput?structuredClone(lastInput):null}),analyticsSnapshot:()=>({...analytics.snapshot(),result:actualLiveResult()}),replaySnapshot:()=>({active:replayDialog.open,playing:replayPlaying,time:replayTime,duration:replayPlayer?.duration||0,sourceId:viewedPayload?.id||null,sourceType:replaySource,recordedFrames:viewedPayload?.frames.length||0,current:replayPlayer?structuredClone(replayPlayer.sample(replayTime)):null,result:viewedResult?structuredClone(viewedResult):null,course:viewedReplay?.course?structuredClone(viewedReplay.course):null,savedCount:savedReplays.length,latestId:lastReplay?coursePayload(lastReplay).id:null,recording:Boolean(videoState),video:videoBlob?{size:videoBlob.size,mime:videoBlob.type}:null})};
 updateControlLabels();updateUI(true);
 // Explicit stages and shared records bypass the fresh pixel introduction.
 const entryStage=new URLSearchParams(location.search).get('stage')??(reviewChapters45?'factory-shutter':reviewChapter3?'outdoor-shrine':null);
@@ -1157,7 +1159,7 @@ function presentGoalCamera(world,stage){
     // or the ball. Dynamic poses still use the main view's exact live clock.
     const goals=world.goals?.filter(goal=>goal.role==='normal')??[],target=goals.length?goals.reduce((point,goal)=>({x:point.x+goal.center.x/goals.length,y:point.y+goal.center.y/goals.length,z:point.z+goal.center.z/goals.length}),{x:0,y:0,z:0}):{x:world.bin.center.x,y:world.bin.height,z:world.bin.center.z};
     const baseball=world.outdoorType==='baseball',mall=world.outdoorType==='mall',river=world.outdoorType==='river';
-    const factoryGoal=world.environment==='factory'&&[26,27,28,29,40,41,42,43,44,45,46].includes(world.worldVersion);
+    const factoryGoal=world.environment==='factory'&&[26,27,28,29,40,41,42,43,44,45,46,47].includes(world.worldVersion);
     const conveyorGoal=factoryGoal&&world.factoryType==='conveyor';
     const smallMall=mall&&goals.some(goal=>goal.kind==='cone'&&goal.radius<=.1),smallRiver=river&&world.props?.tube?.mouthRadius<=.2;
     const goalWidth=goals.length?Math.max(...goals.map(goal=>goal.center.x+(goal.radius??goal.halfWidth??0)))-Math.min(...goals.map(goal=>goal.center.x-(goal.radius??goal.halfWidth??0))):0;

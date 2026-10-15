@@ -1,8 +1,8 @@
-import {schoolWorld} from './school-world.mjs?v=20261015-conveyor-line-1';
-import {outdoorWorld} from './outdoor-world.mjs?v=20261015-conveyor-line-1';
-import {factoryWorld} from './factory-world.mjs?v=20261015-conveyor-line-1';
-import {eccentricWorld} from './eccentric-world.mjs?v=20261015-conveyor-line-1';
-import { stepGame, ROOM_PHYSICS_WORLDS } from './physics.mjs?v=20261015-conveyor-line-1';
+import {schoolWorld} from './school-world.mjs?v=20261015-timed-relay-1';
+import {outdoorWorld} from './outdoor-world.mjs?v=20261015-timed-relay-1';
+import {factoryWorld} from './factory-world.mjs?v=20261015-timed-relay-1';
+import {eccentricWorld} from './eccentric-world.mjs?v=20261015-timed-relay-1';
+import { stepGame, ROOM_PHYSICS_WORLDS } from './physics.mjs?v=20261015-timed-relay-1';
 
 const TICK = 1 / 240, EPS = 1e-9, SLOP = 1e-5;
 const AXES = ['x', 'y', 'z'];
@@ -85,7 +85,7 @@ export function roomCourse(stageId,worldVersion=1) {
 }
 export function roomWorld(stageId,worldVersion=2) {
   if(worldVersion>=11&&worldVersion<=14||worldVersion>=30&&worldVersion<=37)return outdoorWorld(stageId,worldVersion);
-  if(worldVersion>=15&&worldVersion<=18||worldVersion>=26&&worldVersion<=29||[40,41,42,43,44,45,46].includes(worldVersion))return factoryWorld(stageId,worldVersion);
+  if(worldVersion>=15&&worldVersion<=18||worldVersion>=26&&worldVersion<=29||[40,41,42,43,44,45,46,47].includes(worldVersion))return factoryWorld(stageId,worldVersion);
   if(worldVersion>=19&&worldVersion<=25||worldVersion===38||worldVersion===39)return eccentricWorld(stageId,worldVersion);
   if(worldVersion>=6&&worldVersion<=10)return schoolWorld(stageId,worldVersion);
   const worlds=worldVersion===1||worldVersion===2||worldVersion===3||worldVersion===4||worldVersion===5?WORLDS[worldVersion]:null;

@@ -1,28 +1,29 @@
 // Timed Chapter 4 mechanisms compose the existing fixed 240 Hz contact solver.
 // A conveyor reaction applies only after real top contact. Relay state persists
 // across retry/throws until its owner explicitly resets or replaces the session.
-import {createGame,setRoomWorld,throwCan,captureGoal,stopBlockedShot,setShotEnvironmentStart} from './physics.mjs?v=20261015-conveyor-line-1';
-import {cloneThrowable,getThrowableId,throwableRestitution,throwableFriction} from './throwable-physics.mjs?v=20261015-conveyor-line-1';
-import {getThrowable} from './throwables.mjs?v=20261015-conveyor-line-1';
-import {createRoomContactStepper,ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261015-conveyor-line-1';
-import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261015-conveyor-line-1';
-import {sweepSphereAABB} from './room-course.mjs?v=20261015-conveyor-line-1';
-import {factoryWorld,factoryGoals,factorySolids,factoryDynamicSolids,factoryStartTime} from './factory-world.mjs?v=20261015-conveyor-line-1';
+import {createGame,setRoomWorld,throwCan,captureGoal,stopBlockedShot,setShotEnvironmentStart} from './physics.mjs?v=20261015-timed-relay-1';
+import {cloneThrowable,getThrowableId,throwableRestitution,throwableFriction} from './throwable-physics.mjs?v=20261015-timed-relay-1';
+import {getThrowable} from './throwables.mjs?v=20261015-timed-relay-1';
+import {createRoomContactStepper,ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261015-timed-relay-1';
+import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261015-timed-relay-1';
+import {sweepSphereAABB} from './room-course.mjs?v=20261015-timed-relay-1';
+import {factoryWorld,factoryGoals,factorySolids,factoryDynamicSolids,factoryStartTime} from './factory-world.mjs?v=20261015-timed-relay-1';
 const TICK=ROOM_CONTACT_TICK,EPS=1e-9,SLOP=1e-5,AXES=['x','y','z'];
 const active=game=>game?.phase==='flying'||game?.phase==='settling';
 const copy=p=>({x:p.x,y:p.y,z:p.z});
 const sub=(a,b)=>Object.fromEntries(AXES.map(axis=>[axis,a[axis]-b[axis]]));
 function requireWorld(world){const saved=factoryWorld(world?.stageId,world?.worldVersion);if(!saved)throw new RangeError('A supported factory world is required');return saved;}
 export const FACTORY_PLAY_TICK=TICK;
-export function createFactorySession(world){world=requireWorld(world);return {version:1,stageId:world.stageId,plateLatched:false,setupBall:null,setupContact:null,setupShot:null,bankContacts:[],completed:false};}
+export function createFactorySession(world){world=requireWorld(world);return {version:world.worldVersion===47?2:1,stageId:world.stageId,plateLatched:false,setupBall:null,setupContact:null,setupShot:null,bankContacts:[],completed:false,...(world.worldVersion===47?{setupStartTime:null,activatedAt:null}:{})};}
 export function resetFactorySession(session,world){world=requireWorld(world);if(!session||typeof session!=='object')throw new TypeError('Factory session is required');Object.assign(session,createFactorySession(world));return session;}
 // Recorded sessions carry the actual first-ball contact witness. Validation is
 // structural and geometric, not a claim that client saves are cheat proof.
 export function validateFactorySession(value,world){
   try{world=requireWorld(world);}catch{return false;}
-  if(!value||value.version!==1||value.stageId!==world.stageId||typeof value.plateLatched!=='boolean'||typeof value.completed!=='boolean'||!Array.isArray(value.bankContacts)||new Set(value.bankContacts).size!==value.bankContacts.length)return false;
+  if(!value||value.version!==(world.worldVersion===47?2:1)||value.stageId!==world.stageId||typeof value.plateLatched!=='boolean'||typeof value.completed!=='boolean'||!Array.isArray(value.bankContacts)||new Set(value.bankContacts).size!==value.bankContacts.length)return false;
   const ids=world.factoryType==='bank'?world.mechanism.requiredColliders:[];
   if(value.bankContacts.some(id=>!ids.includes(id)))return false;
+  if(world.worldVersion===47&&(!value.plateLatched?(value.setupStartTime!==null||value.activatedAt!==null):(!Number.isFinite(value.setupStartTime)||value.setupStartTime<0||value.setupStartTime>1e9||!Number.isFinite(value.activatedAt)||value.activatedAt<0||value.activatedAt>1e9||Math.abs(value.activatedAt-value.setupStartTime-(value.setupContact?.time??NaN))>1e-8)))return false;
   if(!value.plateLatched)return value.setupBall===null&&value.setupContact===null&&value.setupShot===null;
   if(world.factoryType!=='relay')return false;
   const ball=value.setupBall,c=value.setupContact,item=getThrowable(ball?.itemId),plate=world.solids.find(s=>s.id===world.mechanism.plateId),finite=p=>p&&AXES.every(a=>Number.isFinite(p[a])&&Math.abs(p[a])<1000);
@@ -32,7 +33,7 @@ export function validateFactorySession(value,world){
 }
 function requireSession(session,world){if(!session)session=createFactorySession(world);if(!validateFactorySession(session,world))throw new RangeError('Factory session does not match this world');return session;}
 export function createFactoryPlayStepper(world,{startTime=0,onContact,onEffect,session}={}){
-  world=requireWorld(world);session=requireSession(session,world);const launchTime=factoryStartTime(startTime),belts=world.solids.filter(s=>s.surface==='belt');let belt=belts[0];
+  world=requireWorld(world);session=requireSession(session,world);const launchTime=world.worldVersion===47?(Number.isFinite(startTime)&&startTime>=0&&startTime<=1e9?startTime:(()=>{throw new RangeError('Timed relay requires an absolute environment clock');})()):factoryStartTime(startTime),belts=world.solids.filter(s=>s.surface==='belt');let belt=belts[0];
   let currentGame=null,remainder=0,ticks=0,shotId=null,elapsed=0,capture=null,effects=[],movingContacts=[],pendingMoving=null,lastMovingContact=-Infinity,carry={active:false,distance:0,contactTime:null,exitTime:null};
   const effect=(type,value={})=>{const item={id:`${world.stageId}:${currentGame?.attempts??0}:${type}:${effects.length}`,type,time:currentGame?.time??elapsed,environmentTime:launchTime+(currentGame?.time??elapsed),...value};effects.push(item);if(typeof onEffect==='function')try{onEffect(structuredClone(item));}catch{/* Display cannot interrupt physics. */}};
   const moving=(time,h)=>{const a=factoryDynamicSolids(world,launchTime+time,session),b=factoryDynamicSolids(world,launchTime+time+h,session);return a.map(solid=>{const delta=sub(b.find(q=>q.id===solid.id).min,solid.min);return {...solid,delta,...(world.worldVersion===45&&solid.kind==='piston-face'?{surfaceVelocity:Object.fromEntries(AXES.map(axis=>[axis,delta[axis]/h]))}:{})};});};
@@ -40,7 +41,7 @@ export function createFactoryPlayStepper(world,{startTime=0,onContact,onEffect,s
   // response. A closing machine bottom needs an additional relative impulse:
   // even a momentarily still ball receives momentum from the descending door.
   function closingBottomHit(game,h){
-    if(world.factoryType!=='shutter')return null;
+    if(world.factoryType!=='shutter'&&world.worldVersion!==47)return null;
     const start=copy(game.can.position),v=game.can.velocity,end={x:start.x+v.x*h,y:start.y+v.y*h-9.81*h*h/2,z:start.z+v.z*h};
     for(const collider of moving(game.time,h)){
       if(collider.delta.y>=-EPS)continue;
@@ -107,8 +108,8 @@ export function createFactoryPlayStepper(world,{startTime=0,onContact,onEffect,s
         carry.active=true;carry.contactTime??=contact.time;currentGame.can.position.y=belt.max.y+currentGame.can.radius+SLOP;
         currentGame.can.velocity={...belt.surfaceVelocity};effect('factory-belt-contact',{sourceId:belt.id,position:copy(currentGame.can.position),surfaceVelocity:copy(belt.surfaceVelocity),incomingVelocity:copy(contact.beforeVelocity)});
       }
-      if(world.factoryType==='relay'&&!session.plateLatched&&contact.colliderId===world.mechanism.plateId&&contact.normal.y>.999&&contact.beforeVelocity.y<-.15&&currentGame){
-        session.plateLatched=true;session.setupShot=currentGame.attempts;session.setupContact=structuredClone(contact);
+      if(world.factoryType==='relay'&&(!session.plateLatched||world.worldVersion===47&&launchTime+contact.time-session.activatedAt>world.mechanism.track.duration)&&contact.colliderId===world.mechanism.plateId&&contact.normal.y>.999&&contact.beforeVelocity.y<-.15&&currentGame){
+        session.plateLatched=true;session.setupShot=currentGame.attempts;if(world.worldVersion===47){session.setupStartTime=launchTime;session.activatedAt=launchTime+contact.time;}session.setupContact=structuredClone(contact);
         session.setupBall={id:'factory-relay-first-ball',itemId:getThrowableId(currentGame),radius:currentGame.can.radius,position:copy(currentGame.can.position),shotId:currentGame.attempts};
         effect('factory-relay-setup',{sourceId:contact.colliderId,position:copy(currentGame.can.position),gateId:world.mechanism.id,setupShot:session.setupShot});
         stopBlockedShot(currentGame,'factory-setup');

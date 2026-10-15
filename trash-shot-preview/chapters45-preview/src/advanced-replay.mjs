@@ -1,19 +1,19 @@
 // V7 owns Chapter 4/5 mechanisms, revised outdoor worlds and profile-3 items. Historical codecs stay
 // fixed. Playback interpolates recorded poses; it never simulates or awards.
-import {shotTimeLimit} from './physics.mjs?v=20261015-conveyor-line-1';
-import {ReplayError,REPLAY_LIMITS,REPLAY_ROLE_LABELS} from './replay.mjs?v=20261015-conveyor-line-1';
-import {roomWorld,sweepSphereAABB} from './room-course.mjs?v=20261015-conveyor-line-1';
-import {roomContactColliders} from './room-contact.mjs?v=20261015-conveyor-line-1';
-import {schoolSolids,schoolStudentPose,schoolStudentPoses} from './school-world.mjs?v=20261015-conveyor-line-1';
-import {validateSchoolStudentClearance} from './school-replay.mjs?v=20261015-conveyor-line-1';
-import {outdoorGoals,outdoorMotion,outdoorDynamicSolids} from './outdoor-world.mjs?v=20261015-conveyor-line-1';
-import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261015-conveyor-line-1';
-import {factoryGoals,factoryMotion,factoryDynamicSolids} from './factory-world.mjs?v=20261015-conveyor-line-1';
-import {createFactorySession,validateFactorySession} from './factory-play.mjs?v=20261015-conveyor-line-1';
-import {eccentricGoals,eccentricMotion,eccentricDynamicSolids,eccentricLaunchFrame} from './eccentric-world.mjs?v=20261015-conveyor-line-1';
-import {THROWABLE_CATALOG} from './throwables.mjs?v=20261015-conveyor-line-1';
-import {throwableWorldProfile} from './throwable-world-profile.mjs?v=20261015-conveyor-line-1';
-import {setThrowableWorld} from './throwable-physics.mjs?v=20261015-conveyor-line-1';
+import {shotTimeLimit} from './physics.mjs?v=20261015-timed-relay-1';
+import {ReplayError,REPLAY_LIMITS,REPLAY_ROLE_LABELS} from './replay.mjs?v=20261015-timed-relay-1';
+import {roomWorld,sweepSphereAABB} from './room-course.mjs?v=20261015-timed-relay-1';
+import {roomContactColliders} from './room-contact.mjs?v=20261015-timed-relay-1';
+import {schoolSolids,schoolStudentPose,schoolStudentPoses} from './school-world.mjs?v=20261015-timed-relay-1';
+import {validateSchoolStudentClearance} from './school-replay.mjs?v=20261015-timed-relay-1';
+import {outdoorGoals,outdoorMotion,outdoorDynamicSolids} from './outdoor-world.mjs?v=20261015-timed-relay-1';
+import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261015-timed-relay-1';
+import {factoryGoals,factoryMotion,factoryDynamicSolids} from './factory-world.mjs?v=20261015-timed-relay-1';
+import {createFactorySession,validateFactorySession} from './factory-play.mjs?v=20261015-timed-relay-1';
+import {eccentricGoals,eccentricMotion,eccentricDynamicSolids,eccentricLaunchFrame} from './eccentric-world.mjs?v=20261015-timed-relay-1';
+import {THROWABLE_CATALOG} from './throwables.mjs?v=20261015-timed-relay-1';
+import {throwableWorldProfile} from './throwable-world-profile.mjs?v=20261015-timed-relay-1';
+import {setThrowableWorld} from './throwable-physics.mjs?v=20261015-timed-relay-1';
 export const ADVANCED_REPLAY_STORAGE_KEY='trash-shot-advanced-replays-v7';
 export const ADVANCED_REPLAY_LIMITS=Object.freeze({version:7,contactModel:1,duration:5.1,frames:720,hz:60,rawBytes:1024*1024,contacts:2400,urlChars:8000,saved:5,storageBytes:5*1024*1024+100,storageKey:ADVANCED_REPLAY_STORAGE_KEY});
 const AXES=['x','y','z'],SLOP=1e-5,TOL=.0001,CONTACT_KEYS=['type','surface','object','colliderId','shotId','time','position','normal','incomingNormalSpeed','beforeVelocity','afterVelocity'];
@@ -31,17 +31,18 @@ function object(value,keys,where){
 function number(v,min,max,where,integer=false){if(typeof v!=='number'||!Number.isFinite(v)||v<min||v>max||integer&&!Number.isInteger(v))fail('INVALID_REPLAY',`${where}: number out of range`);return v;}
 function vector(v,where,normal=false,limit=100){object(v,AXES,where);const r=Object.fromEntries(AXES.map(k=>[k,number(v[k],normal?-1:-limit,normal?1:limit,`${where}.${k}`)]));if(normal&&Math.abs(Math.hypot(...AXES.map(k=>r[k]))-1)>1e-7)fail('INVALID_REPLAY','Contact normal is not unit length');return r;}
 function array(v,min,max,where){if(!Array.isArray(v)||Object.getPrototypeOf(v)!==Array.prototype||v.length<min||v.length>max||Reflect.ownKeys(v).length!==v.length+1)fail('INVALID_REPLAY',`${where}: invalid array`);for(let i=0;i<v.length;i++){const d=Object.getOwnPropertyDescriptor(v,String(i));if(!d||!('value'in d)||!d.enumerable)fail('INVALID_REPLAY',`${where}: sparse or accessor array`);}return v;}
-function worldData(stageId,worldVersion){number(worldVersion,1,46,'worldVersion',true);if(typeof stageId!=='string')fail('INVALID_REPLAY','Stage identity required');const world=roomWorld(stageId,worldVersion);if(!world)fail('INVALID_REPLAY','Unsupported fixed advanced world');return world;}
+function worldData(stageId,worldVersion){number(worldVersion,1,47,'worldVersion',true);if(typeof stageId!=='string')fail('INVALID_REPLAY','Stage identity required');const world=roomWorld(stageId,worldVersion);if(!world)fail('INVALID_REPLAY','Unsupported fixed advanced world');return world;}
 export function advancedReplayWorldLimits(worldOrVersion){const version=typeof worldOrVersion==='number'?worldOrVersion:worldOrVersion?.worldVersion;return Object.freeze({duration:shotTimeLimit(version)+.1,frames:version===38?900:720,hz:version===38?20:60,maxFrameGap:version===38?1/20:1/30,position:version===38?400:100});}
 function itemData(value){object(value,['id','profileVersion'],'item');if(typeof value.id!=='string'||!Object.hasOwn(THROWABLE_CATALOG,value.id)||![1,2,3].includes(value.profileVersion)||value.profileVersion!==THROWABLE_CATALOG[value.id].physics.version)fail('INVALID_REPLAY','Unsupported fixed advanced throwable');return {id:value.id,profileVersion:value.profileVersion};}
-function phaseData(value,world){const period=world.environment==='factory'?8:['outdoor','eccentric'].includes(world.environment)?12:world.environment==='school'?8:1;number(value,0,period,'startTime');if(value>=period||world.environment==='room'&&value!==0||world.worldVersion===30&&Math.abs(value*240-Math.round(value*240))>1e-7)fail('INVALID_REPLAY','Saved environment phase invalid');return value;}
-function sessionData(value,world){
+function phaseData(value,world){if(world.worldVersion===47)return number(value,0,1e9,'startTime');const period=world.environment==='factory'?8:['outdoor','eccentric'].includes(world.environment)?12:world.environment==='school'?8:1;number(value,0,period,'startTime');if(value>=period||world.environment==='room'&&value!==0||world.worldVersion===30&&Math.abs(value*240-Math.round(value*240))>1e-7)fail('INVALID_REPLAY','Saved environment phase invalid');return value;}
+function sessionData(value,world,startTime){
  if(world.environment!=='factory'){if(value!==null)fail('INVALID_REPLAY','Only factory worlds carry a session');return null;}
- object(value,['version','stageId','plateLatched','setupBall','setupContact','setupShot','bankContacts','completed'],'factorySession');
+ object(value,['version','stageId','plateLatched','setupBall','setupContact','setupShot','bankContacts','completed',...(world.worldVersion===47?['setupStartTime','activatedAt']:[])],'factorySession');
  array(value.bankContacts,0,2,'bankContacts');if(value.bankContacts.length||value.completed!==false)fail('INVALID_REPLAY','Recording must begin before current-shot factory completion');
  if(value.setupBall!==null){object(value.setupBall,['id','itemId','radius','position','shotId'],'setupBall');vector(value.setupBall.position,'setupBall.position');}
  if(value.setupContact!==null){object(value.setupContact,CONTACT_KEYS,'setupContact');for(const k of ['position','beforeVelocity','afterVelocity'])vector(value.setupContact[k],`setupContact.${k}`);vector(value.setupContact.normal,'setupContact.normal',true);}
  if(!validateFactorySession(value,world))fail('INVALID_REPLAY','Saved first-ball setup witness is invalid');
+ if(world.worldVersion===47&&value.plateLatched&&(value.activatedAt>startTime+1e-8||value.setupStartTime>startTime))fail('INVALID_REPLAY','Setup witness lies after the second launch');
  if(value.setupContact!==null)contactData(value.setupContact,world,0,5.1,THROWABLE_CATALOG[value.setupBall.itemId].physics.radius,value);
  return clone(value);
 }
@@ -99,7 +100,7 @@ function contactData(v,world,startTime,duration,radius,session){
   const tickStart=Math.floor((time+1e-9)*240)/240,a=factoryDynamicSolids(world,startTime+tickStart,session).find(s=>s.id===solid.id),b=factoryDynamicSolids(world,startTime+tickStart+1/240,session).find(s=>s.id===solid.id),surfaceVelocity=Object.fromEntries(AXES.map(k=>[k,(b.min[k]-a.min[k])*240]));
   relativeBefore=sub(beforeVelocity,surfaceVelocity);relativeAfter=sub(afterVelocity,surfaceVelocity);
  }
- if(world.factoryType==='shutter'&&solid.id===world.mechanism.id&&normal.y<-.999){
+ if((world.factoryType==='shutter'||world.worldVersion===47)&&solid.id===world.mechanism.id&&normal.y<-.999){
   const tickStart=Math.floor((time+1e-9)*240)/240,a=factoryDynamicSolids(world,startTime+tickStart,session).find(s=>s.id===solid.id),b=factoryDynamicSolids(world,startTime+tickStart+1/240,session).find(s=>s.id===solid.id),surfaceVelocity=Object.fromEntries(AXES.map(k=>[k,(b.min[k]-a.min[k])*240]));
   if(surfaceVelocity.y<0){relativeBefore=sub(beforeVelocity,surfaceVelocity);relativeAfter=sub(afterVelocity,surfaceVelocity);}
  }
@@ -125,7 +126,7 @@ export function validateAdvancedReplay(input){
  object(input,['version','kind','item','course','replay'],'advanced replay');if(input.version!==7||input.kind!=='advanced-goals')fail('UNSUPPORTED_VERSION','Advanced codec version unsupported');const item=itemData(input.item);
  object(input.course,['worldVersion','contactModel','stageId','startTime','fanEnabled','contacts','capture','factorySession','launchFrame','impactPose'],'course');const c=input.course,world=worldData(c.stageId,c.worldVersion);
  if(c.worldVersion<15&&item.profileVersion!==3||c.contactModel!==1||typeof c.fanEnabled!=='boolean'||c.fanEnabled&&c.stageId!=='room-extra')fail('INVALID_REPLAY','Unsupported advanced world/profile envelope');
- const startTime=phaseData(c.startTime,world),session=sessionData(c.factorySession,world),launchFrame=launchData(c.launchFrame,world,startTime),capture=c.worldVersion>=11?captureData(c.capture,advancedReplayWorldLimits(world).duration,world):null;if(c.worldVersion<11&&c.capture!==null)fail('INVALID_REPLAY','Legacy world cannot carry a goal capture');
+ const startTime=phaseData(c.startTime,world),session=sessionData(c.factorySession,world,startTime),launchFrame=launchData(c.launchFrame,world,startTime),capture=c.worldVersion>=11?captureData(c.capture,advancedReplayWorldLimits(world).duration,world):null;if(c.worldVersion<11&&c.capture!==null)fail('INVALID_REPLAY','Legacy world cannot carry a goal capture');
  const replay=coreData(input.replay,world,item,launchFrame,capture),radius=throwableWorldProfile(item.id,world.worldVersion).radius;
  if(capture)validateCapture(capture,replay,world,startTime,radius,session);if(world.environment==='school')validateSchoolStudentClearance(replay,world,startTime,radius);blockingClearance(replay,world,startTime,radius,session);
  const contacts=array(c.contacts,0,2400,'contacts').map(v=>contactData(v,world,startTime,replay.duration,radius,session));validateTrace(contacts,replay.frames);
@@ -140,7 +141,7 @@ export function createAdvancedReplay(core,stageId,contacts=[],{worldVersion,item
 }
 function frameData(snapshot,radius,world){if(!snapshot||!['flying','settling','success'].includes(snapshot.phase)||snapshot.can?.radius!==radius)fail('INVALID_REPLAY','Invalid advanced frame');const position=vector(snapshot.can.position,'position',false,advancedReplayWorldLimits(world).position),velocity=vector(snapshot.can.velocity,'velocity');return {time:number(snapshot.time,0,advancedReplayWorldLimits(world).duration,'frame.time'),phase:snapshot.phase,position:Object.fromEntries(AXES.map(k=>[k,q(position[k])])),velocity:Object.fromEntries(AXES.map(k=>[k,q(velocity[k])]))};}
 export function createAdvancedRecorder(startSnapshot,controls,camera,{worldVersion,stageId,itemId='can',profileVersion=THROWABLE_CATALOG[itemId]?.physics.version,startTime=0,factorySession,launchFrame}={}){
- const world=worldData(stageId,worldVersion),item=itemData({id:itemId,profileVersion}),radius=throwableWorldProfile(itemId,world.worldVersion).radius,phase=phaseData(startTime,world),session=sessionData(world.environment==='factory'?(factorySession??createFactorySession(world)):null,world),launch=launchData(world.environment==='eccentric'?(launchFrame??eccentricLaunchFrame(world,phase)):null,world,phase),first=frameData(startSnapshot,radius,world),bin=binData(startSnapshot.bin,world),input=controlsData(controls,world),view=cameraData(camera,false),initial=initialData(world,item,input,launch);
+ const world=worldData(stageId,worldVersion),item=itemData({id:itemId,profileVersion}),radius=throwableWorldProfile(itemId,world.worldVersion).radius,phase=phaseData(startTime,world),session=sessionData(world.environment==='factory'?(factorySession??createFactorySession(world)):null,world,phase),launch=launchData(world.environment==='eccentric'?(launchFrame??eccentricLaunchFrame(world,phase)):null,world,phase),first=frameData(startSnapshot,radius,world),bin=binData(startSnapshot.bin,world),input=controlsData(controls,world),view=cameraData(camera,false),initial=initialData(world,item,input,launch);
  if(first.time!==0||first.phase!=='flying'||AXES.some(k=>Math.abs(first.position[k]-initial.position[k])>1e-5||Math.abs(first.velocity[k]-initial.velocity[k])>1e-5))fail('INVALID_REPLAY','Recorder actual launch differs from fixed moving frame');
  const frames=[first];let closed=false,lastObserved=0,dropped=0,finished=null;
  function record(snapshot){if(closed)return false;if(JSON.stringify(binData(snapshot.bin,world))!==JSON.stringify(bin))fail('INVALID_REPLAY','Setup changed during recording');if(snapshot.phase==='miss'){number(snapshot.time,lastObserved,advancedReplayWorldLimits(world).duration,'miss.time');return false;}const frame=frameData(snapshot,radius,world);if(frame.time<lastObserved)fail('INVALID_REPLAY','Recording time moved backwards');lastObserved=frame.time;const prior=frames.at(-1);if(frame.time===prior.time)return false;if(frame.phase!=='success'&&frame.time-prior.time<1/advancedReplayWorldLimits(world).hz-1e-8){dropped++;return false;}if(frames.length>=advancedReplayWorldLimits(world).frames)fail('REPLAY_TOO_LARGE','Too many advanced frames');frames.push(frame);return true;}

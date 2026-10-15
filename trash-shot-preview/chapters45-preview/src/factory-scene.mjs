@@ -1,8 +1,8 @@
 // Shared metre-space primitives keep the approved paper/wood/teal art family.
 // Canonical world solids own every gameplay surface; trim is decorative.
-import {factoryWorld,factorySolids,factoryGoals,factoryMotion,factoryDynamicSolids} from './factory-world.mjs?v=20261015-conveyor-line-1';
-import {factoryEnvironmentStatic,factoryEnvironmentDynamic} from './factory-environment.mjs?v=20261015-conveyor-line-1';
-import {factoryMachineryStatic,factoryMachineryDynamic} from './factory-machinery.mjs?v=20261015-conveyor-line-1';
+import {factoryWorld,factorySolids,factoryGoals,factoryMotion,factoryDynamicSolids} from './factory-world.mjs?v=20261015-timed-relay-1';
+import {factoryEnvironmentStatic,factoryEnvironmentDynamic} from './factory-environment.mjs?v=20261015-timed-relay-1';
+import {factoryMachineryStatic,factoryMachineryDynamic} from './factory-machinery.mjs?v=20261015-timed-relay-1';
 export const FACTORY_PALETTE=Object.freeze({cream:'#f4ead5',wall:'#eee2c6',wood:'#c89b61',teal:'#4a948b',darkTeal:'#286864',gold:'#e8b54e',orange:'#e98238',steel:'#8da69c',floor:'#d7c9ad'});
 const p=(x,y,z)=>({x,y,z});
 const face=(points,fill,stroke=null,meta={})=>({points,fill,stroke,...meta});
@@ -109,7 +109,7 @@ function factoryDecor(s,world){
 }
 export function factoryStaticMeshes(world){
   world=requireWorld(world);const key=`${world.stageId}:${world.worldVersion}`;if(cache.has(key))return cache.get(key);
-  const shapes=[],glazing=[];for(const solid of factorySolids(world)){if([44,45,46].includes(world.worldVersion)&&solid.kind==='safety-glass')glazing.push(solid);else physicalBox(shapes,solid,colourOf(solid));}
+  const shapes=[],glazing=[];for(const solid of factorySolids(world)){if([44,45,46,47].includes(world.worldVersion)&&solid.kind==='safety-glass')glazing.push(solid);else physicalBox(shapes,solid,colourOf(solid));}
   factoryDecor(shapes,world);for(const goal of factoryGoals(world,0))opening(shapes,goal);
   shapes.push(...factoryMachineryStatic(world,scenePrimitives),...factoryEnvironmentStatic(world,scenePrimitives));
   for(const glass of glazing)safetyGlass(shapes,glass);
@@ -122,6 +122,28 @@ function doorDetail(s,door,time){
   box(s,-.28,door.min.y+.08,z-.018,.56,.042,.025,'#c4cead',meta);
 }
 function parkedBall(s,ball){const q=ball.position;ellipsoid(s,q.x,q.y,q.z,ball.radius,ball.radius,ball.radius,'#7a8b88',12,6,{actorId:ball.id,parkedBall:true,physical:true,itemId:ball.itemId});}
+function relayRollingBall(s,ball,motion){
+  const q=ball.position,r=ball.radius,points=motion.track?.points??[],distance=points.slice(1).reduce((sum,b,i)=>sum+Math.hypot(b.x-points[i].x,b.y-points[i].y,b.z-points[i].z),0),angle=(motion.relayClock?.progress??0)*distance/r,meta={actorId:ball.id,rollingBall:true,physical:true,itemId:ball.itemId};
+  ellipsoid(s,q.x,q.y,q.z,r,r,r,'#a9b5a6',10,4,meta);
+  // The amber seam rotates with travelled track distance, making the real
+  // ball readable as it crosses the finite opening window.
+  for(let i=0;i<12;i++){
+    const at=j=>{const t=j/12*Math.PI*2;return p(q.x+Math.cos(t)*r*.94,q.y+Math.sin(t)*Math.cos(angle)*r*.94,q.z+Math.sin(t)*Math.sin(angle)*r*.94);};
+    line(s,at(i),at(i+1),'#e8b54e',{...meta,rollingSeam:true});
+  }
+  if(ball.rolling){
+    // A non-physical amber locator follows only the already moving ball.
+    // Its constant size and opacity reveal neither a future path nor timing.
+    const marker={actorId:ball.id,rollingBallLocator:true,decoration:true,physical:false,depthWrite:false},radius=r*1.55,y=q.y-r*.55;
+    for(let i=0;i<16;i++){
+      const at=j=>p(q.x+Math.cos(j/16*Math.PI*2)*radius,y,q.z+Math.sin(j/16*Math.PI*2)*radius);
+      line(s,at(i),at(i+1),'rgba(237,184,72,.88)',marker);
+    }
+    const tip=q.y+r+.055;
+    s.push(face([p(q.x,tip,q.z),p(q.x-.065,tip+.105,q.z),p(q.x+.065,tip+.105,q.z)],'#e8b54e',null,marker));
+    s.push(face([p(q.x,tip,q.z),p(q.x,tip+.105,q.z-.065),p(q.x,tip+.105,q.z+.065)],'#e8b54e',null,marker));
+  }
+}
 export function factoryDynamicMeshes(world,time=0,options={}){
   world=requireWorld(world);const session=options.session??options.game?.factorySession??options.game?.session,motion=factoryMotion(world,time,session),shapes=[];
   for(const solid of factoryDynamicSolids(world,time,session)){if(solid.kind==='parked-ball')continue;physicalBox(shapes,solid,world.worldVersion===45&&solid.kind==='piston-face'?'#b7c9bc':world.worldVersion===46&&solid.kind==='stamping-press'?'#a8bbb0':'#91aaa0');}
@@ -131,7 +153,7 @@ export function factoryDynamicMeshes(world,time=0,options={}){
     for(let z=belt.min.z+offset;z<belt.max.z-.10;z+=gap){line(shapes,p(belt.min.x+.07,y,z),p(belt.max.x-.07,y,z),'#adc2a5',{beltSlat:true,mechanismId:motion.belt.id});}
     for(const x of [belt.min.x+.02,belt.max.x-.06])flat(shapes,x,y,belt.min.z,.035,belt.max.z-belt.min.z,'#d1b978',{beltEdge:true});
   }
-  for(const ball of motion.balls)parkedBall(shapes,ball);
+  for(const ball of motion.balls){if(world.worldVersion===47)relayRollingBall(shapes,ball,motion);else parkedBall(shapes,ball);}
   if(world.factoryType==='relay'){
     const plate=factorySolids(world).find(c=>c.kind==='pressure-plate'),color=motion.plate.pressed?'#e6c264':'#9fac91';
     flat(shapes,plate.min.x+.045,plate.max.y+.008,plate.min.z+.045,plate.max.x-plate.min.x-.09,plate.max.z-plate.min.z-.09,color,{plateId:plate.id,pressed:motion.plate.pressed});

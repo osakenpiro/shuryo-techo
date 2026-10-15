@@ -3,7 +3,7 @@
 // are AI approximations fitted to that metre-space envelope, not CAD data.
 // The caller supplies scenePrimitives so this module has no renderer imports.
 const C=Object.freeze({steel:'#84978f',bright:'#bfccc0',dark:'#355a57',teal:'#397d75',cream:'#e7d9b7',amber:'#d8ad4c',rubber:'#3c504b',chrome:'#d1d7c8',red:'#ad6552',green:'#b6d09a'});
-const supported=w=>w?.environment==='factory'&&[26,27,28,29,40,41,42,43,44,45,46].includes(w.worldVersion);
+const supported=w=>w?.environment==='factory'&&[26,27,28,29,40,41,42,43,44,45,46,47].includes(w.worldVersion);
 const mod=(value,period)=>((value%period)+period)%period;
 function tools(shapes,world,kit){
   const {p,box,limb,cylinder,flat,face}=kit;
@@ -117,7 +117,7 @@ function bankStatic(t,world){
 }
 function relayStatic(t,world){
   const {p,b,rod,cy}=t,q=world.mechanism,plate=world.solids.find(s=>s.id===q.plateId),a=plate.min,c=plate.max;
-  doorFrame(t,world);
+  if(world.worldVersion===47)relayTallDoorFrame(t,world);else doorFrame(t,world);
   for(const x of [a.x+.10,c.x-.10])for(const z of [a.z+.10,c.z-.10]){
     rod('plate-spring-guide',p(x,.09,z),p(x,.615,z),.035,C.dark);
     b('plate-foot',x-.10,.02,z-.10,.20,.07,.20,C.steel);
@@ -289,6 +289,7 @@ export function factoryMachineryStatic(world,kit){
   if(world.factoryType==='bank'&&world.worldVersion!==45)bankStatic(t,world);
   if(world.worldVersion===45)pistonStatic(t,world);
   if(world.factoryType==='relay')relayStatic(t,world);
+  if(world.worldVersion===47)relayTrackStatic(t,world);
   for(const guide of world.solids.filter(s=>s.kind==='machine-reflector'))rightGuideStatic(t,guide);
   return shapes;
 }
@@ -335,6 +336,60 @@ function relayDynamic(t,world,motion){
   const plate=world.solids.find(s=>s.id===q.plateId);
   f('plate-latched-witness',plate.min.x+.11,plate.max.y+.013,plate.min.z+.11,.17,.17,pressed?C.green:C.dark,{pressed});
 }
+function relayTallDoorFrame(t,world){
+  const {p,b,rod}=t,q=world.mechanism,h=q.max.y+.30,z=q.min.z,meta={equipmentId:q.id,timedRelayFrame:true};
+  for(const side of [-1,1]){
+    const x=side<0?q.min.x-.18:q.max.x+.06;
+    b('timed-relay-door-guide',x,.04,z-.04,.12,h,.30,C.teal,meta);
+    b('timed-relay-door-guide-flange',x-.025,.04,z-.075,.17,h,.035,C.steel,meta);
+    b('timed-relay-door-foot',x-.12,.018,z-.15,.36,.08,.50,C.dark,meta);
+    for(const y of [.24,.48,.72])b('timed-relay-door-safety-stripe',x-.026,y,z-.084,.172,.09,.016,C.amber,meta);
+    rod('timed-relay-top-brace',p(x+.06,h-.40,z+.10),p(x-side*.34,h+.14,z+.10),.035,C.chrome,meta);
+  }
+  b('timed-relay-header',q.min.x-.22,h,z-.10,q.max.x-q.min.x+.44,.25,.42,C.teal,meta);
+  rod('timed-relay-header-shaft',p(q.min.x-.10,h-.11,z+.10),p(q.max.x+.10,h-.11,z+.10),.06,C.chrome,meta);
+}
+function relayTrackStatic(t,world){
+  const {p,b,rod}=t,points=world.mechanism.track.points,meta={relayTrack:true,trackId:'factory-relay-ball-track'};
+  // Short trestles explain the scale and support of the descending track.
+  // Rails follow the same canonical centreline as the constrained first ball.
+  for(let i=0;i<points.length;i++){
+    const q=points[i],base=Math.max(.05,q.y-.21);
+    b('relay-track-trestle',q.x-.22,.035,q.z-.14,.44,.065,.28,C.teal,meta);
+    for(const dx of [-.15,.15])rod('relay-track-support',p(q.x+dx,.10,q.z),p(q.x+dx,base,q.z),.027,C.steel,meta);
+    rod('relay-track-saddle',p(q.x-.20,base,q.z),p(q.x+.20,base,q.z),.032,C.dark,meta);
+  }
+  const entry=world.mechanism.plateCenter;
+  // Four small corners mark the real input plate, leaving its centre clear.
+  for(const side of [-1,1]){
+    b('relay-entry-corner',entry.x+side*.48-.035,entry.y+.014,entry.z-.43,.07,.018,.18,C.amber,{relayEntry:true});
+    b('relay-entry-corner',entry.x+side*.48-.035,entry.y+.014,entry.z+.25,.07,.018,.18,C.amber,{relayEntry:true});
+  }
+  // A two-wire conduit links the sensing rail to the actual door actuator.
+  const last=points.at(-1),route=[p(last.x+.20,.12,last.z),p(-3.55,.12,last.z),p(-3.55,.12,world.mechanism.min.z+.14)];
+  for(let i=0;i<route.length-1;i++)rod('relay-track-control-conduit',route[i],route[i+1],.018,C.dark,meta);
+}
+function relayTrackDynamic(t,world,motion){
+  const {p,rod,b}=t,clock=motion.relayClock??{},canonical=world.mechanism.track,entry=world.mechanism.plateCenter,r=motion.balls[0]?.radius??.14;
+  const points=motion.track?.points??[p(entry.x,entry.y+r,entry.z),...canonical.points],meta={relayTrack:true,trackId:'factory-relay-ball-track'};
+  for(let i=0;i<points.length-1;i++){
+    const a=points[i],c=points[i+1],dx=c.x-a.x,dz=c.z-a.z,n=Math.hypot(dx,dz)||1,sx=-dz/n,sz=dx/n;
+    for(const side of [-1,1]){
+      const at=(q,y)=>p(q.x+sx*side*r*.82,y,q.z+sz*side*r*.82);
+      rod('relay-ball-running-rail',at(a,a.y-r*.72),at(c,c.y-r*.72),.025,C.chrome,{...meta,trackSegment:i});
+      rod('relay-ball-guard-rail',p(a.x+sx*side*(r+.055),a.y+.025,a.z+sz*side*(r+.055)),p(c.x+sx*side*(r+.055),c.y+.025,c.z+sz*side*(r+.055)),.018,C.teal,{...meta,trackSegment:i});
+    }
+  }
+  // Lit physical contacts follow the actual finite sensor window. No separate
+  // oscillator or numerical countdown substitutes for the rolling ball.
+  const sensor=points[Math.min(1,points.length-1)],lit=!!clock.sensorActive,col=lit?C.green:clock.expired?C.red:C.dark;
+  for(const side of [-1,1]){
+    b('relay-track-sensor-mount',sensor.x+side*.24-.04,sensor.y-.10,sensor.z-.065,.08,.20,.13,C.teal,{...meta,sensorActive:lit});
+    t.cy('relay-track-sensor-lamp',sensor.x+side*.24,sensor.y+.10,sensor.z,.045,.025,col,6,{...meta,sensorActive:lit});
+  }
+  const gate=motion.gate;
+  b('relay-gate-window-lamp',Math.max(gate.min.x+.10,Math.min(gate.max.x-.26,sensor.x)),4.85,gate.min.z-.035,.16,.12,.025,clock.open?C.green:clock.expired?C.red:C.amber,{relayWindow:true,open:!!clock.open,expired:!!clock.expired});
+}
 function rightGuideDynamic(t,guide,time){
   const {p,rod}=t,angle=mod(time,8)*Math.PI,meta={equipmentId:guide.id,reflectorId:guide.id,routeRole:guide.routeRole};
   // The service roller's two small top markers share the eight-second world
@@ -353,6 +408,7 @@ export function factoryMachineryDynamic(world,motion,time,kit){
   if(motion.belt&&world.worldVersion!==46)conveyorDynamic(t,world,motion);
   if(world.worldVersion===46)conveyorLineDynamic(t,world,motion);
   if(motion.gate)relayDynamic(t,world,motion);
+  if(world.worldVersion===47)relayTrackDynamic(t,world,motion);
   if(world.worldVersion===45)pistonDynamic(t,motion);
   for(const witness of world.worldVersion===45?[]:motion.bankLights){
     const rail=world.solids.find(s=>s.id===witness.id),side=rail.min.x<0?-1:1,x=side<0?rail.min.x-.060:rail.max.x+.060;
