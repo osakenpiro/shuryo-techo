@@ -1,15 +1,15 @@
 // A versioned room-contact envelope around the unchanged V1 pose recording.
 // Legacy V1/V2 records retain their own codecs and interpretation.
-import * as legacy from './course-replay.mjs?v=20261014-quick-retry-1';
-import {validateReplay,createReplayPlayer,ReplayError} from './replay.mjs?v=20261014-quick-retry-1';
-import {roomWorld} from './room-course.mjs?v=20261014-quick-retry-1';
-import {roomContactColliders} from './room-contact.mjs?v=20261014-quick-retry-1';
+import * as legacy from './course-replay.mjs?v=20261015-screen-pull-1';
+import {validateReplay,createReplayPlayer,ReplayError} from './replay.mjs?v=20261015-screen-pull-1';
+import {roomWorld} from './room-course.mjs?v=20261015-screen-pull-1';
+import {roomContactColliders} from './room-contact.mjs?v=20261015-screen-pull-1';
 import {validateItemReplay,createItemReplay,itemPayload,createItemReplayPlayer,itemReplayToJSON,
-  parseItemReplayJSON,encodeItemReplay,decodeItemReplay,buildItemReplayURL} from './item-replay.mjs?v=20261014-quick-retry-1';
-export {ITEM_REPLAY_LIMITS,ITEM_REPLAY_STORAGE_KEY,loadItemReplays,saveItemReplay,deleteItemReplay} from './item-replay.mjs?v=20261014-quick-retry-1';
+  parseItemReplayJSON,encodeItemReplay,decodeItemReplay,buildItemReplayURL} from './item-replay.mjs?v=20261015-screen-pull-1';
+export {ITEM_REPLAY_LIMITS,ITEM_REPLAY_STORAGE_KEY,loadItemReplays,saveItemReplay,deleteItemReplay} from './item-replay.mjs?v=20261015-screen-pull-1';
 import {validateSchoolReplay,createSchoolReplay,schoolPayload,createSchoolReplayPlayer,schoolReplayToJSON,
-  parseSchoolReplayJSON,encodeSchoolReplay,decodeSchoolReplay,buildSchoolReplayURL} from './school-replay.mjs?v=20261014-quick-retry-1';
-export {SCHOOL_REPLAY_LIMITS,SCHOOL_REPLAY_STORAGE_KEY,loadSchoolReplays,saveSchoolReplay,deleteSchoolReplay} from './school-replay.mjs?v=20261014-quick-retry-1';
+  parseSchoolReplayJSON,encodeSchoolReplay,decodeSchoolReplay,buildSchoolReplayURL} from './school-replay.mjs?v=20261015-screen-pull-1';
+export {SCHOOL_REPLAY_LIMITS,SCHOOL_REPLAY_STORAGE_KEY,loadSchoolReplays,saveSchoolReplay,deleteSchoolReplay} from './school-replay.mjs?v=20261015-screen-pull-1';
 
 export const PLAY_REPLAY_STORAGE_KEY='trash-shot-room-replays-v3';
 export const COURSE_REPLAY_LIMITS=Object.freeze({...legacy.COURSE_REPLAY_LIMITS,

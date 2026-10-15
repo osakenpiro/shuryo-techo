@@ -1,32 +1,32 @@
-import {buildGoalCue,goalCueMarkup} from './goal-cue.mjs?v=20261014-quick-retry-1';
-import { STAGES, createStageProgress } from './stages.mjs?v=20261014-quick-retry-1';
-import { sideAim } from './side-aim.mjs?v=20261014-quick-retry-1';
-import {createPixelIntro} from './pixel-intro.mjs?v=20261014-quick-retry-1';
-import {createRoomWindStepper} from './room-gimmicks.mjs?v=20261014-quick-retry-1';
-import {CHAPTER_IDS,FIRST_CHAPTER_IDS,SCHOOL_CHAPTER_IDS,CHAPTERS,chapterForStage,getNextStage,isChapterBoundary,createChapterProgress} from './progress-save.mjs?v=20261014-quick-retry-1';
-import {roomCourse,roomWorld,createRoomCourseStepper} from './room-course.mjs?v=20261014-quick-retry-1';
-import {createPlayRoomStepper,predictPlayRoomArc} from './play-room.mjs?v=20261014-quick-retry-1';
-import {createSchoolPlayStepper,predictSchoolArc} from './school-play.mjs?v=20261014-quick-retry-1';
-import {COURSE_REPLAY_LIMITS,createCourseReplay,validateCourseReplay,coursePayload,courseReplayResult,createCourseReplayPlayer,courseReplayToJSON,parseCourseReplayJSON,decodeCourseReplay,buildCourseReplayURL,interpretPlayContacts,loadPlayReplays,savePlayReplay,deletePlayReplay,loadItemReplays,saveItemReplay,deleteItemReplay,loadSchoolReplays,saveSchoolReplay,deleteSchoolReplay} from './play-replay.mjs?v=20261014-quick-retry-1';
-import {createPullScale,mapScaledPull} from './pull-scale.mjs?v=20261014-quick-retry-1';
-import {createPlayCue,playCueMarkup,pullHandleMarkup,launchCueOrigin} from './play-cue.mjs?v=20261014-quick-retry-1';
-import {launchSummary,impactSummary} from './shot-summary.mjs?v=20261014-quick-retry-1';
-import { createGame, setSetup, setRoomWorld, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261014-quick-retry-1';
-import { createRenderer } from './render.mjs?v=20261014-quick-retry-1';
-import { createShotAnalytics } from './shot-analytics.mjs?v=20261014-quick-retry-1';
-import { createRecorder, loadReplays, saveReplay, deleteReplay } from './replay.mjs?v=20261014-quick-retry-1';
-import {createGameShell} from './game-shell.mjs?v=20261014-quick-retry-1';
-import {createTitleScreen} from './title-screen.mjs?v=20261014-quick-retry-1';
-import {createGameMenu} from './game-menu.mjs?v=20261014-quick-retry-1';
-import {createPlayerSaveUI} from './player-save-ui.mjs?v=20261014-quick-retry-1';
-import {quickRetryKey,quickRetryStartsRun} from './quick-retry.mjs?v=20261014-quick-retry-1';
+import {buildGoalCue,goalCueMarkup} from './goal-cue.mjs?v=20261015-screen-pull-1';
+import { STAGES, createStageProgress } from './stages.mjs?v=20261015-screen-pull-1';
+import { sideAim } from './side-aim.mjs?v=20261015-screen-pull-1';
+import {createPixelIntro} from './pixel-intro.mjs?v=20261015-screen-pull-1';
+import {createRoomWindStepper} from './room-gimmicks.mjs?v=20261015-screen-pull-1';
+import {CHAPTER_IDS,FIRST_CHAPTER_IDS,SCHOOL_CHAPTER_IDS,CHAPTERS,chapterForStage,getNextStage,isChapterBoundary,createChapterProgress} from './progress-save.mjs?v=20261015-screen-pull-1';
+import {roomCourse,roomWorld,createRoomCourseStepper} from './room-course.mjs?v=20261015-screen-pull-1';
+import {createPlayRoomStepper,predictPlayRoomArc} from './play-room.mjs?v=20261015-screen-pull-1';
+import {createSchoolPlayStepper,predictSchoolArc} from './school-play.mjs?v=20261015-screen-pull-1';
+import {COURSE_REPLAY_LIMITS,createCourseReplay,validateCourseReplay,coursePayload,courseReplayResult,createCourseReplayPlayer,courseReplayToJSON,parseCourseReplayJSON,decodeCourseReplay,buildCourseReplayURL,interpretPlayContacts,loadPlayReplays,savePlayReplay,deletePlayReplay,loadItemReplays,saveItemReplay,deleteItemReplay,loadSchoolReplays,saveSchoolReplay,deleteSchoolReplay} from './play-replay.mjs?v=20261015-screen-pull-1';
+import {createPullScale,mapScaledPull,screenPullBasis} from './pull-scale.mjs?v=20261015-screen-pull-1';
+import {createPlayCue,playCueMarkup,pullHandleMarkup,launchCueOrigin} from './play-cue.mjs?v=20261015-screen-pull-1';
+import {launchSummary,impactSummary} from './shot-summary.mjs?v=20261015-screen-pull-1';
+import { createGame, setSetup, setRoomWorld, throwCan, resetShot, stepGame, getSnapshot, observeGame } from './physics.mjs?v=20261015-screen-pull-1';
+import { createRenderer } from './render.mjs?v=20261015-screen-pull-1';
+import { createShotAnalytics } from './shot-analytics.mjs?v=20261015-screen-pull-1';
+import { createRecorder, loadReplays, saveReplay, deleteReplay } from './replay.mjs?v=20261015-screen-pull-1';
+import {createGameShell} from './game-shell.mjs?v=20261015-screen-pull-1';
+import {createTitleScreen} from './title-screen.mjs?v=20261015-screen-pull-1';
+import {createGameMenu} from './game-menu.mjs?v=20261015-screen-pull-1';
+import {createPlayerSaveUI} from './player-save-ui.mjs?v=20261015-screen-pull-1';
+import {quickRetryKey,quickRetryStartsRun} from './quick-retry.mjs?v=20261015-screen-pull-1';
 
-import {createRewards,ACHIEVEMENTS} from './rewards.mjs?v=20261014-quick-retry-1';
-import {loadPlayerSave,savePlayerSave,restorePlayerSave} from './player-save.mjs?v=20261014-quick-retry-1';
-import {THROWABLE_CATALOG,getThrowable} from './throwables.mjs?v=20261014-quick-retry-1';
-import {setThrowable,getThrowableId} from './throwable-physics.mjs?v=20261014-quick-retry-1';
-import {createStoreUI} from './item-store.mjs?v=20261014-quick-retry-1';
-import {createRewardEffects} from './reward-effects.mjs?v=20261014-quick-retry-1';
+import {createRewards,ACHIEVEMENTS} from './rewards.mjs?v=20261015-screen-pull-1';
+import {loadPlayerSave,savePlayerSave,restorePlayerSave} from './player-save.mjs?v=20261015-screen-pull-1';
+import {THROWABLE_CATALOG,getThrowable} from './throwables.mjs?v=20261015-screen-pull-1';
+import {setThrowable,getThrowableId} from './throwable-physics.mjs?v=20261015-screen-pull-1';
+import {createStoreUI} from './item-store.mjs?v=20261015-screen-pull-1';
+import {createRewardEffects} from './reward-effects.mjs?v=20261015-screen-pull-1';
 
 let goalCueStage=null,goalCuePending=false,goalCueUntil=0,goalCueSource=null,goalCueState={visible:false,markers:[]};
 const GOAL_CUE_MS=3200;
@@ -84,7 +84,7 @@ const inviteDialog=$('invite-dialog');
 function openGameInvitation(){
   if(!inviteDialog||busy()||pixelIntro?.active)return false;
   cancelGesture('game-invite');
-  const url=new URL(location.href);url.hash='';url.search='';url.searchParams.set('v','20261014-quick-retry-1');
+  const url=new URL(location.href);url.hash='';url.search='';url.searchParams.set('v','20261015-screen-pull-1');
   $('invite-link').value=url.href;
   $('invite-message').textContent='';
   $('invite-share').hidden=typeof navigator.share!=='function';
@@ -378,7 +378,7 @@ function sameLayout(gesture){const rect=canvas.getBoundingClientRect();return ge
 function gestureAim(gesture,event,time=gesture.presentationTime??gesture.started){
   const size=Math.max(1,Math.min(gesture.rect.width,gesture.rect.height));
   const sign=pullInput()?-1:1;
-  if(pullInput())return mapScaledPull({scale:gesture.scale,right:(event.clientX-gesture.startX)*sign,up:(gesture.startY-event.clientY)*sign,mode:'C',projection:sideStage()?'2d':'3d',elevation:controls.elevation,baseYaw:liveWorld()?.launch.yaw??0,elapsedSeconds:Math.max(0,(time-gesture.started)/1000)});
+  if(pullInput())return mapScaledPull({scale:gesture.scale,right:(event.clientX-gesture.startX)*sign,up:(gesture.startY-event.clientY)*sign,mode:'C',projection:sideStage()?'2d':'3d',elevation:controls.elevation,baseYaw:liveWorld()?.launch.yaw??0,directionBasis:gesture.directionBasis,elapsedSeconds:Math.max(0,(time-gesture.started)/1000)});
   // The previously selected swipe scheme retains its established mapping.
   if(sideStage()){const actual=sideAim((event.clientX-gesture.startX)*sign,(gesture.startY-event.clientY)*sign,size);return {...actual,actual:{power:actual.power,elevation:actual.elevation,yaw:0},base:{...actual},rawDistance:Math.hypot(event.clientX-gesture.startX,event.clientY-gesture.startY)/size,effectiveDistance:Math.hypot(event.clientX-gesture.startX,event.clientY-gesture.startY)/size,risk:0,delta:{yaw:0,elevation:0}};}
   const upward=(gesture.startY-event.clientY)*sign/size,sideways=(event.clientX-gesture.startX)*sign/size;
@@ -386,7 +386,8 @@ function gestureAim(gesture,event,time=gesture.presentationTime??gesture.started
   return {actual,base:{...actual},valid:upward>=.10,rawDistance:upward,effectiveDistance:upward,risk:0,delta:{yaw:0,elevation:0}};
 }
 function showGesture(gesture){
-  $('gesture-feedback').hidden=true;
+  $('gesture-feedback').hidden=!gesture.aim.directionLimited;
+  if(gesture.aim.directionLimited)$('gesture-feedback').textContent='横方向の上限です。少し正面へ戻すと狙えます。';
   updateControlLabels(gesture.aim.actual);
   updateHint();
 }
@@ -418,6 +419,7 @@ canvas.addEventListener('pointerdown',event=>{
   if(view.mode==='throw'&&game.phase!=='ready'){resetShot(game);clearCurrentShot();playStepper?.reset();shotContext=null;updateUI(true);}
   const started=performance.now();
   view.gesture={kind:view.mode,id:event.pointerId,pointerType:event.pointerType,rect,viewport:{width:innerWidth,height:innerHeight},startX:event.clientX,startY:event.clientY,lastX:event.clientX,lastY:event.clientY,started,presentationTime:started,scale:createPullScale({rect,startX:event.clientX,startY:event.clientY,projection:sideStage()?'2d':'3d',stagePower:liveWorld()?.launch.power??STAGES[stageProgress.snapshot().id]?.power??7.8,projectileProfile:{id:'can',radius:game.can.radius}})};
+  if(pullInput()&&!sideStage())view.gesture.directionBasis=screenPullBasis(launchCueOrigin(game,liveWorld()?.origin),renderer.project);
   if(view.mode==='throw')view.gesture.aim=gestureAim(view.gesture,event);
   canvas.setPointerCapture(event.pointerId);updateHint();
 });
@@ -986,7 +988,7 @@ function paintPlayCue(aim){
   const origin=launchCueOrigin(game,liveWorld()?.origin);
   const cue=createPlayCue(origin,aim,renderer.project,rect.width,rect.height);
   const gesture=view.gesture?.kind==='throw'?view.gesture:null;
-  overlay.innerHTML=playCueMarkup(cue,{risk:gesture?.aim?.risk>0})+(gesture?pullHandleMarkup(gesture,gesture.aim,sideStage(),pullInput()?-1:1,cue.originVisible?cue.projectedOrigin:null):'');
+  overlay.innerHTML=playCueMarkup(cue,{risk:gesture?.aim?.risk>0,heading:gesture?.aim?.vectorPull===true})+(gesture?pullHandleMarkup(gesture,gesture.aim,sideStage(),pullInput()?-1:1,cue.originVisible?cue.projectedOrigin:null):'');
   cueSnapshot={visible:cue.visible,origin:{...cue.origin},projectedOrigin:{...cue.projectedOrigin},projectedBall:renderer.project(game.can.position),originVisible:cue.originVisible,numericLabels:trainingMode,predictionVisible:trainingMode&&view.prediction,predictionPoints:trainingPreview?.length??0,arrowWorldLength:cue.arrowWorldLength,arrowScreenLength:cue.initial.length,
     angleFan:{visible:cue.sector.length>=3,segments:cue.angleArc.segments.length},parameters:{...aim},risk:gesture?.aim?.risk??0};
   lastPresentedAim={parameters:{...aim},elapsedSeconds:gesture?(gesture.presentationTime-gesture.started)/1000:null,scale:gesture?.scale?structuredClone(gesture.scale):null};
