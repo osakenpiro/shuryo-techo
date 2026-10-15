@@ -1,8 +1,8 @@
 // Revised chapter-five scenes. All blocking architecture comes from the
 // versioned world: paint, plants and trim never create another collision rule.
-import {eccentricWorld,eccentricSolids,eccentricMotion} from './eccentric-world.mjs?v=20261015-eccentric-review-1';
-import {scenePrimitives} from './factory-scene.mjs?v=20261015-eccentric-review-1';
-import {getThrowable} from './throwables.mjs?v=20261015-eccentric-review-1';
+import {eccentricWorld,eccentricSolids,eccentricMotion} from './eccentric-world.mjs?v=20261015-boar-distance-1';
+import {scenePrimitives} from './factory-scene.mjs?v=20261015-boar-distance-1';
+import {getThrowable} from './throwables.mjs?v=20261015-boar-distance-1';
 
 const {p,face,shade,add,scale,cross,unit,box,physicalBox,cylinder,ellipsoid,line,flat,limb,basis,opening}=scenePrimitives;
 const SUPPORTED=new Set([50,51,52]),cache=new Map(),TAU=Math.PI*2;

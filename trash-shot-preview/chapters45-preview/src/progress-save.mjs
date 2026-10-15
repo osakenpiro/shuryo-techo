@@ -1,6 +1,6 @@
 // Local player progress only. Portable codes are checksummed, not authenticated.
-import {OUTDOOR_CHAPTER_IDS,emptyOutdoorProgress,validateOutdoorProgress,applyOutdoorAttempt,applyOutdoorClear,outdoorSnapshot,OUTDOOR_STAGE_ITEMS} from './outdoor-progress.mjs?v=20261015-eccentric-review-1';
-export {OUTDOOR_CHAPTER_IDS,outdoorSnapshot,outdoorStageItem,OUTDOOR_STAGE_ITEMS} from './outdoor-progress.mjs?v=20261015-eccentric-review-1';
+import {OUTDOOR_CHAPTER_IDS,emptyOutdoorProgress,validateOutdoorProgress,applyOutdoorAttempt,applyOutdoorClear,outdoorSnapshot,OUTDOOR_STAGE_ITEMS} from './outdoor-progress.mjs?v=20261015-boar-distance-1';
+export {OUTDOOR_CHAPTER_IDS,outdoorSnapshot,outdoorStageItem,OUTDOOR_STAGE_ITEMS} from './outdoor-progress.mjs?v=20261015-boar-distance-1';
 export const FIRST_CHAPTER_IDS=Object.freeze(['first','desk-over','desk-side','room-extra']);
 export const SCHOOL_CHAPTER_IDS=Object.freeze(['school-classroom','school-vending','school-passage','school-rooftop']);
 export const LEGACY_CHAPTER_IDS=Object.freeze([...FIRST_CHAPTER_IDS,...SCHOOL_CHAPTER_IDS]);

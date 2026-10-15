@@ -9,6 +9,7 @@ const rectangle=(id,kind,center,halfWidth,halfHeight,extra={})=>({id,role:'norma
 export const ECCENTRIC_ENVIRONMENT_PERIOD=12;
 export function eccentricStartTime(time=0){if(!Number.isFinite(time))throw new TypeError('Eccentric time must be finite');return ((time%12)+12)%12;}
 export const ECCENTRIC_PHYSICS_WORLDS=freeze({
+  53:{worldVersion:53,origin:p(0,1.45,0),bin:{center:p(0,.425,15.5),radius:.42,height:.85},launchScale:1.5},
   48:{worldVersion:48,origin:p(0,1.45,0),bin:{center:p(0,.425,7.5),radius:.42,height:.85}},
   49:{worldVersion:49,origin:p(0,1.7,0),bin:{center:p(0,1.525,6),radius:.225,height:3.05},launchScale:2.2},
   50:{worldVersion:50,origin:p(0,3.5,0),bin:{center:p(1,.3,5.8),radius:.65,height:.6},launchLimits:{minPower:.1,maxPower:14,minElevation:-60,maxElevation:85}},
@@ -94,8 +95,12 @@ const parlor=make('eccentric-card',51,'card','playing-card',[rectangle('card-cor
 const fortress=make('eccentric-cannon',52,'cannon','cannonball',[rectangle('fort-door-target','fort-door',p(0,2.1,18),1.2,1.65,{label:'防塁の向こうの砦の扉',mode:'hit'})],
  [box('fort-moat-water','fort-moat','moat-water',p(-9,-1.5,6),p(9,0,11),'water',0,{blocking:true}),box('fort-door','fort-door','door',p(-1.5,0,18.2),p(1.5,4.2,18.4),'wall',.2),box('fort-wall-left','fort-wall','wall',p(-8,0,18.1),p(-1.5,7,18.55),'wall',.3),box('fort-wall-right','fort-wall','wall',p(1.5,0,18.1),p(8,7,18.55),'wall',.3),box('fort-wall-top','fort-wall','wall',p(-1.5,4.2,18.1),p(1.5,7,18.55),'wall',.3),box('fort-forward-rampart','fort-rampart','rampart',p(-8,0,9.8),p(8,2.8,10.5),'wall',.2),...[-9,9].flatMap((x,i)=>[box('fort-tower-'+i+'-mid','fort-tower-'+i,'tower-masonry',p(x-1,0,17.9),p(x+1,8,19.1),'wall',.3),box('fort-tower-'+i+'-front','fort-tower-'+i,'tower-masonry',p(x-.6,0,17.5),p(x+.6,8,17.9),'wall',.3),box('fort-tower-'+i+'-back','fort-tower-'+i,'tower-masonry',p(x-.6,0,19.1),p(x+.6,8,19.5),'wall',.3)]),...Array.from({length:10},(_,i)=>{const x=-7.4+i*1.5;return box('fort-merlon-'+i,'fort-wall','battlement',p(x,7,18.1),p(x+.65,7.65,18.55),'wall',.3);}),...[-9,9].flatMap((x,i)=>[-.65,.2].map((dx,j)=>box('fort-tower-merlon-'+i+'-'+j,'fort-tower-'+i,'battlement',p(x+dx,8,17.55),p(x+dx+.45,8.6,17.95),'wall',.3)))],[],
  {power:11,elevation:38,yaw:0},{target:p(0,3,10),distance:33,azimuth:.2,elevation:.35},{cannon:{position:p(0,.5,-.5),barrelLength:1.25},fortress:{moat:{min:p(-9,-1.5,6),max:p(9,0,11)},rampartHeight:2.8}});
-export const ECCENTRIC_WORLDS=freeze({...ECCENTRIC_RELEASED_WORLDS,'eccentric-boar':woodland,'eccentric-basket':gym,'eccentric-dandelion':garden,'eccentric-card':parlor,'eccentric-cannon':fortress});
-const ECCENTRIC_BY_VERSION=freeze(Object.fromEntries([...Object.values(ECCENTRIC_LEGACY_WORLDS),...Object.values(ECCENTRIC_RELEASED_WORLDS),...Object.values(ECCENTRIC_WORLDS)].map(w=>[w.worldVersion,w])));
+export const ECCENTRIC_REVIEWED_WORLDS=freeze({...ECCENTRIC_RELEASED_WORLDS,'eccentric-boar':woodland,'eccentric-basket':gym,'eccentric-dandelion':garden,'eccentric-card':parlor,'eccentric-cannon':fortress});
+const distantWoodland=(()=>{const old=woodland,physics=ECCENTRIC_PHYSICS_WORLDS[53],shift=q=>({...q,z:q.z+8});return {...old,worldVersion:53,physics,origin:physics.origin,bin:physics.bin,
+ goals:old.goals.map(g=>({...g,center:shift(g.center)})),solids:old.solids.map(s=>({...s,min:shift(s.min),max:shift(s.max)})),actors:old.actors.map(a=>({...a,position:shift(a.position)})),
+ woodland:{...old.woodland,path:old.woodland.path.map(shift)},launch:{power:9,elevation:20,yaw:0},view:{target:p(0,1,8.2),distance:24,azimuth:.16,elevation:.27},room:{...old.room,maxZ:24}};})();
+export const ECCENTRIC_WORLDS=freeze({...ECCENTRIC_REVIEWED_WORLDS,'eccentric-boar':distantWoodland});
+const ECCENTRIC_BY_VERSION=freeze(Object.fromEntries([...Object.values(ECCENTRIC_LEGACY_WORLDS),...Object.values(ECCENTRIC_RELEASED_WORLDS),...Object.values(ECCENTRIC_REVIEWED_WORLDS),...Object.values(ECCENTRIC_WORLDS)].map(w=>[w.worldVersion,w])));
 
 export function eccentricWorld(stageId,worldVersion){const world=worldVersion===undefined?ECCENTRIC_WORLDS[stageId]:ECCENTRIC_BY_VERSION[worldVersion];return world?.stageId===stageId?world:null;}
 export function eccentricWorldByVersion(version){return Number.isInteger(version)&&Object.hasOwn(ECCENTRIC_BY_VERSION,version)?ECCENTRIC_BY_VERSION[version]:null;}
@@ -103,16 +108,16 @@ function requireWorld(world){const saved=eccentricWorld(world?.stageId,world?.wo
 export function eccentricSolids(world){return requireWorld(world).solids;}
 export function eccentricLaunchFrame(world,time=0){world=requireWorld(world);time=eccentricStartTime(time);if(world.worldVersion===39)return {origin:{...world.origin},velocity:p(0,0,0),orientation:p(0,0,0),environmentTime:time};const phase=time*Math.PI/6;
   return {origin:{...world.origin,...(world.eccentricType==='train'?{x:3*Math.sin(phase)}:{})},velocity:p(world.eccentricType==='train'?Math.PI/2*Math.cos(phase):0,0,0),orientation:p(0,0,0),environmentTime:time};}
-export function woodlandPose(world,time=0){world=requireWorld(world);if(world.worldVersion!==48)return null;time=eccentricStartTime(time);const path=world.woodland.path;let i=0;while(i<path.length-2&&time>=path[i+1].t)i++;const a=path[i],b=path[i+1],u=(time-a.t)/(b.t-a.t),s=u*u*(3-2*u),dx=b.x-a.x,dz=b.z-a.z;
+export function woodlandPose(world,time=0){world=requireWorld(world);if(![48,53].includes(world.worldVersion))return null;time=eccentricStartTime(time);const path=world.woodland.path;let i=0;while(i<path.length-2&&time>=path[i+1].t)i++;const a=path[i],b=path[i+1],u=(time-a.t)/(b.t-a.t),s=u*u*(3-2*u),dx=b.x-a.x,dz=b.z-a.z;
  const anchors=path.slice(1).map((q,j)=>({t:(q.t+path[j].t)/2,dx:q.x-path[j].x,dz:q.z-path[j].z})).filter(q=>Math.hypot(q.dx,q.dz)>1e-8).map(q=>({...q,h:Math.atan2(q.dx,q.dz)}));
  let hi=anchors.findIndex(q=>q.t>time);if(hi<0)hi=0;const next=anchors[hi],prev=anchors[(hi+anchors.length-1)%anchors.length],pt=prev.t>time?prev.t-12:prev.t,nt=next.t<=time?next.t+12:next.t,v=(time-pt)/(nt-pt),blend=v*v*(3-2*v),turn=Math.atan2(Math.sin(next.h-prev.h),Math.cos(next.h-prev.h)),heading=prev.h+turn*blend;
  return {position:p(a.x+dx*s,0,a.z+dz*s),heading,gaitSpeed:Math.hypot(dx,dz)*6*u*(1-u)/(b.t-a.t),gaitPhase:time*8};}
-export function eccentricActors(world,time=0){world=requireWorld(world);time=eccentricStartTime(time);if(world.worldVersion===48){const pose=woodlandPose(world,time);return world.actors.map(a=>({...a,...pose,position:{...pose.position}}));}return world.actors.map(actor=>({...actor,position:{...actor.position,...(actor.id==='forest-boar'?{x:2.2*Math.sin(time*Math.PI/6)}:{})}}));}
-export function eccentricGoals(world,time=0){world=requireWorld(world);const actors=eccentricActors(world,time);if(world.worldVersion===48){const a=actors[0],h=a.heading,offset=world.woodland.targetOffset;return world.goals.map(g=>({...g,center:p(a.position.x+offset.z*Math.sin(h),a.position.y+offset.y,a.position.z+offset.z*Math.cos(h)),normal:p(-Math.sin(h),0,-Math.cos(h)),up:p(0,1,0)}));}return world.goals.map(goal=>({...goal,center:{...goal.center,...(world.worldVersion===39?{x:trainWindowMotion(world,time).adjacentTrains.find(car=>car.id===goal.motionId).position.x}:goal.motionId?{x:actors.find(a=>a.id===goal.motionId).position.x}:{})}}));}
+export function eccentricActors(world,time=0){world=requireWorld(world);time=eccentricStartTime(time);if([48,53].includes(world.worldVersion)){const pose=woodlandPose(world,time);return world.actors.map(a=>({...a,...pose,position:{...pose.position}}));}return world.actors.map(actor=>({...actor,position:{...actor.position,...(actor.id==='forest-boar'?{x:2.2*Math.sin(time*Math.PI/6)}:{})}}));}
+export function eccentricGoals(world,time=0){world=requireWorld(world);const actors=eccentricActors(world,time);if([48,53].includes(world.worldVersion)){const a=actors[0],h=a.heading,offset=world.woodland.targetOffset;return world.goals.map(g=>({...g,center:p(a.position.x+offset.z*Math.sin(h),a.position.y+offset.y,a.position.z+offset.z*Math.cos(h)),normal:p(-Math.sin(h),0,-Math.cos(h)),up:p(0,1,0)}));}return world.goals.map(goal=>({...goal,center:{...goal.center,...(world.worldVersion===39?{x:trainWindowMotion(world,time).adjacentTrains.find(car=>car.id===goal.motionId).position.x}:goal.motionId?{x:actors.find(a=>a.id===goal.motionId).position.x}:{})}}));}
 export function eccentricDynamicSolids(world,time=0){world=requireWorld(world);const result=[];
   if(world.worldVersion===39)return trainWindowSolids(world,time);
   if(world.eccentricType==='train'){const frame=eccentricLaunchFrame(world,time),x=frame.origin.x;result.push(box('train-roof','train','train-roof',p(x-4,.15,-.8),p(x+4,2.7,.8),'train',.25));}
-  if(world.worldVersion===48)return result;
+  if([48,53].includes(world.worldVersion))return result;
   if(world.eccentricType==='boar'){const boar=eccentricActors(world,time)[0],x=boar.position.x;result.push(box('forest-boar-body','forest-boar','boar',p(x-.66,.1,6.62),p(x+.66,1.55,7.5),'target',.2));}
   return result;
 }
@@ -141,13 +146,13 @@ export function trainWindowSolids(world,time=0){world=requireWorld(world);if(wor
 }
 
 export function sweepWoodlandBoar(world,start,end,radius,time,dt=0){
- world=requireWorld(world);if(world.worldVersion!==48)return null;const a=woodlandPose(world,time),b=woodlandPose(world,time+dt),h=woodlandPose(world,time+dt/2).heading,c=Math.cos(h),s=Math.sin(h),r={x:.34+radius,y:.43+radius,z:.725+radius};
+ world=requireWorld(world);if(![48,53].includes(world.worldVersion))return null;const a=woodlandPose(world,time),b=woodlandPose(world,time+dt),h=woodlandPose(world,time+dt/2).heading,c=Math.cos(h),s=Math.sin(h),r={x:.34+radius,y:.43+radius,z:.725+radius};
  const local=(point,pose)=>{const x=point.x-pose.position.x,z=point.z-pose.position.z;return {x:x*c-z*s,y:point.y-.52,z:x*s+z*c};},u=local(start,a),v=local(end,b),d={x:v.x-u.x,y:v.y-u.y,z:v.z-u.z};
  const A=['x','y','z'].reduce((n,k)=>n+d[k]*d[k]/(r[k]*r[k]),0),B=2*['x','y','z'].reduce((n,k)=>n+u[k]*d[k]/(r[k]*r[k]),0),C=['x','y','z'].reduce((n,k)=>n+u[k]*u[k]/(r[k]*r[k]),0)-1,disc=B*B-4*A*C;
  if(A<1e-14||disc<0)return null;const t=C<=0?0:(-B-Math.sqrt(disc))/(2*A);if(t<0||t>1)return null;
  const q={x:u.x+d.x*t,y:u.y+d.y*t,z:u.z+d.z*t},n={x:q.x/(r.x*r.x),y:q.y/(r.y*r.y),z:q.z/(r.z*r.z)},length=Math.hypot(n.x,n.y,n.z),normal=p((n.x*c+n.z*s)/length,n.y/length,(-n.x*s+n.z*c)/length),position=p(start.x+(end.x-start.x)*t,start.y+(end.y-start.y)*t,start.z+(end.z-start.z)*t),g=eccentricGoals(world,time+dt*t)[0];
  return {time:t,position,goal:{...g,center:position,normal}};
 }
-export function forestBoarGeometry(world,time=0){world=requireWorld(world);if(world.worldVersion!==48)return null;const pose=woodlandPose(world,time);return {center:p(pose.position.x,.52,pose.position.z),radii:p(.34,.43,.725),heading:pose.heading,pose};}
+export function forestBoarGeometry(world,time=0){world=requireWorld(world);if(![48,53].includes(world.worldVersion))return null;const pose=woodlandPose(world,time);return {center:p(pose.position.x,.52,pose.position.z),radii:p(.34,.43,.725),heading:pose.heading,pose};}
 export function forestBoarPointMetric(world,point,radius,time=0){const g=forestBoarGeometry(world,time);if(!g)return null;const c=Math.cos(g.heading),s=Math.sin(g.heading),x=point.x-g.center.x,z=point.z-g.center.z,q=p(x*c-z*s,point.y-g.center.y,x*s+z*c),r=p(g.radii.x+radius,g.radii.y+radius,g.radii.z+radius);return {metric:(q.x/r.x)**2+(q.y/r.y)**2+(q.z/r.z)**2,local:q,radii:r,geometry:g};}
 export function sweepForestBoarTarget(world,start,end,radius,startTime,endTime){return sweepWoodlandBoar(world,start,end,radius,startTime,endTime-startTime);}

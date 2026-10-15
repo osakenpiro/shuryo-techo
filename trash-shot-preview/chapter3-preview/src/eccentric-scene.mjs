@@ -1,13 +1,13 @@
 // Chapter 5 changes places and objects while keeping the approved faceted,
 // warm paper / teal material language and the production metre-space camera.
-import {eccentricWorld,eccentricSolids,eccentricDynamicSolids,eccentricMotion} from './eccentric-world.mjs?v=20261015-eccentric-review-1';
-import {scenePrimitives,FACTORY_PALETTE} from './factory-scene.mjs?v=20261015-eccentric-review-1';
-import {throwablePose} from './throwable-physics.mjs?v=20261015-eccentric-review-1';
-import {tokyoTowerStaticMeshes,tokyoTowerGroups} from './tokyo-tower-scene.mjs?v=20261015-eccentric-review-1';
-import {trainWindowStaticMeshes,trainWindowDynamicMeshes,trainWindowCutaway} from './train-window-scene.mjs?v=20261015-eccentric-review-1';
-import {forestHuntStaticMeshes,forestHuntDynamicMeshes} from './forest-hunt-scene.mjs?v=20261015-eccentric-review-1';
-import {gymBasketStaticMeshes,gymBasketDynamicMeshes,gymBasketCutaway} from './gym-basket-scene.mjs?v=20261015-eccentric-review-1';
-import {showcaseStaticMeshes,showcaseDynamicMeshes,showcaseCutaway} from './eccentric-showcase-scene.mjs?v=20261015-eccentric-review-1';
+import {eccentricWorld,eccentricSolids,eccentricDynamicSolids,eccentricMotion} from './eccentric-world.mjs?v=20261015-boar-distance-1';
+import {scenePrimitives,FACTORY_PALETTE} from './factory-scene.mjs?v=20261015-boar-distance-1';
+import {throwablePose} from './throwable-physics.mjs?v=20261015-boar-distance-1';
+import {tokyoTowerStaticMeshes,tokyoTowerGroups} from './tokyo-tower-scene.mjs?v=20261015-boar-distance-1';
+import {trainWindowStaticMeshes,trainWindowDynamicMeshes,trainWindowCutaway} from './train-window-scene.mjs?v=20261015-boar-distance-1';
+import {forestHuntStaticMeshes,forestHuntDynamicMeshes} from './forest-hunt-scene.mjs?v=20261015-boar-distance-1';
+import {gymBasketStaticMeshes,gymBasketDynamicMeshes,gymBasketCutaway} from './gym-basket-scene.mjs?v=20261015-boar-distance-1';
+import {showcaseStaticMeshes,showcaseDynamicMeshes,showcaseCutaway} from './eccentric-showcase-scene.mjs?v=20261015-boar-distance-1';
 const {p,face,shade,add,scale,cross,unit,box,physicalBox,cylinder,ellipsoid,line,flat,limb,basis,opening}=scenePrimitives;
 export const ECCENTRIC_PALETTE=Object.freeze({...FACTORY_PALETTE,sky:'#bfdedb',green:'#8caf7d',grass:'#a9bd8f',bark:'#9b805b',stone:'#b8b799',water:'#86b5ad'});
 const cache=new Map(),axes=['x','y','z'];
@@ -140,7 +140,7 @@ function fixedGoals(s,world){
 export function eccentricStaticMeshes(world){
   world=requireWorld(world);const key=`${world.stageId}/${world.worldVersion}`;if(cache.has(key))return cache.get(key);
   const shapes=[];
-  if(world.worldVersion===48)shapes.push(...forestHuntStaticMeshes(world));
+  if([48,53].includes(world.worldVersion))shapes.push(...forestHuntStaticMeshes(world));
   else if(world.worldVersion===49)shapes.push(...gymBasketStaticMeshes(world));
   else if(world.worldVersion>=50&&world.worldVersion<=52)shapes.push(...showcaseStaticMeshes(world));
   else if(world.worldVersion===39)shapes.push(...trainWindowStaticMeshes(world));
@@ -195,7 +195,7 @@ function cannonShapes(s,world,options){
   }
 }
 export function eccentricDynamicMeshes(world,time=0,options={}){
-  world=requireWorld(world);if(world.worldVersion===48)return forestHuntDynamicMeshes(world,time,options);
+  world=requireWorld(world);if([48,53].includes(world.worldVersion))return forestHuntDynamicMeshes(world,time,options);
   if(world.worldVersion===49)return gymBasketDynamicMeshes(world,time,options);
   if(world.worldVersion>=50&&world.worldVersion<=52)return showcaseDynamicMeshes(world,time,options);
   if(world.worldVersion===39)return trainWindowDynamicMeshes(world,time,options);
@@ -226,7 +226,7 @@ export function eccentricItemMeshes(game,itemOrShape,options={}){
   const shape=typeof itemOrShape==='string'?itemOrShape:itemOrShape?.shape??itemOrShape?.id;
   if(!['arrow','basketball','dandelion','playing-card','cannonball'].includes(shape))return null;
   const center=game?.can?.position,r=game?.can?.radius;if(!center||!Number.isFinite(r))return [];
-  const revisedArrow=shape==='arrow'&&(options.worldVersion??game.worldVersion)===48,aim=options.aim,ready=revisedArrow&&game.phase==='ready'&&aim;
+  const revisedArrow=shape==='arrow'&&[48,53].includes(options.worldVersion??game.worldVersion),aim=options.aim,ready=revisedArrow&&game.phase==='ready'&&aim;
   const velocity=ready?p(Math.sin(aim.yaw*Math.PI/180)*Math.cos(aim.elevation*Math.PI/180),Math.sin(aim.elevation*Math.PI/180),Math.cos(aim.yaw*Math.PI/180)*Math.cos(aim.elevation*Math.PI/180)):game.can.velocity??p(0,0,1),captured=game.impactPose??game.capturePose??game.course?.capturePose??game.courseTrace?.capturePose,dir=captured?.incomingVelocity??captured?.direction??captured?.incomingDirection??velocity;
   const forward=unit(Math.hypot(dir.x,dir.y,dir.z)>.00001?dir:p(0,0,1)),right=unit(cross(p(0,1,0),Math.abs(forward.y)>.95?p(0,0,1):forward)),up=unit(cross(forward,right)),shapes=[],time=game.time??0;
   const pose=captured?.orientation??throwablePose(game),euler=a=>{

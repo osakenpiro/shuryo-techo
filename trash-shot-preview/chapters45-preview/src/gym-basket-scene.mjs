@@ -6,7 +6,7 @@
 // The painted court is 28 x 15 m; lines are 5 cm; the board is 1.8 x 1.05 m.
 // These dimensions guide the miniature; this school practice gym is not a
 // claim of certified competition clearance around its court.
-import {scenePrimitives} from './factory-scene.mjs?v=20261015-eccentric-review-1';
+import {scenePrimitives} from './factory-scene.mjs?v=20261015-boar-distance-1';
 const {p,face,box,physicalBox,line,flat,limb}=scenePrimitives;
 const P=Object.freeze({wood:'#c59b68',woodLight:'#d4b07c',woodDark:'#ba925f',cream:'#eee5cf',light:'#f7efd9',teal:'#4b8980',dark:'#2b625e',steel:'#839d91',ink:'#345b54',orange:'#d7803e',paint:'#f5ebd2'});
 const cache=new Map();

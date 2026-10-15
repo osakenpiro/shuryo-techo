@@ -1,10 +1,10 @@
 // World-space simulation. One metre is one unit; rendering never affects physics.
 import {throwableRadius,throwableInitialVelocity,beginThrowableShot,applyThrowableAir,
-  throwableRestitution,throwableFriction,throwableContact,getThrowableProfile,cloneThrowable,throwableTerminalContact,setThrowableWorld} from './throwable-physics.mjs?v=20261015-eccentric-review-1';
-import {SCHOOL_PHYSICS_WORLDS} from './school-world.mjs?v=20261015-eccentric-review-1';
-import {OUTDOOR_PHYSICS_WORLDS,OUTDOOR_WORLDS,outdoorWorldByVersion} from './outdoor-world.mjs?v=20261015-eccentric-review-1';
-import {FACTORY_PHYSICS_WORLDS,factoryWorldByVersion} from './factory-world.mjs?v=20261015-eccentric-review-1';
-import {ECCENTRIC_PHYSICS_WORLDS,ECCENTRIC_WORLDS,eccentricWorldByVersion} from './eccentric-world.mjs?v=20261015-eccentric-review-1';
+  throwableRestitution,throwableFriction,throwableContact,getThrowableProfile,cloneThrowable,throwableTerminalContact,setThrowableWorld} from './throwable-physics.mjs?v=20261015-boar-distance-1';
+import {SCHOOL_PHYSICS_WORLDS} from './school-world.mjs?v=20261015-boar-distance-1';
+import {OUTDOOR_PHYSICS_WORLDS,OUTDOOR_WORLDS,outdoorWorldByVersion} from './outdoor-world.mjs?v=20261015-boar-distance-1';
+import {FACTORY_PHYSICS_WORLDS,factoryWorldByVersion} from './factory-world.mjs?v=20261015-boar-distance-1';
+import {ECCENTRIC_PHYSICS_WORLDS,ECCENTRIC_WORLDS,eccentricWorldByVersion} from './eccentric-world.mjs?v=20261015-boar-distance-1';
 const extendedPhysicsWorld=version=>OUTDOOR_PHYSICS_WORLDS[version]??FACTORY_PHYSICS_WORLDS[version]??ECCENTRIC_PHYSICS_WORLDS[version];
 const GRAVITY = 9.81;
 const SUBSTEP = 1 / 240;

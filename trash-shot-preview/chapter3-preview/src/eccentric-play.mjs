@@ -1,10 +1,10 @@
 // Deterministic Chapter 5 input, moving launch frames and target captures reuse
 // the existing 240 Hz contact solver. Predictions call this exact same adapter.
-import {createGame,setRoomWorld,throwCan,captureGoal,stopBlockedShot,emitShotEffect,getShotEffects,setShotEnvironmentStart,shotTimeLimit} from './physics.mjs?v=20261015-eccentric-review-1';
-import {cloneThrowable,throwableWindScale,throwablePose,fixThrowablePose,throwableRestitution,throwableFriction} from './throwable-physics.mjs?v=20261015-eccentric-review-1';
-import {createRoomContactStepper,ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261015-eccentric-review-1';
-import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261015-eccentric-review-1';
-import {eccentricWorld,eccentricGoals,eccentricSolids,eccentricDynamicSolids,eccentricLaunchFrame,eccentricStartTime,sweepWoodlandBoar} from './eccentric-world.mjs?v=20261015-eccentric-review-1';
+import {createGame,setRoomWorld,throwCan,captureGoal,stopBlockedShot,emitShotEffect,getShotEffects,setShotEnvironmentStart,shotTimeLimit} from './physics.mjs?v=20261015-boar-distance-1';
+import {cloneThrowable,throwableWindScale,throwablePose,fixThrowablePose,throwableRestitution,throwableFriction} from './throwable-physics.mjs?v=20261015-boar-distance-1';
+import {createRoomContactStepper,ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261015-boar-distance-1';
+import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261015-boar-distance-1';
+import {eccentricWorld,eccentricGoals,eccentricSolids,eccentricDynamicSolids,eccentricLaunchFrame,eccentricStartTime,sweepWoodlandBoar} from './eccentric-world.mjs?v=20261015-boar-distance-1';
 const TICK=ROOM_CONTACT_TICK,EPS=1e-9,AXES=['x','y','z'],IMPACT_POSES=new WeakMap();
 const active=game=>game?.phase==='flying'||game?.phase==='settling';
 const copy=p=>({x:p.x,y:p.y,z:p.z});
@@ -34,7 +34,7 @@ export function createEccentricPlayStepper(world,{startTime=0,onContact,onEffect
     return a.map(solid=>({...solid,delta:sub(b.find(q=>q.id===solid.id).min,solid.min)}));
   };
   const captureSweep=(game,start,end,h)=>{
-    if(world.worldVersion===48)return sweepWoodlandBoar(world,start,end,game.can.radius,launchTime+game.time,h);
+    if([48,53].includes(world.worldVersion))return sweepWoodlandBoar(world,start,end,game.can.radius,launchTime+game.time,h);
     const a=eccentricGoals(world,launchTime+game.time),b=eccentricGoals(world,launchTime+game.time+h);let selected=null;
     for(const goal of a){const hit=sweepOutdoorGoal(start,end,game.can.radius,goal,b.find(q=>q.id===goal.id));if(hit&&(!selected||hit.time<selected.time-EPS))selected=hit;}
     return selected;

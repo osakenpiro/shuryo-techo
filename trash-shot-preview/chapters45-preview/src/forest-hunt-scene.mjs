@@ -1,12 +1,12 @@
-// World 48 only: recognisable woodland, metre-scale wild boar and working bow.
+// Versioned woodland: metre-scale wild boar, a working bow and a deeper trail.
 // Canonical solids and the deterministic actor clock own all gameplay geometry.
 // The module adds no collider, alternate hit test, animation timer or asset URL.
-import {eccentricMotion,eccentricSolids} from './eccentric-world.mjs?v=20261015-eccentric-review-1';
-import {scenePrimitives} from './factory-scene.mjs?v=20261015-eccentric-review-1';
-import {getThrowable} from './throwables.mjs?v=20261015-eccentric-review-1';
+import {eccentricMotion,eccentricSolids} from './eccentric-world.mjs?v=20261015-boar-distance-1';
+import {scenePrimitives} from './factory-scene.mjs?v=20261015-boar-distance-1';
+import {getThrowable} from './throwables.mjs?v=20261015-boar-distance-1';
 const {p,face,shade,add,scale,cross,unit,box,physicalBox,cylinder,ellipsoid,line,flat,limb}=scenePrimitives;
 const C=Object.freeze({moss:'#8fa579',grass:'#a8b88a',leaf:'#b9bd88',path:'#d4c29b',bark:'#806a50',barkLight:'#a18b64',barkDark:'#65583f',foliage:'#72916d',foliageLight:'#9fb584',coat:'#74634b',coatLight:'#8a7455',ridge:'#534b3b',wood:'#a18155',teal:'#426f65',cream:'#eee3c6'});
-const clamp=(n,lo=0,hi=1)=>Math.max(lo,Math.min(hi,n)),valid=world=>world?.worldVersion===48&&world?.eccentricType==='boar';
+const clamp=(n,lo=0,hi=1)=>Math.max(lo,Math.min(hi,n)),valid=world=>[48,53].includes(world?.worldVersion)&&world?.eccentricType==='boar';
 const decoration={decoration:true,physical:false},cache=new Map();
 const mix=(a,b,t)=>p(a.x+(b.x-a.x)*t,a.y+(b.y-a.y)*t,a.z+(b.z-a.z)*t);
 function polygon(s,points,color,meta={}){s.push(face(points,color,null,meta));}
@@ -57,26 +57,26 @@ function backgroundTree(s,x,z,h,q=1){
   canopy(s,x,h+.3,z,q);
 }
 function forestGround(s,world){
-  const r=world.room;flat(s,r.minX-7,.004,r.minZ-3,r.maxX-r.minX+14,r.maxZ-r.minZ+13,C.grass,decoration);
+  const r=world.room,distant=world.worldVersion===53;flat(s,r.minX-7,.004,r.minZ-3,r.maxX-r.minX+14,r.maxZ-r.minZ+13,C.grass,decoration);
   // A curved leaf-strewn game trail, with an open clearing around the boar.
-  const path=[[-.65,-2],[.28,.4],[-.22,2.6],[.46,4.7],[-.12,6.5],[.52,8.6],[1.9,10.4],[2.6,13.5]],width=.82;
+  const path=distant?[[-.65,-2],[.28,.4],[-.22,2.6],[.46,4.7],[-.12,6.5],[.12,9.4],[-.22,12],[.22,14.8],[.52,16.6],[1.9,18.4],[2.6,21.5],[2.2,24.5]]:[[-.65,-2],[.28,.4],[-.22,2.6],[.46,4.7],[-.12,6.5],[.52,8.6],[1.9,10.4],[2.6,13.5]],width=.82;
   for(let i=1;i<path.length;i++){
     const [ax,az]=path[i-1],[bx,bz]=path[i],n=unit(p(-(bz-az),0,bx-ax));
     polygon(s,[p(ax+n.x*width,.009,az+n.z*width),p(bx+n.x*width,.009,bz+n.z*width),p(bx-n.x*width,.009,bz-n.z*width),p(ax-n.x*width,.009,az-n.z*width)],i%2?C.path:'#caba95',{...decoration,forestTrail:true});
   }
-  for(const [x,z,rx,rz]of [[-2.5,2,1.4,.65],[2.8,4.7,1.2,.85],[-3.5,8,1.6,1.2],[1.6,10,1.5,.8],[4.1,9.2,1.1,1.3]])
+  for(const [x,z,rx,rz]of [[-2.5,2,1.4,.65],[2.8,4.7,1.2,.85],[-3.5,8,1.6,1.2],[1.6,10,1.5,.8],[4.1,9.2,1.1,1.3],...(distant?[[-3.5,15,1.6,1.2],[1.6,18,1.5,.8],[4.1,17.2,1.1,1.3],[-2.7,22.3,1.8,.8]]:[])])
     polygon(s,Array.from({length:9},(_,i)=>p(x+Math.cos(i*Math.PI*2/9)*rx,.011,z+Math.sin(i*Math.PI*2/9)*rz)),C.moss,{...decoration,mossPatch:true});
-  for(let i=0;i<78;i++){
-    const x=Math.sin(i*2.399)*(.7+(i%10)*.63),z=-1.2+(i*.617)%15.2,a=i*1.731;
+  for(let i=0;i<(distant?126:78);i++){
+    const x=Math.sin(i*2.399)*(.7+(i%10)*.63),z=-1.2+(i*.617)%(distant?25.2:15.2),a=i*1.731;
     leaf(s,x,.018+(i%3)*.003,z,a,.08+(i%3)*.025,.027,['#bdad7c','#9d9f6e','#c8b887','#929467'][i%4],{...decoration,forestLeafLitter:true});
   }
-  for(const [x,z,q,a]of [[-3.1,1,.9,.2],[3.4,2.7,1.1,.8],[-2.8,4.5,.9,1.4],[2.4,6.2,.7,.3],[-4.2,8.3,1.1,.6],[4.5,9.5,1,.2],[-3.7,11.3,.9,.8],[1.7,12.5,.7,1]])fern(s,x,z,q,a);
-  for(let i=0;i<9;i++){
-    const side=i%2?-1:1,x=side*(4.4+(i%3)*.8),z=.8+i*1.25;
+  for(const [x,z,q,a]of [[-3.1,1,.9,.2],[3.4,2.7,1.1,.8],[-2.8,4.5,.9,1.4],[2.4,6.2,.7,.3],[-4.2,8.3,1.1,.6],[4.5,9.5,1,.2],[-3.7,11.3,.9,.8],[1.7,12.5,.7,1],...(distant?[[-3.7,15.3,.9,.8],[3.8,16.5,.8,1],[-4.2,19.5,1.1,.6],[4.5,21.5,1,.2],[-3.7,23.3,.9,.8]]:[])])fern(s,x,z,q,a);
+  for(let i=0;i<(distant?15:9);i++){
+    const side=i%2?-1:1,x=side*(4.4+(i%3)*.8),z=.8+i*(distant?1.55:1.25);
     ellipsoid(s,x,.10,z,.20+(i%2)*.07,.15,.18,'#aaa98a',7,2,{...decoration,forestStone:true});
   }
   // Warm light pools on the floor communicate an airy deciduous woodland.
-  for(const [x,z,rx,rz]of [[-.2,1.8,.5,.22],[1.2,5.2,.6,.35],[-1.9,8.7,.72,.32],[2.8,11.1,.5,.3]])
+  for(const [x,z,rx,rz]of [[-.2,1.8,.5,.22],[1.2,5.2,.6,.35],[-1.9,8.7,.72,.32],[2.8,11.1,.5,.3],...(distant?[[-1.9,16.7,.72,.32],[2.8,19.1,.5,.3],[1.3,22.2,.65,.34]]:[])])
     polygon(s,Array.from({length:7},(_,i)=>p(x+Math.cos(i*Math.PI*2/7)*rx,.022,z+Math.sin(i*Math.PI*2/7)*rz)),'#d9cc9e',{...decoration,forestSunPatch:true});
 }
 export function forestHuntStaticMeshes(world){
@@ -92,6 +92,7 @@ export function forestHuntStaticMeshes(world){
   // obstacles within the playable forest come exclusively from solids above.
   const r=world.room;
   for(const [x,z,h,q]of [[r.minX-1.4,1.4,4.5,1.25],[r.maxX+1.4,1,4.8,1.4],[r.minX-1,7,5,1.35],[r.maxX+1,7.5,4.3,1.2],[r.minX-1.6,13,4.8,1.3],[r.maxX+1.8,13.5,5.2,1.4],[-5.8,r.maxZ+2,4.4,1.2],[-2.8,r.maxZ+3.3,4.9,1.3],[.7,r.maxZ+2.6,5.2,1.4],[4.3,r.maxZ+3.2,4.6,1.3],[7.5,r.maxZ+2.2,5.2,1.4]])backgroundTree(s,x,z,h,q);
+  if(world.worldVersion===53)for(const [x,z,h,q]of [[r.minX-1.1,19,5,1.35],[r.maxX+1.5,19.5,4.8,1.3],[r.minX-1.5,24.5,5.2,1.4],[r.maxX+1.2,25,4.5,1.3]])backgroundTree(s,x,z,h,q);
   cache.set(key,s);return s;
 }
 function boarLocal(s,actor,options){

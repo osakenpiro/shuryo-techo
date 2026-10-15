@@ -1,13 +1,13 @@
 // V6 isolates new capture planes and profiles from historical V1–V5 records.
 // Playback reads recorded poses and a saved environment clock; it awards nothing.
-import {validateReplay,createReplayPlayer,ReplayError} from './replay.mjs?v=20261015-eccentric-review-1';
-import {roomWorld,sweepSphereAABB} from './room-course.mjs?v=20261015-eccentric-review-1';
-import {roomContactColliders} from './room-contact.mjs?v=20261015-eccentric-review-1';
-import {schoolSolids,schoolStudentPose,schoolStudentPoses} from './school-world.mjs?v=20261015-eccentric-review-1';
-import {validateSchoolStudentClearance} from './school-replay.mjs?v=20261015-eccentric-review-1';
-import {outdoorWorld,outdoorGoals,outdoorMotion,outdoorDynamicSolids} from './outdoor-world.mjs?v=20261015-eccentric-review-1';
-import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261015-eccentric-review-1';
-import {THROWABLE_CATALOG} from './throwables.mjs?v=20261015-eccentric-review-1';
+import {validateReplay,createReplayPlayer,ReplayError} from './replay.mjs?v=20261015-boar-distance-1';
+import {roomWorld,sweepSphereAABB} from './room-course.mjs?v=20261015-boar-distance-1';
+import {roomContactColliders} from './room-contact.mjs?v=20261015-boar-distance-1';
+import {schoolSolids,schoolStudentPose,schoolStudentPoses} from './school-world.mjs?v=20261015-boar-distance-1';
+import {validateSchoolStudentClearance} from './school-replay.mjs?v=20261015-boar-distance-1';
+import {outdoorWorld,outdoorGoals,outdoorMotion,outdoorDynamicSolids} from './outdoor-world.mjs?v=20261015-boar-distance-1';
+import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261015-boar-distance-1';
+import {THROWABLE_CATALOG} from './throwables.mjs?v=20261015-boar-distance-1';
 
 export const OUTDOOR_REPLAY_STORAGE_KEY='trash-shot-expanded-replays-v6';
 export const OUTDOOR_REPLAY_LIMITS=Object.freeze({version:6,contactModel:1,rawBytes:1024*1024,contacts:2400,urlChars:8000,saved:5,storageBytes:5*1024*1024+100,storageKey:OUTDOOR_REPLAY_STORAGE_KEY});
