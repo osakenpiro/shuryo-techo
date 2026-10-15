@@ -1,5 +1,5 @@
 // Comparison-lab input calibration. This does not change physics or saved input.
-import {pullAim, PULL_FEEL} from './pull-feel.mjs?v=20261015-factory-routes-1';
+import {pullAim, PULL_FEEL} from './pull-feel.mjs?v=20261015-screen-pull-1';
 
 export const CAN_PULL_PROFILE = Object.freeze({id:'can',radius:.14,minPower:.5,
   maxPower:14,normalPowerMultiplier:1});
@@ -81,20 +81,35 @@ export function createPullScale({rect,startX,startY,projection='3d',stagePower=6
  * No position or viewport is reread here: held gestures keep their frozen scale.
  */
 export function mapScaledPull({scale,right=0,up=0,mode='A',projection=scale?.projection??'3d',
-  elevation=48,baseYaw=0,elapsedSeconds=0}={}) {
+  elevation=48,baseYaw=0,elapsedSeconds=0,directionBasis=null}={}) {
   const side=projection==='2d';
+  const vectorPull=!side&&directionBasis!==null;
   const calibration=scale?.calibration;
   const safe=scale?.ready&&scale.projection===projection
     &&[right,up,elevation,baseYaw,elapsedSeconds,scale.size,scale.yawSize,
       scale.start?.x,scale.start?.y,scale.rect?.left,scale.rect?.right,
       scale.rect?.top,scale.rect?.bottom,calibration?.minPower,calibration?.maxPower,
       calibration?.powerPerEffective].every(finite)&&scale.size>0&&scale.yawSize>0;
-  const aim=pullAim({right:safe?(side?right:right*(scale.size/scale.yawSize)):0,
-    up:safe?up:0,size:safe?scale.size:1,mode,projection,elevation,baseYaw,elapsedSeconds});
+  const distance=Math.hypot(right,up);
+  const aim=pullAim({right:safe?(vectorPull?0:side?right:right*(scale.size/scale.yawSize)):0,
+    up:safe?(vectorPull?distance:up):0,size:safe?scale.size:1,mode,projection,elevation,baseYaw,elapsedSeconds});
+  if(vectorPull&&safe){
+    const {xx,xy,zx,zy}=directionBasis,det=xx*zy-zx*xy;
+    if([xx,xy,zx,zy,det].every(finite)&&Math.abs(det)>1e-8){
+      // Screen displacement is (right,-up). Invert the local projection of
+      // the horizontal launch plane, rather than treating pixels as yaw.
+      const x=(right*zy+up*zx)/det,z=(-up*xx-right*xy)/det;
+      const yaw=Math.atan2(x,z)*180/Math.PI;
+      aim.base.yaw=Math.round(clamp(yaw,-60,60)*2)/2;
+      aim.actual.yaw=clamp(aim.base.yaw+aim.delta.yaw,-60,60);
+      aim.delta.yaw=aim.actual.yaw-aim.base.yaw;
+      aim.directionLimited=Math.abs(yaw)>60;
+    }else return {...aim,valid:false,scaleReason:'invalid-direction-projection'};
+  }
   const power=safe?clamp(roundPower(clamp(calibration.minPower+
     aim.effectiveDistance*calibration.powerPerEffective,calibration.minPower,calibration.maxPower)),
     calibration.minPower,calibration.maxPower):.5;
-  const physicalDistance=side?Math.hypot(right,up):Math.max(0,up);
+  const physicalDistance=side||vectorPull?distance:Math.max(0,up);
   // The UI cancels outside pointer movement; the mapper independently rejects
   // outside releases as well, including overflowed extreme coordinates.
   const endpointInside=Boolean(safe&&scale.start.x-right>=scale.rect.left
@@ -102,8 +117,13 @@ export function mapScaledPull({scale,right=0,up=0,mode='A',projection=scale?.pro
     &&scale.start.y+up<=scale.rect.bottom);
   const valid=Boolean(safe&&endpointInside&&physicalDistance>=scale.deadzonePx
     &&(!side||right>=0&&up>=0));
-  return {...aim,valid,base:{...aim.base,power},actual:{...aim.actual,power},
+  return {...aim,valid,vectorPull,base:{...aim.base,power},actual:{...aim.actual,power},
     physicalDistance:finite(physicalDistance)?physicalDistance:0,
     scaleReason:!safe?scale?.reason??'invalid-layout':endpointInside?null:'outside-canvas',
     calibration:calibration?{...calibration}:null};
+}
+
+export function screenPullBasis(origin,project){
+  const a=project(origin),x=project({...origin,x:origin.x+.001}),z=project({...origin,z:origin.z+.001});
+  return Object.freeze({xx:x.x-a.x,xy:x.y-a.y,zx:z.x-a.x,zy:z.y-a.y});
 }

@@ -1,12 +1,12 @@
 // Outdoor places continue the approved room/school paper, wood and teal visual
 // language. Physical mesh endpoints come from the world descriptors; painted
 // trim and floor markings are decoration, not additional collision surfaces.
-import {outdoorSolids,outdoorMotion,outdoorDynamicSolids} from './outdoor-world.mjs?v=20261015-factory-routes-1';
-import {outdoorEffectShapes,outdoorLightColor,outdoorLampShapes} from './outdoor-effects.mjs?v=20261015-factory-routes-1';
-import {ballparkMotionShapes} from './ballpark-scene.mjs?v=20261015-factory-routes-1';
-import {outdoorArchitectureGroups} from './outdoor-architecture.mjs?v=20261015-factory-routes-1';
-import {mallPhysicalGroups} from './mall-physical-scene.mjs?v=20261015-factory-routes-1';
-import {riverPhysicalGroups,riverPhysicalMotionShapes} from './river-physical-scene.mjs?v=20261015-factory-routes-1';
+import {outdoorSolids,outdoorMotion,outdoorDynamicSolids} from './outdoor-world.mjs?v=20261015-screen-pull-1';
+import {outdoorEffectShapes,outdoorLightColor,outdoorLampShapes} from './outdoor-effects.mjs?v=20261015-screen-pull-1';
+import {ballparkMotionShapes} from './ballpark-scene.mjs?v=20261015-screen-pull-1';
+import {outdoorArchitectureGroups} from './outdoor-architecture.mjs?v=20261015-screen-pull-1';
+import {mallPhysicalGroups} from './mall-physical-scene.mjs?v=20261015-screen-pull-1';
+import {riverPhysicalGroups,riverPhysicalMotionShapes} from './river-physical-scene.mjs?v=20261015-screen-pull-1';
 export const OUTDOOR_PALETTE=Object.freeze({cream:'#f4ead5',wall:'#eee2c6',wood:'#c89b61',teal:'#4a948b',darkTeal:'#286864',gold:'#e8b54e',orange:'#e98238',sky:'#bfdedb',green:'#8caf7d',night:'#172e3d',water:'#244c60'});
 const p=(x,y,z)=>({x,y,z});
 const face=(points,fill,stroke=null,metadata={})=>({points,fill,stroke,...metadata});

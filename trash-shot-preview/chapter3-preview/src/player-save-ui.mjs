@@ -1,9 +1,9 @@
 // Save-code presentation only. The existing codecs validate data; the app owns
 // all player/storage writes and replay playback.
-import {encodePlayerCode,decodePlayerCode} from './player-save.mjs?v=20261015-factory-routes-1';
-import {CHAPTER_IDS,CHAPTERS,migrateProgress,chapterForStage,outdoorSnapshot} from './progress-save.mjs?v=20261015-factory-routes-1';
-import {STAGES} from './stages.mjs?v=20261015-factory-routes-1';
-import {getThrowable} from './throwables.mjs?v=20261015-factory-routes-1';
+import {encodePlayerCode,decodePlayerCode} from './player-save.mjs?v=20261015-screen-pull-1';
+import {CHAPTER_IDS,CHAPTERS,migrateProgress,chapterForStage,outdoorSnapshot} from './progress-save.mjs?v=20261015-screen-pull-1';
+import {STAGES} from './stages.mjs?v=20261015-screen-pull-1';
+import {getThrowable} from './throwables.mjs?v=20261015-screen-pull-1';
 
 const MAX_INPUT=40000,MAX_CODE=24500,MAX_REPLAY=8000;
 const PUBLIC_PAGE='https://osakenpiro.github.io/shuryo-techo/trash-shot-preview/';

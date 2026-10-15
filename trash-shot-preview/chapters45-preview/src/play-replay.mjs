@@ -1,22 +1,22 @@
 // A versioned room-contact envelope around the unchanged V1 pose recording.
 // Legacy V1/V2 records retain their own codecs and interpretation.
-import * as legacy from './course-replay.mjs?v=20261015-factory-routes-1';
-import {validateReplay,createReplayPlayer,ReplayError} from './replay.mjs?v=20261015-factory-routes-1';
-import {roomWorld} from './room-course.mjs?v=20261015-factory-routes-1';
-import {roomContactColliders} from './room-contact.mjs?v=20261015-factory-routes-1';
+import * as legacy from './course-replay.mjs?v=20261015-screen-pull-1';
+import {validateReplay,createReplayPlayer,ReplayError} from './replay.mjs?v=20261015-screen-pull-1';
+import {roomWorld} from './room-course.mjs?v=20261015-screen-pull-1';
+import {roomContactColliders} from './room-contact.mjs?v=20261015-screen-pull-1';
 import {validateItemReplay,createItemReplay,itemPayload,createItemReplayPlayer,itemReplayToJSON,
-  parseItemReplayJSON,encodeItemReplay,decodeItemReplay,buildItemReplayURL} from './item-replay.mjs?v=20261015-factory-routes-1';
-export {ITEM_REPLAY_LIMITS,ITEM_REPLAY_STORAGE_KEY,loadItemReplays,saveItemReplay,deleteItemReplay} from './item-replay.mjs?v=20261015-factory-routes-1';
+  parseItemReplayJSON,encodeItemReplay,decodeItemReplay,buildItemReplayURL} from './item-replay.mjs?v=20261015-screen-pull-1';
+export {ITEM_REPLAY_LIMITS,ITEM_REPLAY_STORAGE_KEY,loadItemReplays,saveItemReplay,deleteItemReplay} from './item-replay.mjs?v=20261015-screen-pull-1';
 import {validateSchoolReplay,createSchoolReplay,schoolPayload,createSchoolReplayPlayer,schoolReplayToJSON,
-  parseSchoolReplayJSON,encodeSchoolReplay,decodeSchoolReplay,buildSchoolReplayURL} from './school-replay.mjs?v=20261015-factory-routes-1';
-export {SCHOOL_REPLAY_LIMITS,SCHOOL_REPLAY_STORAGE_KEY,loadSchoolReplays,saveSchoolReplay,deleteSchoolReplay} from './school-replay.mjs?v=20261015-factory-routes-1';
+  parseSchoolReplayJSON,encodeSchoolReplay,decodeSchoolReplay,buildSchoolReplayURL} from './school-replay.mjs?v=20261015-screen-pull-1';
+export {SCHOOL_REPLAY_LIMITS,SCHOOL_REPLAY_STORAGE_KEY,loadSchoolReplays,saveSchoolReplay,deleteSchoolReplay} from './school-replay.mjs?v=20261015-screen-pull-1';
 import {validateOutdoorReplay,createOutdoorReplay,outdoorPayload,createOutdoorReplayPlayer,outdoorReplayToJSON,
-  parseOutdoorReplayJSON,encodeOutdoorReplay,decodeOutdoorReplay,buildOutdoorReplayURL} from './outdoor-replay.mjs?v=20261015-factory-routes-1';
-export {OUTDOOR_REPLAY_LIMITS,OUTDOOR_REPLAY_STORAGE_KEY,loadOutdoorReplays,saveOutdoorReplay,deleteOutdoorReplay} from './outdoor-replay.mjs?v=20261015-factory-routes-1';
+  parseOutdoorReplayJSON,encodeOutdoorReplay,decodeOutdoorReplay,buildOutdoorReplayURL} from './outdoor-replay.mjs?v=20261015-screen-pull-1';
+export {OUTDOOR_REPLAY_LIMITS,OUTDOOR_REPLAY_STORAGE_KEY,loadOutdoorReplays,saveOutdoorReplay,deleteOutdoorReplay} from './outdoor-replay.mjs?v=20261015-screen-pull-1';
 
 import {validateAdvancedReplay,createAdvancedReplay,advancedPayload,createAdvancedReplayPlayer,advancedReplayToJSON,
-  parseAdvancedReplayJSON,encodeAdvancedReplay,decodeAdvancedReplay,buildAdvancedReplayURL} from './advanced-replay.mjs?v=20261015-factory-routes-1';
-export {ADVANCED_REPLAY_LIMITS,ADVANCED_REPLAY_STORAGE_KEY,createAdvancedRecorder,loadAdvancedReplays,saveAdvancedReplay,deleteAdvancedReplay} from './advanced-replay.mjs?v=20261015-factory-routes-1';
+  parseAdvancedReplayJSON,encodeAdvancedReplay,decodeAdvancedReplay,buildAdvancedReplayURL} from './advanced-replay.mjs?v=20261015-screen-pull-1';
+export {ADVANCED_REPLAY_LIMITS,ADVANCED_REPLAY_STORAGE_KEY,createAdvancedRecorder,loadAdvancedReplays,saveAdvancedReplay,deleteAdvancedReplay} from './advanced-replay.mjs?v=20261015-screen-pull-1';
 
 
 export const PLAY_REPLAY_STORAGE_KEY='trash-shot-room-replays-v3';
