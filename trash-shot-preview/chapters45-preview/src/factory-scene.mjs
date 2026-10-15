@@ -1,8 +1,8 @@
 // Shared metre-space primitives keep the approved paper/wood/teal art family.
 // Canonical world solids own every gameplay surface; trim is decorative.
-import {factoryWorld,factorySolids,factoryGoals,factoryMotion,factoryDynamicSolids} from './factory-world.mjs?v=20261015-factory-machines-2';
-import {factoryEnvironmentStatic,factoryEnvironmentDynamic} from './factory-environment.mjs?v=20261015-factory-machines-2';
-import {factoryMachineryStatic,factoryMachineryDynamic} from './factory-machinery.mjs?v=20261015-factory-machines-2';
+import {factoryWorld,factorySolids,factoryGoals,factoryMotion,factoryDynamicSolids} from './factory-world.mjs?v=20261015-factory-routes-1';
+import {factoryEnvironmentStatic,factoryEnvironmentDynamic} from './factory-environment.mjs?v=20261015-factory-routes-1';
+import {factoryMachineryStatic,factoryMachineryDynamic} from './factory-machinery.mjs?v=20261015-factory-routes-1';
 export const FACTORY_PALETTE=Object.freeze({cream:'#f4ead5',wall:'#eee2c6',wood:'#c89b61',teal:'#4a948b',darkTeal:'#286864',gold:'#e8b54e',orange:'#e98238',steel:'#8da69c',floor:'#d7c9ad'});
 const p=(x,y,z)=>({x,y,z});
 const face=(points,fill,stroke=null,meta={})=>({points,fill,stroke,...meta});
@@ -57,7 +57,7 @@ function opening(s,goal,{colour=FACTORY_PALETTE.gold,depth=.18,pocket=true,net=f
 export const scenePrimitives=Object.freeze({p,face,shade,add,scale,cross,unit,box,physicalBox,cylinder,ellipsoid,line,flat,limb,basis,opening});
 const cache=new Map();
 function requireWorld(world){const saved=factoryWorld(world?.stageId,world?.worldVersion);if(!saved)throw new RangeError('A frozen factory world is required');return saved;}
-const colourOf=c=>c.kind==='factory-wall'?FACTORY_PALETTE.wall:['factory-pillar','factory-beam'].includes(c.kind)?'#86a195':c.kind==='machine-frame'?c.max.y-c.min.y>.5?'#587f77':'#748e80':c.kind==='conveyor-leg'?'#64887a':c.kind==='conveyor'?'#477e77':c.kind==='bank-rail'?'#9caf98':c.kind==='pressure-plate'?'#c3a266':c.kind==='collection-bin'?FACTORY_PALETTE.teal:FACTORY_PALETTE.steel;
+const colourOf=c=>c.kind==='factory-wall'?FACTORY_PALETTE.wall:['factory-pillar','factory-beam'].includes(c.kind)?'#86a195':c.kind==='machine-frame'?c.max.y-c.min.y>.5?'#587f77':'#748e80':c.kind==='machine-reflector'?'#bfcfc5':c.kind==='conveyor-leg'?'#64887a':c.kind==='conveyor'?'#477e77':c.kind==='bank-rail'?'#9caf98':c.kind==='pressure-plate'?'#c3a266':c.kind==='collection-bin'?FACTORY_PALETTE.teal:FACTORY_PALETTE.steel;
 function factoryDecor(s,world){
   const r=world.room,meta={decoration:true},revised=world.worldVersion>=26;flat(s,r.minX,.008,r.minZ,r.maxX-r.minX,r.maxZ-r.minZ,FACTORY_PALETTE.floor,meta);
   for(let x=r.minX+.25;x<r.maxX;x+=.8)line(s,p(x,.012,r.minZ),p(x,.012,r.maxZ),'#cbbd9f',meta);

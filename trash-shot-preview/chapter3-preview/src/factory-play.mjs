@@ -1,13 +1,13 @@
 // Timed Chapter 4 mechanisms compose the existing fixed 240 Hz contact solver.
 // A conveyor reaction applies only after real top contact. Relay state persists
 // across retry/throws until its owner explicitly resets or replaces the session.
-import {createGame,setRoomWorld,throwCan,captureGoal,stopBlockedShot,setShotEnvironmentStart} from './physics.mjs?v=20261015-factory-machines-2';
-import {cloneThrowable,getThrowableId,throwableRestitution} from './throwable-physics.mjs?v=20261015-factory-machines-2';
-import {getThrowable} from './throwables.mjs?v=20261015-factory-machines-2';
-import {createRoomContactStepper,ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261015-factory-machines-2';
-import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261015-factory-machines-2';
-import {sweepSphereAABB} from './room-course.mjs?v=20261015-factory-machines-2';
-import {factoryWorld,factoryGoals,factorySolids,factoryDynamicSolids,factoryStartTime} from './factory-world.mjs?v=20261015-factory-machines-2';
+import {createGame,setRoomWorld,throwCan,captureGoal,stopBlockedShot,setShotEnvironmentStart} from './physics.mjs?v=20261015-factory-routes-1';
+import {cloneThrowable,getThrowableId,throwableRestitution,throwableFriction} from './throwable-physics.mjs?v=20261015-factory-routes-1';
+import {getThrowable} from './throwables.mjs?v=20261015-factory-routes-1';
+import {createRoomContactStepper,ROOM_CONTACT_TICK} from './room-contact.mjs?v=20261015-factory-routes-1';
+import {sweepOutdoorGoal} from './outdoor-play.mjs?v=20261015-factory-routes-1';
+import {sweepSphereAABB} from './room-course.mjs?v=20261015-factory-routes-1';
+import {factoryWorld,factoryGoals,factorySolids,factoryDynamicSolids,factoryStartTime} from './factory-world.mjs?v=20261015-factory-routes-1';
 const TICK=ROOM_CONTACT_TICK,EPS=1e-9,SLOP=1e-5,AXES=['x','y','z'];
 const active=game=>game?.phase==='flying'||game?.phase==='settling';
 const copy=p=>({x:p.x,y:p.y,z:p.z});
@@ -65,14 +65,26 @@ export function createFactoryPlayStepper(world,{startTime=0,onContact,onEffect,s
   }
   const captureSweep=(game,start,end,h)=>{
     // These are real wall witnesses, never floor bounce counters or aim values.
-    if(world.factoryType==='bank'&&!world.mechanism.requiredColliders.every(id=>session.bankContacts.includes(id)))return null;
-    if(world.factoryType==='relay'&&!session.plateLatched)return null;
+    if(world.factoryType==='bank'&&world.mechanism.routeRequired!==false&&!world.mechanism.requiredColliders.every(id=>session.bankContacts.includes(id)))return null;
+    if(world.factoryType==='relay'&&world.mechanism.routeRequired!==false&&!session.plateLatched)return null;
     const a=factoryGoals(world,launchTime+game.time,session),b=factoryGoals(world,launchTime+game.time+h,session);let selected=null;
     for(const goal of a){const hit=sweepOutdoorGoal(start,end,game.can.radius,goal,b.find(q=>q.id===goal.id));if(hit&&(!selected||hit.time<selected.time-EPS))selected=hit;}
     return selected;
   };
   function beltSupport(game){if(!belt||!carry.active)return false;const p=game.can.position,r=game.can.radius;return p.x>=belt.min.x-EPS&&p.x<=belt.max.x+EPS&&p.z>=belt.min.z-EPS&&p.z<=belt.max.z+EPS&&Math.abs(p.y-belt.max.y-r-SLOP)<.025&&Math.abs(game.can.velocity.y)<.15;}
-  const delegate=createRoomContactStepper(world,{solids:factorySolids(world),dynamicColliders:moving,captureSweep,
+  // Polished machine guide faces retain the existing restitution, with their
+  // lower tangential friction declared by the physical world descriptor.
+  // Only new route-world machine reflectors use this reused response hook.
+  const reflectorImpact=({game,collider,normal,beforeVelocity,materialBounce,supported})=>{
+    if(world.mechanism.routeRequired!==false||collider.kind!=='machine-reflector')return null;
+    const normalSpeed=AXES.reduce((sum,a)=>sum+beforeVelocity[a]*normal[a],0),incoming=Math.max(0,-normalSpeed);
+    if(normalSpeed>=0)return null;
+    const bounce=supported?0:throwableRestitution(game,collider.surface,materialBounce),outward=-normalSpeed*bounce;
+    const tangent=Object.fromEntries(AXES.map(a=>[a,beforeVelocity[a]-normalSpeed*normal[a]])),speed=Math.hypot(...AXES.map(a=>tangent[a]));
+    const remaining=Math.max(0,speed-incoming*(1+bounce)*throwableFriction(game,collider.friction));
+    return {velocity:Object.fromEntries(AXES.map(a=>[a,outward*normal[a]+(speed>EPS?tangent[a]*remaining/speed:0)])),incomingNormalSpeed:incoming,supported};
+  };
+  const delegate=createRoomContactStepper(world,{solids:factorySolids(world),dynamicColliders:moving,captureSweep,impactResponse:reflectorImpact,
     onCapture(game,hit){if(captureGoal(game,hit.goal,{position:hit.position,environmentTime:launchTime+game.time})){capture={goalId:hit.goal.id,goalRole:hit.goal.role,position:copy(hit.position),normal:copy(hit.goal.normal),time:game.time};session.completed=true;}},
     onContact(contact){
       if(pendingMoving&&contact.colliderId===pendingMoving.collider.id&&contact.normal.y<-.999&&Math.abs(contact.time-pendingMoving.time)<1e-5){const corrected=correctClosingBottom(currentGame,pendingMoving);if(corrected)contact=corrected;}

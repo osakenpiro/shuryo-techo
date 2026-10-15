@@ -15,6 +15,10 @@ export const FACTORY_PHYSICS_WORLDS=freeze({
   27:{worldVersion:27,origin:p(0,1.65,0),bin:{center:p(0,.4,6.3),radius:.72,height:.8}},
   28:{worldVersion:28,origin:p(0,2.45,0),bin:{center:p(0,.5,5.5),radius:.8,height:1}},
   29:{worldVersion:29,origin:p(0,1.3,0),bin:{center:p(1.15,.55,6.7),radius:.72,height:1.1}},
+  40:{worldVersion:40,origin:p(0,1.25,0),bin:{center:p(0,.55,6.6),radius:.68,height:1.1}},
+  41:{worldVersion:41,origin:p(0,1.65,0),bin:{center:p(0,.4,6.3),radius:.72,height:.8}},
+  42:{worldVersion:42,origin:p(0,2.45,0),bin:{center:p(0,.5,5.5),radius:.8,height:1}},
+  43:{worldVersion:43,origin:p(0,1.3,0),bin:{center:p(1.15,.55,6.7),radius:.72,height:1.1}},
 });
 const binSolids=(g)=>[
   box(`${g.id}-body`,'collection-bin',p(g.center.x-g.radius,0,g.center.z-g.radius),p(g.center.x+g.radius,g.center.y-.25,g.center.z+g.radius)),
@@ -61,11 +65,24 @@ function buildingSolids(world){
   }
   return solids;
 }
-export const FACTORY_WORLDS=freeze(Object.fromEntries(Object.entries(FACTORY_LEGACY_WORLDS).map(([id,old],index)=>{
+export const FACTORY_RELEASED_WORLDS=freeze(Object.fromEntries(Object.entries(FACTORY_LEGACY_WORLDS).map(([id,old],index)=>{
   const version=26+index,physics=FACTORY_PHYSICS_WORLDS[version];
   return [id,{...old,worldVersion:version,physics,origin:physics.origin,bin:physics.bin,solids:[...old.solids,...buildingSolids(old)]}];
 })));
-const WORLD_BY_VERSION=freeze(Object.fromEntries([...Object.values(FACTORY_LEGACY_WORLDS),...Object.values(FACTORY_WORLDS)].map(w=>[w.worldVersion,w])));
+// Each new live face has one receiver and alternative physical paths to it.
+// Historical worlds keep their mandatory mechanism witnesses unchanged.
+const bypassReflector=(id,x=3.45)=>box(id,'machine-reflector',p(x,0,1.7),p(x+.15,5,7.7),'wall',.8,{routeRole:'right-bypass',friction:.02});
+const multiRouteWorld=(id,version)=>{
+  const old=FACTORY_LEGACY_WORLDS[id],physics=FACTORY_PHYSICS_WORLDS[version];
+  const mechanism={...old.mechanism,...(['shutter','relay'].includes(old.factoryType)?{min:{...old.mechanism.min,x:old.factoryType==='relay'?-1.0:-2.3},max:{...old.mechanism.max,x:old.factoryType==='relay'?1.0:2.3}}:{}),
+    ...(old.factoryType==='bank'?{requiredCount:0}:{}),routeRequired:false};
+  const world={...old,worldVersion:version,physics,origin:physics.origin,bin:physics.bin,mechanism,
+    routePolicy:'any-physical-path',launch:old.factoryType==='relay'?{...old.launch,yaw:0}:old.launch,solids:[...old.solids]};
+  if(['shutter','relay'].includes(old.factoryType))world.solids.push(bypassReflector(`${id}-right-reflector`,old.factoryType==='relay'?2.45:3.45));
+  world.solids.push(...buildingSolids(world));return world;
+};
+export const FACTORY_WORLDS=freeze(Object.fromEntries(Object.keys(FACTORY_LEGACY_WORLDS).map((id,index)=>[id,multiRouteWorld(id,40+index)])));
+const WORLD_BY_VERSION=freeze(Object.fromEntries([...Object.values(FACTORY_LEGACY_WORLDS),...Object.values(FACTORY_RELEASED_WORLDS),...Object.values(FACTORY_WORLDS)].map(w=>[w.worldVersion,w])));
 export function factoryWorldByVersion(worldVersion){return Number.isInteger(worldVersion)&&Object.hasOwn(WORLD_BY_VERSION,worldVersion)?WORLD_BY_VERSION[worldVersion]:null;}
 export function factoryWorld(stageId,worldVersion){const world=worldVersion===undefined?typeof stageId==='string'&&Object.hasOwn(FACTORY_WORLDS,stageId)?FACTORY_WORLDS[stageId]:null:factoryWorldByVersion(worldVersion);return world?.stageId===stageId?world:null;}
 function requireWorld(world){const saved=factoryWorld(world?.stageId,world?.worldVersion);if(!saved)throw new RangeError('A supported factory world is required');return saved;}

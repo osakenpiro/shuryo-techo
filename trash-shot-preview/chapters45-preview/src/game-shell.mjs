@@ -1,7 +1,7 @@
 // Presentation only. Chapter progress and stage changes stay owned by app.mjs.
-import { STAGES } from './stages.mjs?v=20261015-factory-machines-2';
-import { CHAPTER_IDS, CHAPTERS, chapterForStage, canChooseStage, outdoorSnapshot, OUTDOOR_CHAPTER_IDS, BRANCH_CHAPTER_IDS, FACTORY_CHAPTER_IDS, ECCENTRIC_CHAPTER_IDS } from './progress-save.mjs?v=20261015-factory-machines-2';
-import { drawPixelText, measurePixelText } from './pixel-type.mjs?v=20261015-factory-machines-2';
+import { STAGES } from './stages.mjs?v=20261015-factory-routes-1';
+import { CHAPTER_IDS, CHAPTERS, chapterForStage, canChooseStage, outdoorSnapshot, OUTDOOR_CHAPTER_IDS, BRANCH_CHAPTER_IDS, FACTORY_CHAPTER_IDS, ECCENTRIC_CHAPTER_IDS } from './progress-save.mjs?v=20261015-factory-routes-1';
+import { drawPixelText, measurePixelText } from './pixel-type.mjs?v=20261015-factory-routes-1';
 
 const $ = id => document.getElementById(id);
 const FACE_HELP = Object.freeze({
@@ -17,10 +17,10 @@ const FACE_HELP = Object.freeze({
   'outdoor-baseball': 'ホームランの一球を、観客のミットへ。',
   'outdoor-mall': '吹き抜けから、子供のコーンへアイスを落とそう。',
   'outdoor-river': '船の灯りを読んで、向こう岸の花火筒へ。',
-  'factory-shutter': '開閉するシャッターの、開いた瞬間を狙おう。',
-  'factory-conveyor': 'ベルトに乗せて、流れの先の箱へ。',
-  'factory-bank': '左右の壁を使って、二つのバウンドをつなごう。',
-  'factory-relay': '最初の球で仕掛けを動かし、次の球を箱へ。',
+  'factory-shutter': '開く瞬間を狙う？ 右のガイドで回り込む？',
+  'factory-conveyor': 'ベルトに任せるか、弧を描いて直接箱へ。',
+  'factory-bank': '壁で跳ね返すか、まっすぐ箱へ。入り方を選ぼう。',
+  'factory-relay': '2球で扉を開けるか、右のガイドで回り込もう。',
   'eccentric-tower': '250mの展望台から、はるか下の街の箱へ。',
   'eccentric-train': '走る電車の窓から、隣を走る電車の窓へ。',
   'eccentric-boar': '森で狙いを定めて、矢を的へ。',

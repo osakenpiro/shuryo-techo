@@ -1,10 +1,10 @@
 // World-space simulation. One metre is one unit; rendering never affects physics.
 import {throwableRadius,throwableInitialVelocity,beginThrowableShot,applyThrowableAir,
-  throwableRestitution,throwableFriction,throwableContact,getThrowableProfile,cloneThrowable,throwableTerminalContact,setThrowableWorld} from './throwable-physics.mjs?v=20261015-factory-machines-2';
-import {SCHOOL_PHYSICS_WORLDS} from './school-world.mjs?v=20261015-factory-machines-2';
-import {OUTDOOR_PHYSICS_WORLDS,OUTDOOR_WORLDS,outdoorWorldByVersion} from './outdoor-world.mjs?v=20261015-factory-machines-2';
-import {FACTORY_PHYSICS_WORLDS,factoryWorldByVersion} from './factory-world.mjs?v=20261015-factory-machines-2';
-import {ECCENTRIC_PHYSICS_WORLDS,ECCENTRIC_WORLDS,eccentricWorldByVersion} from './eccentric-world.mjs?v=20261015-factory-machines-2';
+  throwableRestitution,throwableFriction,throwableContact,getThrowableProfile,cloneThrowable,throwableTerminalContact,setThrowableWorld} from './throwable-physics.mjs?v=20261015-factory-routes-1';
+import {SCHOOL_PHYSICS_WORLDS} from './school-world.mjs?v=20261015-factory-routes-1';
+import {OUTDOOR_PHYSICS_WORLDS,OUTDOOR_WORLDS,outdoorWorldByVersion} from './outdoor-world.mjs?v=20261015-factory-routes-1';
+import {FACTORY_PHYSICS_WORLDS,factoryWorldByVersion} from './factory-world.mjs?v=20261015-factory-routes-1';
+import {ECCENTRIC_PHYSICS_WORLDS,ECCENTRIC_WORLDS,eccentricWorldByVersion} from './eccentric-world.mjs?v=20261015-factory-routes-1';
 const extendedPhysicsWorld=version=>OUTDOOR_PHYSICS_WORLDS[version]??FACTORY_PHYSICS_WORLDS[version]??ECCENTRIC_PHYSICS_WORLDS[version];
 const GRAVITY = 9.81;
 const SUBSTEP = 1 / 240;
@@ -176,8 +176,9 @@ export function setSetup(game, input = {}) {
 }
 
 export function setRoomWorld(game, worldVersion = 2) {
-  if (!Number.isInteger(worldVersion)||worldVersion<1||worldVersion>39) throw new RangeError('Room world version must be an integer from 1 through 39');
+  if (!Number.isInteger(worldVersion)) throw new RangeError('Room world version must be a registered integer');
   const world = ROOM_PHYSICS_WORLDS[worldVersion]??SCHOOL_PHYSICS_WORLDS[worldVersion]??extendedPhysicsWorld(worldVersion);
+  if (!world) throw new RangeError('Room world version must be a registered integer');
   ROOM_SETUPS.set(game, worldVersion);
   setThrowableWorld(game,worldVersion);
   game.bin = { ...world.bin, center: { ...world.bin.center } };

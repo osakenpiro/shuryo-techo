@@ -3,7 +3,7 @@
 // are AI approximations fitted to that metre-space envelope, not CAD data.
 // The caller supplies scenePrimitives so this module has no renderer imports.
 const C=Object.freeze({steel:'#84978f',bright:'#bfccc0',dark:'#355a57',teal:'#397d75',cream:'#e7d9b7',amber:'#d8ad4c',rubber:'#3c504b',chrome:'#d1d7c8',red:'#ad6552',green:'#b6d09a'});
-const supported=w=>w?.environment==='factory'&&w.worldVersion>=26&&w.worldVersion<=29;
+const supported=w=>w?.environment==='factory'&&[26,27,28,29,40,41,42,43].includes(w.worldVersion);
 const mod=(value,period)=>((value%period)+period)%period;
 function tools(shapes,world,kit){
   const {p,box,limb,cylinder,flat,face}=kit;
@@ -145,6 +145,32 @@ function relayStatic(t,world){
   const hose=[p(-3.32,.51,4.08),p(-3.44,.48,4.40),p(-3.54,.48,4.54),p(-3.54,.80,4.54)];
   for(let i=0;i<hose.length-1;i++)rod('hydraulic-feed-hose',hose[i],hose[i+1],.038,C.dark);
 }
+function rightGuideStatic(t,guide){
+  const {p,b,rod,cy,face}=t,lo=guide.min,hi=guide.max,z0=lo.z,z1=hi.z;
+  const meta={equipmentId:guide.id,reflectorId:guide.id,routeRole:guide.routeRole};
+  // This is a rigid polished guide, not an extra energy source. The six
+  // canonical solid faces are drawn by factory-scene. Thin seams highlight
+  // that surface; its bearings, ribs and service drive sit behind it.
+  for(const z of [z0+.09,(z0+z1)/2,z1-.21]){
+    b('right-guide-rear-post',hi.x+.035,.03,z,.12,hi.y+.14,.13,C.teal,meta);
+    b('right-guide-footplate',lo.x+.02,.014,z-.10,.39,.075,.34,C.steel,meta);
+    rod('right-guide-rear-brace',p(hi.x+.09,.30,z+.07),p(hi.x+.30,1.35,z+.07),.032,C.dark,meta);
+  }
+  for(const y of [.09,hi.y+.035])b('right-guide-edge-rail',lo.x+.025,y,z0-.16,.26,.10,z1-z0+.32,C.teal,meta);
+  for(const z of [z0+.18,(z0+z1)/2,z1-.18])b('right-guide-back-rib',hi.x+.016,.20,z,.04,hi.y-.38,.065,C.steel,meta);
+  for(const z of [z0-.10,z1+.10]){
+    cy('right-guide-edge-roller',lo.x+.09,.18,z,.062,hi.y-.30,C.chrome,8,meta);
+    for(const y of [.09,hi.y-.11])b('right-guide-roller-bearing',lo.x+.022,y,z-.085,.15,.13,.17,C.dark,meta);
+  }
+  // Narrow highlights communicate the low-friction metal without drawing a
+  // second complete reflection plane or extending into the throwing lane.
+  for(let z=z0+.32;z<z1-.20;z+=1.02)face('right-guide-polished-seam',[p(lo.x-.002,.23,z),p(lo.x-.002,hi.y-.20,z),p(lo.x-.002,hi.y-.20,z+.013),p(lo.x-.002,.23,z+.013)],C.chrome,meta);
+  for(const y of [.18,hi.y-.16])face('right-guide-polished-edge',[p(lo.x-.002,y,z0+.05),p(lo.x-.002,y+.016,z0+.05),p(lo.x-.002,y+.016,z1-.05),p(lo.x-.002,y,z1-.05)],C.bright,meta);
+  for(const z of [z0+.11,z1-.11])for(const y of [.28,hi.y-.29])cy('right-guide-fastener',lo.x+.069,y,z,.028,.025,C.amber,6,meta);
+  b('right-guide-service-gearbox',hi.x+.03,hi.y+.12,z0+.04,.24,.24,.32,C.teal,meta);
+  cy('right-guide-service-motor',hi.x+.15,hi.y+.36,z0+.20,.088,.19,C.steel,6,meta);
+  rod('right-guide-service-shaft',p(lo.x+.09,hi.y-.02,z0-.10),p(lo.x+.09,hi.y+.22,z0-.10),.033,C.chrome,meta);
+}
 export function factoryMachineryStatic(world,kit){
   if(!supported(world))return [];
   const shapes=[],t=tools(shapes,world,kit);
@@ -152,6 +178,7 @@ export function factoryMachineryStatic(world,kit){
   if(world.factoryType==='conveyor')conveyorStatic(t,world);
   if(world.factoryType==='bank')bankStatic(t,world);
   if(world.factoryType==='relay')relayStatic(t,world);
+  for(const guide of world.solids.filter(s=>s.kind==='machine-reflector'))rightGuideStatic(t,guide);
   return shapes;
 }
 function driveSpokes(t,part,center,radius,angle,axis='x',colour=C.bright){
@@ -197,6 +224,15 @@ function relayDynamic(t,world,motion){
   const plate=world.solids.find(s=>s.id===q.plateId);
   f('plate-latched-witness',plate.min.x+.11,plate.max.y+.013,plate.min.z+.11,.17,.17,pressed?C.green:C.dark,{pressed});
 }
+function rightGuideDynamic(t,guide,time){
+  const {p,rod}=t,angle=mod(time,8)*Math.PI,meta={equipmentId:guide.id,reflectorId:guide.id,routeRole:guide.routeRole};
+  // The service roller's two small top markers share the eight-second world
+  // clock. They do not move or replace the rigid gameplay surface.
+  for(const z of [guide.min.z-.10,guide.max.z+.10])for(let i=0;i<2;i++){
+    const a=angle+i*Math.PI/2,c=Math.cos(a)*.055,s=Math.sin(a)*.055;
+    rod('right-guide-roller-drive-witness',p(guide.min.x+.09-c,guide.max.y+.019,z-s),p(guide.min.x+.09+c,guide.max.y+.019,z+s),.009,C.amber,meta);
+  }
+}
 export function factoryMachineryDynamic(world,motion,time,kit){
   if(!supported(world))return [];
   if(!Number.isFinite(time))throw new TypeError('Factory machinery time must be finite');
@@ -210,5 +246,6 @@ export function factoryMachineryDynamic(world,motion,time,kit){
     t.cy('bank-contact-witness',x,4.66,rail.min.z+.135,.078,.041,witness.lit?C.green:C.dark,8,{contactWitnessId:witness.id,lit:!!witness.lit});
     t.cy('bank-contact-bezel',x,4.651,rail.min.z+.135,.105,.013,C.amber,8,{contactWitnessId:witness.id,lit:!!witness.lit});
   }
+  for(const guide of world.solids.filter(s=>s.kind==='machine-reflector'))rightGuideDynamic(t,guide,time);
   return shapes;
 }

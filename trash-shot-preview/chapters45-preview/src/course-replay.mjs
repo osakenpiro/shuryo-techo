@@ -1,5 +1,5 @@
-import { validateReplay, replayToJSON, parseReplayJSON, encodeReplay, decodeReplay, buildReplayURL, createReplayPlayer, ReplayError } from './replay.mjs?v=20261015-factory-machines-2';
-import { roomCourse, roomWorld } from './room-course.mjs?v=20261015-factory-machines-2';
+import { validateReplay, replayToJSON, parseReplayJSON, encodeReplay, decodeReplay, buildReplayURL, createReplayPlayer, ReplayError } from './replay.mjs?v=20261015-factory-routes-1';
+import { roomCourse, roomWorld } from './room-course.mjs?v=20261015-factory-routes-1';
 
 // V1 remains the immutable pose codec. Its legacy "direct" role is not a
 // statement about an outer course's desk; the outer result owns that distinction.
