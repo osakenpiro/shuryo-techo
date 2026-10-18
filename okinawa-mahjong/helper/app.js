@@ -16,10 +16,10 @@
   };
   const kana=t=>t.normalize('NFKC').toLowerCase().replace(/[\u30a1-\u30f6]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60));
   function tiles(text) {
+    if(!window.MJ_TILES)return '';
     return text.split(' ').filter(Boolean).map(group=>{
-      const type=group.slice(-1), suit={m:'萬',p:'筒',s:'索',z:''}[type];
-      const digits=group.slice(0,-1).split('');
-      return `<span class="tile-group" role="img" aria-label="${digits.map(d=>type==='z'?'東南西北白發中'[Number(d)-1]:d+suit).join(' ')}">${digits.map(d=>`<span class="tile ${type}" aria-hidden="true">${type==='z'?'東南西北白發中'[Number(d)-1]:`${d}<b>${suit}</b>`}</span>`).join('')}</span>`;
+      const type=group.slice(-1), ids=group.slice(0,-1).split('').map(n=>n+type);
+      return `<span class="tile-group" role="img" aria-label="${ids.map(id=>MJ_TILES.all.find(t=>t.id===id)?.name||'').join(' ')}">${ids.map(id=>MJ_TILES.face(id)).join('')}</span>`;
     }).join('');
   }
   function renderGlossary() {
@@ -82,7 +82,7 @@
     const paper=scoreMode==='paper';
     $('paper-score').hidden=!paper;$('detail-score').hidden=paper;$('reset').hidden=paper;
     document.querySelectorAll('[data-score-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.scoreMode===scoreMode)));
-    $('score-mode-note').textContent=paper?'いま配られている早見表に合わせた見方です。':'親・子、ロン・ツモ、翻・符、本場・供託まで細かく計算します。';
+    $('score-mode-note').textContent=paper?'上が子、下が親。翻と符の交わるところを見ます。':'親・子、ロン・ツモ、翻・符、本場・供託まで細かく計算します。';
     if(paper)renderPaper();
   }
   function result() {
@@ -111,9 +111,9 @@
     result();
   }
   function route() {
-    const page=['home','yaku','score','fu','rules'].includes(location.hash.slice(1))?location.hash.slice(1):'home';
+    const page=['home','yaku','score','fu','rules','basics'].includes(location.hash.slice(1))?location.hash.slice(1):'home';
     document.querySelectorAll('.page').forEach(el=>{el.hidden=el.id!==page;});
-    document.querySelectorAll('.bottom a').forEach(a=>{if(a.hash==='#'+page)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
+    document.querySelectorAll('.bottom a').forEach(a=>{if(a.hash==='#'+page||(a.hash==='#score'&&page==='fu'))a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
     if(page==='score'){renderScore();renderScoreMode();}
     if(page==='fu') { $('f-win').value=s.win; renderFu(); }
     window.scrollTo(0,0);
@@ -177,3 +177,4 @@
   window.addEventListener('hashchange',route);
   renderGlossary();renderYaku();renderScore();renderPaper();renderScoreMode();route();$('boot-warning').hidden=true;
 })();
+
