@@ -8,6 +8,7 @@ test('34 distinct tiles: 9 in each suit, 7 honors, all with a reading',()=>{
   assert.deepEqual(T.all.filter(t=>t.family==='z').map(t=>t.reading),['トン','ナン','シャー','ペイ','ハク','ハツ','チュン']);
   assert.ok(!T.face('5z').includes('<text'));assert.match(T.face('1s'),/<path/);
   for(let n=1;n<=9;n++)assert.equal((T.face(n+'p').match(/<circle/g)||[]).length,n*2);
+  for(let n=2;n<=9;n++)assert.equal((T.face(n+'s').match(/<g stroke=/g)||[]).length,n);
 });
 test('all manifest icons and entrypoints exist in the retained helper scope',()=>{
   const m=JSON.parse(fs.readFileSync(path.join(__dirname,'manifest.webmanifest')));

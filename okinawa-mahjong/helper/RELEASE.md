@@ -1,4 +1,4 @@
-# 麻雀の手引き v1.0.1 / 2026-10-19 JST
+# 麻雀の手引き v1.0.2 / 2026-10-19 JST
 
 URL: https://osakenpiro.github.io/shuryo-techo/okinawa-mahjong/helper/
 Owning task: claude-shared #402, parent #401. Existing public audience preserved.
@@ -24,3 +24,5 @@ Actual iPhone Safari/home-screen installation, standalone restart, airplane mode
 
 ## Receipt
 ordinary harness resolver PASS; complete receipt-level self report, not provider-wide validation. Registry/roster0.5.4; no durable role claimed or worker launched. ECOSYSTEM_CONTEXT_DRIFT between Shared views v0.6/v0.8; exact #402/#479 latest evidence took precedence. No global registry/roster/Orb status change.
+
+Final craft correction: 8索の抽象的な折線を竹8本の模式図へ修正。2〜9索それぞれの竹の本数を検査へ追加。符補助→25符→詳細計算のUI引継ぎ、公開v1.0.0→v1.0.1の待機/明示更新/完全シェル状態も実ブラウザで確認済み。
