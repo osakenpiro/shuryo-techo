@@ -1,4 +1,4 @@
-# 麻雀の手引き v1.0.0 — 配布用PWA
+# 麻雀の手引き v1.0.1 — 配布用PWA
 
 固定URL: https://osakenpiro.github.io/shuryo-techo/okinawa-mahjong/helper/
 

@@ -1,8 +1,8 @@
 'use strict';
-const VERSION='1.0.0';
+const VERSION='1.0.1';
 const CACHE='mj-tebiki-'+VERSION;
 const SCOPE=self.registration.scope;
-const FILES=['./','index.html','core.js?v=1','yaku.js?v=1','glossary.js?v=1','tiles.js?v=1.0.0','app.js?v=1.0.0','app-shell.js?v=1.0.0','app-shell.css?v=1.0.0','manifest.webmanifest','icon-180.png','icon-192.png','icon-512.png','icon-maskable.png','share-qr.svg'];
+const FILES=['./','index.html','core.js?v=1','yaku.js?v=1','glossary.js?v=1','tiles.js?v=1.0.0','app.js?v=1.0.0','app-shell.js?v=1.0.0','app-shell.css?v=1.0.1','manifest.webmanifest','icon-180.png','icon-192.png','icon-512.png','icon-maskable.png','share-qr.svg'];
 const URLS=FILES.map(x=>new URL(x,SCOPE).href);
 self.addEventListener('install',e=>e.waitUntil((async()=>{
   const cache=await caches.open(CACHE);

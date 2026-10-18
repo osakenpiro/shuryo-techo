@@ -3,3 +3,5 @@
 @media(min-width:600px){.intro{padding-top:34px}.choice{min-height:150px}.pai-grid{grid-template-columns:repeat(9,minmax(0,1fr))}.pai-face{width:49px}.pai-book{padding:22px}.pai-book .hint{min-height:0}.pai-button small{font-size:.72rem}.bottom a{font-size:.88rem}.bottom a small{font-size:.65rem}}
 @media(max-width:359px){.shell{padding-left:13px;padding-right:13px}.share-open{font-size:.68rem}.brand{font-size:.78rem!important}.brand img{width:28px;height:28px}.pai-book{padding:14px 11px}.pai-grid{gap:7px 3px}.pai-face{width:39px}.pai-tabs button{font-size:.82rem}.bottom a{font-size:.72rem}.share-dialog{padding:18px}.pai-button small{font-size:.6rem}}
 @media print{.share-dialog,header,.bottom,.offline-status,.update-note{display:none!important}.page[hidden]{display:none!important}}
+
+.basic-count>span:first-child{white-space:nowrap}
