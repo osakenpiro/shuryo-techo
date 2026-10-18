@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="./app.css">
   <meta name="description" content="引いて、離して、箱へ。ドットのチュートリアルから自分の部屋の4面へ。部屋の4面から、学校の4面へ。">
   <link rel="stylesheet" href="./style.css?v=20261015-boar-distance-1">
+  <link rel="stylesheet" href="./mobile-results.css">
   <script type="module" src="./src/app.mjs?v=20261015-boar-distance-1"></script>
 </head>
 <body class="chapter-game app-lobby-open">
@@ -159,18 +160,27 @@
       <div class="menu-bottom"><button id="store-open" class="shell-secondary" type="button">投げるもののお店</button><button id="title-open" class="shell-secondary" type="button" hidden disabled>タイトルへ</button><button id="invite-game" class="shell-secondary" type="button">友だちに渡す ↗</button></div>
     </details>
     <dialog id="chapter-result" class="chapter-result" aria-labelledby="chapter-result-title"><div class="result-inner">
-      <div class="result-stamp"><canvas id="result-clear-pixel" aria-hidden="true" data-pixel-text="CLEAR"></canvas><span id="chapter-result-kind">STAGE CLEAR</span></div>
-      <canvas id="result-face-pixel" class="result-face-pixel" aria-hidden="true"></canvas><h2 id="chapter-result-title"></h2>
-      <div id="chapter-reward-bonuses" class="chapter-reward-bonuses" role="status" aria-live="polite" hidden></div>
-      <p id="chapter-result-attempts" class="result-attempts"></p>
-      <div id="chapter-reward-score" class="chapter-reward-score" hidden><div><span class="result-score-label">この面のスコア</span><strong id="chapter-result-points"></strong></div><p id="chapter-reward-coins"></p></div>
-      <p id="chapter-result-best" class="result-best"></p><div id="chapter-result-roles" class="live-shot-roles"></div><p id="chapter-result-detail" class="result-detail"></p>
-      <button id="chapter-result-next" type="button" class="throw-button">次のステージへ</button>
-      <div class="result-share-actions"><button id="chapter-result-share" type="button">結果・リプレイ共有 ↗</button><button id="chapter-result-replay" type="button">一投を見る ▷</button></div>
-      <details id="chapter-score-detail" class="result-analysis score-breakdown" hidden><summary>スコアの内訳</summary><ul id="chapter-score-breakdown"></ul></details>
-      <details class="result-analysis"><summary>この一投の分析</summary><p id="chapter-launch-analysis" class="launch-analysis"></p><p id="chapter-impact-analysis"></p></details>
-      <div class="stage-actions result-extra-actions"><button id="chapter-result-repeat" type="button" aria-keyshortcuts="R">リトライ R</button><button id="chapter-result-save" type="button">一投の保存</button></div>
-      <p id="chapter-share-status" role="status"></p><textarea id="chapter-share-text" aria-label="結果と共有リンク" readonly hidden></textarea>
+      <header class="result-overview">
+        <div class="result-stamp"><canvas id="result-clear-pixel" aria-hidden="true" data-pixel-text="CLEAR"></canvas><span id="chapter-result-kind">STAGE CLEAR</span></div>
+        <div class="result-stage"><canvas id="result-face-pixel" class="result-face-pixel" aria-hidden="true"></canvas><h2 id="chapter-result-title"></h2></div>
+      </header>
+      <div class="result-summary" role="group" aria-label="この面の結果">
+        <p id="chapter-result-attempts" class="result-attempts"></p>
+        <div id="chapter-reward-score" class="chapter-reward-score" hidden><div><span class="result-score-label">この面のスコア</span><strong id="chapter-result-points"></strong></div><p id="chapter-reward-coins"></p></div>
+      </div>
+      <div class="result-main-actions">
+        <button id="chapter-result-next" type="button" class="throw-button">次のステージへ</button>
+        <div class="result-share-actions"><button id="chapter-result-share" type="button">結果を共有 ↗</button><button id="chapter-result-replay" type="button">リプレイ ▷</button></div>
+      </div>
+      <div class="result-followup">
+        <p class="result-followup-label">この一投の記録</p>
+        <div id="chapter-reward-bonuses" class="chapter-reward-bonuses" role="status" aria-live="polite" hidden></div>
+        <p id="chapter-result-best" class="result-best"></p><div id="chapter-result-roles" class="live-shot-roles"></div><p id="chapter-result-detail" class="result-detail"></p>
+        <details id="chapter-score-detail" class="result-analysis score-breakdown" hidden><summary>スコアの内訳</summary><ul id="chapter-score-breakdown"></ul></details>
+        <details class="result-analysis"><summary>この一投の分析</summary><p id="chapter-launch-analysis" class="launch-analysis"></p><p id="chapter-impact-analysis"></p></details>
+        <div class="stage-actions result-extra-actions"><button id="chapter-result-repeat" type="button" aria-keyshortcuts="R">リトライ R</button><button id="chapter-result-save" type="button">一投の保存</button></div>
+        <p id="chapter-share-status" role="status"></p><textarea id="chapter-share-text" aria-label="結果と共有リンク" readonly hidden></textarea>
+      </div>
     </div></dialog>
     <dialog id="store-dialog" class="item-store" aria-labelledby="store-title" aria-describedby="store-description">
       <header class="store-header"><div><p class="chapter-kicker">ひと投げの道具箱</p><h2 id="store-title">投げるもののお店</h2></div><button id="store-close" class="shell-secondary" type="button" aria-label="お店を閉じる">閉じる ×</button></header>

@@ -1,11 +1,11 @@
 /* Candidate-only, versioned app snapshot. Regenerate with node scripts/build-pwa.mjs. */
 'use strict';
 // BEGIN GENERATED PRECACHE
-const PRECACHE_VERSION = "20261018-7ff4b18b98e586449175";
+const PRECACHE_VERSION = "20261018-886be71cf29aba1f8a18";
 const PRECACHE_ASSETS = [
   {
     "url": "./app.css",
-    "sha256": "c547ec4d2942412952a9008d3974bca5bfa38c1359eeec4e19e3daf84767b4ad"
+    "sha256": "26b61775518c23dcea6bfbe545b46cff23285886509e0b328bfec53945fc4045"
   },
   {
     "url": "./art/advanced/20261013/eccentric-basket.png",
@@ -137,11 +137,15 @@ const PRECACHE_ASSETS = [
   },
   {
     "url": "./index.html",
-    "sha256": "befed56bd14e359fa84415c981172e39fbde543cd455a14aceb54d2efd4fa809"
+    "sha256": "e9b12e853636dae5ac5728a3a732e298e8bbdf3ac724e2519dc5244a847b5af1"
   },
   {
     "url": "./manifest.webmanifest",
     "sha256": "0a6d5f2d8e421ac4476dcf03e0a3628eadbba58eebe1844177814a3c93ad2212"
+  },
+  {
+    "url": "./mobile-results.css",
+    "sha256": "4dc9417da4a1e0402e7e8cc61f0ee616bb6bd3005700bb778b88f2d24f094414"
   },
   {
     "url": "./src/advanced-replay.mjs?v=20261015-boar-distance-1",
