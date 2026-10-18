@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" shape-rendering="crispEdges">
+  <title>TRASHOOT</title>
+  <rect width="64" height="64" rx="12" fill="#f4f1e8"/>
+  <path d="M13 21h4v-4h4v-3h6v3h-5v4h-5v5h-4z" fill="#e4ab38"/>
+  <path d="M31 13h9v4h5v9h-5v4H29v-5h-4v-8h6z" fill="#263e49"/>
+  <path d="M32 17h7v4h-5v5h-5v-8z" fill="#fffdf5"/>
+  <path d="M22 33h26v5H22zM25 38h20v17H25z" fill="#263e49"/>
+  <path d="M25 33h20v3H25zM28 39h14v13H28z" fill="#4b8c73"/>
+  <path d="M31 41h3v9h-3zM37 41h3v9h-3z" fill="#a8ccb0"/>
+</svg>
