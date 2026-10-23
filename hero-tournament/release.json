@@ -1,9 +1,9 @@
 {
-  "version": "r10e",
+  "version": "r11d",
   "updated": "2026.10.23",
   "platform": "Windows",
-  "download": "https://github.com/osakenpiro/shuryo-techo/releases/download/hero-tournament-r10e/hero-tournament-windows-r10e.zip",
-  "bytes": 152873613,
-  "sha256": "52f8183e0849fdc5382f64263a233a07f4499171d2b70e73ce6bf90f9f9b76e3",
+  "download": "https://github.com/osakenpiro/shuryo-techo/releases/download/hero-tournament-r11d/hero-tournament-windows-r11d.zip",
+  "bytes": 164579142,
+  "sha256": "5c725276eca91d86abab965e4525b8d0725dd7e653f59c915241c9b83cc4c0a5",
   "publicPage": "https://osakenpiro.github.io/shuryo-techo/hero-tournament/"
 }

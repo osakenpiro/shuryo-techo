@@ -1,6 +1,6 @@
 (() => {
  'use strict';
- const views = new Set(['home','first','play']);
+ const views = new Set(['home','first','play','tutorial','solo']);
  const roles = new Set(['join','host']);
  let role = 'join';
  function showRole(value) {
@@ -15,10 +15,10 @@
   if (roles.has(requested)) role = requested;
   else if (requested === 'play') role = 'join';
   document.body.dataset.view = view;
-  for (const id of ['first','play']) document.getElementById(id).hidden = view !== id;
+  for (const id of ['first','play','tutorial','solo']) document.getElementById(id).hidden = view !== id;
   document.querySelectorAll('.entry').forEach(link => { if (link.dataset.view === view) link.setAttribute('aria-current','page'); else link.removeAttribute('aria-current'); });
   showRole(role);
-  if (focus && view !== 'home') document.getElementById(view === 'first' ? 'first-title' : 'play-title').focus({preventScroll:true});
+  if (focus && view !== 'home') document.getElementById(view + '-title').focus({preventScroll:true});
   window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'});
  }
  document.addEventListener('click', event => {

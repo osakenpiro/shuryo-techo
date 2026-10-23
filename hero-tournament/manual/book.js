@@ -1,0 +1,2 @@
+const native=location.hostname==='127.0.0.1'&&location.pathname.startsWith('/guide/');if(native){document.querySelectorAll('img').forEach(i=>i.loading='eager');document.querySelectorAll('[data-native-home]').forEach(a=>a.href='../desktop.html');document.querySelectorAll('[data-native-mode]').forEach(a=>a.href='../room.html?mode='+a.dataset.nativeMode+'&new=1');}
+if(native)document.querySelectorAll('[data-native-online]').forEach(a=>a.href='../room.html?mode=online');
