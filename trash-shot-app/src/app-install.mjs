@@ -83,6 +83,10 @@ export function createInstallUI({
             setStatus(registration.waiting ? '新しい版があります。投げ終わってから更新できます。' : 'オフラインで遊ぶ準備ができました。');
             refresh();
           }
+          if (worker.state === 'activated') {
+            setStatus(registration.waiting ? '新しい版があります。投げ終わってから更新できます。' : 'オフラインで遊べます。');
+            refresh();
+          }
           if (worker.state === 'redundant') setStatus('オフラインの準備が完了しませんでした。接続中はそのまま遊べます。');
         });
       };

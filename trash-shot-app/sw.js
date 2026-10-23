@@ -1,7 +1,7 @@
 /* Candidate-only, versioned app snapshot. Regenerate with node scripts/build-pwa.mjs. */
 'use strict';
 // BEGIN GENERATED PRECACHE
-const PRECACHE_VERSION = "20261018-886be71cf29aba1f8a18";
+const PRECACHE_VERSION = "20261018-28261c9f264420c72f25";
 const PRECACHE_ASSETS = [
   {
     "url": "./app.css",
@@ -157,7 +157,7 @@ const PRECACHE_ASSETS = [
   },
   {
     "url": "./src/app-install.mjs",
-    "sha256": "032b8264c0a1c96aa6762590505f27fed9d851949dcbb8a6e63a92188a15df33"
+    "sha256": "a94b65585a127f6805405f1d673cfdaa38c3aa9543c0e7fea41621d12fe8a53d"
   },
   {
     "url": "./src/app.mjs?v=20261015-boar-distance-1",
