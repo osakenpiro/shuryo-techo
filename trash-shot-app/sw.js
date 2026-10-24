@@ -1,11 +1,11 @@
 /* Candidate-only, versioned app snapshot. Regenerate with node scripts/build-pwa.mjs. */
 'use strict';
 // BEGIN GENERATED PRECACHE
-const PRECACHE_VERSION = "20261018-25f7be3e80284bc5a1e4";
+const PRECACHE_VERSION = "20261018-eecaf92b9c442e74416e";
 const PRECACHE_ASSETS = [
   {
     "url": "./app.css",
-    "sha256": "26b61775518c23dcea6bfbe545b46cff23285886509e0b328bfec53945fc4045"
+    "sha256": "eae9cd9a4a0bc83bb390239401d6f93f7b3843754701fa72f80a1b8af845da45"
   },
   {
     "url": "./art/advanced/20261013/eccentric-basket.png",
@@ -54,6 +54,18 @@ const PRECACHE_ASSETS = [
   {
     "url": "./art/concept/20261011/room-three-faces.png",
     "sha256": "a4629b6b93c019509dbf5c346e2f57c119caa6800f7e4621a7fa0924aa7eb26e"
+  },
+  {
+    "url": "./art/entry/baseball.jpg",
+    "sha256": "b5537219edcbe6fdacae3d4bb07cc602951d49be37e57a0745f169fd4c6465f0"
+  },
+  {
+    "url": "./art/entry/mall.jpg",
+    "sha256": "d8ca44294f26192a2a4923fe1b8ce073297067d8237294bf742e2d66a5d9490b"
+  },
+  {
+    "url": "./art/entry/train.jpg",
+    "sha256": "0497c264c2119ed1e346c8c603345660116f374d7d3721f0ad9aabbf70e3a2f6"
   },
   {
     "url": "./art/outdoor/20261012/outdoor-baseball.png",
@@ -137,7 +149,7 @@ const PRECACHE_ASSETS = [
   },
   {
     "url": "./index.html",
-    "sha256": "1d39d8be0644f5c0cd6b248aef93db27b161a56215cad9945ff5ead1c5e85333"
+    "sha256": "eb5f3018f22cecf0728e61c0278cfd9e848b3cc3925c5b2b193b65df075ddc74"
   },
   {
     "url": "./manifest.webmanifest",
@@ -153,7 +165,7 @@ const PRECACHE_ASSETS = [
   },
   {
     "url": "./src/app-entry.mjs",
-    "sha256": "8cbafd78164b595ed1e051474bec4bcc855e93c82843a0dddab61de3632b7c91"
+    "sha256": "a0bd3cd837403c877992fd8239028f6747075207c93e95007a7cd49b311270cd"
   },
   {
     "url": "./src/app-install.mjs",

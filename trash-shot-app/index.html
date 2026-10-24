@@ -16,13 +16,38 @@
 </head>
 <body class="chapter-game app-lobby-open">
 <section id="app-entry" class="app-entry" aria-labelledby="app-name">
- <div class="app-grain" aria-hidden="true"></div>
- <div class="app-heading"><span class="app-kicker">ひと投げから、いっしょに。</span><h1 id="app-name">TRASHOOT<span>とらっしゅーと</span></h1><p class="app-tagline">つかんで、<em>ぽいっ。</em></p><p>部屋から世界へ。小さな一投を、友達と。</p></div>
- <div class="app-paper" aria-hidden="true"><span class="app-can">▰</span><svg viewBox="0 0 360 150"><path d="M20 135 Q150 -40 300 100" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4 9"/><path d="m290 89 12 15-20-2" fill="none" stroke="currentColor" stroke-width="2"/></svg><span class="app-bin">▥</span><span class="app-spark">✦</span></div>
- <div class="app-actions"><div class="app-input" role="group" aria-label="投げ方"><button type="button" data-app-input="swipe" aria-pressed="true">スラッシュ<span>指の速さで、ぽいっ</span></button><button type="button" data-app-input="pull" aria-pressed="false">パチンコ<span>引っぱって、ぱっ</span></button></div>
- <p id="app-operation" class="app-operation"></p><label class="app-stage-label" for="app-stage">今日の一投</label><select id="app-stage"></select>
- <button id="app-solo" class="app-primary" type="button">ひとりで遊ぶ <span>↗</span></button><button id="app-friends" class="app-secondary" type="button">となりの友達と遊ぶ <small>2人 · 各3投 · 端末を交代</small></button>
- <div class="app-small-actions"><button id="app-copy" type="button">お題リンクをコピー</button><button id="app-install" type="button">ホーム画面に追加</button><button id="app-update" type="button" hidden>新版へ更新</button></div><p id="app-install-status" role="status"></p><div id="app-share-box" hidden><label for="app-share-url">同じ面・投げ方で遊ぶリンク</label><input id="app-share-url" readonly><p id="app-share-status" role="status"></p></div><p class="app-footnote">アカウントなしですぐ一投。記録はこの端末に保存。<br>離れた友達との同時対戦は準備中。</p></div>
+ <header class="app-entry-top"><div class="app-logo"><span class="app-logo-mark" aria-hidden="true">↗</span><h1 id="app-name">TRASHOOT<span>とらっしゅーと</span></h1></div><p>小さな一投、大きな寄り道。</p></header>
+ <div class="app-hero">
+  <img class="app-key-art" src="./art/title/20261011/title-room.png" width="1536" height="1024" alt="" fetchpriority="high">
+  <div class="app-art-shade" aria-hidden="true"></div>
+  <div class="app-hero-copy">
+   <p class="app-kicker">狙って、外して、もう一投。</p>
+   <p class="app-tagline"><span>つかんで、</span><em>ぽいっ。</em></p>
+   <p class="app-hero-description">部屋のゴミ箱から、<br>走る電車の窓まで。</p>
+   <p id="app-selected-stage" class="app-selected-stage" aria-live="polite"></p>
+   <button id="app-solo" class="app-primary" type="button">ひとりで遊ぶ <span aria-hidden="true">↗</span></button>
+   <button id="app-friends" class="app-secondary" type="button">となりの友達と遊ぶ <small>2人 · 各3投 · 端末を交代</small></button>
+   <p class="app-start-note">アカウントなし。気軽に、ひと投げ。</p>
+  </div>
+  <div class="app-art-note" aria-hidden="true"><span>あと、ちょっと。</span><svg viewBox="0 0 130 70"><path d="M4 8 Q82 -5 115 56 M105 51 L116 58 L121 46" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+ </div>
+ <section class="app-showcase" aria-labelledby="app-showcase-heading">
+  <div class="app-showcase-heading"><h2 id="app-showcase-heading">どこへ、投げる？</h2><p>気になる面から遊べます</p></div>
+  <div class="app-stage-strip">
+   <button type="button" class="app-stage-shot" data-app-stage="outdoor-baseball" aria-label="野球場で遊ぶ"><div class="app-stage-frame"><img src="./art/entry/baseball.jpg" width="1213" height="494" alt="ミットを構える観客と野球場の実際のプレイ画面"></div><span><small>3-2 / 野球場</small><strong>ミットへ、ぽん。</strong><i aria-hidden="true">↗</i></span></button>
+   <button type="button" class="app-stage-shot" data-app-stage="outdoor-mall" aria-label="モールで遊ぶ"><div class="app-stage-frame"><img src="./art/entry/mall.jpg" width="1213" height="494" alt="吹き抜けの下でアイスを待つ子供の実際のプレイ画面"></div><span><small>3-3 / モール</small><strong>コーンへ、すとん。</strong><i aria-hidden="true">↗</i></span></button>
+   <button type="button" class="app-stage-shot" data-app-stage="eccentric-train" aria-label="電車で遊ぶ"><div class="app-stage-frame"><img src="./art/entry/train.jpg" width="1213" height="494" alt="隣を走る電車の窓を狙う実際のプレイ画面"></div><span><small>5-2 / 電車</small><strong>動く窓にも、ひゅっ。</strong><i aria-hidden="true">↗</i></span></button>
+  </div>
+ </section>
+ <div class="app-entry-bottom">
+  <details class="app-settings"><summary>投げ方・ステージを選ぶ</summary><div class="app-settings-body">
+   <div class="app-input" role="group" aria-label="投げ方"><button type="button" data-app-input="swipe" aria-pressed="true">スラッシュ<span>指の速さで、ぽいっ</span></button><button type="button" data-app-input="pull" aria-pressed="false">パチンコ<span>引っぱって、ぱっ</span></button></div>
+   <p id="app-operation" class="app-operation"></p><label class="app-stage-label" for="app-stage">今日の一投</label><select id="app-stage"></select>
+  </div></details>
+  <div class="app-small-actions"><button id="app-copy" type="button">お題リンクをコピー</button><button id="app-install" type="button">ホーム画面に追加</button><button id="app-update" type="button" hidden>新版へ更新</button></div>
+ </div>
+ <p id="app-install-status" role="status"></p><div id="app-share-box" hidden><label for="app-share-url">同じ面・投げ方で遊ぶリンク</label><input id="app-share-url" readonly><p id="app-share-status" role="status"></p></div>
+ <p class="app-footnote">記録はこの端末に保存。離れた友達との同時対戦は準備中。</p>
 </section>
 <aside id="friend-hud" class="friend-hud" hidden><strong id="friend-status"></strong><span>1台を回して、各3投。成功数で勝負。</span></aside>
 <dialog id="friend-result" class="friend-result"><p class="app-kicker">NICE TRY / NEXT THROW</p><h2 id="friend-result-title"></h2><p id="friend-result-score"></p><button id="friend-next" class="app-primary" type="button">交代して、次の一投</button></dialog>

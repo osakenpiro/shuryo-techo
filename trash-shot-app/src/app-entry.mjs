@@ -4,12 +4,15 @@ export function createAppEntry({stages,start,onHome,isBusy,onResult}){
  const qs=new URLSearchParams(location.search);let scheme=qs.get('input')==='pull'?'pull':'swipe';
  for(const [id,stage] of Object.entries(stages)){if(!stage.environment)continue;const o=document.createElement('option');o.value=id;o.textContent=stage.label;$('app-stage').append(o);}
  if(stages[qs.get('stage')])$('app-stage').value=qs.get('stage');
+ function selection(){const selected=$('app-selected-stage');if(selected)selected.textContent=stages[$('app-stage').value]?.label??'';}
+ $('app-stage').addEventListener('change',selection);selection();
  function mode(next){scheme=next;for(const button of document.querySelectorAll('[data-app-input]'))button.setAttribute('aria-pressed',String(button.dataset.appInput===scheme));$('app-operation').textContent=scheme==='swipe'?'押してつかむ → 上へ動かす → 離して投げる。速さが強さ。':'下へ引っぱる → 離して投げる。長さが強さ。';}
  mode(scheme);
  for(const b of document.querySelectorAll('[data-app-input]'))b.addEventListener('click',()=>mode(b.dataset.appInput));
  function launch(party){match=party?createFriendMatch():null;entry.hidden=true;document.body.classList.remove('app-lobby-open');document.body.classList.toggle('friend-active',party);start($('app-stage').value,{scheme,party});render();}
  function render(){const s=match?.snapshot();$('friend-hud').hidden=!s;if(s)$('friend-status').textContent=`${s.players[s.player]} · ${s.round}/${s.rounds}回 · ${s.scores[0]} : ${s.scores[1]}`;}
  $('app-solo').addEventListener('click',()=>launch(false));$('app-friends').addEventListener('click',()=>launch(true));
+ for(const button of entry.querySelectorAll('[data-app-stage]'))button.addEventListener('click',()=>{const id=button.dataset.appStage;if(!stages[id])return;$('app-stage').value=id;selection();launch(false);});
  $('app-home').addEventListener('click',()=>{if(isBusy())return;onHome();match=null;dialog.close();entry.hidden=false;document.body.classList.add('app-lobby-open');document.body.classList.remove('friend-active');render();});
  $('friend-next').addEventListener('click',()=>{const s=match?.snapshot();if(!s)return;dialog.close();if(s.finished){match=null;entry.hidden=false;document.body.classList.add('app-lobby-open');document.body.classList.remove('friend-active');render();return;}match.next();onResult();render();});
  dialog.addEventListener('cancel',e=>e.preventDefault());
