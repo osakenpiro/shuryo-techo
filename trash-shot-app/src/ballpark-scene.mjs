@@ -52,6 +52,7 @@ function lettering(s,text,x,y,z,size,color,meta={}){
     }
   }
 }
+export {lettering as scoreboardLettering};
 function scoreboard(world){
   const c=world.solids.find(q=>q.id==='stadium-scoreboard');if(!c)return [];
   const s=[],z=c.min.z-.009,x=c.min.x,w=c.max.x-x,y=c.min.y,h=c.max.y-y,tag={architecturePart:'scoreboard-paint',sourceSolidId:c.id,planeOnly:true};

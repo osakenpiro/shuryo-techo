@@ -40,7 +40,7 @@ export function createRenderer(canvas) {
     camera={x:target.x+Math.sin(orbitState.azimuth)*Math.cos(orbitState.elevation)*distance,y:target.y+Math.sin(orbitState.elevation)*distance,z:target.z-Math.cos(orbitState.azimuth)*Math.cos(orbitState.elevation)*distance};
     forward=unit(sub(target,camera)); right=unit(cross({x:0,y:1,z:0},forward)); up=cross(forward,right);
     const portraitRoom=([2,3,4,5].includes(worldView?.worldVersion)||['school','outdoor','factory','eccentric'].includes(worldView?.environment))&&width<600;
-    focal=worldView?.worldVersion===39?Math.min(width*(width<600?.88:.42),height*1.1):Math.min(width*(portraitRoom?1.48:width<450?1.13:.92),height*1.45);
+    focal=worldView?.worldVersion===60?Math.min(width*(width<600?1.3:.75),height*.95):worldView?.worldVersion===39?Math.min(width*(width<600?.88:.42),height*1.1):Math.min(width*(portraitRoom?1.48:width<450?1.13:.92),height*1.45);
   };
   const worldToCamera = point => {const p=sub(point,camera); return {x:dot(p,right),y:dot(p,up),z:dot(p,forward)};};
   const cameraToScreen = point => ({x:width/2+point.x*focal/point.z,y:height*.47-point.y*focal/point.z,depth:point.z,visible:point.z>.1});
@@ -49,12 +49,12 @@ export function createRenderer(canvas) {
   function cameraSnapshot(){return {azimuth:orbitState.azimuth,elevation:orbitState.elevation,zoom:orbitState.zoom,projection,sideZoom,environment,worldVersion:worldView?.worldVersion??0,angleCue:angleCueSnapshot?structuredClone(angleCueSnapshot):null,roomBuilds,roomCutaway:[...roomCutaway],position:{...camera},target:{...target},viewport:{width,height},...(coinAccentSnapshot?{coinAccent:structuredClone(coinAccentSnapshot)}:{})};}
   function setProjection(mode){projection=mode==='side'?'side':'perspective';}
   function setWorldView(world){if(worldView?.worldVersion!==world?.worldVersion){roomCache=null;cameraViewOverride=null;}worldView=world??null;}
-  function setCameraViewOverride(view){cameraViewOverride=worldView?.worldVersion===38&&view?{target:{...view.target},distance:view.distance}:null;if(cameraViewOverride)target={...cameraViewOverride.target};configureCamera();}
+  function setCameraViewOverride(view){cameraViewOverride=[38,60].includes(worldView?.worldVersion)&&view?{target:{...view.target},distance:view.distance}:null;if(cameraViewOverride)target={...cameraViewOverride.target};configureCamera();}
   function monitorQuad(){return roomMonitorQuad(worldView).map(project);}
   function orbit(azimuth,elevation){if(projection==='side')return;orbitState.azimuth=((orbitState.azimuth+azimuth)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);orbitState.elevation=clamp(orbitState.elevation+elevation,.15,1.43);configureCamera();}
   function zoom(factor){if(projection==='side'){sideZoom=clamp(sideZoom*factor,.62,1.8);return;}orbitState.zoom=clamp(orbitState.zoom*factor,.62,1.8);configureCamera();}
   function restoreCamera(snapshot){orbitState={azimuth:snapshot.azimuth,elevation:clamp(snapshot.elevation,.15,1.43),zoom:clamp(snapshot.zoom,.62,1.8)};configureCamera();}
-  function resetCamera(){cameraViewOverride=null;if(projection==='side'){sideZoom=1;return;}if(worldView?.worldVersion===38)target={...worldView.view.target};orbitState=worldView?.environment==='release'?releaseChapterCameraConfig(worldView):worldView?.environment==='factory'?factoryCameraConfig(worldView):worldView?.environment==='eccentric'?eccentricCameraConfig(worldView):worldView?.environment==='outdoor'?outdoorCameraConfig(worldView):worldView?.environment==='school'?schoolCameraConfig(worldView):[2,3,4,5].includes(worldView?.worldVersion)?{azimuth:.18,elevation:.40,zoom:1}:{...defaultOrbit};configureCamera();}
+  function resetCamera(){cameraViewOverride=null;if(projection==='side'){sideZoom=1;return;}if([38,60].includes(worldView?.worldVersion))target={...worldView.view.target};orbitState=worldView?.environment==='release'?releaseChapterCameraConfig(worldView):worldView?.environment==='factory'?factoryCameraConfig(worldView):worldView?.environment==='eccentric'?eccentricCameraConfig(worldView):worldView?.environment==='outdoor'?outdoorCameraConfig(worldView):worldView?.environment==='school'?schoolCameraConfig(worldView):[2,3,4,5].includes(worldView?.worldVersion)?{azimuth:.18,elevation:.40,zoom:1}:{...defaultOrbit};configureCamera();}
   function resize() {
     const rect=canvas.getBoundingClientRect();
     const changed=width!==Math.max(1,rect.width)||height!==Math.max(1,rect.height);
@@ -227,6 +227,12 @@ export function createRenderer(canvas) {
   const edge=(a,b,x,y)=>(x-a.x)*(b.y-a.y)-(y-a.y)*(b.x-a.x);
   function writePixel(index,color,depth,depthWrite=true){
     if(depthWrite)depthValues[index]=depth;const offset=index*4,pixels=depthPixels.data;
+    // Most metre-space faces are opaque. Source-over then replaces all four
+    // channels exactly, without reading or blending the previous pixel.
+    if(color[3]===255){
+      pixels[offset]=color[0];pixels[offset+1]=color[1];pixels[offset+2]=color[2];pixels[offset+3]=255;
+      return;
+    }
     const alpha=color[3]/255,oldAlpha=pixels[offset+3]/255,combined=alpha+oldAlpha*(1-alpha);
     for(let c=0;c<3;c++)pixels[offset+c]=combined?(color[c]*alpha+pixels[offset+c]*oldAlpha*(1-alpha))/combined:0;
     pixels[offset+3]=combined*255;
@@ -235,11 +241,24 @@ export function createRenderer(canvas) {
     const area=edge(a,b,c.x,c.y);if(Math.abs(area)<.001)return;
     const minX=Math.max(0,Math.floor(Math.min(a.x,b.x,c.x))),maxX=Math.min(depthWidth-1,Math.ceil(Math.max(a.x,b.x,c.x)));
     const minY=Math.max(0,Math.floor(Math.min(a.y,b.y,c.y))),maxY=Math.min(depthHeight-1,Math.ceil(Math.max(a.y,b.y,c.y)));
-    for(let y=minY;y<=maxY;y++)for(let x=minX;x<=maxX;x++){
+    // Limit each row to the triangle's half planes before testing pixels.
+    // Keep a conservative pixel margin and the original barycentric arithmetic
+    // below: thin or near-clipped faces must retain their exact edge coverage.
+    const edges=[[b,c],[c,a],[a,b]],slopes=edges.map(([u,v])=>(v.y-u.y)/area);
+    for(let y=minY;y<=maxY;y++){
+      let rowMin=minX,rowMax=maxX;
+      for(let i=0;i<3;i++){
+        const slope=slopes[i];if(Math.abs(slope)<1e-12)continue;
+        const [u,v]=edges[i],boundary=(-.00001-edge(u,v,.5,y+.5)/area)/slope;
+        if(slope>0)rowMin=Math.max(rowMin,Math.floor(boundary)-2);
+        else rowMax=Math.min(rowMax,Math.ceil(boundary)+2);
+      }
+      for(let x=rowMin;x<=rowMax;x++){
       const wa=edge(b,c,x+.5,y+.5)/area,wb=edge(c,a,x+.5,y+.5)/area,wc=1-wa-wb;
       if(wa<-.00001||wb<-.00001||wc<-.00001)continue;
       const depth=1/(wa*a.inverseDepth+wb*b.inverseDepth+wc*c.inverseDepth),index=y*depthWidth+x;
       if(depth<depthValues[index])writePixel(index,color,depth,depthWrite);
+      }
     }
   }
   function depthLine(a,b,color,depthWrite=true){
@@ -435,12 +454,12 @@ export function createRenderer(canvas) {
     if(room&&view.monitorCanvas){ctx.save();ctx.globalAlpha=roomCutaway.includes([2,3,4,5].includes(worldView?.worldVersion)?'source-desk':'desk') ? .23 : 1;paintScreenQuad(ctx,view.monitorCanvas,monitorQuad());ctx.restore();}
     if(!outdoor&&!advanced)shadow(game.bin.center,game.bin.radius*1.35,game.bin.radius*1.14,.11);
     const schoolGround=school?worldView.solids.filter(s=>['desk-top','roof'].includes(s.kind)&&s.max.y<=game.can.position.y&&game.can.position.x>=s.min.x-game.can.radius&&game.can.position.x<=s.max.x+game.can.radius&&game.can.position.z>=s.min.z-game.can.radius&&game.can.position.z<=s.max.z+game.can.radius):[],canGround=Math.max(0,...schoolGround.map(s=>s.max.y));
-    if(!(worldView?.worldVersion===36&&view.baseballPitch?.active))shadow(game.can.position,.2+Math.max(0,game.can.position.y-canGround)*.035,.2,.13/(1+Math.max(0,game.can.position.y-canGround)*.8),canGround);
+    if(!([36,60].includes(worldView?.worldVersion)&&view.baseballPitch?.active))shadow(game.can.position,.2+Math.max(0,game.can.position.y-canGround)*.035,.2,.13/(1+Math.max(0,game.can.position.y-canGround)*.8),canGround);
     if(view.prediction&&(!view.course||Array.isArray(view.windArc))&&(game.phase==='ready'||game.phase==='success'||game.phase==='miss'))drawArc(game,view.aim||controls,view.windArc);
     if(game.phase!=='ready')drawTrail(game);
     if(view.aim&&!view.customCue){const heading=view.aim.yaw*Math.PI/180,p=game.phase==='ready'?game.can.position:(worldView?.origin??{x:0,y:1.05,z:0});line(p,{x:p.x+Math.sin(heading)*.75,y:p.y,z:p.z+Math.cos(heading)*.75},'#bd8632',2);}
     const itemView={aim:view.aim??controls,worldVersion:worldView?.worldVersion};
-    const shapes=[...(room&&view.extraRoom?roomMotionShapes(view.environmentTime||0,view.fanEnabled,view.reducedMotion,worldView):[]),...(school?schoolMotionShapes(view.environmentTime||0,worldView,view.reducedMotion):[]),...(advanced?(worldView.environment==='release'?((time,world)=>releaseChapterMotionShapes(world,time)):worldView.environment==='factory'?factoryMotionShapes:eccentricMotionShapes)(view.environmentTime??0,worldView,{...view,...(worldView.worldVersion>=48?{aim:view.aim??controls}:{}),...(worldView.worldVersion===39?{camera:{...camera}}:{}),session:view.factorySession,game,phase:game.phase,flightTime:game.time}):outdoor?outdoorMotionShapes(view.environmentTime??0,worldView,{...view,camera:{...camera},phase:game.phase,flightTime:game.time}):shapesForBin(game,room||school)),...((worldView?.worldVersion===36&&view.baseballPitch?.active||worldView?.worldVersion===47&&game.phase==='miss'&&view.factorySession?.plateLatched&&view.factorySession.setupShot===game.attempts)?[]:worldView?.worldVersion===46&&game.phase==='miss'&&view.effects?.some(e=>e.type==='factory-press')?shapesForCan(game,room||school||outdoor||advanced,itemView).map(mesh=>({...mesh,pressed:true,points:mesh.points.map(p=>({...p,x:game.can.position.x+(p.x-game.can.position.x)*1.16,y:game.can.position.y-game.can.radius+.025+(p.y-game.can.position.y)*.12,z:game.can.position.z+(p.z-game.can.position.z)*1.16}))})):shapesForCan(game,room||school||outdoor||advanced,itemView))];
+    const shapes=[...(room&&view.extraRoom?roomMotionShapes(view.environmentTime||0,view.fanEnabled,view.reducedMotion,worldView):[]),...(school?schoolMotionShapes(view.environmentTime||0,worldView,view.reducedMotion):[]),...(advanced?(worldView.environment==='release'?((time,world)=>releaseChapterMotionShapes(world,time)):worldView.environment==='factory'?factoryMotionShapes:eccentricMotionShapes)(view.environmentTime??0,worldView,{...view,...(worldView.worldVersion>=48?{aim:view.aim??controls}:{}),...(worldView.worldVersion===39?{camera:{...camera}}:{}),session:view.factorySession,game,phase:game.phase,flightTime:game.time}):outdoor?outdoorMotionShapes(view.environmentTime??0,worldView,{...view,camera:{...camera},phase:game.phase,flightTime:game.time}):shapesForBin(game,room||school)),...(([36,60].includes(worldView?.worldVersion)&&view.baseballPitch?.active||worldView?.worldVersion===47&&game.phase==='miss'&&view.factorySession?.plateLatched&&view.factorySession.setupShot===game.attempts)?[]:worldView?.worldVersion===46&&game.phase==='miss'&&view.effects?.some(e=>e.type==='factory-press')?shapesForCan(game,room||school||outdoor||advanced,itemView).map(mesh=>({...mesh,pressed:true,points:mesh.points.map(p=>({...p,x:game.can.position.x+(p.x-game.can.position.x)*1.16,y:game.can.position.y-game.can.radius+.025+(p.y-game.can.position.y)*.12,z:game.can.position.z+(p.z-game.can.position.z)*1.16}))})):shapesForCan(game,room||school||outdoor||advanced,itemView))];
     drawDepthShapes(shapes,backgroundDepth);
     drawCoinAccent(game,view);
     if(room&&view.extraRoom){

@@ -86,7 +86,7 @@ export function roomCourse(stageId,worldVersion=1) {
 }
 export function roomWorld(stageId,worldVersion=2) {
   if(worldVersion>=54&&worldVersion<=59)return releaseChapterWorld(stageId,worldVersion);
-  if(worldVersion>=11&&worldVersion<=14||worldVersion>=30&&worldVersion<=37)return outdoorWorld(stageId,worldVersion);
+  if(worldVersion>=11&&worldVersion<=14||worldVersion>=30&&worldVersion<=37||worldVersion===60||worldVersion===61)return outdoorWorld(stageId,worldVersion);
   if(worldVersion>=15&&worldVersion<=18||worldVersion>=26&&worldVersion<=29||[40,41,42,43,44,45,46,47].includes(worldVersion))return factoryWorld(stageId,worldVersion);
   if(worldVersion>=19&&worldVersion<=25||worldVersion===38||worldVersion===39||worldVersion>=48&&worldVersion<=53)return eccentricWorld(stageId,worldVersion);
   if(worldVersion>=6&&worldVersion<=10)return schoolWorld(stageId,worldVersion);

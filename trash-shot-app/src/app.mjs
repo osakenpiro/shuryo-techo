@@ -274,19 +274,22 @@ function cancelGesture(reason='cancel'){
   updateHint();
 }
 function setMode(mode){if(titleActive()||pixelIntro?.active)return;cancelGesture('mode-change');view.mode=sideStage()?'throw':mode;updateHint();}
-$('mode-throw').addEventListener('click',()=>setMode('throw'));
+$('mode-throw').addEventListener('click',()=>{if(liveWorld()?.worldVersion===60&&ballparkBoardView){ballparkBoardView=false;renderer.resetCamera();updateTowerViewControls();}setMode('throw');});
 $('mode-observe').addEventListener('click',()=>setMode('observe'));
 function updateZoomControls(){
   const camera=renderer.cameraSnapshot(),zoom=camera.projection==='side'?camera.sideZoom:camera.zoom;
   for(const id of ['camera-in','play-zoom-in'])if($(id))$(id).disabled=zoom<=.62+1e-8;
   for(const id of ['camera-out','play-zoom-out'])if($(id))$(id).disabled=zoom>=1.8-1e-8;
 }
+let ballparkBoardView=false;
 function cameraAction(action){if(titleActive()||pixelIntro?.active)return;cancelGesture('camera-control');action();updateZoomControls();}
 function returnTowerLaunch(){
   if(liveWorld()?.worldVersion!==38||towerViewMode!=='overview')return;
   towerViewMode='launch';renderer.resetCamera();updateTowerViewControls();
 }
 function updateTowerViewControls(){
+  if(liveWorld()?.worldVersion!==60)ballparkBoardView=false;
+  if($('scoreboard-look')){$('scoreboard-look').hidden=liveWorld()?.worldVersion!==60;$('scoreboard-look').textContent=ballparkBoardView?'打席に戻る':'得点板を見る';$('scoreboard-look').setAttribute('aria-pressed',String(ballparkBoardView));}
   const available=liveWorld()?.worldVersion===38;
   for(const [id,mode]of [['tower-view-overview','overview'],['tower-view-launch','launch']]){
     const button=$(id);if(!button)continue;button.hidden=!available;
@@ -299,7 +302,8 @@ $('tower-view-overview')?.addEventListener('click',()=>cameraAction(()=>{
   renderer.restoreCamera({azimuth:.4,elevation:.33,zoom:1});updateTowerViewControls();
 }));
 $('tower-view-launch')?.addEventListener('click',()=>cameraAction(()=>{towerViewMode='launch';renderer.resetCamera();updateTowerViewControls();}));
-$('camera-reset').addEventListener('click',()=>cameraAction(()=>{towerViewMode='launch';renderer.resetCamera();updateTowerViewControls();}));
+$('camera-reset').addEventListener('click',()=>cameraAction(()=>{towerViewMode='launch';ballparkBoardView=false;renderer.resetCamera();if(liveWorld()?.worldVersion===60)setMode('throw');updateTowerViewControls();}));
+$('scoreboard-look')?.addEventListener('click',()=>cameraAction(()=>{if(liveWorld()?.worldVersion!==60)return;cancelBaseballPitch('scoreboard-view');ballparkBoardView=!ballparkBoardView;if(ballparkBoardView){setMode('observe');renderer.setCameraViewOverride({target:{x:0,y:14.05,z:55.2},distance:10.5});renderer.restoreCamera({azimuth:0,elevation:.15,zoom:1});}else{renderer.resetCamera();setMode('throw');}updateTowerViewControls();}));
 for(const [id,x,y] of [['camera-left',-.16,0],['camera-right',.16,0],['camera-up',0,.12],['camera-down',0,-.12]])$(id).addEventListener('click',()=>cameraAction(()=>renderer.orbit(x,y)));
 for(const id of ['camera-in','play-zoom-in'])$(id)?.addEventListener('click',()=>cameraAction(()=>renderer.zoom(.88)));
 for(const id of ['camera-out','play-zoom-out'])$(id)?.addEventListener('click',()=>cameraAction(()=>renderer.zoom(1.14)));
@@ -452,7 +456,7 @@ $('game-menu')?.addEventListener('toggle',()=>{if(menuOpen())cancelBaseballPitch
 function fire(source='numeric'){
   if((source==='numeric'||source==='keyboard')&&!trainingMode)return false;
   if(installUI?.updating||busy()||titleActive()||pixelIntro?.active||$('chapter-result')?.open||replayDialog.open||$('store-dialog')?.open||$('chapter-top')&&!$('chapter-top').hidden)return false;
-  if(liveWorld()?.worldVersion===36){
+  if([36,60].includes(liveWorld()?.worldVersion)){
     cancelGesture('other-throw');
     if(!resetShot(game))return false;
     const accepted=baseballIntro.start({world:liveWorld(),controls,source});

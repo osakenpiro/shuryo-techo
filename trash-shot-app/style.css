@@ -579,3 +579,6 @@ body.title-is-open{overflow:hidden}
 #goal-cue .goal-cue-note text{fill:#286864;font:600 12px system-ui,sans-serif;letter-spacing:.025em}
 .scene-toolbar #goal-confirm{min-height:44px;min-width:44px;white-space:nowrap}
 .scene-toolbar #goal-confirm::before{content:'⚑';display:inline-block;margin-right:5px;color:#a38035;font-size:16px;line-height:1;vertical-align:-1px}
+/* Updating the held-shot hint must not move a scrolled play canvas. Native
+   scroll anchoring can otherwise cancel the relay's second touch gesture. */
+body{overflow-anchor:none}

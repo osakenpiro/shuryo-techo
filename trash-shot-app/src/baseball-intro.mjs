@@ -5,8 +5,8 @@ const copy=value=>JSON.parse(JSON.stringify(value));
 export function createBaseballIntro(){
   let pending=null,elapsed=0,lastCancel=null;
   function start({world,controls,source}){
-    if(pending||world?.worldVersion!==36||world?.outdoorType!=='baseball'||!['power','elevation','yaw'].every(k=>Number.isFinite(controls?.[k])))return false;
-    pending={stageId:world.stageId,worldVersion:36,controls:{...controls},source};elapsed=0;lastCancel=null;return true;
+    if(pending||![36,60].includes(world?.worldVersion)||world?.outdoorType!=='baseball'||!['power','elevation','yaw'].every(k=>Number.isFinite(controls?.[k])))return false;
+    pending={stageId:world.stageId,worldVersion:world.worldVersion,controls:{...controls},source};elapsed=0;lastCancel=null;return true;
   }
   function cancel(reason='cancel'){if(!pending)return false;pending=null;elapsed=0;lastCancel=reason;return true;}
   function advance(dt,world){

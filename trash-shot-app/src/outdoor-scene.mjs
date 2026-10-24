@@ -3,6 +3,7 @@
 // trim and floor markings are decoration, not additional collision surfaces.
 import {outdoorSolids,outdoorMotion,outdoorDynamicSolids} from './outdoor-world.mjs?v=20261015-boar-distance-1';
 import {outdoorEffectShapes,outdoorLightColor,outdoorLampShapes} from './outdoor-effects.mjs?v=20261015-boar-distance-1';
+import {finishedChapter3Groups,finishedBatterShapes} from './chapter3-finish-scene.mjs?v=20261023-chapter3-1';
 import {ballparkMotionShapes} from './ballpark-scene.mjs?v=20261015-boar-distance-1';
 import {outdoorArchitectureGroups} from './outdoor-architecture.mjs?v=20261015-boar-distance-1';
 import {mallPhysicalGroups} from './mall-physical-scene.mjs?v=20261015-boar-distance-1';
@@ -238,6 +239,7 @@ function riverDetails(s,world){
   const q=world.origin;box(s,q.x-1.3,0,q.z-.7,.44,.3,.32,'#8a775c');box(s,q.x-1.22,.3,q.z-.62,.28,.22,.2,'#bd985c');
 }
 function buildGroups(world){
+  if([60,61].includes(world.worldVersion)){const previous={...world,worldVersion:world.worldVersion===60?36:34};return finishedChapter3Groups(buildGroups(previous),world);}
   const groups=[],background=[],solids=outdoorSolids(world);
   const r=roomOf(world),type=typeOf(world);
   if(type!=='river')flat(background,r.minX,-.018,r.minZ,r.maxX-r.minX,r.maxZ-r.minZ,type==='baseball'?([33,36].includes(world.worldVersion)?'#d4cbb0':'#a1bc87'):type==='mall'?'#eee4cc':'#b8bd92');
@@ -290,7 +292,7 @@ export function outdoorCameraConfig(world){return {azimuth:world?.view?.azimuth?
 export function outdoorScene(camera,world,time=0,options={}){
   if(world?.environment!=='outdoor')throw new RangeError('A frozen outdoor world is required');
   const key=`${world.stageId}/${world.worldVersion}`;if(!cache.has(key))cache.set(key,buildGroups(world));
-  const groups=cache.get(key),shapes=[],cutaway=[],goals=world.goals??[],endpoints=[world.origin,...goals.map(g=>g.center??g.position).filter(Boolean),...([32,34].includes(world.worldVersion)?world.actors.map(a=>({...a.position,y:a.position.y+a.height*.5})):[])];
+  const groups=cache.get(key),shapes=[],cutaway=[],goals=world.goals??[],endpoints=[world.origin,...goals.map(g=>g.center??g.position).filter(Boolean),...([32,34,61].includes(world.worldVersion)?world.actors.map(a=>({...a.position,y:a.position.y+a.height*.5})):[])];
   const lamps=typeOf(world)==='river'?outdoorMotion(world,time).lamps:[];
   for(const group of groups){
     // Only building shells cut away. Real crowd, rope, stands and rails stay
@@ -654,6 +656,7 @@ export function outdoorMotionShapes(time,world,options={}){
   if(typeof options==='boolean')options={reducedMotion:options};
   if(world?.environment!=='outdoor')throw new RangeError('A frozen outdoor world is required');
   const motion=outdoorMotion(world,time),shapes=[],movingFigures=['shrine','river'].includes(typeOf(world));
+  if(world.worldVersion===60){shapes.push(...ballparkMotionShapes({...world,worldVersion:36},time,options),...finishedBatterShapes(world,options),...outdoorEffectShapes(world,time,options));return shapes;}
   if(world.worldVersion===36){shapes.push(...ballparkMotionShapes(world,time,options));batSwing(shapes,world,time,options);shapes.push(...outdoorEffectShapes(world,time,options));return shapes;}
   if([35,37].includes(world.worldVersion)){
     const lit=lightShapes(riverPhysicalMotionShapes(world,motion,time,options),motion.lamps??[],true,riverLightOptions(world));

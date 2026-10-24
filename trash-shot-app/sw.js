@@ -1,7 +1,7 @@
 /* Candidate-only, versioned app snapshot. Regenerate with node scripts/build-pwa.mjs. */
 'use strict';
 // BEGIN GENERATED PRECACHE
-const PRECACHE_VERSION = "20261018-28261c9f264420c72f25";
+const PRECACHE_VERSION = "20261018-25f7be3e80284bc5a1e4";
 const PRECACHE_ASSETS = [
   {
     "url": "./app.css",
@@ -137,7 +137,7 @@ const PRECACHE_ASSETS = [
   },
   {
     "url": "./index.html",
-    "sha256": "e9b12e853636dae5ac5728a3a732e298e8bbdf3ac724e2519dc5244a847b5af1"
+    "sha256": "1d39d8be0644f5c0cd6b248aef93db27b161a56215cad9945ff5ead1c5e85333"
   },
   {
     "url": "./manifest.webmanifest",
@@ -149,7 +149,7 @@ const PRECACHE_ASSETS = [
   },
   {
     "url": "./src/advanced-replay.mjs?v=20261015-boar-distance-1",
-    "sha256": "aea0ff3ff65b25378e1d8071c9c20cd6ef91c71d71c6905cdd41754095ddb66f"
+    "sha256": "f1360a4d5943cd0944c2f19418f2e79cbb04b9b773831a126942506ea2b01bb9"
   },
   {
     "url": "./src/app-entry.mjs",
@@ -161,15 +161,23 @@ const PRECACHE_ASSETS = [
   },
   {
     "url": "./src/app.mjs?v=20261015-boar-distance-1",
-    "sha256": "4a41de447b593940a98f0c8bd61067ce728b90349c1d67112288ecf7c32108ec"
+    "sha256": "c81c8abd79f3c50576e2d60a7f39178fe02c8fd03e608fb789ca639adf521bf5"
   },
   {
     "url": "./src/ballpark-scene.mjs?v=20261015-boar-distance-1",
-    "sha256": "717fcdcb2eaa316edc1afa314af7d825ecd0a1f584821728749419b43cbb50cd"
+    "sha256": "b39aa62c4060ed1a3f0555120838c3a1006cd73f565a4321e91e1bcf68dcfb76"
+  },
+  {
+    "url": "./src/ballpark-scene.mjs?v=20261023-chapter3-1",
+    "sha256": "b39aa62c4060ed1a3f0555120838c3a1006cd73f565a4321e91e1bcf68dcfb76"
   },
   {
     "url": "./src/baseball-intro.mjs?v=20261015-boar-distance-1",
-    "sha256": "143837618c57ba74b9882cb48b6a5cd310e2cf43f595e291563d7b0126ae2bb7"
+    "sha256": "78fbba2143ee7ecc5705a94f30d5480bab001b75f1d4913c4c710a9b5222563d"
+  },
+  {
+    "url": "./src/chapter3-finish-scene.mjs?v=20261023-chapter3-1",
+    "sha256": "03b878c9badf19ce3112ab2e7e633736aa6bcb150f48279fb58260c33cf44078"
   },
   {
     "url": "./src/course-replay.mjs?v=20261015-boar-distance-1",
@@ -269,11 +277,11 @@ const PRECACHE_ASSETS = [
   },
   {
     "url": "./src/outdoor-scene.mjs?v=20261015-boar-distance-1",
-    "sha256": "2f0e3ecd8e9cfcaa63f8aabf441fa51f4113307f40d0f39dbebece57637a3653"
+    "sha256": "73b65ce1a9681240443dc42e1274a344c618c2f16a6828d972f37c2b2354876f"
   },
   {
     "url": "./src/outdoor-world.mjs?v=20261015-boar-distance-1",
-    "sha256": "eec3fc328fcb29c1c7ce448cbe315f33d56424995e8f123b20e9539c2e290d89"
+    "sha256": "8eed0da04d1fcb5a1fd98e04ee1a4edd9c20e8660c917ca25dd942fe9082214e"
   },
   {
     "url": "./src/physics.mjs?v=20261015-boar-distance-1",
@@ -357,7 +365,7 @@ const PRECACHE_ASSETS = [
   },
   {
     "url": "./src/render.mjs?v=20261015-boar-distance-1",
-    "sha256": "aaed2ea5756b62eb636b295d888ab4f6825765d385cb9e226ad0051a7d9302e4"
+    "sha256": "91305b042764509eabeaf8356776d64353434fa450f9559d107b2687f4bee4b9"
   },
   {
     "url": "./src/replay.mjs?v=20261015-boar-distance-1",
@@ -381,7 +389,7 @@ const PRECACHE_ASSETS = [
   },
   {
     "url": "./src/room-course.mjs?v=20261015-boar-distance-1",
-    "sha256": "d6ee7f2eced61e23a92de045778ca31c652c6e71ebd57d2eb2ab57ef5188537a"
+    "sha256": "1c3cbcb3e83537f8227732476a2ccf6b73ac924fa9cb9c06c97aa02313633d17"
   },
   {
     "url": "./src/room-gimmicks.mjs?v=20261015-boar-distance-1",
@@ -437,7 +445,7 @@ const PRECACHE_ASSETS = [
   },
   {
     "url": "./src/throwable-world-profile.mjs?v=20261015-boar-distance-1",
-    "sha256": "09619c2a5399e315ed47c2ec151ec43dc478d652fc38d4428b0d8b02c761259d"
+    "sha256": "df23d600de44118afc9417e4896347549b1a7ea8c7d72eccc6fc96ad44273b84"
   },
   {
     "url": "./src/throwables.mjs?v=20261015-boar-distance-1",
@@ -457,7 +465,7 @@ const PRECACHE_ASSETS = [
   },
   {
     "url": "./style.css?v=20261015-boar-distance-1",
-    "sha256": "1bfdc53c9b45a2bda014eb821f217a9145e9a07a6e1178d02dadac8ab9e669fa"
+    "sha256": "67754bb09f2a0aafa0fc873682ada497e779c5a2a0ec6d589699a3e286f349a6"
   }
 ];
 // END GENERATED PRECACHE
