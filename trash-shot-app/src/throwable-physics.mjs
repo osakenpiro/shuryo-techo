@@ -35,7 +35,7 @@ export function setThrowable(game,id=DEFAULT_THROWABLE_ID){
 export function cloneThrowable(from,to){setThrowableWorld(to,WORLDS.get(from));return setThrowable(to,getThrowableId(from));}
 export function throwableRadius(game,fallback=.14){return getThrowableProfile(game)?.radius??fallback;}
 export function throwableTerminalContact(game){return getThrowableProfile(game)?.terminalContact??null;}
-export function throwableProfileVersion(game){return getThrowable(game?.throwableId??getThrowableId(game))?.physics.version??1;}
+export function throwableProfileVersion(game){return getThrowableProfile(game)?.version??getThrowable(game?.throwableId??getThrowableId(game))?.physics.version??1;}
 export function throwableInitialVelocity(game,velocity){
   const profile=getThrowableProfile(game);if(!profile)return velocity;
   return {x:velocity.x*profile.launchScale,y:velocity.y*profile.launchScale,z:velocity.z*profile.launchScale};
@@ -80,7 +80,15 @@ export function throwableAirAcceleration(game){
 }
 export function applyThrowableAir(game,dt){
   if(!getThrowableProfile(game)||!Number.isFinite(dt)||dt<=0||game?.phase!=='flying')return false;
-  const acceleration=throwableAirAcceleration(game);
+  const acceleration=throwableAirAcceleration(game),glide=getThrowableProfile(game)?.glide;
+  if(glide){
+    const v=game.can.velocity,horizontal=Math.hypot(v.x,v.z),drag=Math.exp(-glide.drag*dt);
+    acceleration.y+=Math.min(glide.maxLift,glide.lift*horizontal*horizontal);
+    // Air resists vertical motion: the new trimmed glider converges toward a
+    // shallow sink instead of accelerating down like a thrown ball.
+    if(glide.verticalDamping)acceleration.y-=glide.verticalDamping*v.y;
+    v.x*=drag;v.z*=drag;
+  }
   for(const axis of ['x','y','z'])game.can.velocity[axis]+=acceleration[axis]*dt;
   return true;
 }

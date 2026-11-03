@@ -4,7 +4,7 @@ import {eccentricWorld,eccentricSolids,eccentricDynamicSolids,eccentricMotion} f
 import {scenePrimitives,FACTORY_PALETTE} from './factory-scene.mjs?v=20261015-boar-distance-1';
 import {throwablePose} from './throwable-physics.mjs?v=20261015-boar-distance-1';
 import {tokyoTowerStaticMeshes,tokyoTowerGroups} from './tokyo-tower-scene.mjs?v=20261015-boar-distance-1';
-import {trainWindowStaticMeshes,trainWindowDynamicMeshes,trainWindowCutaway} from './train-window-scene.mjs?v=20261015-boar-distance-1';
+import {trainWindowStaticMeshes,trainWindowDynamicMeshes,trainWindowCutaway,trainWindowOwnMeshes} from './train-window-scene.mjs?v=20261015-boar-distance-1';
 import {forestHuntStaticMeshes,forestHuntDynamicMeshes} from './forest-hunt-scene.mjs?v=20261015-boar-distance-1';
 import {gymBasketStaticMeshes,gymBasketDynamicMeshes,gymBasketCutaway} from './gym-basket-scene.mjs?v=20261015-boar-distance-1';
 import {showcaseStaticMeshes,showcaseDynamicMeshes,showcaseCutaway} from './eccentric-showcase-scene.mjs?v=20261015-boar-distance-1';
@@ -266,5 +266,5 @@ export function eccentricItemMeshes(game,itemOrShape,options={}){
   return shapes;
 }
 export function eccentricCameraConfig(world){world=requireWorld(world);return {azimuth:world.view.azimuth,elevation:world.view.elevation,zoom:1};}
-export function eccentricScene(camera,world){world=requireWorld(world);const cutaway=world.worldVersion===49?gymBasketCutaway(world,camera):world.worldVersion===51?showcaseCutaway(world,camera):world.worldVersion===39?trainWindowCutaway(world,camera):[];return {shapes:world.worldVersion===49||world.worldVersion===51?eccentricStaticMeshes(world).filter(m=>!cutaway.includes(m.cutawayId??m.solidId)):eccentricStaticMeshes(world),cutaway,groups:[...eccentricSolids(world).map(c=>({id:c.id,physical:true,bounds:{minX:c.min.x,maxX:c.max.x,minY:c.min.y,maxY:c.max.y,minZ:c.min.z,maxZ:c.max.z}})),...(world.worldVersion===38?tokyoTowerGroups(world):[])],stageId:world.stageId,worldVersion:world.worldVersion};}
+export function eccentricScene(camera,world){world=requireWorld(world);const cutaway=world.worldVersion===49?gymBasketCutaway(world,camera):world.worldVersion===51?showcaseCutaway(world,camera):world.worldVersion===39?trainWindowCutaway(world,camera):[];return {shapes:world.worldVersion===49||world.worldVersion===51?eccentricStaticMeshes(world).filter(m=>!cutaway.includes(m.cutawayId??m.solidId)):world.worldVersion===39?[...eccentricStaticMeshes(world),...trainWindowOwnMeshes(world,camera)]:eccentricStaticMeshes(world),cutaway,groups:[...eccentricSolids(world).map(c=>({id:c.id,physical:true,bounds:{minX:c.min.x,maxX:c.max.x,minY:c.min.y,maxY:c.max.y,minZ:c.min.z,maxZ:c.max.z}})),...(world.worldVersion===38?tokyoTowerGroups(world):[])],stageId:world.stageId,worldVersion:world.worldVersion};}
 export const eccentricMotionShapes=(time,world,options={})=>eccentricDynamicMeshes(world,time,options);

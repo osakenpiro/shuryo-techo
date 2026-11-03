@@ -197,7 +197,7 @@ export function trainWindowDynamicMeshes(world,time=0,options={}){
   world=validate(world);if(!Number.isFinite(time))throw new TypeError('Train time must be finite');
   const motion=eccentricMotion(world,time),train=motion.trainWindow,shapes=[],cutaway=new Set(trainWindowCutaway(world,options.camera));
   const inRange=solid=>solid.max.x>=-TRAIN_WINDOW_DRAW_HALF_SPAN&&solid.min.x<=TRAIN_WINDOW_DRAW_HALF_SPAN;
-  for(const solid of eccentricDynamicSolids(world,time).filter(solid=>inRange(solid)&&!cutaway.has(solid.id))){
+  for(const solid of eccentricDynamicSolids(world,time).filter(solid=>inRange(solid)&&!cutaway.has(solid.id)&&!(options.staticOwnCarriage&&solid.object==='own-carriage'))){
     const start=shapes.length;physicalBox(shapes,solid,colour(solid));
     if(solid.object==='own-carriage'&&solid.kind==='train-body'&&Math.abs(solid.max.y-train.props.window.bottomY)<1e-8){
       // Recolour the actual wall's upper face as its metal/wood sill. No
@@ -205,7 +205,7 @@ export function trainWindowDynamicMeshes(world,time=0,options={}){
       for(const shape of shapes.slice(start))if(shape.points.every(q=>q.y===solid.max.y))shape.fill='#c2a574';
     }
   }
-  carDetails(shapes,train.ownTrain,train.props,{own:true});
+  if(!options.staticOwnCarriage)carDetails(shapes,train.ownTrain,train.props,{own:true});
   for(const car of train.adjacentTrains)if(Math.abs(car.position.x)<=TRAIN_WINDOW_DRAW_HALF_SPAN+train.props.carLength/2)carDetails(shapes,car,train.props);
   railbed(shapes,train.props,train.trackOffset);
   landscape(shapes,train.props,train.sceneryOffset,options);
@@ -216,6 +216,19 @@ export function trainWindowDynamicMeshes(world,time=0,options={}){
     hiddenSide!==null&&(shape.ownWallSide===hiddenSide||shape.openWindow&&shape.windowSide===hiddenSide)||
     hiddenRoof&&shape.ownCeiling
   ));
+}
+// The player's carriage is stationary in this inertial frame. Cache its exact
+// opaque geometry and depth with the camera; adjacent trains keep moving.
+export function trainWindowOwnMeshes(world,camera){
+  world=validate(world);const motion=eccentricMotion(world,0).trainWindow,shapes=[],cutaway=new Set(trainWindowCutaway(world,camera));
+  for(const solid of eccentricDynamicSolids(world,0).filter(s=>s.object==='own-carriage'&&!cutaway.has(s.id))){
+    const start=shapes.length;physicalBox(shapes,solid,colour(solid));
+    if(solid.kind==='train-body'&&Math.abs(solid.max.y-motion.props.window.bottomY)<1e-8)
+      for(const shape of shapes.slice(start))if(shape.points.every(q=>q.y===solid.max.y))shape.fill='#c2a574';
+  }
+  carDetails(shapes,motion.ownTrain,motion.props,{own:true});
+  const side=cutaway.has('own-carriage-near-lower')?-1:cutaway.has('own-carriage-far-lower')?1:null,roof=cutaway.has('own-carriage-roof');
+  return shapes.filter(s=>!(side!==null&&(s.ownWallSide===side||s.openWindow&&s.windowSide===side)||roof&&s.ownCeiling));
 }
 export function trainWindowScene(camera,world){
   world=validate(world);const shapes=trainWindowStaticMeshes(world);

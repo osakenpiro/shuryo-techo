@@ -7,8 +7,11 @@ export const ITEM_CATALOG=Object.freeze(Object.fromEntries(['can','paper','rubbe
 export {THROWABLE_CATALOG as ALL_ITEM_CATALOG};
 const OUTDOOR_ITEMS=Object.values(OUTDOOR_STAGE_ITEMS);
 const ECCENTRIC_ITEMS=Object.values(ECCENTRIC_STAGE_ITEMS).filter(id=>!['can'].includes(id));
-const EARNED_ITEMS=[...OUTDOOR_ITEMS,...ECCENTRIC_ITEMS];
-const EARNED_STAGE_ITEMS={...OUTDOOR_STAGE_ITEMS,...Object.fromEntries(Object.entries(ECCENTRIC_STAGE_ITEMS).filter(([,id])=>ECCENTRIC_ITEMS.includes(id)))};
+const EXTRA_ITEMS=Object.values(THROWABLE_CATALOG).filter(item=>item.acquisition==='stage-clear'&&RELEASE_CHAPTER_IDS.includes(item.stageId)).map(item=>item.id);
+const EARNED_ITEMS=[...OUTDOOR_ITEMS,...ECCENTRIC_ITEMS,...EXTRA_ITEMS];
+const EARNED_STAGE_ITEMS={...OUTDOOR_STAGE_ITEMS,...Object.fromEntries(Object.entries(ECCENTRIC_STAGE_ITEMS).filter(([,id])=>ECCENTRIC_ITEMS.includes(id))),...Object.fromEntries(EXTRA_ITEMS.map(id=>[THROWABLE_CATALOG[id].stageId,id]))};
+const historicalReleaseLoans={'extra-overlook':'can','extra-bank':'rubber-ball'};
+const loanMatches=(stageId,itemId)=>STAGE_THROWABLE_ITEMS[stageId]===itemId||historicalReleaseLoans[stageId]===itemId;
 const fixedStage=stageId=>Object.hasOwn(STAGE_THROWABLE_ITEMS,stageId);
 const ITEMS=Object.keys(ITEM_CATALOG),MAX_SHOTS=1000000,MAX_CONTACTS=2400;
 const ROLE_LABELS=Object.freeze({...SHOT_ROLES,'desk-bank':'机当て','wall-bank':'壁当て','ceiling-bank':'天井当て','furniture-bank':'家具当て'});
@@ -59,7 +62,7 @@ export function validateRewards(value){
     const pending=value.pendingShot;
     if(!integer(pending.ticket,1)||pending.ticket!==value.issuedShots||pending.ticket<=value.lastAwardedShot
       ||!stageIds.includes(pending.stageId)||version>=2&&typeof pending.stageLoan!=='boolean'
-      ||(pending.stageLoan?(version===2?OUTDOOR_STAGE_ITEMS:STAGE_THROWABLE_ITEMS)[pending.stageId]!==pending.itemId:!owned.includes(pending.itemId)||(version===3?fixedStage(pending.stageId):OUTDOOR_CHAPTER_IDS.includes(pending.stageId))))fail('Invalid pending shot');
+      ||(pending.stageLoan?(version===2?OUTDOOR_STAGE_ITEMS[pending.stageId]!==pending.itemId:!loanMatches(pending.stageId,pending.itemId)):!owned.includes(pending.itemId)||(version===3?fixedStage(pending.stageId):OUTDOOR_CHAPTER_IDS.includes(pending.stageId))))fail('Invalid pending shot');
     pendingShot={ticket:pending.ticket,stageId:pending.stageId,itemId:pending.itemId,...(version>=2?{stageLoan:pending.stageLoan}:{})};
   }
   record(value.itemRecords,itemIds,[]);
@@ -70,8 +73,8 @@ export function validateRewards(value){
     if(Object.keys(source).length===0)fail('Empty item record');
     const stages={};
     for(const stageId of stageIds)if(Object.hasOwn(source,stageId)){
-      if((version===3?fixedStage(stageId):OUTDOOR_CHAPTER_IDS.includes(stageId))&&(version===3?STAGE_THROWABLE_ITEMS:OUTDOOR_STAGE_ITEMS)[stageId]!==itemId)fail('Record differs from the stage throwable');
-      if(!owned.includes(itemId)&&!(version===3&&STAGE_THROWABLE_ITEMS[stageId]===itemId))fail('Unowned item record outside its loan stage');
+      if((version===3?fixedStage(stageId):OUTDOOR_CHAPTER_IDS.includes(stageId))&&(version===3?!loanMatches(stageId,itemId):OUTDOOR_STAGE_ITEMS[stageId]!==itemId))fail('Record differs from the stage throwable');
+      if(!owned.includes(itemId)&&!(version===3&&loanMatches(stageId,itemId)))fail('Unowned item record outside its loan stage');
       const entry=source[stageId];record(entry,['bestPoints','bestAttempts','clears']);
       if(!integer(entry.bestPoints,100,MAX_POINTS)||!integer(entry.bestAttempts,1)||!integer(entry.clears,1))fail('Invalid item best record');
       recordedClears+=entry.clears;stages[stageId]={bestPoints:entry.bestPoints,bestAttempts:entry.bestAttempts,clears:entry.clears};

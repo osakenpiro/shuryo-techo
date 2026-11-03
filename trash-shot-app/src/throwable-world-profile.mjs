@@ -3,6 +3,10 @@
 // that choice in both a live shot and its replay.
 import {getThrowable} from './throwables.mjs?v=20261015-boar-distance-1';
 const OVERRIDES=Object.freeze({
+  77:Object.freeze({'paper-plane':Object.freeze({...getThrowable('paper-plane').physics,version:4,radius:.24,windResponse:.65,
+    glide:Object.freeze({lift:.62,drag:.035,maxLift:9.2,verticalDamping:1.25})})}),
+  76:Object.freeze({'paper-plane':Object.freeze({...getThrowable('paper-plane').physics,version:4,radius:.24,windResponse:.65,
+    glide:Object.freeze({lift:.62,drag:.035,maxLift:9.2,verticalDamping:1.25})})}),
   60:Object.freeze({baseball:Object.freeze({...getThrowable('baseball').physics,radius:.0365})}),
   61:Object.freeze({'ice-scoop':Object.freeze({...getThrowable('ice-scoop').physics,radius:.035})}),
   34:Object.freeze({'ice-scoop':Object.freeze({...getThrowable('ice-scoop').physics,radius:.035})}),

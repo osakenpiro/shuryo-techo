@@ -1,0 +1,10 @@
+/* Stable space: changing shutter/motion text must not move a held canvas. */
+.chapter-mechanic-cue{box-sizing:border-box;height:64px;flex:none;display:flex;flex-direction:column;justify-content:center;gap:3px;padding:8px 14px;background:#f2e8cc;border-top:1px solid #ddd1ae;border-left:4px solid #d4a853;color:#315e55;overflow:hidden}
+.chapter-mechanic-cue[hidden]{display:none}
+.chapter-mechanic-cue strong{font-size:13px;line-height:18px;white-space:nowrap}
+.chapter-mechanic-cue span{font-size:12px;line-height:17px;max-width:54em}
+.chapter-mechanic-cue[data-state="open"]{border-left-color:#477d69;background:#e6edda}
+#chapter-mechanic-cue:not([hidden])+.canvas-wrap{height:clamp(306px,calc(100svh - 290px),716px)}
+@media(max-width:670px){.chapter-mechanic-cue{height:76px;padding:7px 10px;gap:2px}.chapter-mechanic-cue strong{font-size:12px}.chapter-mechanic-cue span{font-size:11px;line-height:17px}#chapter-mechanic-cue:not([hidden])+.canvas-wrap{height:clamp(234px,calc(100svh - 372px),604px)}}
+@media(max-height:500px){#chapter-mechanic-cue:not([hidden])+.canvas-wrap{height:max(160px,calc(100svh - 260px))}}
+@media(prefers-reduced-motion:reduce){.chapter-mechanic-cue{transition:none}}

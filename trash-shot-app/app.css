@@ -39,3 +39,5 @@
 @media(max-width:900px){.app-stage-frame{height:77px}}
 @media(max-width:680px){.app-hero{min-height:460px}.app-key-art{object-position:85% center}.app-stage-frame{height:79px}}
 @media(max-width:350px){.app-hero{min-height:450px}.app-stage-frame{height:66px}}
+
+.app-online{display:block;margin:12px 0 0;color:#255f59;font-size:14px;font-weight:750;text-decoration:none}.app-online small{display:inline-block;font-size:11px;font-weight:450;margin-left:8px}.app-online:focus-visible{outline:3px solid #d3a04d;outline-offset:4px}

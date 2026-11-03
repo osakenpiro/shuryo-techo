@@ -11,7 +11,7 @@ const GRAVITY = 9.81;
 const SUBSTEP = 1 / 240;
 const MAX_FRAME = 0.1;
 const MAX_SHOT_TIME = 5;
-export function shotTimeLimit(gameOrVersion){const version=typeof gameOrVersion==='number'?gameOrVersion:ROOM_SETUPS.get(gameOrVersion);return version===38?12:MAX_SHOT_TIME;}
+export function shotTimeLimit(gameOrVersion){const version=typeof gameOrVersion==='number'?gameOrVersion:ROOM_SETUPS.get(gameOrVersion);return version===38?12:[76,77].includes(version)?8:MAX_SHOT_TIME;}
 const CAN_RADIUS = 0.14;
 const BIN_RADIUS = 0.7;
 const EPSILON = 1e-7;

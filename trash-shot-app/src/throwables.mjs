@@ -40,6 +40,10 @@ export const THROWABLE_CATALOG=freeze({
     physics:{...physics(.0018,.04,.58,.000016,.16,1.2,.000005,0,.02),version:3,alignToVelocity:true}},
   cannonball:{id:'cannonball',label:'大砲の弾',price:0,acquisition:'stage-clear',stageId:'eccentric-cannon',traits:['重い一撃','跳ねにくい'],shape:'cannonball',color:'#546863',
     physics:{...physics(1.2,.18,.4,.000012,.12,1.4,.00005),version:3}},
+  'golf-ball':{id:'golf-ball',label:'ゴルフボール',price:0,acquisition:'stage-clear',stageId:'extra-overlook',traits:['地面を転がす','弱く止めてカップへ'],shape:'golf-ball',color:'#fff7df',
+    physics:{...physics(.046,.09,.4,0,.06,.08,.0001),version:3,launchScale:1}},
+  'paper-plane':{id:'paper-plane',label:'紙飛行機',price:0,acquisition:'stage-clear',stageId:'extra-bank',traits:['揚力で滑空','低い弧で遠くへ'],shape:'paper-plane',color:'#fff5d8',
+    physics:{...physics(.005,.18,.55,0,.02,2,0),version:3,launchScale:1,alignToVelocity:true,windResponse:1,glide:{lift:.18,drag:.10,maxLift:8.8}}},
 });
 export function getThrowable(id=DEFAULT_THROWABLE_ID){
   return typeof id==='string'&&Object.hasOwn(THROWABLE_CATALOG,id)?THROWABLE_CATALOG[id]:null;

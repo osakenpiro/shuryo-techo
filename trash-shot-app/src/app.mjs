@@ -1,7 +1,8 @@
 import {createReleaseChapterPlayStepper,predictReleaseChapterArc} from './release-chapters-play.mjs';
 import {createReleaseChapterRecorder,loadReleaseChapterReplays,saveReleaseChapterReplay,deleteReleaseChapterReplay} from './release-chapters-replay.mjs';
 import {createInstallUI} from './app-install.mjs';
-import {releaseChapterStartTime} from './release-chapters-world.mjs';
+import {releaseChapterStartTime,releaseChapterGoals} from './release-chapters-world.mjs';
+import {releaseChapterCue} from './release-chapters-cue.mjs';
 import {slashAim,addSlashSample} from './slash-throw.mjs';
 import {createAppEntry} from './app-entry.mjs';
 import {buildGoalCue,goalCueMarkup} from './goal-cue.mjs?v=20261015-boar-distance-1';
@@ -91,7 +92,7 @@ const makePlayStepper=(world,startTime=environmentStartTime())=>world?world.envi
 const chapterOf=(id=stageProgress.snapshot().id)=>chapterForStage(id)??chapterForStage(chapterProgress.snapshot().resumeStage)??CHAPTERS[0];
 const chapterCount=(chapter,state=chapterProgress.snapshot())=>chapter.ids.filter(id=>state.completedIDs.includes(id)).length;
 // A moving goal's pose freezes to its recorded shot clock through the result.
-const sceneTime=()=>releaseStage()&&shotContext?.worldVersion===liveWorld().worldVersion&&game.phase!=='ready'?shotContext.startTime+game.time:[48,53].includes(liveWorld()?.worldVersion)?(shotContext?.worldVersion===liveWorld()?.worldVersion&&(busy()||game.phase==='success')?shotContext.startTime+game.time:environmentTime):liveWorld()?.worldVersion===47?(busy()&&shotContext?.worldVersion===47?shotContext.startTime+game.time:environmentTime):((schoolStage()&&['flying','settling'].includes(game.phase))||((outdoorStage()||advancedStage())&&game.phase!=='ready'))&&shotContext?.worldVersion===liveWorld()?.worldVersion?shotContext.startTime+game.time+(outdoorStage()&&shotContext.endEnvironmentTime!=null?Math.max(0,environmentTime-shotContext.endEnvironmentTime):0):liveWorld()?.worldVersion===39?eccentricStartTime(environmentTime):environmentTime;
+const sceneTime=()=>releaseStage()&&shotContext?.worldVersion===liveWorld().worldVersion&&['flying','settling','success'].includes(game.phase)?shotContext.startTime+game.time:[48,53].includes(liveWorld()?.worldVersion)?(shotContext?.worldVersion===liveWorld()?.worldVersion&&(busy()||game.phase==='success')?shotContext.startTime+game.time:environmentTime):liveWorld()?.worldVersion===47?(busy()&&shotContext?.worldVersion===47?shotContext.startTime+game.time:environmentTime):((schoolStage()&&['flying','settling'].includes(game.phase))||((outdoorStage()||advancedStage())&&game.phase!=='ready'))&&shotContext?.worldVersion===liveWorld()?.worldVersion?shotContext.startTime+game.time+(outdoorStage()&&shotContext.endEnvironmentTime!=null?Math.max(0,environmentTime-shotContext.endEnvironmentTime):0):liveWorld()?.worldVersion===39?eccentricStartTime(environmentTime):environmentTime;
 const unlockedStage=id=>!CHAPTER_IDS.includes(id)||canChooseStage(chapterProgress.snapshot(),id);
 let freeSetup={distance:6,height:1.3};
 let previous3DMode='throw';
@@ -113,7 +114,7 @@ const outdoorEffects=createOutdoorEffects();
 const roomWind=createRoomWindStepper();let fanEnabled=true,environmentTime=0;
 const courseStepper=createRoomCourseStepper();
 const extraRoom=()=>stageProgress.snapshot().id==='room-extra';
-let lastUIKey='',previousTime=performance.now(),lastInput=null,cancellations=0,wheelAnglePixels=0;
+let lastUIKey='',previousTime=performance.now(),lastInput=null,cancellations=0,wheelAnglePixels=0,mechanicCueKey='';
 const baseballIntro=createBaseballIntro();
 const busy=()=>baseballIntro.active||game.phase==='flying'||game.phase==='settling'||chapterResultPending;
 const sideStage=()=>STAGES[stageProgress.snapshot().id]?.projection==='side';
@@ -160,9 +161,21 @@ function updateControlLabels(aim=null){
   $('power-value').textContent=values.power.toFixed(2).replace(/0$/,'');
   $('elevation-value').textContent=`${values.elevation}°`;
   $('yaw-value').textContent=values.yaw===0?'まっすぐ':`${values.yaw<0?'左':'右'} ${Math.abs(values.yaw)}°`;
-  for(const id of ['power','elevation','yaw']){const input=$(id);input.value=values[id];const progress=(Number(input.value)-Number(input.min))/(Number(input.max)-Number(input.min))*100;input.style.setProperty('--fill',`${progress}%`);}
+  for(const id of ['power','elevation','yaw']){const input=$(id);input.value=values[id];const progress=(Number(input.value)-Number(input.min))/Math.max(1,Number(input.max)-Number(input.min))*100;input.style.setProperty('--fill',`${progress}%`);}
 }
 function updateHint(){
+  const floatingPlane=[76,77].includes(liveWorld()?.worldVersion);
+
+  if(liveWorld()?.mode==='golf'){
+    canvas.dataset.mode=view.mode;canvas.dataset.dragging=String(Boolean(view.gesture));
+    $('mode-throw').setAttribute('aria-pressed',String(view.mode==='throw'));$('mode-observe').setAttribute('aria-pressed',String(view.mode==='observe'));
+    $('cancel-gesture').hidden=!view.gesture||view.gesture.kind!=='throw';
+    $('interaction-hint').textContent=busy()?'転がる球を見届けよう。':view.mode==='observe'?'ドラッグでコースを見回す。':pullInput()?'引いて狙う → 離してパット。':'押してつかむ → 軽くなぞってパット。';
+    $('input-detail').textContent='矢印の向きが方向、長さが強さ。正面の障害物を避け、カップで止まる強さに。';
+    canvas.setAttribute('aria-label','ゴルフのプレイ画面。引いて離すと球を転がします。弧は使いません。');
+    return;
+  }
+
   if(!pullInput()&&view.mode==='throw'&&!busy()&&!pixelIntro?.active){$('interaction-hint').textContent=view.gesture?'動かして離すと一投。止めてから離すとキャンセル。':'押してつかむ → 上へ動かす → 離して投げる。';$('input-detail').textContent='速さが強さ、指の向きが方向。タップだけでは投げません。弧 −／＋で高さを調整。';canvas.setAttribute('aria-label','投げる画面。押してホールドし、上へ動かして離すと投げます。');return;}
   const motion=pullInput()?'左下へ引いて':'右上へなぞって',straight=pullInput()?'下へ引いて':'上へドラッグ／スワイプして';
   canvas.dataset.mode=view.mode;canvas.dataset.dragging=String(Boolean(view.gesture));
@@ -196,7 +209,7 @@ function updateHint(){
     $('interaction-hint').textContent=game.phase==='miss'?`もう一投。${straight}、離してみよう。`:`${straight}、離すと一投。`;
     $('input-detail').textContent='矢印の向きが方向、長さが強さ。金色の弧が角度。ホイール／弧 −・＋で調整。右ドラッグで見回す。左右は画面の奥を基準。';
   }
-  canvas.setAttribute('aria-label',view.mode==='observe'?'缶と箱を観察する立体画面。ドラッグか矢印キーでカメラ回転。ホイールかプラスとマイナスでズーム。右クリックで手投げに切替。':`缶を投げる立体画面。${straight}、離すと一投。ホイールまたは弧のボタンで投球角度を調整。右ボタンを押したままドラッグで見回せます。${trainingMode?'練習では数値でも投げられます。':''}`);
+  canvas.setAttribute('aria-label',liveWorld()?.worldVersion===77?'屋上から紙飛行機を飛ばす画面。右へのビル風を読んで、となりのビルの開いた窓へ届けます。':floatingPlane?'紙飛行機の滑空画面。軽く引いて、ふわっと浮かべ、奥の着地帯へ届けます。':view.mode==='observe'?'缶と箱を観察する立体画面。ドラッグか矢印キーでカメラ回転。ホイールかプラスとマイナスでズーム。右クリックで手投げに切替。':`缶を投げる立体画面。${straight}、離すと一投。ホイールまたは弧のボタンで投球角度を調整。右ボタンを押したままドラッグで見回せます。${trainingMode?'練習では数値でも投げられます。':''}`);
 }
 function pullStateHint(gesture){return gesture.scale&&!gesture.scale.ready?gesture.scale.reasonText:gesture.aim?.risk>0?'力み · 少し戻すと安定。':gesture.aim?.rawDistance>.28?'ゴム抵抗 · 矢印の長さが強さ。':'矢印の向きが方向、長さが強さ。金色の弧が角度。';}
 function actualLiveResult(){
@@ -317,7 +330,7 @@ $('prediction-toggle').addEventListener('change',()=>{cancelGesture('prediction-
 function learnArcTip(before){
   if(stageProgress.snapshot().id==='desk-side'&&!trainingMode&&controls.elevation!==before){arcTipLearned=true;if($('arc-tip'))$('arc-tip').hidden=true;}
 }
-function changeArc(amount){if(titleActive()||busy()||pixelIntro?.active||$('chapter-result')?.open||replayDialog.open||sideStage())return;cancelGesture('arc-control');const before=controls.elevation,limits=inputLimits();controls.elevation=clamp(controls.elevation+amount,limits.minElevation,limits.maxElevation);learnArcTip(before);angleCueUntil=performance.now()+1800;updateControlLabels();updateHint();updateStageUI();}
+function changeArc(amount){if(liveWorld()?.mode==='golf')return;if(titleActive()||busy()||pixelIntro?.active||$('chapter-result')?.open||replayDialog.open||sideStage())return;cancelGesture('arc-control');const before=controls.elevation,limits=inputLimits();controls.elevation=clamp(controls.elevation+amount,limits.minElevation,limits.maxElevation);learnArcTip(before);angleCueUntil=performance.now()+1800;updateControlLabels();updateHint();updateStageUI();}
 $('arc-lower')?.addEventListener('click',()=>changeArc(-3));$('arc-higher')?.addEventListener('click',()=>changeArc(3));
 $('game-menu-open')?.addEventListener('click',()=>{if(titleActive()||pixelIntro?.active)return;cancelGesture('menu');const menu=$('game-menu');menu.open=!menu.open;$('game-menu-open').setAttribute('aria-expanded',String(menu.open));if(menu.open)menu.scrollIntoView({block:'start',behavior:'instant'});});
 $('game-menu')?.addEventListener('toggle',()=>{if($('game-menu').open)cancelGesture('menu');$('game-menu-open')?.setAttribute('aria-expanded',String($('game-menu').open));});
@@ -356,10 +369,10 @@ function selectStage(id,{fromIntro=false,allowPractice=false,fromEntry=false,tra
   const limits=inputLimits();$('power').min=String(limits.minPower);$('power').max=String(limits.maxPower);
   $('elevation').min=String(limits.minElevation);$('elevation').max=String(limits.maxElevation);$('elevation').step=willBeSide?'.5':'1';
   if(id!=='free'){Object.assign(controls,liveWorld()?.launch??{power:setup.power,elevation:setup.elevation,yaw:setup.yaw});if(willBeSide||!wasSide)renderer.resetCamera();}
-  if(!willBeSide){controls.power=clamp(controls.power,(schoolStage()||outdoorStage()||advancedStage())?limits.minPower:4,(schoolStage()||outdoorStage()||advancedStage())?limits.maxPower:13);controls.elevation=Math.round(clamp(controls.elevation,limits.minElevation,limits.maxElevation));}
+  if(!willBeSide){controls.power=clamp(controls.power,(schoolStage()||outdoorStage()||advancedStage()||releaseStage())?limits.minPower:4,(schoolStage()||outdoorStage()||advancedStage()||releaseStage())?limits.maxPower:13);controls.elevation=Math.round(clamp(controls.elevation,limits.minElevation,limits.maxElevation));}
   if($('game-menu')){$('game-menu').open=false;$('game-menu-open')?.setAttribute('aria-expanded','false');}
   goalCuePending=true;goalCueUntil=0;
-  updateControlLabels();updateUI(true);return true;
+  updateControlLabels();updateUI(true);paintReleaseChapterCue();renderer.resize();return true;
 }
 function selectPlayable(id,options){
   const accepted=selectStage(id,options);
@@ -390,6 +403,7 @@ function updateStageUI(){
   if($('tutorial-motion'))$('tutorial-motion').textContent=`${straight}、離すと一投。`;
   if($('input-scheme')){$('input-scheme').value=chapterProgress.snapshot().inputScheme;$('input-scheme').disabled=busy()||pixelIntro?.active===true;}
   if($('stage-help')){$('stage-help').hidden=!side;$('stage-help').textContent=`本編とは別の2D脇道。${motion}向きで角度、長さで強さを決めて、8 m先の箱へ。記録は3Dで見回せます。`;}
+  if(releaseStage()&&$('stage-help')){$('stage-help').hidden=false;$('stage-help').textContent=liveWorld().hint;}
   if(state.id==='desk-side'&&liveWorld()?.worldVersion===4&&$('stage-help')){$('stage-help').hidden=false;$('stage-help').textContent='箱の前に本棚。高い弧で上を越すか、横の壁や家具で跳ね返して狙おう。';}
   if(course?.desk&&$('stage-help')){$('stage-help').hidden=false;$('stage-help').textContent=state.id==='desk-over'?'箱の手前に机。高い弧で越えても、机で跳ね返って入っても成功。':'机の横に開いた投球路。左右と弧を合わせて箱へ。机と4本の脚には実際に当たります。';}
   if(schoolStage()&&$('stage-help')){$('stage-help').hidden=false;$('stage-help').textContent={
@@ -477,7 +491,7 @@ function fireNow(source='numeric'){
     if(trainingMode)trainingStats.attempts++;else stageProgress.launch(game.attempts);
     clearCurrentShot();outdoorEffects.clear();roomWind.reset();courseStepper.reset();
     if(schoolStage()||outdoorStage()||advancedStage()||releaseStage())playStepper=makePlayStepper(liveWorld(),environmentStartTime());else playStepper?.reset();
-    const itemId=getThrowableId(game),profileVersion=getThrowable(itemId).physics.version;
+    const itemId=getThrowableId(game),profileVersion=getThrowableProfile(game)?.version??getThrowable(itemId).physics.version;
     shotContext={id:stageProgress.snapshot().id,shotId:game.attempts,training:trainingMode,worldVersion:liveWorld()?.worldVersion??1,fanEnabled,startTime:environmentStartTime(),finished:false,itemId,profileVersion,stageLoan:outdoorStage()||advancedStage()||releaseStage(),factorySession:factoryStartSession,launchFrame,launch:{...launchSummary({...controls,power:Math.hypot(game.can.velocity.x,game.can.velocity.y,game.can.velocity.z)}),effort:controls.power},initialVelocity:{...game.can.velocity}};
     lastShotAnalysis=null;lastReleasedAim={parameters:{...controls},initialVelocity:{...game.can.velocity},presented:source==='gesture'&&lastPresentedAim?structuredClone(lastPresentedAim):null};
     chapterShot=!trainingMode&&chapterStage()?{...shotContext,eligible:!chapterPractice}:null;
@@ -525,7 +539,7 @@ function gestureAim(gesture,event,time=gesture.presentationTime??gesture.started
     const mapped=mapScaledPull({scale:gesture.scale,right:(event.clientX-gesture.startX)*sign,up:(gesture.startY-event.clientY)*sign,mode:'C',projection:sideStage()?'2d':'3d',elevation:controls.elevation,baseYaw:liveWorld()?.launch.yaw??0,directionBasis:gesture.directionBasis,elapsedSeconds:Math.max(0,(time-gesture.started)/1000)});
     // Only the new drop world extends the established 3D arc range. Pull
     // strength and witnessed wobble keep the same mapper as displayed release.
-    if(outdoorStage()||advancedStage()){const limits=inputLimits(),arc=clamp(controls.elevation,limits.minElevation,limits.maxElevation);mapped.actual.elevation=arc;mapped.base.elevation=arc;}
+    if(outdoorStage()||advancedStage()||releaseStage()){const limits=inputLimits(),arc=clamp(controls.elevation,limits.minElevation,limits.maxElevation);mapped.actual.elevation=arc;mapped.base.elevation=arc;}
     return mapped;
   }
   // The previously selected swipe scheme retains its established mapping.
@@ -930,7 +944,7 @@ const replayDisplayDuration=()=>replayPlayer?(replayPlayer.duration+([6,7].inclu
 function renderReplay(dt){
   if(!replayDialog.open||!replayPlayer)return;
   if(replayPlaying){replayTime=Math.min(replayDisplayDuration(),replayTime+dt);if(replayTime>=replayDisplayDuration())replayPlaying=false;}
-  const course=viewedReplay.course,sample=replayPlayer.sample(replayTime),replayWorld=course?roomWorld(course.stageId,course.worldVersion):null;replayRenderer.render(sample,viewedPayload.controls,{prediction:false,numericLabels:true,windArc:[],environment:replayWorld?.environment??(course?'room':null),world:replayWorld,course:course?roomCourse(course.stageId,course.worldVersion):null,extraRoom:course?.stageId==='room-extra',fanEnabled:course?.fanEnabled,environmentTime:replayWorld?.environment==='outdoor'?(course.startTime??0)+replayTime:sample.environmentTime??replayTime,factorySession:sample.factorySession,impactPose:sample.impactPose,capture:sample.goalCapture??null,effects:[],stageNumber:course?STAGES[course.stageId].number??(course.stageId==='first'?'1-1':'1-4'):null,monitorCanvas:pixelIntro?.image});
+  const course=viewedReplay.course,sample=replayPlayer.sample(replayTime),replayWorld=course?roomWorld(course.stageId,course.worldVersion):null;replayRenderer.render(sample,viewedPayload.controls,{prediction:false,numericLabels:true,windArc:[],environment:replayWorld?.environment??(course?'room':null),world:replayWorld,course:course?roomCourse(course.stageId,course.worldVersion):null,extraRoom:course?.stageId==='room-extra',fanEnabled:course?.fanEnabled,environmentTime:replayWorld?.environment==='outdoor'?(course.startTime??0)+replayTime:sample.environmentTime??replayTime,factorySession:sample.factorySession,impactPose:sample.impactPose,capture:sample.goalCapture??null,effects:[],stageNumber:course?STAGES[course.stageId].number??(course.stageId==='first'?'1-1':'1-4'):null,monitorCanvas:pixelIntro?.image,reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches});
   $('replay-play').textContent=replayPlaying?'一時停止':replayTime>=replayDisplayDuration()?'もう一度':'再生';
   $('replay-seek').value=replayTime;$('replay-time').textContent=`${replayTime.toFixed(2)} / ${replayDisplayDuration().toFixed(2)} 秒`;
   if(videoState&&!replayPlaying&&videoState.recorder.state==='recording'&&!videoState.stopping){const state=videoState;state.stopping=true;setTimeout(()=>{if(videoState===state)stopVideo(false);},180);}
@@ -1115,7 +1129,7 @@ function previewFor(aim){
   if(!moving&&predictionCache.has(key)){const arc=predictionCache.get(key);predictionCache.delete(key);predictionCache.set(key,arc);return arc;}
   // Free / side use their unchanged renderer predictor. Chapter training uses
   // exactly the same room + optional wind integrator as the accepted shot.
-  const arc=world?releaseStage()?predictReleaseChapterArc(game,aim,world,{startTime,maxSeconds:5}):factoryStage()?predictFactoryArc(game,aim,world,{startTime,session:factorySession,maxSeconds:5}):eccentricStage()?predictEccentricArc(game,aim,world,{startTime,maxSeconds:5}):outdoorStage()?predictOutdoorArc(game,aim,world,{startTime,maxSeconds:5}):schoolStage()?predictSchoolArc(game,aim,world,{startTime,maxSeconds:5}):predictPlayRoomArc(game,aim,world,{extra:extraRoom(),fanEnabled,maxSeconds:5}):null;
+  const arc=world?releaseStage()?predictReleaseChapterArc(game,aim,world,{startTime,maxSeconds:world.worldVersion===77?8:5}):factoryStage()?predictFactoryArc(game,aim,world,{startTime,session:factorySession,maxSeconds:5}):eccentricStage()?predictEccentricArc(game,aim,world,{startTime,maxSeconds:5}):outdoorStage()?predictOutdoorArc(game,aim,world,{startTime,maxSeconds:5}):schoolStage()?predictSchoolArc(game,aim,world,{startTime,maxSeconds:5}):predictPlayRoomArc(game,aim,world,{extra:extraRoom(),fanEnabled,maxSeconds:5}):null;
   if(arc&&!moving){predictionCache.set(key,arc);if(predictionCache.size>96)predictionCache.delete(predictionCache.keys().next().value);}
   return arc;
 }
@@ -1124,7 +1138,7 @@ function previewFor(aim){
 function goalCueBlocked(){return titleActive()||pixelIntro?.active===true||replayDialog.open||$('chapter-result')?.open||$('store-dialog')?.open||$('game-menu')?.open||($('chapter-top')&&!$('chapter-top').hidden);}
 function goalCueTargets(){
   const world=liveWorld();
-  const declared=world?.environment==='outdoor'?outdoorGoals(world,sceneTime()):world?.environment==='factory'?factoryGoals(world,sceneTime(),factorySession):world?.environment==='eccentric'?eccentricGoals(world,sceneTime()):world?.goals;
+  const declared=world?.environment==='release'?releaseChapterGoals(world,sceneTime()):world?.environment==='outdoor'?outdoorGoals(world,sceneTime()):world?.environment==='factory'?factoryGoals(world,sceneTime(),factorySession):world?.environment==='eccentric'?eccentricGoals(world,sceneTime()):world?.goals;
   const goals=declared?.filter(g=>g.role!=='alternative')??[];
   if(goals.length)return goals.map(g=>({...g,center:{...g.center}}));
   return [{id:'stage-bin',role:'normal',kind:'bin',shape:'circle',center:{...game.bin.center,y:game.bin.height},normal:{x:0,y:1,z:0},up:{x:0,y:0,z:1},radius:game.bin.radius}];
@@ -1223,6 +1237,22 @@ function presentLive(now){
   paintPlayCue(!preloadRoom&&(mapped||now<angleCueUntil)?effectiveAim:null);
   if(!preloadRoom)presentGoalCamera(liveWorld(),stage);
 }
+function paintReleaseChapterCue(){
+  const golf=liveWorld()?.mode==='golf',arc=$('arc-lower')?.parentElement;
+  if(arc&&arc.hidden!==golf)arc.hidden=golf;
+  const modeLabel=golf?'↗ パットする':'↗ 手で投げる';
+  if($('mode-throw')?.textContent!==modeLabel)$('mode-throw').textContent=modeLabel;
+  const element=$('chapter-mechanic-cue');if(!element)return;
+  const cue=releaseStage()&&$('app-entry').hidden?releaseChapterCue(liveWorld(),sceneTime()):null;
+  const visible=Boolean(cue)&&!$('chapter-result')?.open&&!replayDialog.open;
+  if(element.hidden===visible)element.hidden=!visible;
+  if(!visible){mechanicCueKey='';return;}
+  const key=[cue.stageId,cue.state,cue.title,cue.detail].join('|');if(key===mechanicCueKey)return;
+  mechanicCueKey=key;element.dataset.state=cue.state;
+  if(liveWorld()?.mode==='glider')canvas.setAttribute('aria-label',liveWorld()?.worldVersion===77?'屋上から紙飛行機を飛ばす画面。右へのビル風を読んで、となりのビルの開いた窓へ届けます。':'紙飛行機の滑空画面。低い弧で枠を抜け、奥の緑の着地帯へ届けます。');
+
+  $('chapter-mechanic-title').textContent=cue.title;$('chapter-mechanic-detail').textContent=cue.detail;
+}
 function frame(now){
   const dt=Math.max(0,Math.min((now-previousTime)/1000,.045));previousTime=now;
   const queued=baseballIntro.advance(dt,liveWorld());
@@ -1234,6 +1264,7 @@ function frame(now){
   }
   presentLive(now);
   paintGoalCue(now);
+  paintReleaseChapterCue();
   pixelIntro?.render(renderer.monitorQuad());
   renderReplay(dt);
   requestAnimationFrame(frame);

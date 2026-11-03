@@ -2,6 +2,7 @@
 import { STAGES } from './stages.mjs?v=20261015-boar-distance-1';
 import { CHAPTER_IDS, CHAPTERS, chapterForStage, canChooseStage, outdoorSnapshot, OUTDOOR_CHAPTER_IDS, BRANCH_CHAPTER_IDS, FACTORY_CHAPTER_IDS, ECCENTRIC_CHAPTER_IDS } from './progress-save.mjs?v=20261015-boar-distance-1';
 import { drawPixelText, measurePixelText } from './pixel-type.mjs?v=20261015-boar-distance-1';
+import {RELEASE_CHAPTER_WORLDS} from './release-chapters-world.mjs?v=20261018-chapters67-1';
 
 const $ = id => document.getElementById(id);
 const FACE_HELP = Object.freeze({
@@ -28,6 +29,7 @@ const FACE_HELP = Object.freeze({
   'eccentric-dandelion': '軽い綿毛を、風に乗せて届けよう。',
   'eccentric-card': 'トランプを狙って投げ、的に刺そう。',
   'eccentric-cannon': '大砲から、砦の扉を狙おう。',
+  ...Object.fromEntries(Object.values(RELEASE_CHAPTER_WORLDS).map(world=>[world.stageId,world.hint])),
 });
 
 function paintLabel(canvas, text, { scale = 3, color = '#286864', padding = 2 } = {}) {

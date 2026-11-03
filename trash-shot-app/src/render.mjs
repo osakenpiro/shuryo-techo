@@ -1,3 +1,4 @@
+import {gliderCameraView} from './glider-camera.mjs';
 import {releaseChapterScene,releaseChapterMotionShapes,releaseChapterCameraConfig} from './release-chapters-scene.mjs';
 import { predictArc } from './physics.mjs?v=20261015-boar-distance-1';
 import { roomScene,roomMotionShapes,roomMonitorQuad,paintScreenQuad } from './room-scene.mjs?v=20261015-boar-distance-1';
@@ -24,22 +25,22 @@ export function goalCameraOrbit(world){
   return {azimuth:Math.PI-(world?.outdoorType==='baseball'?.16:.1),elevation:world?.worldVersion===31?.46:world?.outdoorType==='mall'?.22:.26,zoom:world?.worldVersion===32?.9:.62};
 }
 
-export function createRenderer(canvas) {
+export function createRenderer(canvas,{maxDepthPixels=Infinity}={}) {
   const ctx = canvas.getContext('2d');
   let width = 600, height = 440, pixelRatio = 1;
   let camera = {x:7.3,y:6.5,z:-8.3}, target = {x:0,y:.3,z:3.2};
   const defaultOrbit={azimuth:.581,elevation:.42,zoom:1};
   let orbitState={...defaultOrbit},sceneDistance=6;
   let projection='perspective',sideZoom=1,sideFrame={scale:40,left:40,floor:height-42};
-  let worldView=null,cameraViewOverride=null;
+  let worldView=null,cameraViewOverride=null,gliderView=null;
   let environment=null,roomCache=null,roomBuilds=0,roomCutaway=[],roomFlightKey='',roomFlight=[],revealProgress=null,revealDistance=1;
   const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
   let forward, right, up, focal,angleCueSnapshot=null,coinAccentSnapshot=null;
   const configureCamera = () => {
-    const distance=(cameraViewOverride?.distance??worldView?.view.distance??(10+sceneDistance*.6))*orbitState.zoom*revealDistance;
+    const distance=(cameraViewOverride?.distance??gliderView?.distance??worldView?.view.distance??(10+sceneDistance*.6))*orbitState.zoom*revealDistance;
     camera={x:target.x+Math.sin(orbitState.azimuth)*Math.cos(orbitState.elevation)*distance,y:target.y+Math.sin(orbitState.elevation)*distance,z:target.z-Math.cos(orbitState.azimuth)*Math.cos(orbitState.elevation)*distance};
     forward=unit(sub(target,camera)); right=unit(cross({x:0,y:1,z:0},forward)); up=cross(forward,right);
-    const portraitRoom=([2,3,4,5].includes(worldView?.worldVersion)||['school','outdoor','factory','eccentric'].includes(worldView?.environment))&&width<600;
+    const portraitRoom=([2,3,4,5].includes(worldView?.worldVersion)||['school','outdoor','factory','eccentric','release'].includes(worldView?.environment))&&width<600;
     focal=worldView?.worldVersion===60?Math.min(width*(width<600?1.3:.75),height*.95):worldView?.worldVersion===39?Math.min(width*(width<600?.88:.42),height*1.1):Math.min(width*(portraitRoom?1.48:width<450?1.13:.92),height*1.45);
   };
   const worldToCamera = point => {const p=sub(point,camera); return {x:dot(p,right),y:dot(p,up),z:dot(p,forward)};};
@@ -48,7 +49,7 @@ export function createRenderer(canvas) {
   // The legal 3D orbit is retained for V1 replays; side zoom never changes it.
   function cameraSnapshot(){return {azimuth:orbitState.azimuth,elevation:orbitState.elevation,zoom:orbitState.zoom,projection,sideZoom,environment,worldVersion:worldView?.worldVersion??0,angleCue:angleCueSnapshot?structuredClone(angleCueSnapshot):null,roomBuilds,roomCutaway:[...roomCutaway],position:{...camera},target:{...target},viewport:{width,height},...(coinAccentSnapshot?{coinAccent:structuredClone(coinAccentSnapshot)}:{})};}
   function setProjection(mode){projection=mode==='side'?'side':'perspective';}
-  function setWorldView(world){if(worldView?.worldVersion!==world?.worldVersion){roomCache=null;cameraViewOverride=null;}worldView=world??null;}
+  function setWorldView(world){if(worldView?.worldVersion!==world?.worldVersion){roomCache=null;cameraViewOverride=null;gliderView=null;}worldView=world??null;}
   function setCameraViewOverride(view){cameraViewOverride=[38,60].includes(worldView?.worldVersion)&&view?{target:{...view.target},distance:view.distance}:null;if(cameraViewOverride)target={...cameraViewOverride.target};configureCamera();}
   function monitorQuad(){return roomMonitorQuad(worldView).map(project);}
   function orbit(azimuth,elevation){if(projection==='side')return;orbitState.azimuth=((orbitState.azimuth+azimuth)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);orbitState.elevation=clamp(orbitState.elevation+elevation,.15,1.43);configureCamera();}
@@ -174,17 +175,24 @@ export function createRenderer(canvas) {
       return {x:center.x+b.x*cr-b.y*sr,y:center.y+b.x*sr+b.y*cr,z:center.z+b.z};
     };
     const face=(points,fill,stroke=null)=>shapes.push({points:points.map(transform),fill,stroke});
+    if(item.shape==='paper-plane'){
+      const r=radius,n={x:0,y:0,z:r},tail={x:0,y:0,z:-r*.82},fold={x:0,y:r*.22,z:-r*.4};
+      const left={x:-r*.91,y:0,z:-r*.35},right={x:r*.91,y:0,z:-r*.35};
+      face([n,left,fold],'#fff7df','#c7ad75');face([n,fold,right],'#efe2bd','#c7ad75');
+      face([fold,left,tail],'#e4d4af');face([fold,tail,right],'#f7ebcc');
+      face([n,tail,fold],'#d4a853');return shapes;
+    }
     if(item.shape==='coin'){
       const n=14,half=radius*.12,r=radius*.94,ring=y=>Array.from({length:n},(_,i)=>({x:Math.cos(i/n*Math.PI*2)*r,y,z:Math.sin(i/n*Math.PI*2)*r})),lo=ring(-half),hi=ring(half);
       for(let i=0;i<n;i++)face([lo[i],lo[(i+1)%n],hi[(i+1)%n],hi[i]],i%2?'#b99643':'#d6b767');
       face(lo,'#b99b52');face(hi,'#e6cd88','#b99b52');
       face([{x:-r*.28,y:half+.001,z:-r*.28},{x:r*.28,y:half+.001,z:-r*.28},{x:r*.28,y:half+.001,z:r*.28},{x:-r*.28,y:half+.001,z:r*.28}],'#b99b52');
-    }else if(['ball','heavy','baseball','ice-scoop','firework-ball'].includes(item.shape)){
-      const rows=8,columns=16;
+    }else if(['ball','heavy','baseball','ice-scoop','firework-ball','golf-ball'].includes(item.shape)){
+      const rows=item.shape==='golf-ball'?5:8,columns=item.shape==='golf-ball'?10:16;
       const vertex=(row,column)=>{const latitude=-Math.PI/2+row/rows*Math.PI,longitude=column/columns*Math.PI*2;return {x:Math.cos(latitude)*Math.cos(longitude)*radius*.96,y:Math.sin(latitude)*radius*.96,z:Math.cos(latitude)*Math.sin(longitude)*radius*.96};};
       for(let row=0;row<rows;row++)for(let column=0;column<columns;column++){
         const shade=item.shape==='heavy'?Math.round(42+row*3+Math.cos(column/columns*Math.PI*2)*9):Math.round(51+row*2+Math.cos(column/columns*Math.PI*2)*8);
-        const color=item.shape==='heavy'?`hsl(171 9% ${shade}%)`:item.shape==='baseball'?((row===2||row===5)&&column%2===0?'#b86858':`hsl(43 42% ${82+Math.round(Math.cos(column)*5)}%)`):item.shape==='ice-scoop'?`hsl(343 49% ${72+row+Math.round(Math.cos(column)*4)}%)`:item.shape==='firework-ball'?(column%4===0?'#6a6459':`hsl(31 38% ${46+row+Math.round(Math.cos(column)*5)}%)`):(row===3||column===3?'#f4de94':`hsl(41 77% ${shade}%)`);
+        const color=item.shape==='golf-ball'?(column%3===0&&row%2===0?'#d2d8c4':'#fff8de'):item.shape==='heavy'?`hsl(171 9% ${shade}%)`:item.shape==='baseball'?((row===2||row===5)&&column%2===0?'#b86858':`hsl(43 42% ${82+Math.round(Math.cos(column)*5)}%)`):item.shape==='ice-scoop'?`hsl(343 49% ${72+row+Math.round(Math.cos(column)*4)}%)`:item.shape==='firework-ball'?(column%4===0?'#6a6459':`hsl(31 38% ${46+row+Math.round(Math.cos(column)*5)}%)`):(row===3||column===3?'#f4de94':`hsl(41 77% ${shade}%)`);
         face([vertex(row,column),vertex(row,column+1),vertex(row+1,column+1),vertex(row+1,column)],color);
       }
     }else if(item.shape==='paper'){
@@ -214,6 +222,7 @@ export function createRenderer(canvas) {
     // The static room cache supersamples edges, with a bounded pixel budget.
     // Neutral/free and replay views keep their existing resolution budget.
     depthScale=['outdoor','factory','eccentric'].includes(environment)?Math.min(1.5,1100/width,750/height):environment==='room'||environment==='school'?(revealProgress!==null?Math.min(1,480/width,320/height):Math.min(2,1280/width,900/height)):Math.min(1,720/width,600/height);
+    if(Number.isFinite(maxDepthPixels)&&maxDepthPixels>=2000)depthScale=Math.min(depthScale,Math.sqrt(maxDepthPixels/(width*height)));
     const w=Math.max(1,Math.ceil(width*depthScale)),h=Math.max(1,Math.ceil(height*depthScale));
     if(depthPixels&&w===depthWidth&&h===depthHeight)return;
     depthWidth=w;depthHeight=h;depthCanvas.width=w;depthCanvas.height=h;
@@ -444,7 +453,8 @@ export function createRenderer(canvas) {
     environment=projection==='perspective'?(['factory','eccentric','release'].includes(worldView?.environment)?worldView.environment:view.environment==='outdoor'||worldView?.environment==='outdoor'?'outdoor':view.environment==='school'||worldView?.environment==='school'?'school':view.environment==='room'?'room':null):null;
     if(!environment){roomCache=null;roomCutaway=[];}
     resizeDepthLayer();
-    const baseTarget=cameraViewOverride?.target??worldView?.view.target??{x:0,y:.45,z:distance*.47},quad=roomMonitorQuad(worldView),monitorCenter=quad.reduce((v,q)=>add(v,scale(q,.25)),{x:0,y:0,z:0});
+    gliderView=gliderCameraView(worldView,game,{reducedMotion:view.reducedMotion});
+    const baseTarget=cameraViewOverride?.target??gliderView?.target??worldView?.view.target??{x:0,y:.45,z:distance*.47},quad=roomMonitorQuad(worldView),monitorCenter=quad.reduce((v,q)=>add(v,scale(q,.25)),{x:0,y:0,z:0});
     target=revealProgress===null?{...baseTarget}:add(scale(monitorCenter,1-revealProgress),scale(baseTarget,revealProgress));
     configureCamera();
     ctx.setTransform(pixelRatio,0,0,pixelRatio,0,0);ctx.clearRect(0,0,width,height);
@@ -459,7 +469,7 @@ export function createRenderer(canvas) {
     if(game.phase!=='ready')drawTrail(game);
     if(view.aim&&!view.customCue){const heading=view.aim.yaw*Math.PI/180,p=game.phase==='ready'?game.can.position:(worldView?.origin??{x:0,y:1.05,z:0});line(p,{x:p.x+Math.sin(heading)*.75,y:p.y,z:p.z+Math.cos(heading)*.75},'#bd8632',2);}
     const itemView={aim:view.aim??controls,worldVersion:worldView?.worldVersion};
-    const shapes=[...(room&&view.extraRoom?roomMotionShapes(view.environmentTime||0,view.fanEnabled,view.reducedMotion,worldView):[]),...(school?schoolMotionShapes(view.environmentTime||0,worldView,view.reducedMotion):[]),...(advanced?(worldView.environment==='release'?((time,world)=>releaseChapterMotionShapes(world,time)):worldView.environment==='factory'?factoryMotionShapes:eccentricMotionShapes)(view.environmentTime??0,worldView,{...view,...(worldView.worldVersion>=48?{aim:view.aim??controls}:{}),...(worldView.worldVersion===39?{camera:{...camera}}:{}),session:view.factorySession,game,phase:game.phase,flightTime:game.time}):outdoor?outdoorMotionShapes(view.environmentTime??0,worldView,{...view,camera:{...camera},phase:game.phase,flightTime:game.time}):shapesForBin(game,room||school)),...(([36,60].includes(worldView?.worldVersion)&&view.baseballPitch?.active||worldView?.worldVersion===47&&game.phase==='miss'&&view.factorySession?.plateLatched&&view.factorySession.setupShot===game.attempts)?[]:worldView?.worldVersion===46&&game.phase==='miss'&&view.effects?.some(e=>e.type==='factory-press')?shapesForCan(game,room||school||outdoor||advanced,itemView).map(mesh=>({...mesh,pressed:true,points:mesh.points.map(p=>({...p,x:game.can.position.x+(p.x-game.can.position.x)*1.16,y:game.can.position.y-game.can.radius+.025+(p.y-game.can.position.y)*.12,z:game.can.position.z+(p.z-game.can.position.z)*1.16}))})):shapesForCan(game,room||school||outdoor||advanced,itemView))];
+    const shapes=[...(room&&view.extraRoom?roomMotionShapes(view.environmentTime||0,view.fanEnabled,view.reducedMotion,worldView):[]),...(school?schoolMotionShapes(view.environmentTime||0,worldView,view.reducedMotion):[]),...(advanced?(worldView.environment==='release'?((time,world)=>releaseChapterMotionShapes(world,time)):worldView.environment==='factory'?factoryMotionShapes:eccentricMotionShapes)(view.environmentTime??0,worldView,{...view,...(worldView.worldVersion>=48?{aim:view.aim??controls}:{}),...(worldView.worldVersion===39?{camera:{...camera},staticOwnCarriage:true}:{}),session:view.factorySession,game,phase:game.phase,flightTime:game.time}):outdoor?outdoorMotionShapes(view.environmentTime??0,worldView,{...view,camera:{...camera},phase:game.phase,flightTime:game.time}):shapesForBin(game,room||school)),...(([36,60].includes(worldView?.worldVersion)&&view.baseballPitch?.active||worldView?.worldVersion===47&&game.phase==='miss'&&view.factorySession?.plateLatched&&view.factorySession.setupShot===game.attempts)?[]:worldView?.worldVersion===46&&game.phase==='miss'&&view.effects?.some(e=>e.type==='factory-press')?shapesForCan(game,room||school||outdoor||advanced,itemView).map(mesh=>({...mesh,pressed:true,points:mesh.points.map(p=>({...p,x:game.can.position.x+(p.x-game.can.position.x)*1.16,y:game.can.position.y-game.can.radius+.025+(p.y-game.can.position.y)*.12,z:game.can.position.z+(p.z-game.can.position.z)*1.16}))})):shapesForCan(game,room||school||outdoor||advanced,itemView))];
     drawDepthShapes(shapes,backgroundDepth);
     drawCoinAccent(game,view);
     if(room&&view.extraRoom){

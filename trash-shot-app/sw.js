@@ -1,11 +1,11 @@
 /* Candidate-only, versioned app snapshot. Regenerate with node scripts/build-pwa.mjs. */
 'use strict';
 // BEGIN GENERATED PRECACHE
-const PRECACHE_VERSION = "20261018-eecaf92b9c442e74416e";
+const PRECACHE_VERSION = "20261018-52ab50f197dc9c61c8eb";
 const PRECACHE_ASSETS = [
   {
     "url": "./app.css",
-    "sha256": "eae9cd9a4a0bc83bb390239401d6f93f7b3843754701fa72f80a1b8af845da45"
+    "sha256": "1e2caa6d7a153d6494bf7c9c8ab1ba3fc20eaf49976c02ea8a530d3c89cd536d"
   },
   {
     "url": "./art/advanced/20261013/eccentric-basket.png",
@@ -128,6 +128,10 @@ const PRECACHE_ASSETS = [
     "sha256": "b684b8a3dcb8b3cf1c8ea8f5567044435b98b538117e2e95ed9ffdc66c6efba4"
   },
   {
+    "url": "./chapter-mechanics.css",
+    "sha256": "5e64f16a42bd171e6e6857054e9adaabad1aeb7fadd5889eacb0670445e6ab39"
+  },
+  {
     "url": "./icons/apple-touch-icon.png",
     "sha256": "f95b801e24588a2a5c59d78c2d0dd574ce9c17fccea177394598dc4e0c40782e"
   },
@@ -149,7 +153,7 @@ const PRECACHE_ASSETS = [
   },
   {
     "url": "./index.html",
-    "sha256": "eb5f3018f22cecf0728e61c0278cfd9e848b3cc3925c5b2b193b65df075ddc74"
+    "sha256": "68c82250dfcafddfe3aebd30de60de0a0350650590ead5aec19fb082c71a90bf"
   },
   {
     "url": "./manifest.webmanifest",
@@ -158,6 +162,14 @@ const PRECACHE_ASSETS = [
   {
     "url": "./mobile-results.css",
     "sha256": "4dc9417da4a1e0402e7e8cc61f0ee616bb6bd3005700bb778b88f2d24f094414"
+  },
+  {
+    "url": "./online.css",
+    "sha256": "cdd62fc6896a085bff4286771066df7b5549a3e93977cd43535a8fe7ae2198e8"
+  },
+  {
+    "url": "./online.html",
+    "sha256": "a2d47a240d60f8fac5d294313b01ecde92943775b9b20399bb9ae042f2609c36"
   },
   {
     "url": "./src/advanced-replay.mjs?v=20261015-boar-distance-1",
@@ -173,7 +185,7 @@ const PRECACHE_ASSETS = [
   },
   {
     "url": "./src/app.mjs?v=20261015-boar-distance-1",
-    "sha256": "c81c8abd79f3c50576e2d60a7f39178fe02c8fd03e608fb789ca639adf521bf5"
+    "sha256": "ea58efe6395d780f354994f920bef3bdfe549095b816fadc703c6fd719f35674"
   },
   {
     "url": "./src/ballpark-scene.mjs?v=20261015-boar-distance-1",
@@ -201,7 +213,7 @@ const PRECACHE_ASSETS = [
   },
   {
     "url": "./src/eccentric-scene.mjs?v=20261015-boar-distance-1",
-    "sha256": "533cc94b8521e78debe8b3c0db52125aeda1fab43d62252e749dd4e886272aab"
+    "sha256": "e36b5ad61a6be2e55913e2b9ea160c7b97ee2a083d7ca54535ac7e90584e7926"
   },
   {
     "url": "./src/eccentric-showcase-scene.mjs?v=20261015-boar-distance-1",
@@ -245,7 +257,11 @@ const PRECACHE_ASSETS = [
   },
   {
     "url": "./src/game-shell.mjs?v=20261015-boar-distance-1",
-    "sha256": "a5e2eea5aa167350f72dfdbf1f673e6dec660b63fea628d5fc3c8dca51256cf0"
+    "sha256": "d949f85b977f5d3fa87fc4ddfb9daeff6bb393726ad1cd17cdb50b0e064a0c38"
+  },
+  {
+    "url": "./src/glider-camera.mjs",
+    "sha256": "fe94aa5742cfc1089e55cb7138a34654b442f37321326096791316e6768f0197"
   },
   {
     "url": "./src/goal-cue.mjs?v=20261015-boar-distance-1",
@@ -266,6 +282,30 @@ const PRECACHE_ASSETS = [
   {
     "url": "./src/mall-physical-scene.mjs?v=20261015-boar-distance-1",
     "sha256": "6b7830edaecc904a6ea61cda356e20514e2c13f3cbc71087c33e231b445b50e0"
+  },
+  {
+    "url": "./src/online-course-cue.mjs",
+    "sha256": "a3b46e6042ac0edbdc2381fd320c53827cb8c7cf15d98eff92784ba36769853f"
+  },
+  {
+    "url": "./src/online-course.mjs",
+    "sha256": "f73c57b71b9930d7cabf94fd2753ed4f63fd261a0f32fa0212a3674b0bf9df69"
+  },
+  {
+    "url": "./src/online-entry.mjs",
+    "sha256": "b5362943439ce2d74fdcd17ae3b0631714a3d9bcaebb03f66a2668e01f094578"
+  },
+  {
+    "url": "./src/online-render-schedule.mjs",
+    "sha256": "ff46881bd101282692c49f35f98876849e388656f66752555d58b72e97caf1e5"
+  },
+  {
+    "url": "./src/online-room.mjs",
+    "sha256": "859faad89ef8aa5708b8dd3890a64258a6768e402b6ca121c133d9a55694a366"
+  },
+  {
+    "url": "./src/online-session.mjs",
+    "sha256": "28db858c718ed76f69a5fe2ad2855775fbdfa02e4935ac3fdf95abe0a1411561"
   },
   {
     "url": "./src/outdoor-architecture.mjs?v=20261015-boar-distance-1",
@@ -297,7 +337,7 @@ const PRECACHE_ASSETS = [
   },
   {
     "url": "./src/physics.mjs?v=20261015-boar-distance-1",
-    "sha256": "4ea15937a7dca2c6d608fd29c30c176d5136da1f1b7d5efa06b59c7189925562"
+    "sha256": "74ee366b1f26bb8c68a3314d4d77f424aa214d8319440e0836e4fea6f2f78958"
   },
   {
     "url": "./src/pixel-intro.mjs?v=20261015-boar-distance-1",
@@ -352,32 +392,36 @@ const PRECACHE_ASSETS = [
     "sha256": "5e2826d16747a09c22869d2c2821c8e78799b6f243d372a2090763e801b279ed"
   },
   {
+    "url": "./src/release-chapters-cue.mjs",
+    "sha256": "68ec0042501af201f99cde2afefa5d7b6b0ed916c50ed3b02a6ddcca9568224e"
+  },
+  {
     "url": "./src/release-chapters-play.mjs",
-    "sha256": "f34ae20df6b370a022df715de2d427cdb48b0122d32c29e106d95ce4b957246b"
+    "sha256": "e51942bc16339cdf47b10aeef467663ed8ba99ef6aaa9d71e5650c11fc92a172"
   },
   {
     "url": "./src/release-chapters-replay.mjs",
-    "sha256": "e0251be1ee665fd11f6ec2b0202831c8ae6cc10d40ece31c59255100363f10b6"
+    "sha256": "779dd54dad6587b7c897184a8142f3c166bef8d2a2717e276e0da2098bbc0fd7"
   },
   {
     "url": "./src/release-chapters-replay.mjs?v=20261018-chapters67-1",
-    "sha256": "e0251be1ee665fd11f6ec2b0202831c8ae6cc10d40ece31c59255100363f10b6"
+    "sha256": "779dd54dad6587b7c897184a8142f3c166bef8d2a2717e276e0da2098bbc0fd7"
   },
   {
     "url": "./src/release-chapters-scene.mjs",
-    "sha256": "7b029d10eab361f91ced1aceb44c34ef2081776aa5647357a661855cefdea587"
+    "sha256": "7354c154eb93d0819c0c8f76c6fb3cacc555f3b06fb815e26473dfdf23f626ff"
   },
   {
     "url": "./src/release-chapters-world.mjs",
-    "sha256": "aaff2d0daae25ef9b8845757e4aff77767835ab40e23fd03cdacf33152b61142"
+    "sha256": "bea81450b4da9b9e6737af3ce813bd19b8405b5b04cedaf234a8257f34d4ab17"
   },
   {
     "url": "./src/release-chapters-world.mjs?v=20261018-chapters67-1",
-    "sha256": "aaff2d0daae25ef9b8845757e4aff77767835ab40e23fd03cdacf33152b61142"
+    "sha256": "bea81450b4da9b9e6737af3ce813bd19b8405b5b04cedaf234a8257f34d4ab17"
   },
   {
     "url": "./src/render.mjs?v=20261015-boar-distance-1",
-    "sha256": "91305b042764509eabeaf8356776d64353434fa450f9559d107b2687f4bee4b9"
+    "sha256": "7343eed1accebed74cdce6ba29263739f7b0429e6df64ff21ef82f199d4b8272"
   },
   {
     "url": "./src/replay.mjs?v=20261015-boar-distance-1",
@@ -389,11 +433,15 @@ const PRECACHE_ASSETS = [
   },
   {
     "url": "./src/rewards.mjs?v=20261015-boar-distance-1",
-    "sha256": "544ed31c95e1f36ec6d9b40823fe9ce680281afcac1fa48cd7c49525e41c957b"
+    "sha256": "55affc4ab7519ad81314ba3d82f5689ee3c5276283c914a3311062e14609167b"
   },
   {
     "url": "./src/river-physical-scene.mjs?v=20261015-boar-distance-1",
     "sha256": "52bea6ec867aa70939fe1d17a39768affcc997d9ec916260bcf72ff53f5fb4c3"
+  },
+  {
+    "url": "./src/rooftop-scene.mjs",
+    "sha256": "c459706ef0b349a8489c2ad0fbb8e131576da6a86acabed67c19edf1b658ccdb"
   },
   {
     "url": "./src/room-contact.mjs?v=20261015-boar-distance-1",
@@ -401,7 +449,7 @@ const PRECACHE_ASSETS = [
   },
   {
     "url": "./src/room-course.mjs?v=20261015-boar-distance-1",
-    "sha256": "1c3cbcb3e83537f8227732476a2ccf6b73ac924fa9cb9c06c97aa02313633d17"
+    "sha256": "6ec3f09f36e304763133533aedbd474101ab633ce547baff3b982ce23f712816"
   },
   {
     "url": "./src/room-gimmicks.mjs?v=20261015-boar-distance-1",
@@ -453,15 +501,15 @@ const PRECACHE_ASSETS = [
   },
   {
     "url": "./src/throwable-physics.mjs?v=20261015-boar-distance-1",
-    "sha256": "d1a8e364ebd674f24cf8b8d76d76ebe9777fcdf6d242c2e19a2cbda006bba097"
+    "sha256": "a8d41dbb6e0dfe0665e2fc3629556c0e72ed2acc7ed632094578144549b9f170"
   },
   {
     "url": "./src/throwable-world-profile.mjs?v=20261015-boar-distance-1",
-    "sha256": "df23d600de44118afc9417e4896347549b1a7ea8c7d72eccc6fc96ad44273b84"
+    "sha256": "4b9011fad4150b687e262dfe842757dceaff8477197bf41c2dff55059cb65967"
   },
   {
     "url": "./src/throwables.mjs?v=20261015-boar-distance-1",
-    "sha256": "808dca57521623f4c0c722c66456e284b90cff7a7708eda7b37033da0f934ac5"
+    "sha256": "083be4fa269bf59bb3aa03b7a1927c6741e13a08c15afa6ae5b56e5ff29462f0"
   },
   {
     "url": "./src/title-screen.mjs?v=20261015-boar-distance-1",
@@ -473,11 +521,23 @@ const PRECACHE_ASSETS = [
   },
   {
     "url": "./src/train-window-scene.mjs?v=20261015-boar-distance-1",
-    "sha256": "8e046d24dcdf51db8cd9528d1d14bb7a7e9accbacc65732451b5deb78cbc0078"
+    "sha256": "261e53d3287e083ec3b8a6154bfe0f8e6793918bf4fc33a1f7859af4a7b57add"
+  },
+  {
+    "url": "./start/index.html",
+    "sha256": "63c8a5b6223b97cfaef70fc7ca70565cc1482957c7ce8a20065149d963d81dd2"
   },
   {
     "url": "./style.css?v=20261015-boar-distance-1",
     "sha256": "67754bb09f2a0aafa0fc873682ada497e779c5a2a0ec6d589699a3e286f349a6"
+  },
+  {
+    "url": "./vendor/peerjs-1.5.5.min.js",
+    "sha256": "7604d8c31bec4f134b0d15c2d80b1d095ea18af005354f439f14291fcd7b4168"
+  },
+  {
+    "url": "./vendor/peerjs-LICENSE.txt",
+    "sha256": "9407807dba7f47a79bfb3ac55759d63d77c9371ebd0616d5a093e97d3e810397"
   }
 ];
 // END GENERATED PRECACHE
@@ -550,7 +610,10 @@ self.addEventListener('message', event => {
     const source = await self.clients.get(event.source.id);
     if (!source || !entryNavigation(new URL(source.url))) return;
     const windows = await self.clients.matchAll({type: 'window', includeUncontrolled: true});
-    const candidateWindows = windows.filter(client => entryNavigation(new URL(client.url)));
+    const candidateWindows = windows.filter(client => {
+      const url=new URL(client.url);
+      return entryNavigation(url)||insideScope(url)&&url.pathname===new URL('./online.html',SCOPE).pathname;
+    });
     // Another tab may have a shot in flight. Do not replace its worker.
     if (candidateWindows.some(client => client.id !== source.id)) {
       source.postMessage({type: 'TRASHOOT_UPDATE_BLOCKED', reason: 'other-windows'});

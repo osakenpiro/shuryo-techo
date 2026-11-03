@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f1e8"><title>みんなで、ぽいっ。 / TRASHOOT</title>
+  <link rel="icon" href="./icons/icon.svg" type="image/svg+xml"><link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./online.css">
+  <script src="./vendor/peerjs-1.5.5.min.js" defer></script><script type="module" src="./src/online-entry.mjs"></script>
+</head>
+<body>
+ <main>
+  <header><a href="./" class="brand">↗ TRASHOOT</a><span>ONLINE · 2–4人</span><button id="online-leave" hidden type="button">部屋を出る</button></header>
+  <section id="online-lobby" aria-labelledby="online-title">
+   <p class="eyebrow">小さな一投、となりにみんな。</p><h1 id="online-title">みんなで、<em>ぽいっ。</em></h1>
+   <p class="intro">せーので投げて、先に入ったらひと休み。<br>友達の一投も、同じ画面で見届けよう。</p>
+   <label class="name-label" for="online-name">呼ばれたい名前<input id="online-name" maxlength="16" value="PLAYER" autocomplete="nickname"></label>
+   <div class="lobby-columns">
+    <section class="lobby-card"><span class="card-number">01 / 招待する</span><h2>部屋をつくる</h2><label for="online-stage">今日のステージ</label><select id="online-stage"></select><p class="note">ひとり用と同じく、気になる面から遊べます。</p><button id="online-create" class="primary" type="button">この面で、集まろう ↗</button></section>
+    <section class="lobby-card"><span class="card-number">02 / 合流する</span><h2>友達の部屋へ</h2><label for="online-code">部屋コード</label><input id="online-code" maxlength="80" autocomplete="off" autocapitalize="off" spellcheck="false"><p class="note">招待リンクからなら、そのまま参加。</p><button id="online-join" type="button">部屋に入る ↗</button></section>
+   </div>
+   <p class="footnote">アカウントなし。オンライン対戦の結果は、ひとり用の記録に入りません。<br>部屋をつくった人は、この画面を開いたまま遊んでね。</p>
+  </section>
+  <p id="online-status" role="status" aria-live="polite">2〜4人で遊べます。離れた友達には招待リンクを送ろう。</p>
+  <section id="online-room" hidden aria-label="オンラインの部屋">
+   <div class="room-heading"><div><p class="eyebrow" id="online-course-number"></p><h1 id="online-course-name"></h1></div><strong id="online-clock" role="timer"></strong></div>
+   <div id="online-invite"><label for="online-link">友達を招待するリンク</label><div class="invite-row"><input id="online-link" readonly><button id="online-copy" type="button">コピー</button></div><p class="note">部屋コード：<span id="online-room-code"></span></p></div>
+   <div class="room-actions"><button id="online-ready" type="button">準備できた！</button><button id="online-start" class="primary" type="button" hidden>せーので、スタート ↗</button><button id="online-rematch" type="button" hidden>もう一回、同じ面で</button><button id="online-focus" type="button" aria-pressed="false">自分を大きく</button></div>
+   <p id="online-round-note" class="round-note" aria-live="polite"></p>
+   <div id="online-grid" class="play-grid" aria-label="4人のプレイ画面"></div>
+   <section id="online-controls" aria-label="あなたの投げ方">
+    <div class="throw-guidance"><strong id="online-input-note">投げたい向きと逆へ引いて、離そう。</strong><output id="online-aim"></output></div>
+    <div class="angle-row"><button id="online-arc-down" type="button" aria-label="弧を低くする">弧 −</button><span id="online-arc-label"></span><button id="online-arc-up" type="button" aria-label="弧を高くする">弧 ＋</button></div>
+    <details id="online-arc-settings"><summary>弧を細かく調整する</summary><div class="numeric-controls"><label>弧<input id="online-elevation" type="range" min="5" max="85" step="1"></label></div></details>
+   </section>
+   <ol id="online-results" aria-label="今回の結果"></ol>
+  </section>
+  <footer><a href="./">ひとりで寄り道する ↗</a><span>遠くても、となりで。</span></footer>
+ </main>
+</body>
+</html>

@@ -26,7 +26,7 @@ function themeSolids(theme){
 }
 const g54=receiver('remix-room-bin',.65,5.3,.8,.5),g55=receiver('remix-school-bin',0,6.6,.85,.62),g56=receiver('remix-wind-bin',0,8.2,.85,.68),g57=receiver('remix-machine-bin',0,6.8,.9,.62),g58=receiver('extra-overlook-bin',2,6,.8,.55);
 const g59={id:'extra-bank-slot',role:'normal',kind:'wall-slot',label:'壁の受け口',shape:'rectangle',center:p(0,1.2,6.3),normal:p(0,0,-1),up:p(0,1,0),halfWidth:.65,halfHeight:.65};
-export const RELEASE_CHAPTER_WORLDS=freeze({
+export const LEGACY_RELEASE_CHAPTER_WORLDS=freeze({
  'remix-room':make('remix-room',54,'6-1：机越しの横風','room','can',p(0,1.05,0),g54,
   [...desk('remix-room-desk',.2,2.6),solid('remix-room-shelf',p(-3.7,0,6.5),p(-2.8,2.4,7),'shelf')],
   {power:7.4,elevation:48,yaw:0},{wind:p(.42,0,0),sourceMechanics:['desk-over','room-extra'],hint:'机を越える弧と、右へ流す風をいっしょに読む。'}),
@@ -48,8 +48,71 @@ export const RELEASE_CHAPTER_WORLDS=freeze({
    solid('extra-bank-target-bottom',p(-.65,0,6.3),p(.65,.55,6.46),'wall'),solid('extra-bank-target-top',p(-.65,1.85,6.3),p(.65,3.7,6.46),'wall')],
   {power:7,elevation:24,yaw:-34},{sourceMechanics:['factory-bank','eccentric-card'],hint:'まっすぐは仕切りの向こう。ゴムボールの跳ね返りで壁の穴へ。',view:{target:p(-.5,1.2,3.6),distance:12,azimuth:.25,elevation:.55}}),
 });
-export const RELEASE_CHAPTER_PHYSICS_WORLDS=freeze(Object.fromEntries(Object.values(RELEASE_CHAPTER_WORLDS).map(w=>[w.worldVersion,w.physics])));
-const BY_VERSION=freeze(Object.fromEntries(Object.values(RELEASE_CHAPTER_WORLDS).map(w=>[w.worldVersion,w])));
+
+// Stable progress IDs retain their storage positions. Physical versions pin
+// the old experimental faces separately from the new golf/glider rules.
+const g70=receiver('remix-room-bin',0,6.5,.8,.43);
+const g71=receiver('remix-school-bin',0,7,.85,.46);
+const g72=receiver('remix-wind-bin',0,8.2,.85,.46);
+const g73=receiver('remix-machine-bin',0,6.8,.9,.54);
+const cup={...receiver('extra-golf-cup',1.8,6,.09,.34),kind:'golf-cup',shape:'circle',label:'ゴルフのカップ',radius:.34};
+const landing={...receiver('extra-plane-landing',.8,8.4,.18,.85),kind:'landing-pad',label:'紙飛行機の着地帯',halfHeight:1.0};
+export const PREVIOUS_RELEASE_CHAPTER_WORLDS=freeze({
+ 'remix-room':make('remix-room',70,'6-1：机を越えて、風を引く','room','can',p(0,1.05,0),g70,
+  [...desk('remix-room-desk',0,2.9,3.0,.9,1.25),solid('remix-room-shelf',p(-3.7,0,6.5),p(-2.8,2.4,7),'shelf')],
+  {power:8.0,elevation:20,yaw:0},{wind:p(1.5,0,0),sourceMechanics:['desk-over','room-extra'],hint:'低い弧は机に当たる。高く越えても右へ流れる。弧と左への狙いを合わせよう。'}),
+ 'remix-school':make('remix-school',71,'6-2：棚越しの待ち合わせ','school','can',p(0,1.3,0),g71,
+  [...desk('remix-school-desk-left',-2.1,2.2,1.5,.75,.9),...desk('remix-school-desk-right',2.1,2.2,1.5,.75,.9),solid('remix-school-low-shelf',p(-1.4,0,3),p(1.4,2.0,3.6),'shelf')],
+  {power:8.4,elevation:25,yaw:0},{goalMotion:{amplitude:1.5,period:7,phase:0},sourceMechanics:['school-classroom','factory-conveyor'],hint:'棚を高い弧で越え、箱の今いる所ではなく、届く頃の場所へ。'}),
+ 'remix-wind':make('remix-wind',72,'6-3：風と箱のすれ違い','outdoor','can',p(0,1.25,0),g72,
+  [solid('remix-wind-left-planter',p(-3.2,0,3.6),p(-1.5,.65,4.5),'planter'),solid('remix-wind-right-planter',p(1.5,0,3.6),p(3.2,.65,4.5),'planter')],
+  {power:9.2,elevation:44,yaw:0},{wind:p(1.1,0,0),goalMotion:{amplitude:1.4,period:8,phase:Math.PI/2},sourceMechanics:['room-extra','factory-conveyor'],hint:'風は右へ、箱は左右へ。風のずれと、箱の行き先を両方足し引きしよう。',view:{target:p(0,1.1,4.4),distance:15,azimuth:.1,elevation:.48}}),
+ 'remix-machine':make('remix-machine',73,'6-4：壁で回って、開く間に','factory','rubber-ball',p(0,1.3,0),g73,
+  [wall('remix-machine-reflector',-3.4,.8,-3.25,7.8,4),wall('remix-machine-screen',-.55,2.9,.55,3.15,4.5),solid('remix-machine-crate',p(2.2,0,2.8),p(3.3,1.1,4),'crate')],
+  {power:12.2,elevation:24,yaw:0},{shutter:{id:'remix-machine-shutter',min:p(-3.1,0,4.6),max:p(2.1,3.5,4.8),lift:4.1,period:8},sourceMechanics:['factory-shutter','factory-bank'],hint:'正面の仕切りは左の壁で回り込む。その先のシャッターが開く時に届かせよう。'}),
+ 'extra-overlook':make('extra-overlook',74,'7-1：ワンパット・ゴルフ','golf','golf-ball',p(0,.14,0),cup,
+  [wall('golf-left-rail',-2.8,-.7,-2.6,8.3,.35),wall('golf-right-rail',2.6,-.7,2.8,8.3,.35),wall('golf-back-rail',-2.8,8.3,2.8,8.5,.35),solid('golf-center-bumper',p(-.6,0,2.5),p(.6,.35,2.8),'bumper')],
+  {power:4.8,elevation:0,yaw:0},{mode:'golf',cupSpeed:1.7,sourceMechanics:[],hint:'引く長さが転がる強さ。正面の障害物を右から回し、速すぎない球でカップへ。',view:{target:p(.4,.1,3.8),distance:12,azimuth:0,elevation:.95},physics:{...physics(74,p(0,.14,0),cup),launchLimits:{minPower:.5,maxPower:9,minElevation:0,maxElevation:0}}}),
+ 'extra-bank':make('extra-bank',75,'7-2：紙飛行機の着地便','glider','paper-plane',p(0,1.6,0),landing,
+  [solid('plane-gate-left',p(-3,0,3.3),p(-.95,3.4,3.45),'gate'),solid('plane-gate-right',p(.95,0,3.3),p(3,3.4,3.45),'gate'),solid('plane-gate-top',p(-.95,2.45,3.3),p(.95,3.4,3.45),'gate')],
+  {power:7,elevation:12,yaw:0},{mode:'glider',wind:p(.24,0,0),glider:{lift:.18,drag:.10,maxLift:8.8},sourceMechanics:[],hint:'ゆるい上向きで滑空。高すぎると枠に当たり、弱すぎると失速する。風を読んで奥の着地帯へ。',view:{target:p(0,.9,4.5),distance:14,azimuth:.1,elevation:.85},physics:{...physics(75,p(0,1.6,0),landing),launchLimits:{minPower:.5,maxPower:11,minElevation:0,maxElevation:45}}}),
+});
+
+
+// The first airplane course and profile remain addressable at world 75.
+const floatLanding={...receiver('extra-plane-landing',.6,21,.24,1.2),kind:'landing-pad',label:'紙飛行機の着地帯',halfHeight:1.6};
+export const GLIDE_RELEASE_CHAPTER_WORLDS=freeze({...PREVIOUS_RELEASE_CHAPTER_WORLDS,
+ 'extra-bank':make('extra-bank',76,'7-2：紙飛行機の着地便','glider','paper-plane',p(0,1.6,0),floatLanding,
+  [solid('plane-gate-left',p(-3.5,0,3.3),p(-1.2,3.6,3.45),'gate'),solid('plane-gate-right',p(1.2,0,3.3),p(3.5,3.6,3.45),'gate'),solid('plane-gate-top',p(-1.2,2.85,3.3),p(1.2,3.6,3.45),'gate')],
+  {power:4.8,elevation:8,yaw:0},{mode:'glider',flightSeconds:8,runwayLength:26,wind:p(.06,0,0),glider:{lift:.62,drag:.035,maxLift:9.2,verticalDamping:1.25},sourceMechanics:[],
+   room:{minX:-4.4,maxX:4.4,minZ:-1.6,maxZ:27,height:6,openSky:true},
+   hint:'ふわっと持ち上げ、水平にすーっと。強く引きすぎず、奥の緑の着地帯へ。弱すぎると手前に落ちる。',
+   view:{target:p(0,.9,10),distance:24,azimuth:.1,elevation:.65},
+   physics:{...physics(76,p(0,1.6,0),floatLanding),launchLimits:{minPower:.5,maxPower:11,minElevation:0,maxElevation:45}}}),
+});
+
+// World 77 adds an elevated open-window course. Worlds 75 and 76 stay fixed.
+const roofWindow={id:'rooftop-open-window',role:'normal',kind:'wall-slot',label:'隣のビルの開いた窓',shape:'rectangle',center:p(.4,12.2,28.45),normal:p(0,0,-1),up:p(0,1,0),halfWidth:1.5,halfHeight:1.25};
+export const RELEASE_CHAPTER_WORLDS=freeze({...GLIDE_RELEASE_CHAPTER_WORLDS,
+ 'extra-bank':make('extra-bank',77,'7-2：屋上から、となりの窓へ','rooftop','paper-plane',p(0,14,0),roofWindow,
+  [solid('rooftop-source-building',p(-5.2,0,-10),p(5.2,12.4,2.4),'building'),
+   solid('rooftop-source-parapet-left',p(-5.2,12.4,-10),p(-4.95,13.2,2.5),'parapet'),
+   solid('rooftop-source-parapet-right',p(4.95,12.4,-10),p(5.2,13.2,2.5),'parapet'),
+   solid('rooftop-source-front-lip',p(-5.2,12.4,2.25),p(5.2,12.9,2.5),'parapet'),
+   solid('rooftop-target-left',p(-6.2,0,28),p(-1.1,19,32),'building'),
+   solid('rooftop-target-right',p(1.9,0,28),p(6.2,19,32),'building'),
+   solid('rooftop-target-sill',p(-1.1,0,28),p(1.9,10.95,32),'building'),
+   solid('rooftop-target-lintel',p(-1.1,13.45,28),p(1.9,19,32),'building'),
+   solid('rooftop-target-room-back',p(-1.1,10.95,31.8),p(1.9,13.45,32),'interior')],
+  {power:4.8,elevation:8,yaw:0},{mode:'glider',flightSeconds:8,roofHeight:12.4,wind:p(.28,0,0),windGust:{period:8,amplitude:.24,secondary:.08},glider:{lift:.62,drag:.035,maxLift:9.2,verticalDamping:1.25},sourceMechanics:['room-extra'],
+   room:{minX:-9,maxX:9,minZ:-12,maxZ:35,height:30,openSky:true},
+   hint:'屋上から、となりの開いた窓へ。右へ流すビル風を読み、少し左へ向けてふわっと。',
+   view:{target:p(0,13.15,12),distance:26,azimuth:.1,elevation:.28},
+   physics:{...physics(77,p(0,14,0),roofWindow),launchLimits:{minPower:.5,maxPower:11,minElevation:0,maxElevation:45}}}),
+});
+
+export const RELEASE_CHAPTER_PHYSICS_WORLDS=freeze(Object.fromEntries([...Object.values(LEGACY_RELEASE_CHAPTER_WORLDS),...Object.values(PREVIOUS_RELEASE_CHAPTER_WORLDS),...Object.values(GLIDE_RELEASE_CHAPTER_WORLDS),...Object.values(RELEASE_CHAPTER_WORLDS)].map(w=>[w.worldVersion,w.physics])));
+const BY_VERSION=freeze(Object.fromEntries([...Object.values(LEGACY_RELEASE_CHAPTER_WORLDS),...Object.values(PREVIOUS_RELEASE_CHAPTER_WORLDS),...Object.values(GLIDE_RELEASE_CHAPTER_WORLDS),...Object.values(RELEASE_CHAPTER_WORLDS)].map(w=>[w.worldVersion,w])));
 export const REMIX_CHAPTER_IDS=freeze(['remix-room','remix-school','remix-wind','remix-machine']);
 export const EXTRA_CHAPTER_IDS=freeze(['extra-overlook','extra-bank']);
 export const RELEASE_CHAPTER_IDS=freeze([...REMIX_CHAPTER_IDS,...EXTRA_CHAPTER_IDS]);
@@ -66,4 +129,9 @@ export function releaseChapterReceiverSolids(world,time=0){world=requireWorld(wo
  return [solid(`${g.id}-left`,p(x-w-t,0,z-d-t),p(x-w,y,z+d+t),'receiver'),solid(`${g.id}-right`,p(x+w,0,z-d-t),p(x+w+t,y,z+d+t),'receiver'),solid(`${g.id}-front`,p(x-w,0,z-d-t),p(x+w,y,z-d),'receiver'),solid(`${g.id}-back`,p(x-w,0,z+d),p(x+w,y,z+d+t),'receiver')];
  });}
 export function releaseChapterDynamicSolids(world,time=0){world=requireWorld(world);const solids=releaseChapterReceiverSolids(world,time);if(world.shutter){const s=world.shutter,lift=s.lift*(.5-.5*Math.cos(time*2*Math.PI/s.period));solids.push(solid(s.id,p(s.min.x,s.min.y+lift,s.min.z),p(s.max.x,s.max.y+lift,s.max.z),'shutter',{surface:'machine',restitution:.22}));}return solids;}
-export function releaseChapterMotion(world,time=0){world=requireWorld(world);return {goals:releaseChapterGoals(world,time),solids:releaseChapterDynamicSolids(world,time),wind:{...world.wind},environmentTime:time};}
+export function releaseChapterWind(world,time=0,point){world=requireWorld(world);if(!Number.isFinite(time))throw new TypeError('Environment time must be finite');if(!world.windGust)return {...world.wind};
+ const z=point?.z??world.origin.z,exposure=Math.max(.35,Math.min(1,(z+.5)/4)),phase=time*2*Math.PI/world.windGust.period;
+ const gain=exposure*(1+world.windGust.amplitude*Math.sin(phase)+world.windGust.secondary*Math.sin(phase*2+.7));
+ return {x:world.wind.x*gain,y:world.wind.y*gain,z:world.wind.z*gain};
+}
+export function releaseChapterMotion(world,time=0){world=requireWorld(world);return {goals:releaseChapterGoals(world,time),solids:releaseChapterDynamicSolids(world,time),wind:releaseChapterWind(world,time),environmentTime:time};}
