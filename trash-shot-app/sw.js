@@ -1,7 +1,7 @@
 /* Candidate-only, versioned app snapshot. Regenerate with node scripts/build-pwa.mjs. */
 'use strict';
 // BEGIN GENERATED PRECACHE
-const PRECACHE_VERSION = "20261018-52ab50f197dc9c61c8eb";
+const PRECACHE_VERSION = "20261018-3ce2f64ebf5f0c77bed1";
 const PRECACHE_ASSETS = [
   {
     "url": "./app.css",
@@ -62,6 +62,10 @@ const PRECACHE_ASSETS = [
   {
     "url": "./art/entry/mall.jpg",
     "sha256": "d8ca44294f26192a2a4923fe1b8ce073297067d8237294bf742e2d66a5d9490b"
+  },
+  {
+    "url": "./art/entry/pv-rooftop-c4febd9c.jpg",
+    "sha256": "55600675136655bf89b4a223a58edd36421082e00660fa8caac3c8e5d5476d59"
   },
   {
     "url": "./art/entry/train.jpg",
@@ -525,7 +529,7 @@ const PRECACHE_ASSETS = [
   },
   {
     "url": "./start/index.html",
-    "sha256": "63c8a5b6223b97cfaef70fc7ca70565cc1482957c7ce8a20065149d963d81dd2"
+    "sha256": "23d51587959998874434ff8b601810d1e3ec493d85658f65deb1322b2c393481"
   },
   {
     "url": "./style.css?v=20261015-boar-distance-1",
