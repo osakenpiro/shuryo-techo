@@ -1,0 +1,43 @@
+name: Publish verified Hero Tournament r13
+on:
+  push:
+    branches: [release/hero-tournament-r13-20261104]
+    paths: [.github/workflows/hero-tournament-r13-publish.yml]
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: publish-hero-tournament-r13
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Verify exact successful Windows build and publish its checked ZIP
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh run view 41780840608 --repo osakenpiro/shuryo-techo --json conclusion,headSha > /tmp/source-run.json
+          python - <<'PY'
+          import json
+          r=json.load(open('/tmp/source-run.json'))
+          assert r['conclusion']=='success'
+          assert r['headSha']=='5582eb1dbc0acf25dda2936711cba27ced1fb7a6'
+          PY
+          gh run download 41780840608 --repo osakenpiro/shuryo-techo --name hero-tournament-r13-candidate --dir /tmp/verified-r13
+          python - <<'PY'
+          import pathlib,hashlib,json,zipfile
+          r=pathlib.Path('/tmp/verified-r13');p=r/'hero-tournament-windows-r13.zip'
+          assert p.stat().st_size==164584657
+          assert hashlib.sha256(p.read_bytes()).hexdigest()=='2d6c41c5535e18077e845cf197014cd4c68b3bf4247073ec7a1ad9253e4b45cb'
+          m=json.loads((r/'release-candidate.json').read_text())
+          assert m['sourceCommit']=='5582eb1dbc0acf25dda2936711cba27ced1fb7a6'
+          with zipfile.ZipFile(p) as z: assert z.testzip() is None
+          PY
+          gh release create hero-tournament-r13 /tmp/verified-r13/hero-tournament-windows-r13.zip --repo osakenpiro/shuryo-techo --prerelease --latest=false --target 5582eb1dbc0acf25dda2936711cba27ced1fb7a6 --title '勇者トーナメント Windowsテスト版 r13' --notes-file hero-tournament/build-r13/release-notes.md
