@@ -7,7 +7,7 @@
   {
     "path": "game/battle-feedback.js",
     "baselineSHA256": null,
-    "candidateSHA256": "a37e748b9f03ccdd0053a4998d8ddafee2f7fc889ea6ab673cd439d787452f71"
+    "candidateSHA256": "501597f317ecda35d69cd4a2c18c25383dbb743444a239e479281e4ad0194bee"
   },
   {
     "path": "game/experience-ui.js",

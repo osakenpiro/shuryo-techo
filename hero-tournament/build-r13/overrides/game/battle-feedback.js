@@ -12,19 +12,20 @@ export function finalCue(reveal) {
 }
 const PREF='hero-battle-feedback-v1',SEEN='hero-battle-cues-v1';
 let prefs={sound:true,motion:true},audio,master,installed=false,hiddenSince=0;
-let played=new Set();
+let played=new Set();const voices=new Set();
 try{const p=JSON.parse(globalThis.localStorage?.getItem(PREF)||'null');if(p&&typeof p.sound==='boolean')prefs.sound=p.sound;if(p&&typeof p.motion==='boolean')prefs.motion=p.motion;}catch{}
 try{const s=JSON.parse(globalThis.sessionStorage?.getItem(SEEN)||'[]');if(Array.isArray(s))played=new Set(s.filter(x=>typeof x==='string').slice(-128));}catch{}
 export function reducedMotion(){return !prefs.motion||globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches===true;}
 function remember(key){if(played.has(key))return false;played.add(key);if(played.size>128)played.delete(played.values().next().value);try{sessionStorage.setItem(SEEN,JSON.stringify([...played]));}catch{}return true;}
-function storage(){try{localStorage.setItem(PREF,JSON.stringify(prefs));}catch{}if(master&&audio)master.gain.setValueAtTime(prefs.sound?FEEL.volume:0,audio.currentTime);}
+function stopSound(){for(const voice of voices){try{voice.stop();}catch{}}voices.clear();}
+function storage(){if(!prefs.sound)stopSound();try{localStorage.setItem(PREF,JSON.stringify(prefs));}catch{}if(master&&audio)master.gain.setValueAtTime(prefs.sound?FEEL.volume:0,audio.currentTime);}
 function unlock(e){if(!e?.isTrusted||!prefs.sound||document.hidden)return;try{const AC=globalThis.AudioContext||globalThis.webkitAudioContext;if(!AC)return;if(!audio){audio=new AC();master=audio.createGain();master.gain.value=FEEL.volume;master.connect(audio.destination);}if(audio.state==='suspended')audio.resume().catch(()=>{});}catch{}}
 function tone(at,freq,length,type='triangle',gain=.25,to=freq){
  if(!audio||audio.state!=='running'||!master)return;
  const osc=audio.createOscillator(),env=audio.createGain(),t=audio.currentTime+at;
  osc.type=type;osc.frequency.setValueAtTime(freq,t);osc.frequency.exponentialRampToValueAtTime(Math.max(20,to),t+length);
  env.gain.setValueAtTime(.0001,t);env.gain.exponentialRampToValueAtTime(gain,t+.004);env.gain.exponentialRampToValueAtTime(.0001,t+length);
- osc.connect(env);env.connect(master);osc.start(t);osc.stop(t+length+.01);osc.onended=()=>{osc.disconnect();env.disconnect();};
+ osc.connect(env);env.connect(master);voices.add(osc);osc.start(t);osc.stop(t+length+.01);osc.onended=()=>{voices.delete(osc);osc.disconnect();env.disconnect();};
 }
 function sound(kind){if(!prefs.sound||document.hidden||!audio||audio.state!=='running')return;
  if(kind==='hit'){tone(0,155,.11,'triangle',.7,48);tone(.012,1050,.055,'triangle',.2,190);}
@@ -34,11 +35,11 @@ function sound(kind){if(!prefs.sound||document.hidden||!audio||audio.state!=='ru
  else if(kind==='loss'){tone(0,220,.25,'triangle',.28,110);}
  else if(kind==='double'){tone(0,220,.23,'triangle',.25,155);tone(.04,311,.24,'sine',.2,220);}
 }
-function syncControls(){for(const b of document.querySelectorAll('[data-feedback-setting]')){const k=b.dataset.feedbackSetting;b.setAttribute('aria-pressed',String(prefs[k]));b.textContent=k==='sound'?'効果音 '+(prefs.sound?'ON':'OFF'):'演出 '+(prefs.motion?'標準':'控えめ');}document.documentElement.classList.toggle('battle-motion-reduced',reducedMotion());}
+function syncControls(){if(reducedMotion())for(const root of document.querySelectorAll('#combat-answer,.own-fighter,.enemy-fighter'))for(const a of root.getAnimations?.({subtree:true})||[])a.cancel();for(const b of document.querySelectorAll('[data-feedback-setting]')){const k=b.dataset.feedbackSetting;b.setAttribute('aria-pressed',String(prefs[k]));b.textContent=k==='sound'?'効果音 '+(prefs.sound?'ON':'OFF'):'演出 '+(prefs.motion?'標準':'控えめ');}document.documentElement.classList.toggle('battle-motion-reduced',reducedMotion());}
 export function mountFeedback(){if(typeof document==='undefined')return;
  if(!installed){installed=true;const link=document.createElement('link');link.rel='stylesheet';link.href=new URL('./battle-feedback.css',import.meta.url).href;document.head.append(link);
  document.addEventListener('pointerdown',unlock,{capture:true,passive:true});document.addEventListener('keydown',unlock,true);
- document.addEventListener('visibilitychange',()=>{hiddenSince=performance.now();if(document.hidden&&master&&audio)master.gain.setValueAtTime(0,audio.currentTime);else if(master&&audio)master.gain.setValueAtTime(prefs.sound?FEEL.volume:0,audio.currentTime);});
+ document.addEventListener('visibilitychange',()=>{hiddenSince=performance.now();if(document.hidden)stopSound();if(document.hidden&&master&&audio)master.gain.setValueAtTime(0,audio.currentTime);else if(master&&audio)master.gain.setValueAtTime(prefs.sound?FEEL.volume:0,audio.currentTime);});
  globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').addEventListener?.('change',syncControls);
  }
  let box=document.querySelector('.battle-feedback-settings');
