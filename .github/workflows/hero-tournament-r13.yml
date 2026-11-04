@@ -1,0 +1,39 @@
+name: Hero Tournament r13 Windows candidate
+on:
+  push:
+    branches: [release/hero-tournament-r13-20261104]
+    paths:
+      - hero-tournament/build-r13/**
+      - .github/workflows/hero-tournament-r13.yml
+permissions:
+  contents: read
+concurrency:
+  group: hero-tournament-r13-candidate
+  cancel-in-progress: false
+jobs:
+  build-and-native-check:
+    runs-on: windows-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Compile and check the integrated Windows game
+        shell: pwsh
+        run: ./hero-tournament/build-r13/build.ps1 -OutputRoot "$env:RUNNER_TEMP/hero-r13"
+      - name: Preserve candidate and actual native evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: hero-tournament-r13-candidate
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            ${{ runner.temp }}/hero-r13/hero-tournament-windows-r13.zip
+            ${{ runner.temp }}/hero-r13/release-candidate.json
+            ${{ runner.temp }}/hero-r13/build-receipt.json
+            ${{ runner.temp }}/hero-r13/engine-verification.json
+            ${{ runner.temp }}/hero-r13/deadhand-verification.json
+            ${{ runner.temp }}/hero-r13/feedback-verification.json
+            ${{ runner.temp }}/hero-r13/preparation.json
+            ${{ runner.temp }}/hero-r13/HeroTournament-Windows-r13/playtest-evidence/
