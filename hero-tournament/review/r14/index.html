@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0c1e25">
+<title>勇者トーナメント r14｜実Windowsでの表示確認</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;background:#0c1e25;color:#f4e4c5}*{box-sizing:border-box}body{margin:0;line-height:1.8}main{width:min(1120px,100%);margin:auto;padding:26px 20px 52px}a{color:#e8c780;text-underline-offset:4px;overflow-wrap:anywhere}a:focus-visible{outline:3px solid #e8c780;outline-offset:4px}.top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:13px;color:#b8c9c2;margin-bottom:22px}.status{display:inline-block;background:#e8c780;color:#152820;font-size:12px;font-weight:750;padding:3px 10px;border-radius:3px}h1{font-size:clamp(25px,4vw,38px);line-height:1.5;margin:13px 0 12px}h2{font-size:23px;line-height:1.5;margin:0}.intro{max-width:880px;margin:0 0 12px}.scope{max-width:920px;font-size:13px;color:#b8c9c2}.jump,.links{display:flex;flex-wrap:wrap;gap:8px 24px;font-size:14px}.jump{margin:22px 0 28px}.scene{margin:26px 0 34px;background:#132d36;border:1px solid #4a5b55;border-radius:8px;overflow:hidden;scroll-margin-top:16px}.scene header{padding:18px 20px;display:flex;align-items:baseline;gap:16px}.number{font-size:27px;color:#e8c780;font-weight:700}.scene header p{font-size:14px;color:#cfdbd2;margin:6px 0 0}figure{margin:0}figure img{display:block;width:100%;height:auto;background:#07151b}figcaption{padding:13px 20px;font-size:13px;color:#b8c9c2}.remaining{background:#f4e4c5;color:#1c3032;padding:17px 20px;border-left:4px solid #e8c780;margin:30px 0}.remaining strong{display:block;margin-bottom:4px}.remaining p{margin:0;font-size:14px}footer{border-top:1px solid #4a5b55;padding-top:18px;font-size:12px;color:#b8c9c2}footer p{overflow-wrap:anywhere}footer .links{font-size:13px}@media(max-width:600px){main{padding:18px 10px 36px}.top{font-size:12px}.scene header{padding:14px 12px;gap:10px}h2{font-size:20px}.scene header p{font-size:13px}figcaption{padding:12px}.remaining{padding:14px}.jump,.links{gap:8px 18px}}
+</style>
+</head>
+<body><main>
+<div class="top"><a href="../../">← 勇者トーナメントの案内</a><span>2026年11月4日</span></div>
+<span class="status">r14 · 実Windowsで表示確認</span>
+<h1>手札と選択肢を、ひと目で比べやすく。</h1>
+<p class="intro">r14で、手札5枚の情報と、報酬・成長それぞれ3候補の比較表示を改善しました。配布用Windows版をWebView2で動かした、1028×719pxの実記録です。</p>
+<p class="scope">このページは静的な3画面のギャラリーです。テストプレイはできず、操作の手触りや効果音もここでは確認できません。</p>
+<nav class="jump" aria-label="画面を選ぶ"><a href="#hand">01 手札5枚</a><a href="#reward">02 報酬3候補</a><a href="#growth">03 成長3候補</a></nav>
+<section class="scene" id="hand"><header><span class="number">01</span><div><h2>手札5枚を、下まで読める</h2><p>カードの名前・絵・威力・魔力・耐久と、①②③の選択状態を表示。5枚の情報を固定フッターより上へ収めました。</p></div></header><figure><img src="assets/01-hand.png" width="1028" height="719" alt="r14の準決勝。手札5枚の威力・魔力・耐久と、1手目・2手目・持ち越しの選択状態が見える実Windows画面。"><figcaption>準決勝・第1ラウンド／3枚を選んだ状態。 <a href="assets/01-hand.png" target="_blank" rel="noopener">原寸で開く ↗</a></figcaption></figure></section>
+<section class="scene" id="reward"><header><span class="number">02</span><div><h2>報酬3候補を、絵と効果で比べる</h2><p>薄氷の小杖・夜明けの外套・星露のインク瓶。3品の絵、名前、効果、使うマス数、選択ボタンを同じ画面に表示しました。</p></div></header><figure><img src="assets/02-reward.png" width="1028" height="719" loading="lazy" alt="r14の戦利品。小杖は基礎威力7・耐久6回・3マス、外套は魔法使いプラス2・3マス、インク瓶は魔力4回復・2マスと比較できる実Windows画面。"><figcaption>折狼に勝利した後の報酬選択。 <a href="assets/02-reward.png" target="_blank" rel="noopener">原寸で開く ↗</a></figcaption></figure></section>
+<section class="scene" id="growth"><header><span class="number">03</span><div><h2>成長3候補の、増える量が見える</h2><p>命30→35、魔力12→15、バッグ30→36。絵と増加量、回復や拡張の効果、選択ボタンをまとめて比べられます。</p></div></header><figure><img src="assets/03-growth.png" width="1028" height="719" loading="lazy" alt="r14のレベル2から3への成長。命は最大HPプラス5とHP5回復、魔力は最大MPプラス3とMP3回復、可能性はバッグを1段6マス拡張と3候補を比べられる実Windows画面。"><figcaption>レベル2→3の成長選択。 <a href="assets/03-growth.png" target="_blank" rel="noopener">原寸で開く ↗</a></figcaption></figure></section>
+<aside class="remaining"><strong>続けて確認するところ</strong><p>独立レビューの指摘すべてを解消した状態ではありません。未選択時・複数品が入ったカバンの占有範囲の見やすさなどは、次の改善として残しています。</p></aside>
+<footer><nav class="links" aria-label="関連ページ"><a href="../../">LP・遊び方</a><a href="../../#first">Windows版ダウンロード</a><a href="../r13/">固定したr13全体レビュー</a><a href="../layout-candidate/">修正前後の比較</a><a href="release-verification.md">採用・公開の検証記録</a></nav><p>撮影環境：Windows / WebView2 · 1028×719px<br>ビルド記録：<a href="https://github.com/osakenpiro/shuryo-techo/actions/runs/41816989143" target="_blank" rel="noopener">run 41816989143 ↗</a> · ソース：<a href="https://github.com/osakenpiro/shuryo-techo/commit/4e12c91bac2b770d4322d36d51253cb8b136bd36" target="_blank" rel="noopener">4e12c91bac2b770d4322d36d51253cb8b136bd36 ↗</a></p></footer>
+</main></body></html>

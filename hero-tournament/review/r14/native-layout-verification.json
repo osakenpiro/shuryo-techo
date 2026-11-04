@@ -1,0 +1,582 @@
+{
+  "kind": "actual Windows WebView2 checkpoint bounds",
+  "handCheckpoints": 17,
+  "choiceCheckpoints": 7,
+  "hands": [
+    {
+      "file": "20261104-105225-0231/one-semi-round-1-three-picks.json",
+      "footerTop": 639,
+      "cardBottoms": [
+        583.078125,
+        583.078125,
+        583.078125,
+        583.078125,
+        583.078125
+      ]
+    },
+    {
+      "file": "20261104-105225-0231/one-semi-round-2-three-picks.json",
+      "footerTop": 639,
+      "cardBottoms": [
+        583.078125,
+        583.078125,
+        583.078125,
+        583.078125,
+        583.078125
+      ]
+    },
+    {
+      "file": "20261104-105225-0231/one-third-round-1-three-picks.json",
+      "footerTop": 639,
+      "cardBottoms": [
+        583.078125,
+        583.078125,
+        583.078125,
+        583.078125,
+        583.078125
+      ]
+    },
+    {
+      "file": "20261104-105225-0231/practice-semi-round-1-three-picks.json",
+      "footerTop": 639,
+      "cardBottoms": [
+        553.1875,
+        553.1875,
+        553.1875,
+        553.1875,
+        553.1875
+      ]
+    },
+    {
+      "file": "20261104-105225-0231/practice-semi-round-2-three-picks.json",
+      "footerTop": 639,
+      "cardBottoms": [
+        553.1875,
+        553.1875,
+        553.1875,
+        553.1875,
+        553.1875
+      ]
+    },
+    {
+      "file": "20261104-105225-0231/practice-third-round-1-three-picks.json",
+      "footerTop": 639,
+      "cardBottoms": [
+        553.1875,
+        553.1875,
+        553.1875,
+        553.1875,
+        553.1875
+      ]
+    },
+    {
+      "file": "20261104-105246-5909/one-semi-round-1-three-picks.json",
+      "footerTop": 639,
+      "cardBottoms": [
+        509.1875,
+        509.1875,
+        509.1875,
+        509.1875,
+        509.1875
+      ]
+    },
+    {
+      "file": "20261104-105246-5909/one-semi-round-2-three-picks.json",
+      "footerTop": 639,
+      "cardBottoms": [
+        509.1875,
+        509.1875,
+        509.1875,
+        509.1875,
+        509.1875
+      ]
+    },
+    {
+      "file": "20261104-105246-5909/one-third-round-1-three-picks.json",
+      "footerTop": 639,
+      "cardBottoms": [
+        509.1875,
+        509.1875,
+        509.1875,
+        509.1875,
+        509.1875
+      ]
+    },
+    {
+      "file": "20261104-105246-5909/peer-two-semi-round-1-three-picks.json",
+      "footerTop": 669,
+      "cardBottoms": [
+        504.1875,
+        504.1875,
+        504.1875,
+        504.1875,
+        504.1875
+      ]
+    },
+    {
+      "file": "20261104-105246-5909/peer-two-semi-round-2-three-picks.json",
+      "footerTop": 669,
+      "cardBottoms": [
+        504.1875,
+        504.1875,
+        504.1875,
+        504.1875,
+        504.1875
+      ]
+    },
+    {
+      "file": "20261104-105246-5909/peer-two-third-round-1-three-picks.json",
+      "footerTop": 669,
+      "cardBottoms": [
+        509.1875,
+        509.1875,
+        509.1875,
+        509.1875,
+        509.1875
+      ]
+    },
+    {
+      "file": "20261104-105246-5909/peer-two-third-round-2-three-picks.json",
+      "footerTop": 669,
+      "cardBottoms": [
+        509.1875,
+        509.1875,
+        509.1875,
+        509.1875,
+        509.1875
+      ]
+    },
+    {
+      "file": "20261104-105246-5909/two-final-round-1-three-picks.json",
+      "footerTop": 639,
+      "cardBottoms": [
+        509.1875,
+        509.1875,
+        509.1875,
+        509.1875,
+        509.1875
+      ]
+    },
+    {
+      "file": "20261104-105246-5909/two-final-round-2-three-picks.json",
+      "footerTop": 639,
+      "cardBottoms": [
+        509.1875,
+        509.1875,
+        509.1875,
+        509.1875,
+        509.1875
+      ]
+    },
+    {
+      "file": "20261104-105246-5909/two-semi-round-1-three-picks.json",
+      "footerTop": 639,
+      "cardBottoms": [
+        504.1875,
+        504.1875,
+        504.1875,
+        504.1875,
+        504.1875
+      ]
+    },
+    {
+      "file": "20261104-105246-5909/two-semi-round-2-three-picks.json",
+      "footerTop": 639,
+      "cardBottoms": [
+        504.1875,
+        504.1875,
+        504.1875,
+        504.1875,
+        504.1875
+      ]
+    }
+  ],
+  "choices": [
+    {
+      "file": "20261104-105318-0538/after-mid.json",
+      "scene": "growth",
+      "workspaceBottom": 553,
+      "fields": [
+        {
+          "selector": ".growth-crest:nth-child(1) > strong",
+          "bottom": 392.01361083984375
+        },
+        {
+          "selector": ".growth-crest:nth-child(1) > .growth-change",
+          "bottom": 426.1958923339844
+        },
+        {
+          "selector": ".growth-crest:nth-child(1) > small",
+          "bottom": 461.0812072753906
+        },
+        {
+          "selector": ".growth-crest:nth-child(1) > .choice-take",
+          "bottom": 495.872802734375
+        },
+        {
+          "selector": ".growth-crest:nth-child(2) > strong",
+          "bottom": 386.53125
+        },
+        {
+          "selector": ".growth-crest:nth-child(2) > .growth-change",
+          "bottom": 420.71875
+        },
+        {
+          "selector": ".growth-crest:nth-child(2) > small",
+          "bottom": 455.609375
+        },
+        {
+          "selector": ".growth-crest:nth-child(2) > .choice-take",
+          "bottom": 490.40625
+        },
+        {
+          "selector": ".growth-crest:nth-child(3) > strong",
+          "bottom": 391.8915710449219
+        },
+        {
+          "selector": ".growth-crest:nth-child(3) > .growth-change",
+          "bottom": 426.0738830566406
+        },
+        {
+          "selector": ".growth-crest:nth-child(3) > small",
+          "bottom": 460.95916748046875
+        },
+        {
+          "selector": ".growth-crest:nth-child(3) > .choice-take",
+          "bottom": 495.7507629394531
+        }
+      ]
+    },
+    {
+      "file": "20261104-105318-0538/after-semi.json",
+      "scene": "growth",
+      "workspaceBottom": 553,
+      "fields": [
+        {
+          "selector": ".growth-crest:nth-child(1) > strong",
+          "bottom": 392.01361083984375
+        },
+        {
+          "selector": ".growth-crest:nth-child(1) > .growth-change",
+          "bottom": 426.1958923339844
+        },
+        {
+          "selector": ".growth-crest:nth-child(1) > small",
+          "bottom": 461.0812072753906
+        },
+        {
+          "selector": ".growth-crest:nth-child(1) > .choice-take",
+          "bottom": 495.872802734375
+        },
+        {
+          "selector": ".growth-crest:nth-child(2) > strong",
+          "bottom": 386.53125
+        },
+        {
+          "selector": ".growth-crest:nth-child(2) > .growth-change",
+          "bottom": 420.71875
+        },
+        {
+          "selector": ".growth-crest:nth-child(2) > small",
+          "bottom": 455.609375
+        },
+        {
+          "selector": ".growth-crest:nth-child(2) > .choice-take",
+          "bottom": 490.40625
+        },
+        {
+          "selector": ".growth-crest:nth-child(3) > strong",
+          "bottom": 391.8915710449219
+        },
+        {
+          "selector": ".growth-crest:nth-child(3) > .growth-change",
+          "bottom": 426.0738830566406
+        },
+        {
+          "selector": ".growth-crest:nth-child(3) > small",
+          "bottom": 460.95916748046875
+        },
+        {
+          "selector": ".growth-crest:nth-child(3) > .choice-take",
+          "bottom": 495.7507629394531
+        }
+      ]
+    },
+    {
+      "file": "20261104-105318-0538/growth-mid-2.json",
+      "scene": "growth",
+      "workspaceBottom": 553,
+      "fields": [
+        {
+          "selector": ".growth-crest:nth-child(1) > strong",
+          "bottom": 392.01361083984375
+        },
+        {
+          "selector": ".growth-crest:nth-child(1) > .growth-change",
+          "bottom": 426.1958923339844
+        },
+        {
+          "selector": ".growth-crest:nth-child(1) > small",
+          "bottom": 461.0812072753906
+        },
+        {
+          "selector": ".growth-crest:nth-child(1) > .choice-take",
+          "bottom": 495.872802734375
+        },
+        {
+          "selector": ".growth-crest:nth-child(2) > strong",
+          "bottom": 386.53125
+        },
+        {
+          "selector": ".growth-crest:nth-child(2) > .growth-change",
+          "bottom": 420.71875
+        },
+        {
+          "selector": ".growth-crest:nth-child(2) > small",
+          "bottom": 455.609375
+        },
+        {
+          "selector": ".growth-crest:nth-child(2) > .choice-take",
+          "bottom": 490.40625
+        },
+        {
+          "selector": ".growth-crest:nth-child(3) > strong",
+          "bottom": 391.8915710449219
+        },
+        {
+          "selector": ".growth-crest:nth-child(3) > .growth-change",
+          "bottom": 426.0738830566406
+        },
+        {
+          "selector": ".growth-crest:nth-child(3) > small",
+          "bottom": 460.95916748046875
+        },
+        {
+          "selector": ".growth-crest:nth-child(3) > .choice-take",
+          "bottom": 495.7507629394531
+        }
+      ]
+    },
+    {
+      "file": "20261104-105318-0538/growth-npc-1.json",
+      "scene": "growth",
+      "workspaceBottom": 553,
+      "fields": [
+        {
+          "selector": ".growth-crest:nth-child(1) > strong",
+          "bottom": 392.01361083984375
+        },
+        {
+          "selector": ".growth-crest:nth-child(1) > .growth-change",
+          "bottom": 426.1958923339844
+        },
+        {
+          "selector": ".growth-crest:nth-child(1) > small",
+          "bottom": 461.0812072753906
+        },
+        {
+          "selector": ".growth-crest:nth-child(1) > .choice-take",
+          "bottom": 495.872802734375
+        },
+        {
+          "selector": ".growth-crest:nth-child(2) > strong",
+          "bottom": 386.53125
+        },
+        {
+          "selector": ".growth-crest:nth-child(2) > .growth-change",
+          "bottom": 420.71875
+        },
+        {
+          "selector": ".growth-crest:nth-child(2) > small",
+          "bottom": 455.609375
+        },
+        {
+          "selector": ".growth-crest:nth-child(2) > .choice-take",
+          "bottom": 490.40625
+        },
+        {
+          "selector": ".growth-crest:nth-child(3) > strong",
+          "bottom": 391.8915710449219
+        },
+        {
+          "selector": ".growth-crest:nth-child(3) > .growth-change",
+          "bottom": 426.0738830566406
+        },
+        {
+          "selector": ".growth-crest:nth-child(3) > small",
+          "bottom": 460.95916748046875
+        },
+        {
+          "selector": ".growth-crest:nth-child(3) > .choice-take",
+          "bottom": 495.7507629394531
+        }
+      ]
+    },
+    {
+      "file": "20261104-105318-0538/growth-semi-3.json",
+      "scene": "growth",
+      "workspaceBottom": 553,
+      "fields": [
+        {
+          "selector": ".growth-crest:nth-child(1) > strong",
+          "bottom": 392.01361083984375
+        },
+        {
+          "selector": ".growth-crest:nth-child(1) > .growth-change",
+          "bottom": 426.1958923339844
+        },
+        {
+          "selector": ".growth-crest:nth-child(1) > small",
+          "bottom": 461.0812072753906
+        },
+        {
+          "selector": ".growth-crest:nth-child(1) > .choice-take",
+          "bottom": 495.872802734375
+        },
+        {
+          "selector": ".growth-crest:nth-child(2) > strong",
+          "bottom": 386.53125
+        },
+        {
+          "selector": ".growth-crest:nth-child(2) > .growth-change",
+          "bottom": 420.71875
+        },
+        {
+          "selector": ".growth-crest:nth-child(2) > small",
+          "bottom": 455.609375
+        },
+        {
+          "selector": ".growth-crest:nth-child(2) > .choice-take",
+          "bottom": 490.40625
+        },
+        {
+          "selector": ".growth-crest:nth-child(3) > strong",
+          "bottom": 391.8915710449219
+        },
+        {
+          "selector": ".growth-crest:nth-child(3) > .growth-change",
+          "bottom": 426.0738830566406
+        },
+        {
+          "selector": ".growth-crest:nth-child(3) > small",
+          "bottom": 460.95916748046875
+        },
+        {
+          "selector": ".growth-crest:nth-child(3) > .choice-take",
+          "bottom": 495.7507629394531
+        }
+      ]
+    },
+    {
+      "file": "20261104-105318-0538/loot-after-store.json",
+      "scene": "growth",
+      "workspaceBottom": 553,
+      "fields": [
+        {
+          "selector": ".growth-crest:nth-child(1) > strong",
+          "bottom": 392.01361083984375
+        },
+        {
+          "selector": ".growth-crest:nth-child(1) > .growth-change",
+          "bottom": 426.1958923339844
+        },
+        {
+          "selector": ".growth-crest:nth-child(1) > small",
+          "bottom": 461.0812072753906
+        },
+        {
+          "selector": ".growth-crest:nth-child(1) > .choice-take",
+          "bottom": 495.872802734375
+        },
+        {
+          "selector": ".growth-crest:nth-child(2) > strong",
+          "bottom": 386.53125
+        },
+        {
+          "selector": ".growth-crest:nth-child(2) > .growth-change",
+          "bottom": 420.71875
+        },
+        {
+          "selector": ".growth-crest:nth-child(2) > small",
+          "bottom": 455.609375
+        },
+        {
+          "selector": ".growth-crest:nth-child(2) > .choice-take",
+          "bottom": 490.40625
+        },
+        {
+          "selector": ".growth-crest:nth-child(3) > strong",
+          "bottom": 391.8915710449219
+        },
+        {
+          "selector": ".growth-crest:nth-child(3) > .growth-change",
+          "bottom": 426.0738830566406
+        },
+        {
+          "selector": ".growth-crest:nth-child(3) > small",
+          "bottom": 460.95916748046875
+        },
+        {
+          "selector": ".growth-crest:nth-child(3) > .choice-take",
+          "bottom": 495.7507629394531
+        }
+      ]
+    },
+    {
+      "file": "20261104-105318-0538/reward-choice.json",
+      "scene": "reward",
+      "workspaceBottom": 553,
+      "fields": [
+        {
+          "selector": ".loot-choice:nth-child(1) > strong",
+          "bottom": 375.7928466796875
+        },
+        {
+          "selector": ".loot-choice:nth-child(1) > p",
+          "bottom": 408.97528076171875
+        },
+        {
+          "selector": ".loot-choice:nth-child(1) > small",
+          "bottom": 427.3631286621094
+        },
+        {
+          "selector": ".loot-choice:nth-child(1) > .choice-take",
+          "bottom": 461.15484619140625
+        },
+        {
+          "selector": ".loot-choice:nth-child(2) > strong",
+          "bottom": 370.328125
+        },
+        {
+          "selector": ".loot-choice:nth-child(2) > p",
+          "bottom": 403.515625
+        },
+        {
+          "selector": ".loot-choice:nth-child(2) > small",
+          "bottom": 421.90625
+        },
+        {
+          "selector": ".loot-choice:nth-child(2) > .choice-take",
+          "bottom": 455.703125
+        },
+        {
+          "selector": ".loot-choice:nth-child(3) > strong",
+          "bottom": 375.7929992675781
+        },
+        {
+          "selector": ".loot-choice:nth-child(3) > p",
+          "bottom": 408.9754333496094
+        },
+        {
+          "selector": ".loot-choice:nth-child(3) > small",
+          "bottom": 427.3632507324219
+        },
+        {
+          "selector": ".loot-choice:nth-child(3) > .choice-take",
+          "bottom": 461.1549987792969
+        }
+      ]
+    }
+  ],
+  "pass": true
+}
