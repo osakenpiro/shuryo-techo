@@ -1,0 +1,38 @@
+name: Hero Tournament r12 Windows candidate
+on:
+  push:
+    branches: [release/hero-tournament-r12-20261104]
+    paths:
+      - hero-tournament/build-r12/**
+      - .github/workflows/hero-tournament-r12.yml
+permissions:
+  contents: read
+concurrency:
+  group: hero-tournament-r12-candidate
+  cancel-in-progress: false
+jobs:
+  build-and-native-check:
+    runs-on: windows-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Compile and check the integrated Windows game
+        shell: pwsh
+        run: ./hero-tournament/build-r12/build.ps1 -OutputRoot "$env:RUNNER_TEMP/hero-r12"
+      - name: Preserve candidate and actual native evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: hero-tournament-r12-candidate
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            ${{ runner.temp }}/hero-r12/hero-tournament-windows-r12.zip
+            ${{ runner.temp }}/hero-r12/release-candidate.json
+            ${{ runner.temp }}/hero-r12/build-receipt.json
+            ${{ runner.temp }}/hero-r12/engine-verification.json
+            ${{ runner.temp }}/hero-r12/deadhand-verification.json
+            ${{ runner.temp }}/hero-r12/preparation.json
+            ${{ runner.temp }}/hero-r12/HeroTournament-Windows-r12/playtest-evidence/

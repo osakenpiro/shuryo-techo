@@ -1,0 +1,90 @@
+import * as C from './material-core.js';
+const copy=x=>structuredClone(x),fail=m=>{throw Error(m);},round=x=>Math.round(x*10)/10;
+// These plans are committed at the start of the round, before human choices.
+export const BALANCE_VERSION=2;
+export function defense(s){const st=C.stats(s);return {physical:st.armor,magic:Math.min(2,Math.floor(st.roles.MAGE/3)),guard:7+Math.min(3,Math.floor(st.armor/2)),ward:7+Math.min(3,st.roles.MAGE),guardCounter:3+Math.min(3,st.armor),wardCounter:3+Math.min(3,Math.floor(st.roles.MAGE/2))};}
+function decorate(s,b,c,st){if(b.balance!==2)return c;const d=st||C.stats(s);if(c.kind==='guard')return {...c,block:7+Math.min(3,Math.floor(d.armor/2)),counterBoost:3+Math.min(3,d.armor)};if(c.kind==='ward')return {...c,block:7+Math.min(3,d.roles.MAGE),restore:1,counterBoost:3+Math.min(3,Math.floor(d.roles.MAGE/2))};return c;}
+export function cues(b){return b.signals||[];}
+export function cueLabel(c){return ({physical:'物理',magic:'魔法',guard:'物理の守り',ward:'魔法の守り',focus:'集中'})[c]||'？';}
+export function prepare(b,duel=false,fresh=false){
+ if(fresh)b.balance=2;if(b.balance!==2)return legacyPrepare(b,duel);
+ b.ordered=1;b.draft=[];b.saved=[];b.planSet=false;b.reveal=null;b.counter ||= {player:0,opponent:0,playerUntil:0,opponentUntil:0};
+ for(const who of ['player','opponent'])if(b.counter[who+'Until']<b.round)b.counter[who]=0;
+ const strike=(damage=8)=>({name:'斬撃',damage,spell:false}),fire=(damage=9)=>({name:'火花',damage,spell:true,mp:3}),guard=(block=7)=>({name:'盾構え',block,spell:false}),ward=()=>({name:'魔法障壁',block:8,spell:true,restore:1}),n=(b.round-1)%3;
+ const patterns=duel?(b.kind==='semi'?[[fire(8),fire(8)],[ward(),fire(10)],[strike(7),fire(9)]]:b.kind==='final'?[[guard(8),fire(10)],[fire(9),strike(10)],[strike(10),guard(8)]]:[[guard(),strike(8)],[strike(9),strike(7)],[ward(),fire(9)]]):b.elite?[[strike(10),strike(8)],[fire(9),fire(7)],[guard(8),strike(11)]]:[[strike(6),strike(7)],[strike(7),strike(6)],[guard(),strike(7)]];
+ let mp=Number.isFinite(b.mp)?b.mp:Infinity;b.bot=patterns[n].map(c=>{if((c.mp||0)>mp)c={name:'インクを継ぐ',restore:3,spell:false};mp=Math.min(12,mp-(c.mp||0)+(c.restore||0));return c;});
+ b.signals=b.bot.map(c=>c.damage?(c.spell?'magic':'physical'):c.block?(c.spell?'ward':'guard'):'focus');return b;
+}
+function legacyPrepare(b,duel=false){b.ordered=1;b.draft=[];b.saved=[];b.planSet=false;b.reveal=null;const n=(b.round-1)%3;b.bot=duel?[
+ [{name:'斬撃',damage:6,spell:false},{name:'盾構え',block:7,spell:false}],
+ [{name:'魔法障壁',block:7,spell:true},{name:'火花',damage:b.mp>=3?10:3,mp:b.mp>=3?3:0,spell:b.mp>=3}],
+ [{name:'斬撃',damage:6,spell:false},{name:'斬撃',damage:6,spell:false}]
+][n]:[{name:'飛びかかる',damage:(b.elite?7:5)+Math.floor((b.round-1)/3),spell:false},{name:n===2?'折り目を固める':'牙をむく',damage:n===2?0:(b.elite?8:6),block:n===2?7:0,spell:false}];return b;}
+export function totals(s,b,ids,card,exact=false){if(ids.length>3||new Set(ids).size!==ids.length)fail('違う3枚を順に選んでください');if(exact&&ids.length!==3)fail('使う2枚と、次へ残す1枚を選んでください');const st=C.stats(s);const cards=ids.map(id=>{const raw=b.pile.hand.find(c=>c.uid===id);if(!raw)fail('手札にないカードです');return decorate(s,b,card(s,raw),st);});let mp=s.run.mp,free=false;const uses={};for(const c of cards.slice(0,2)){if(c.mp>mp)fail('この順番では魔力が足りません');mp=Math.min(s.run.maxMp,mp-c.mp+(c.restore||0));if(c.kind==='weapon'){if(c.spell&&st.seriesReady&&!b.seriesUsed&&!free)free=true;else uses[c.itemId]=(uses[c.itemId]||0)+1;}}
+ for(const [id,n] of Object.entries(uses)){const i=s.run.items.find(i=>i.id===id);if(!i||i.durability<n)fail('使う2枚の武器耐久が足りません');}return {cards,uses,freeSeries:free,mp:s.run.mp-mp,mpAfter:mp};}
+// Predict only the selected execution cards; never inspect an opponent plan.
+export function planResources(s,b,card){
+ const p=totals(s,b,b.draft,card),wear=Object.entries(p.uses).map(([id,n])=>{const i=s.run.items.find(x=>x.id===id);return {id,name:C.DEFS[i.defId].name,before:i.durability,after:i.durability-n};});
+ return {count:Math.min(2,b.draft.length),mpBefore:s.run.mp,mpAfter:p.mpAfter,wear,reserve:p.cards[2]?{uid:p.cards[2].uid,name:p.cards[2].label||p.cards[2].name}:null};
+}
+function resourcePreview(s,b,card,esc){
+ if(!b.draft.length)return '';
+ let p;try{p=planResources(s,b,card);}catch{return '';}
+ const changed=p.mpBefore!==p.mpAfter||p.wear.length;
+ return '<div class="ordered-plan-resources" role="status" aria-live="polite"><strong>'+p.count+'手の使用後</strong><span>魔力 <b>'+p.mpBefore+' → '+p.mpAfter+'</b></span>'+p.wear.map(w=>'<span>'+esc(w.name)+' 耐久 <b>'+w.before+' → '+w.after+'</b>'+(w.after===0?' <em>使い切り</em>':'')+'</span>').join('')+(!changed?'<span>使用後の魔力・耐久の残量は変わらない</span>':'')+(p.reserve?'<span class="plan-reserve">③ '+esc(p.reserve.name)+' <b>持ち越し・消費なし</b></span>':'')+'</div>';
+}
+// A hand must offer a legal two-action plan. Exchange existing basic cards only;
+// never create cards, waive costs, replace the carried card, or inspect an opponent.
+export function hasLegalPlan(s,b,card){
+ const hand=b.pile.hand;for(const a of hand)for(const c of hand)for(const z of hand){if(new Set([a.uid,c.uid,z.uid]).size!==3)continue;try{totals(s,b,[a.uid,c.uid,z.uid],card,true);return true;}catch{}}return false;
+}
+export function ensurePlayableHand(s,b,card){
+ if(hasLegalPlan(s,b,card))return false;
+ const hand=b.pile.hand,positions=hand.map((c,i)=>i).filter(i=>hand[i].uid!==b.retainedUid).reverse(),pool=[];
+ for(const kind of ['focus','strike','guard','ward'])for(const source of ['draw','discard'])for(const [index,raw]of (b.pile[source]||[]).entries())if(raw.kind===kind)pool.push({source,index,raw});
+ const legal=(incoming,indices)=>{const trial=[...hand];for(let k=0;k<incoming.length;k++)trial[indices[k]]=incoming[k].raw;return hasLegalPlan(s,{...b,pile:{...b.pile,hand:trial}},card);};
+ let chosen;
+ for(const c of pool){for(const i of positions)if(legal([c],[i])){chosen={cards:[c],indices:[i]};break;}if(chosen)break;}
+ if(!chosen&&positions.length>=2)for(let a=0;a<pool.length;a++){for(let c=a+1;c<pool.length;c++)if(legal([pool[a],pool[c]],positions.slice(0,2))){chosen={cards:[pool[a],pool[c]],indices:positions.slice(0,2)};break;}if(chosen)break;}
+ if(!chosen)throw Error('基本札への組み直しができません');
+ const swaps=[];for(let k=0;k<chosen.cards.length;k++){const c=chosen.cards[k],i=chosen.indices[k],out=hand[i];hand[i]=c.raw;b.pile[c.source][c.index]=out;swaps.push({outUid:out.uid,inUid:c.raw.uid,kind:c.raw.kind});}
+ b.handRecovery={round:b.round,swaps};return true;
+}
+export function toggle(s,b,uid,card){if(b.reveal)fail('結果を確認して次の手札へ進んでください');const next=b.draft.includes(uid)?b.draft.filter(x=>x!==uid):[...b.draft,uid];totals(s,b,next,card);b.draft=next;b.planSet=false;}
+function resolveRule(s,b,card){
+ if(b.balance!==2)return legacyResolve(s,b,card);if(b.reveal)fail('この作戦は実行済みです');
+ const p=totals(s,b,b.draft,card,true),d=defense(s),beats=[],charge={...(b.counter||{})};let dealt=0,taken=0;
+ for(let k=0;k<2;k++){
+  const c=p.cards[k],foe=b.bot[k];let attack=c.damage||0,incoming=foe.damage||0,counterSpent=0,foeCounterSpent=0;
+  if(attack&&charge.player){counterSpent=charge.player;attack+=counterSpent;charge.player=0;}
+  if(incoming&&charge.opponent){foeCounterSpent=charge.opponent;incoming+=foeCounterSpent;charge.opponent=0;}
+  const guarded=!!(c.block&&incoming>0&&((c.kind==='ward')===!!foe.spell)),foeGuarded=!!(foe.block&&attack>0&&(!!foe.spell===!!c.spell)),hit=round(Math.max(0,attack-(foeGuarded?foe.block:0))),hurt=round(Math.max(0,incoming-(guarded?c.block:0)-(foe.spell?d.magic:d.physical)));
+  if(guarded){charge.player=c.counterBoost;charge.playerUntil=b.round+1;}if(foeGuarded){charge.opponent=4;charge.opponentUntil=b.round+1;}
+  b.hp=Math.max(0,round(b.hp-hit));s.run.hp=Math.max(0,round(s.run.hp-hurt));dealt+=hit;taken+=hurt;
+  beats.push({beat:k+1,player:c.name,opponent:foe.name,dealt:hit,taken:hurt,guarded,foeGuarded,counterSpent,foeCounterSpent,counterReady:guarded?c.counterBoost:0});
+ }
+ b.counter=charge;s.run.mp=p.mpAfter;for(const [id,n]of Object.entries(p.uses))s.run.items.find(i=>i.id===id).durability-=n;if(p.freeSeries)b.seriesUsed=true;
+ if(Number.isFinite(b.mp))for(const c of b.bot)b.mp=Math.min(12,Math.max(0,b.mp-(c.mp||0)+(c.restore||0)));
+ b.retainedUid=p.cards[2].uid;b.reveal={player:p.cards.slice(0,2).map(c=>c.name),opponent:b.bot.map(c=>c.name),dealt:round(dealt),taken:round(taken),mp:p.mp,durability:copy(p.uses),round:b.round,retained:p.cards[2].name,retainedUid:b.retainedUid,beats,counterAfter:copy(charge)};b.last={kind:'ordered',damage:dealt};return b.reveal;
+}
+export function resolve(s,b,card){if(b.reveal)fail('この作戦は実行済みです');
+ const before={hp:s.run.hp,mp:s.run.mp,coin:s.run.coin,foeHp:b.hp},plan=totals(s,b,b.draft,card,true),wear=Object.fromEntries(Object.keys(plan.uses).map(id=>[id,{name:C.DEFS[s.run.items.find(i=>i.id===id).defId].name,before:s.run.items.find(i=>i.id===id).durability}]));
+ const result=resolveRule(s,b,card);let own=before.hp,foe=before.foeHp,mp=before.mp;const d=defense(s);
+ for(let k=0;k<result.beats.length;k++){const beat=result.beats[k],c=plan.cards[k],enemy=b.bot[k];Object.assign(beat,{ownHpBefore:own,foeHpBefore:foe,mpBefore:mp,playerLabel:c.kind==='weapon'||c.broken?c.label:c.name,playerKind:c.kind,playerSpell:!!c.spell,foeSpell:!!enemy.spell,playerPower:c.damage||0,foePower:enemy.damage||0,playerBlock:c.block||0,foeBlock:enemy.block||0,armor:enemy.spell?d.magic:d.physical});own=Math.max(0,r0(own-beat.taken));foe=Math.max(0,r0(foe-beat.dealt));mp=Math.min(s.run.maxMp,mp-c.mp+(c.restore||0));Object.assign(beat,{ownHpAfter:own,foeHpAfter:foe,mpAfter:mp});}
+ for(const [id,v]of Object.entries(wear))v.after=s.run.items.find(i=>i.id===id).durability;
+ result.resources={before,after:{hp:s.run.hp,mp:s.run.mp,coin:s.run.coin,foeHp:b.hp},wear};return result;
+}
+const r0=x=>Math.round(x*10)/10;
+export function verdict(s,b){if(s.run.hp===0&&b.hp===0)return {outcome:'double-ko',won:false};if(!s.run.hp)return {outcome:'loss',won:false};if(!b.hp)return {outcome:'win',won:true};if(b.balance!==2)return {outcome:s.run.hp>b.hp?'win':'loss',won:s.run.hp>b.hp};const a=s.run.hp/s.run.maxHp,z=b.hp/b.maxHp;return {outcome:Math.abs(a-z)<1e-9?'draw':a>z?'win':'loss',won:a>z+1e-9,judgement:{player:a,opponent:z,rule:'remaining_hp_ratio'}};}
+function legacyResolve(s,b,card){if(b.reveal)fail('この作戦は実行済みです');const p=totals(s,b,b.draft,card,true),beats=[];let dealt=0,taken=0;for(let k=0;k<2;k++){const c=p.cards[k],foe=b.bot[k],armor=C.stats(s).armor,guard=c.block&&((c.kind==='ward')===!!foe.spell)?c.block:0,foeGuard=foe.block&&(!!foe.spell===!!c.spell)?foe.block:0;const hit=round(Math.max(0,(c.damage||0)-foeGuard)),hurt=round(Math.max(0,(foe.damage||0)-guard-armor));b.hp=Math.max(0,round(b.hp-hit));s.run.hp=Math.max(0,round(s.run.hp-hurt));dealt+=hit;taken+=hurt;beats.push({beat:k+1,player:c.name,opponent:foe.name,dealt:hit,taken:hurt});}
+ s.run.mp=p.mpAfter;for(const [id,n] of Object.entries(p.uses))s.run.items.find(i=>i.id===id).durability-=n;if(p.freeSeries)b.seriesUsed=true;if(Number.isFinite(b.mp))b.mp=Math.max(0,b.mp-b.bot.reduce((n,c)=>n+(c.mp||0),0));b.retainedUid=p.cards[2].uid;b.reveal={player:p.cards.slice(0,2).map(c=>c.name),opponent:b.bot.map(c=>c.name),dealt:round(dealt),taken:round(taken),mp:p.mp,durability:copy(p.uses),round:b.round,retained:p.cards[2].name,retainedUid:b.retainedUid,beats};b.last={kind:'ordered',damage:dealt};return b.reveal;}
+export function retain(b,draw){const retained=b.pile.hand.find(c=>c.uid===b.retainedUid);if(!retained)fail('残した札が見つかりません');b.pile.discard.push(...b.pile.hand.filter(c=>c.uid!==retained.uid));b.pile.hand=[retained];draw(b.pile);b.round++;prepare(b,Number.isFinite(b.mp));}
+export function pickReason(s,b,uid,card){if(b.draft.includes(uid))return '';if(b.draft.length>=3)return '3枚選択済み';try{totals(s,b,[...b.draft,uid],card);return '';}catch(e){return e.message.includes('魔力')?'魔力不足':e.message.includes('耐久')?'耐久不足':e.message;}}
+export function render(s,b,card,gear,esc){
+ const cs=b.pile.hand.map(c=>decorate(s,b,card(s,c))),title=c=>c.kind==='weapon'||c.broken?c.label:c.name,n=b.draft.length;
+ if(b.reveal)return answer(s,b,esc);
+ const slots='<div class="order-guidance"><strong>'+(n<2?(n+1)+'手目に使う札を選ぶ':n===2?'次へ残す1枚を選ぶ':'作戦が揃った')+'</strong>'+(b.draft.length?resourcePreview(s,b,card,esc):'<span>選んだ順に実行</span>')+'</div><div class="ordered-slots" aria-label="実行順と持ち越し">'+[0,1,2].map(k=>{const c=cs.find(c=>c.uid===b.draft[k]);return '<button class="order-slot '+(k===2?'reserve ':'')+(n===k?'current':'')+'" data-action="ORDER_REVISE" data-slot="'+k+'" '+(!c?'disabled':'')+' aria-current="'+(n===k?'step':'false')+'"><em>'+(k+1)+'</em><div><small>'+(k===2?'次へ残す':'第'+(k+1)+'手 · 実行')+'</small><b>'+esc(c?title(c):k===n?'手札から選ぶ':'—')+'</b></div>'+(c?'<span>選び直す</span>':'')+'</button>';}).join('<i class="order-arrow" aria-hidden="true">›</i>')+'</div>';
+ let error='';try{totals(s,b,b.draft,card,true);}catch(e){error=e.message;}
+ return (b.handRecovery?'<p class="hand-recovery" role="status">使える2手が組めないため、山札・捨て札の基本札を'+b.handRecovery.swaps.length+'枚繰り入れました。魔力・耐久の支払いは通常どおりです。</p>':'')+slots+'<div class="ordered-hand" role="group" aria-label="手札">'+cs.map(c=>{const index=b.draft.indexOf(c.uid),selected=index>=0,unavailable=pickReason(s,b,c.uid,card),unit=c.damage?'ダメージ':c.block?'防ぐ':c.restore?'魔力回復':'',detail=c.kind==='ward'?'魔法を防ぐ · 魔力+1':c.kind==='guard'?'物理を防ぐ':c.restore?'呪文と遠視の備え':'相手の体力を減らす';return '<button class="ordered-card '+(selected?'is-chosen':'')+'" data-action="ORDER_PICK" data-uid="'+esc(c.uid)+'" aria-pressed="'+selected+'" '+(unavailable?'disabled data-unavailable="'+esc(unavailable)+'"':'')+(c.block&&b.balance===2?' title="対応する攻撃を防ぐと、次の攻撃 +'+c.counterBoost+'。次ラウンドまで。"':'')+' aria-label="'+esc(title(c)+' '+unit+' '+(c.damage||c.block||c.restore))+'">'+(selected?'<em>'+["① 1手目","② 2手目","③ 持ち越し"][index]+'</em>':'')+'<b>'+esc(title(c))+'</b><span class="ordered-art">'+gear(c.defId||(c.block?'SHIELD':c.restore?'POTION':'KNIFE'))+'</span><strong>'+(c.damage||c.block||c.restore)+'<small>'+unit+'</small></strong><small>'+detail+'</small>'+(c.block&&b.balance===2?'<small>成功 → 次の攻撃 +'+c.counterBoost+'</small>':'')+(c.broken?'<span class="ordered-wear">破損 · 素手の攻撃</span>':c.kind==='weapon'?'<span class="ordered-wear">耐久 '+c.dur+' / '+c.max+'</span>':'')+'<small'+(unavailable?' class="unavailable-reason"':'')+'>'+(unavailable|| (index===2?'消費なし':c.mp?'魔力 −'+c.mp:''))+'</small></button>';}).join('')+'</div><div class="ordered-confirm"><span>'+esc(error||'① → ②を実行。③を次へ持ち越す。')+'</span><button class="gold-button" data-action="ORDER_CONFIRM" '+(error?'disabled':'')+'>2手を決定 · 答え合わせへ →</button></div>';
+}
+function answer(s,b,esc){const r=b.reveal,resources=r.resources,terminal=s.journey.stage==='result',next=terminal?'RESULT_REVIEW_NEXT':'ORDER_NEXT';return '<section id="combat-answer" class="combat-answer" data-answer-key="'+esc(b.id+':'+b.round)+'"><header><span>第'+b.round+'ラウンド · 答え合わせ</span><strong>キミの2手 × 相手の2手</strong><button type="button" data-answer-finish>まとめて見る</button></header><div class="answer-beats">'+r.beats.map(x=>'<article class="answer-beat" data-beat="'+x.beat+'"><b class="beat-number">'+x.beat+'<small>手目</small></b><div class="answer-side own"><small>あなた · '+esc(x.player)+'</small><strong>'+esc(x.playerLabel||x.player)+'</strong><b class="answer-impact '+(x.taken?'damage':'blocked')+'">'+(x.taken?'体力 −'+x.taken:x.guarded?'防御成功':'被害なし')+'</b><span>体力 '+(x.ownHpBefore??'—')+' → '+(x.ownHpAfter??s.run.hp)+'</span></div><div class="answer-cross">×</div><div class="answer-side foe"><small>'+esc(b.name)+'</small><strong>'+esc(x.opponent)+'</strong><b class="answer-impact '+(x.dealt?'damage':'blocked')+'">'+(x.dealt?'体力 −'+x.dealt:x.foeGuarded?'相手が防御':'被害なし')+'</b><span>体力 '+(x.foeHpBefore??'—')+' → '+(x.foeHpAfter??b.hp)+'</span></div><p>'+esc(x.guarded?'対応する攻撃を防いだ · 次の攻撃 +'+x.counterReady:x.foeGuarded?'相手の守りが対応 · 攻撃を軽減':x.armor&&x.foePower?'装備で '+x.armor+' 軽減':'双方の札を同時に解決')+(x.counterSpent?' · 反撃 +'+x.counterSpent+' を使用':'')+'</p></article>').join('')+'</div><div class="answer-summary"><span>2手の合計 <b>与えた '+r.dealt+' / 受けた '+r.taken+'</b></span>'+(resources?'<span>魔力 <b>'+resources.before.mp+' → '+resources.after.mp+'</b></span>'+Object.values(resources.wear).map(w=>'<span>'+esc(w.name)+' 耐久 <b>'+w.before+' → '+w.after+'</b></span>').join(''):'<span>魔力消費 '+r.mp+'</span>')+'<span class="answer-reserve">③ 持ち越し <b>'+esc(r.retained)+'</b><small>消費なし</small></span></div></section><button class="gold-button" data-action="'+next+'">'+(terminal?'勝敗と報酬を見る →':b.ended?(s.journey.growthPending>0?'勝利の成長へ →':b.kind==='mid'?'再探索へ →':b.kind==='semi'?(b.won?'決勝へ →':'順位戦へ →'):'大会の結末へ →'):'次の手札へ →')+'</button>';}
