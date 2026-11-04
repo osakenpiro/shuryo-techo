@@ -1,0 +1,22 @@
+[
+  {
+    "path": "game/ordered-combat.js",
+    "baselineSHA256": "8ff586ddc75ba01f925adbed84c05cb40c01656384b6701bfd30fa8248777f66",
+    "candidateSHA256": "4a9ab7018c5e514aa412720b6d939cf7d142e3d1669cc548b220d4f3790a83a3"
+  },
+  {
+    "path": "game/experience-ui.css",
+    "baselineSHA256": "14cfaef92b5e473d96966c51631645535ab1e0cc03a8ccf9db9b8b345c44f27b",
+    "candidateSHA256": "abb958fad5b42ea78c222fe7413495b4a4a08e000fa78bc1c3671424261ae1fd"
+  },
+  {
+    "path": "game/room-ui.js",
+    "baselineSHA256": "136b6c25551adc0eb421205cb330629738b9b46a82e1f027d370e828066d931f",
+    "candidateSHA256": "3256dd55622aee08f7c3d3360fa1ab3d7f4e6976ee35e92cc5900552bb602a88"
+  },
+  {
+    "path": "game/room.css",
+    "baselineSHA256": "00b6275987507b120a73bbb40975e902da2c083577b1c5b4119b8f39fa8416a0",
+    "candidateSHA256": "ab9bcfe524cdb22e6d5b3d127991d228860e69c0e695a9dcc0f1c33af80809c6"
+  }
+]
