@@ -21,6 +21,17 @@ jobs:
       - name: Compile and check the integrated Windows game
         shell: pwsh
         run: ./hero-tournament/build-r15/build.ps1 -OutputRoot "$env:RUNNER_TEMP/hero-r15"
+      - name: Preserve launch diagnostics from this test build
+        if: always()
+        shell: pwsh
+        run: |
+          $source = Join-Path $env:LOCALAPPDATA 'HeroTournament/Windows/ht-windows-20261104-r15'
+          $target = Join-Path $env:RUNNER_TEMP 'hero-r15/launch-diagnostics'
+          New-Item -ItemType Directory -Path $target -Force | Out-Null
+          if (Test-Path $source) {
+            Get-ChildItem $source -Filter '*.log' | Copy-Item -Destination $target
+            Get-ChildItem $target -Filter '*.log' | ForEach-Object { Get-Content -LiteralPath $_.FullName }
+          }
       - name: Preserve candidate and actual native evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -38,4 +49,5 @@ jobs:
             ${{ runner.temp }}/hero-r15/native-layout-verification.json
             ${{ runner.temp }}/hero-r15/native-bag-verification.json
             ${{ runner.temp }}/hero-r15/preparation.json
+            ${{ runner.temp }}/hero-r15/launch-diagnostics/
             ${{ runner.temp }}/hero-r15/HeroTournament-Windows-r15/playtest-evidence/
