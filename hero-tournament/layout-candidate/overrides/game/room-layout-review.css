@@ -1,0 +1,52 @@
+/* Candidate only: reserve the default Windows viewport for the complete hand.
+   Keep all teaching text, resource previews and card fields in normal flow. */
+@media (min-width:900px){
+ .room-game:has(.room-arena) .room-top{padding:7px 3vw;gap:12px}
+ .room-game:has(.room-arena) .room-top>a{font-size:20px;line-height:1.2}
+ .room-game:has(.room-arena) .room-fairy{margin-top:6px;padding:5px 48vw 5px 14px;min-height:36px;font-size:13px;line-height:1.4}
+ .room-game:has(.room-arena) .room-fairy:before{font-size:18px;margin-right:8px}
+ .room-game:has(.room-arena) .practice-coach{margin-top:6px;padding:7px 13px;gap:1px 12px}
+ .room-game:has(.room-arena) .practice-coach small{font-size:10px;line-height:1.35}
+ .room-game:has(.room-arena) .practice-coach strong{font-size:15px;line-height:1.4}
+ .room-game:has(.room-arena) .practice-coach p{font-size:12px;line-height:1.45}
+ .room-game:has(.room-arena) .practice-coach button{font-size:11px;padding:6px 10px}
+ .room-game:has(.room-arena) .practice-coach.compact{padding-block:4px}
+ .room-game:has(.room-arena) #room-main{margin-top:7px;padding-bottom:112px}
+ .room-game:has(.room-arena) .room-progress{gap:5px;margin-bottom:7px;font-size:11px;line-height:1.3}
+ .room-game:has(.room-arena) .room-progress span{padding:4px 11px}
+ .room-game:has(.room-arena) .room-arena{padding:12px}
+ .room-game:has(.room-arena) .room-match-header{gap:14px;margin-bottom:9px}
+ .room-game:has(.room-arena) .room-match-header h1{margin:4px 0 0;font-size:23px!important;line-height:1.25}
+ .room-game:has(.room-arena) .room-match-header>div>small{font-size:11px}
+ .room-game:has(.room-arena) .room-foe{font-size:16px;line-height:1.4}
+ .room-game:has(.room-arena) .room-foe small{font-size:11px;line-height:1.4}
+ .room-game:has(.room-arena) .order-guidance{gap:4px 12px;line-height:1.4}
+ .room-game:has(.room-arena) .order-guidance>strong{font-size:15px}
+ .room-game:has(.room-arena) .order-guidance .ordered-plan-resources{padding:4px 9px;line-height:1.45;gap:3px 12px}
+ .room-game:has(.room-arena) .ordered-slots{gap:8px;margin:8px 0 10px}
+ .room-game:has(.room-arena) .order-slot{min-height:55px;padding:6px 10px!important;gap:9px}
+ .room-game:has(.room-arena) .order-slot em{font-size:32px}
+ .room-game:has(.room-arena) .order-slot small{font-size:10px;line-height:1.35}
+ .room-game:has(.room-arena) .order-slot b{font-size:14px;line-height:1.4}
+ .room-game:has(.room-arena) .order-slot>span{font-size:10px;line-height:1.3}
+ .room-game:has(.room-arena) .ordered-hand{padding:4px 0 7px;gap:8px}
+ .room-game:has(.room-arena) .ordered-confirm{margin:3px 0;padding:3px 0 5px}
+ .room-game:has(.room-arena) .room-seal{margin:8px 0}
+ .room-game:has(.room-arena) .room-seal span{padding:6px 12px;font-size:12px}
+ /* A placement receipt can outlive the transition into battle. Keep it in the
+    reserved right side of the phase band, below the identity and sound controls. */
+ .room-game:has(.room-arena) #room-message{top:46px;bottom:auto;left:auto;right:calc(3vw + 8px);transform:none;max-width:44vw;padding:5px 9px;font-size:11px;line-height:1.35}
+}
+@media (min-width:900px) and (max-height:760px){
+ .room-game:has(.room-arena) .room-arena{padding:10px 12px}
+ .room-game:has(.room-arena) .room-match-header{margin-bottom:7px}
+ .room-game:has(.room-arena) .room-match-header h1{font-size:22px!important}
+ .room-game:has(.room-arena) .ordered-slots{margin-bottom:8px}
+ .room-game:has(.room-arena) .ordered-card{min-height:184px;padding:6px;gap:2px}
+ .room-game:has(.room-arena) .ordered-card>b{font-size:13px;line-height:17px;margin-top:12px}
+ .room-game:has(.room-arena) .ordered-art{height:46px;width:60px}
+ .room-game:has(.room-arena) .ordered-card>strong{font-size:25px;line-height:1.12}
+ .room-game:has(.room-arena) .ordered-card small{font-size:10px;line-height:1.3}
+ .room-game:has(.room-arena) .ordered-wear{font-size:11px;line-height:1.3;padding:2px 0}
+ .room-game:has(.room-arena) .hand-recovery{margin-block:5px;padding:4px 8px;font-size:11px;line-height:1.35}
+}

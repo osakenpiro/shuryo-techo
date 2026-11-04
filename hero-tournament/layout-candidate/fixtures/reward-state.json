@@ -1,0 +1,692 @@
+{
+  "version": 1,
+  "run": {
+    "version": "equipment-build-v2-mp",
+    "seed": "4dc15249-b4f6-44ae-94c1-561bd453688e-ece78e5b-004f-4156-9ade-ed177c25c40b",
+    "nextId": 10,
+    "lootCursor": 0,
+    "stage": "ROAD",
+    "encounter": 0,
+    "wins": 0,
+    "hp": 15,
+    "maxHp": 25,
+    "mp": 4,
+    "maxMp": 12,
+    "coin": 7,
+    "items": [
+      {
+        "id": "GS8",
+        "defId": "GREAT_SWORD",
+        "placement": {
+          "x": 0,
+          "y": 0,
+          "rotation": 0
+        },
+        "durability": 1
+      },
+      {
+        "id": "D1",
+        "defId": "EMBER_STAFF",
+        "placement": {
+          "x": 4,
+          "y": 0,
+          "rotation": 0
+        },
+        "durability": 1
+      },
+      {
+        "id": "D5",
+        "defId": "SHIELD",
+        "placement": {
+          "x": 2,
+          "y": 0,
+          "rotation": 0
+        },
+        "durability": null
+      }
+    ],
+    "enemy": null,
+    "energy": 3,
+    "block": 0,
+    "round": 0,
+    "usedWeapons": [],
+    "seriesUsed": false,
+    "reward": [],
+    "log": [],
+    "abandoned": 0
+  },
+  "width": 6,
+  "height": 5,
+  "pocket": null,
+  "choosingPocket": null,
+  "orbNext": false,
+  "foresight": 1,
+  "fork": {
+    "id": 1,
+    "revealed": [
+      "village"
+    ],
+    "source": null,
+    "chosen": "village"
+  },
+  "forkSerial": 1,
+  "pending": null,
+  "nextId": 100,
+  "upgrades": {},
+  "growthUsed": false,
+  "phase": "reward",
+  "log": "折狼に勝利。4金と経験値3。",
+  "supplies": {
+    "version": 2,
+    "seed": "4dc15249-b4f6-44ae-94c1-561bd453688e-ece78e5b-004f-4156-9ade-ed177c25c40b",
+    "received": [
+      "S8"
+    ],
+    "stage": "pack",
+    "dealt": true,
+    "ornaments": [],
+    "stockPolicy": "overflow-v1",
+    "dealCount": 12,
+    "leftBehind": [
+      {
+        "id": "D2",
+        "defId": "EMBER_STAFF",
+        "placement": null,
+        "durability": 3
+      },
+      {
+        "id": "D3",
+        "defId": "LIGHT_BANDAGE",
+        "placement": null,
+        "durability": null
+      },
+      {
+        "id": "D4",
+        "defId": "EMBER_STAFF",
+        "placement": null,
+        "durability": 3
+      },
+      {
+        "id": "D6",
+        "defId": "WARD_MANTLE",
+        "placement": null,
+        "durability": null
+      },
+      {
+        "id": "D7",
+        "defId": "MAGE_BOOTS",
+        "placement": null,
+        "durability": null
+      },
+      {
+        "id": "D8",
+        "defId": "FAIRY_POCKET",
+        "placement": null,
+        "durability": null
+      },
+      {
+        "id": "D9",
+        "defId": "EMBER_STAFF",
+        "placement": null,
+        "durability": 3
+      },
+      {
+        "id": "D10",
+        "defId": "SEER_ORB",
+        "placement": null,
+        "durability": null
+      },
+      {
+        "id": "D11",
+        "defId": "MAGE_BOOTS",
+        "placement": null,
+        "durability": null
+      },
+      {
+        "id": "D12",
+        "defId": "THUNDER_TOME",
+        "placement": null,
+        "durability": 2
+      }
+    ],
+    "discarded": [],
+    "departed": true
+  },
+  "tutorial": {
+    "version": 1,
+    "enabled": true,
+    "seen": [
+      "road",
+      "combat"
+    ],
+    "complete": false
+  },
+  "uiMeta": {
+    "known": [
+      "GS8",
+      "D1",
+      "D2",
+      "D3",
+      "D4",
+      "D5",
+      "D6",
+      "D7",
+      "D8",
+      "D9",
+      "D10",
+      "D11",
+      "D12"
+    ],
+    "unread": []
+  },
+  "heroId": "mage",
+  "journey": {
+    "version": "paper-journey-review-v1",
+    "id": "4dc15249-b4f6-44ae-94c1-561bd453688e-ece78e5b-004f-4156-9ade-ed177c25c40b:expedition",
+    "stage": "reward",
+    "chapter": 0,
+    "step": 0,
+    "xp": 3,
+    "level": 1,
+    "growthPending": 1,
+    "events": [
+      {
+        "id": "4dc15249-b4f6-44ae-94c1-561bd453688e-ece78e5b-004f-4156-9ade-ed177c25c40b:expedition:1",
+        "kind": "departure",
+        "text": "荷物を背負い、紙の森へ。",
+        "chapter": 0,
+        "step": 0,
+        "resources": {
+          "hp": 25,
+          "mp": 12,
+          "coin": 3
+        }
+      },
+      {
+        "id": "4dc15249-b4f6-44ae-94c1-561bd453688e-ece78e5b-004f-4156-9ade-ed177c25c40b:expedition:2",
+        "kind": "remote",
+        "text": "MP2で、道の先を見通した。",
+        "chapter": 0,
+        "step": 0,
+        "resources": {
+          "hp": 25,
+          "mp": 10,
+          "coin": 3
+        },
+        "route": "village",
+        "destination": "折狼の縄張り"
+      },
+      {
+        "id": "4dc15249-b4f6-44ae-94c1-561bd453688e-ece78e5b-004f-4156-9ade-ed177c25c40b:expedition:3",
+        "kind": "route",
+        "text": "折狼の縄張りに着いた。",
+        "chapter": 0,
+        "step": 0,
+        "resources": {
+          "hp": 25,
+          "mp": 10,
+          "coin": 3
+        },
+        "path": "village",
+        "known": true,
+        "forecast": "折狼の縄張り",
+        "confidence": 100,
+        "destination": "beast"
+      },
+      {
+        "id": "4dc15249-b4f6-44ae-94c1-561bd453688e-ece78e5b-004f-4156-9ade-ed177c25c40b:expedition:4",
+        "kind": "encounter",
+        "text": "折狼が道をふさぐ。次の一手が見える。",
+        "chapter": 0,
+        "step": 0,
+        "resources": {
+          "hp": 25,
+          "mp": 10,
+          "coin": 3
+        }
+      },
+      {
+        "id": "4dc15249-b4f6-44ae-94c1-561bd453688e-ece78e5b-004f-4156-9ade-ed177c25c40b:expedition:5",
+        "kind": "ordered_resolution",
+        "text": "2手を公開。与えた傷 20 / 受けた傷 7。",
+        "chapter": 0,
+        "step": 0,
+        "resources": {
+          "hp": 18,
+          "mp": 4,
+          "coin": 3
+        },
+        "round": 1,
+        "beats": [
+          {
+            "beat": 1,
+            "player": "火花",
+            "opponent": "斬撃",
+            "dealt": 10,
+            "taken": 3,
+            "guarded": false,
+            "foeGuarded": false,
+            "counterSpent": 0,
+            "foeCounterSpent": 0,
+            "counterReady": 0,
+            "ownHpBefore": 25,
+            "foeHpBefore": 22,
+            "mpBefore": 10,
+            "playerLabel": "熾火の杖",
+            "playerKind": "weapon",
+            "playerSpell": true,
+            "foeSpell": false,
+            "playerPower": 10,
+            "foePower": 6,
+            "playerBlock": 0,
+            "foeBlock": 0,
+            "armor": 3,
+            "ownHpAfter": 22,
+            "foeHpAfter": 12,
+            "mpAfter": 7
+          },
+          {
+            "beat": 2,
+            "player": "火花",
+            "opponent": "斬撃",
+            "dealt": 10,
+            "taken": 4,
+            "guarded": false,
+            "foeGuarded": false,
+            "counterSpent": 0,
+            "foeCounterSpent": 0,
+            "counterReady": 0,
+            "ownHpBefore": 22,
+            "foeHpBefore": 12,
+            "mpBefore": 7,
+            "playerLabel": "熾火の杖",
+            "playerKind": "weapon",
+            "playerSpell": true,
+            "foeSpell": false,
+            "playerPower": 10,
+            "foePower": 7,
+            "playerBlock": 0,
+            "foeBlock": 0,
+            "armor": 3,
+            "ownHpAfter": 18,
+            "foeHpAfter": 2,
+            "mpAfter": 4
+          }
+        ],
+        "retained": "ward:0",
+        "mpSpent": 6,
+        "durability": {
+          "D1": 2
+        }
+      },
+      {
+        "id": "4dc15249-b4f6-44ae-94c1-561bd453688e-ece78e5b-004f-4156-9ade-ed177c25c40b:expedition:6",
+        "kind": "ordered_resolution",
+        "text": "2手を公開。与えた傷 25.5 / 受けた傷 3。",
+        "chapter": 0,
+        "step": 0,
+        "resources": {
+          "hp": 15,
+          "mp": 4,
+          "coin": 3
+        },
+        "round": 2,
+        "beats": [
+          {
+            "beat": 1,
+            "player": "盾構え",
+            "opponent": "斬撃",
+            "dealt": 0,
+            "taken": 0,
+            "guarded": true,
+            "foeGuarded": false,
+            "counterSpent": 0,
+            "foeCounterSpent": 0,
+            "counterReady": 6,
+            "ownHpBefore": 18,
+            "foeHpBefore": 2,
+            "mpBefore": 4,
+            "playerLabel": "盾構え",
+            "playerKind": "guard",
+            "playerSpell": false,
+            "foeSpell": false,
+            "playerPower": 0,
+            "foePower": 7,
+            "playerBlock": 8,
+            "foeBlock": 0,
+            "armor": 3,
+            "ownHpAfter": 18,
+            "foeHpAfter": 2,
+            "mpAfter": 4
+          },
+          {
+            "beat": 2,
+            "player": "斬撃",
+            "opponent": "斬撃",
+            "dealt": 25.5,
+            "taken": 3,
+            "guarded": false,
+            "foeGuarded": false,
+            "counterSpent": 6,
+            "foeCounterSpent": 0,
+            "counterReady": 0,
+            "ownHpBefore": 18,
+            "foeHpBefore": 2,
+            "mpBefore": 4,
+            "playerLabel": "王砕きの大剣",
+            "playerKind": "weapon",
+            "playerSpell": false,
+            "foeSpell": false,
+            "playerPower": 19.5,
+            "foePower": 6,
+            "playerBlock": 0,
+            "foeBlock": 0,
+            "armor": 3,
+            "ownHpAfter": 15,
+            "foeHpAfter": 0,
+            "mpAfter": 4
+          }
+        ],
+        "retained": "ward:0",
+        "mpSpent": 0,
+        "durability": {
+          "GS8": 1
+        }
+      },
+      {
+        "id": "4dc15249-b4f6-44ae-94c1-561bd453688e-ece78e5b-004f-4156-9ade-ed177c25c40b:expedition:7",
+        "kind": "victory",
+        "text": "折狼に勝利。4金と経験値3。",
+        "chapter": 0,
+        "step": 0,
+        "resources": {
+          "hp": 15,
+          "mp": 4,
+          "coin": 7
+        },
+        "enemy": "折狼",
+        "rounds": 2
+      }
+    ],
+    "eventSerial": 7,
+    "node": {
+      "id": "4dc15249-b4f6-44ae-94c1-561bd453688e-ece78e5b-004f-4156-9ade-ed177c25c40b:expedition:0:0",
+      "kind": "beast",
+      "path": "village",
+      "complete": false
+    },
+    "routes": {
+      "village": {
+        "actual": "beast",
+        "noise": 0.0736543380189687,
+        "alternative": 0
+      },
+      "treasure": {
+        "actual": "treasure",
+        "noise": 0.4994657882489264,
+        "alternative": 1
+      },
+      "beast": {
+        "actual": "village",
+        "noise": 0.1217003557831049,
+        "alternative": 1
+      }
+    },
+    "battle": {
+      "id": "4dc15249-b4f6-44ae-94c1-561bd453688e-ece78e5b-004f-4156-9ade-ed177c25c40b:expedition:0:0:battle",
+      "elite": false,
+      "name": "折狼",
+      "hp": 0,
+      "maxHp": 22,
+      "round": 2,
+      "energy": 3,
+      "block": 0,
+      "seriesUsed": false,
+      "pile": {
+        "draw": [
+          {
+            "uid": "guard:0",
+            "kind": "guard"
+          },
+          {
+            "uid": "GS8:1",
+            "kind": "weapon",
+            "itemId": "GS8"
+          },
+          {
+            "uid": "guard:2",
+            "kind": "guard"
+          }
+        ],
+        "hand": [
+          {
+            "uid": "ward:0",
+            "kind": "ward"
+          },
+          {
+            "uid": "focus:1",
+            "kind": "focus"
+          },
+          {
+            "uid": "guard:1",
+            "kind": "guard"
+          },
+          {
+            "uid": "ward:1",
+            "kind": "ward"
+          },
+          {
+            "uid": "GS8:0",
+            "kind": "weapon",
+            "itemId": "GS8"
+          }
+        ],
+        "discard": [
+          {
+            "uid": "D1:0",
+            "kind": "weapon",
+            "itemId": "D1"
+          },
+          {
+            "uid": "focus:0",
+            "kind": "focus"
+          },
+          {
+            "uid": "D1:1",
+            "kind": "weapon",
+            "itemId": "D1"
+          },
+          {
+            "uid": "strike:0",
+            "kind": "strike"
+          }
+        ],
+        "cycle": 0,
+        "seed": "4dc15249-b4f6-44ae-94c1-561bd453688e-ece78e5b-004f-4156-9ade-ed177c25c40b:expedition:0:0"
+      },
+      "last": {
+        "kind": "ordered",
+        "damage": 25.5
+      },
+      "balance": 2,
+      "ordered": 1,
+      "draft": [
+        "guard:1",
+        "GS8:0",
+        "ward:0"
+      ],
+      "saved": [],
+      "planSet": false,
+      "reveal": {
+        "player": [
+          "盾構え",
+          "斬撃"
+        ],
+        "opponent": [
+          "斬撃",
+          "斬撃"
+        ],
+        "dealt": 25.5,
+        "taken": 3,
+        "mp": 0,
+        "durability": {
+          "GS8": 1
+        },
+        "round": 2,
+        "retained": "魔法障壁",
+        "retainedUid": "ward:0",
+        "beats": [
+          {
+            "beat": 1,
+            "player": "盾構え",
+            "opponent": "斬撃",
+            "dealt": 0,
+            "taken": 0,
+            "guarded": true,
+            "foeGuarded": false,
+            "counterSpent": 0,
+            "foeCounterSpent": 0,
+            "counterReady": 6,
+            "ownHpBefore": 18,
+            "foeHpBefore": 2,
+            "mpBefore": 4,
+            "playerLabel": "盾構え",
+            "playerKind": "guard",
+            "playerSpell": false,
+            "foeSpell": false,
+            "playerPower": 0,
+            "foePower": 7,
+            "playerBlock": 8,
+            "foeBlock": 0,
+            "armor": 3,
+            "ownHpAfter": 18,
+            "foeHpAfter": 2,
+            "mpAfter": 4
+          },
+          {
+            "beat": 2,
+            "player": "斬撃",
+            "opponent": "斬撃",
+            "dealt": 25.5,
+            "taken": 3,
+            "guarded": false,
+            "foeGuarded": false,
+            "counterSpent": 6,
+            "foeCounterSpent": 0,
+            "counterReady": 0,
+            "ownHpBefore": 18,
+            "foeHpBefore": 2,
+            "mpBefore": 4,
+            "playerLabel": "王砕きの大剣",
+            "playerKind": "weapon",
+            "playerSpell": false,
+            "foeSpell": false,
+            "playerPower": 19.5,
+            "foePower": 6,
+            "playerBlock": 0,
+            "foeBlock": 0,
+            "armor": 3,
+            "ownHpAfter": 15,
+            "foeHpAfter": 0,
+            "mpAfter": 4
+          }
+        ],
+        "counterAfter": {
+          "player": 0,
+          "opponent": 0,
+          "playerUntil": 3,
+          "opponentUntil": 0
+        },
+        "resources": {
+          "before": {
+            "hp": 18,
+            "mp": 4,
+            "coin": 3,
+            "foeHp": 2
+          },
+          "after": {
+            "hp": 15,
+            "mp": 4,
+            "coin": 3,
+            "foeHp": 0
+          },
+          "wear": {
+            "GS8": {
+              "name": "王砕きの大剣",
+              "before": 2,
+              "after": 1
+            }
+          }
+        }
+      },
+      "counter": {
+        "player": 0,
+        "opponent": 0,
+        "playerUntil": 3,
+        "opponentUntil": 0
+      },
+      "bot": [
+        {
+          "name": "斬撃",
+          "damage": 7,
+          "spell": false
+        },
+        {
+          "name": "斬撃",
+          "damage": 6,
+          "spell": false
+        }
+      ],
+      "signals": [
+        "physical",
+        "physical"
+      ],
+      "retainedUid": "ward:0"
+    },
+    "duel": null,
+    "market": null,
+    "lootReturn": null,
+    "reward": {
+      "offered": [
+        "FINE_REPAIR",
+        "EMBER_STAFF",
+        "IRON_AXE"
+      ],
+      "chosen": null
+    },
+    "result": {
+      "kind": "victory",
+      "title": "折狼を越えた。",
+      "gold": 4,
+      "xp": 3,
+      "rounds": 2
+    },
+    "tournaments": [],
+    "conduct": {
+      "villageVisits": 0,
+      "commandeered": 0,
+      "repaired": 0,
+      "helped": 0
+    },
+    "reforge": 0,
+    "wish": null,
+    "complete": false
+  },
+  "orbCharges": 0,
+  "uiReceipt": {
+    "id": "f0dde295-2b43-4c45-98b3-a28b2111404b",
+    "type": "REMOTE",
+    "stage": "road",
+    "title": "魔力で道の先を確かめた",
+    "deltas": [
+      {
+        "key": "mp",
+        "label": "魔力",
+        "before": 12,
+        "after": 10,
+        "delta": -2
+      }
+    ]
+  },
+  "uiReviewedBattle": "4dc15249-b4f6-44ae-94c1-561bd453688e-ece78e5b-004f-4156-9ade-ed177c25c40b:expedition:0:0:battle:2"
+}
