@@ -7,7 +7,14 @@ if ($LASTEXITCODE -ne 0) { throw 'Payload preparation failed' }
 $stage = Join-Path $OutputRoot 'HeroTournament-Windows-r12'
 $compiler = Join-Path $env:WINDIR 'Microsoft.NET/Framework64/v4.0.30319/csc.exe'
 if (!(Test-Path $compiler)) { throw 'The existing .NET Framework compiler is unavailable' }
-& $compiler /nologo /target:winexe /platform:x64 /codepage:65001 /optimize+ /reference:System.dll /reference:System.Core.dll /reference:System.Drawing.dll /reference:System.Windows.Forms.dll /reference:System.Web.Extensions.dll "/reference:$stage/Microsoft.Web.WebView2.Core.dll" "/reference:$stage/Microsoft.Web.WebView2.WinForms.dll" "/out:$stage/HeroTournament.exe" "$stage/Launcher.cs" "$OutputRoot/BuildStamp.cs"
+$launcherSource = (Resolve-Path -LiteralPath (Join-Path $stage 'Launcher.cs')).Path
+$stampSource = (Resolve-Path -LiteralPath (Join-Path $OutputRoot 'BuildStamp.cs')).Path
+$coreAssembly = (Resolve-Path -LiteralPath (Join-Path $stage 'Microsoft.Web.WebView2.Core.dll')).Path
+$formsAssembly = (Resolve-Path -LiteralPath (Join-Path $stage 'Microsoft.Web.WebView2.WinForms.dll')).Path
+$outputExe = Join-Path $stage 'HeroTournament.exe'
+$compileArguments = @('/nologo', '/target:winexe', '/platform:x64', '/codepage:65001', '/optimize+', '/reference:System.dll', '/reference:System.Core.dll', '/reference:System.Drawing.dll', '/reference:System.Windows.Forms.dll', '/reference:System.Web.Extensions.dll', "/reference:$coreAssembly", "/reference:$formsAssembly", "/out:$outputExe", $launcherSource, $stampSource)
+Write-Host ('Compiler sources: ' + $launcherSource + ' ; ' + $stampSource)
+& $compiler @compileArguments
 if ($LASTEXITCODE -ne 0 -or !(Test-Path "$stage/HeroTournament.exe")) { throw 'Native compilation failed' }
 & "$stage/runtime/node.exe" "$PSScriptRoot/engine-check.mjs" $stage "$OutputRoot/baseline-game" "$OutputRoot/engine-verification.json"
 if ($LASTEXITCODE -ne 0) { throw 'Integrated engine regression failed' }
