@@ -1,0 +1,22 @@
+/* Quiet grid; a packed object's actual occupied-cell perimeter stays visible. */
+.bag-occupancy-fill,.bag-occupancy-contour{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;display:block}
+.bag-occupancy-fill{z-index:0;fill:#d8bd8729}
+.bag-occupancy-contour{z-index:4;overflow:visible;fill:none;stroke:#d5bc87;stroke-width:2;stroke-linecap:square;filter:drop-shadow(0 1px 1px #071c22)}
+.bag-object>.packed-illustration,.room-packed-object>.room-packed-illustration{z-index:1}
+/* The existing pocket stack shrinks art/hit targets by .84 around bottom-right.
+   Cancel that transform for the logical footprint only; keep its input intact. */
+.bag-object.overlapped>.bag-occupancy-fill,.bag-object.overlapped>.bag-occupancy-contour{transform:scale(1.19047619047619);transform-origin:bottom right}
+.bag-object .cell-hit,.native-game .bag-object .cell-hit{border:0;background:transparent;box-shadow:none}
+.native-game .bag-cell{border-color:#69817555!important;background:#18302f!important;box-shadow:none}
+.native-game .bag-cell.filled{background:#344b41!important}
+.native-game .bag-cell.magic{border-color:#c5a4e2!important;background:#543d76!important;box-shadow:inset 0 0 9px #d1acff66}
+.bag-object.selected>.bag-occupancy-fill,.room-packed-object.is-selected>.bag-occupancy-fill{fill:#f3d38a3b}
+.bag-object.selected>.bag-occupancy-contour,.room-packed-object.is-selected>.bag-occupancy-contour{stroke:#ffe39c;stroke-width:3;filter:drop-shadow(0 0 3px #ffe39c)}
+.bag-object.neighbor-preview .cell-hit{box-shadow:inset 0 0 0 2px #dbeda7;background:#b9d37633}
+.bag-object.just-placed .cell-hit{box-shadow:inset 0 0 0 2px #bbebbc;background:#bbeab633}
+.bag-object.just-merged .cell-hit{box-shadow:inset 0 0 0 3px #ffe697;background:#f9d16477}
+.room-bag .room-cell{border-color:#6d847333}
+.room-bag .room-cell.occupied{background:#344b41}
+.room-bag .room-cell.selected{background:#a88e59}
+.room-bag .room-cell.preview{background:#9ab07c}
+.room-bag .room-cell.preview-invalid{box-shadow:inset 0 0 0 3px #cf796c}

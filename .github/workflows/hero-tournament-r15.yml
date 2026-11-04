@@ -1,0 +1,41 @@
+name: Hero Tournament r15 Windows candidate
+on:
+  push:
+    branches: [release/hero-tournament-r15-20261104]
+    paths:
+      - hero-tournament/build-r15/**
+      - .github/workflows/hero-tournament-r15.yml
+permissions:
+  contents: read
+concurrency:
+  group: hero-tournament-r15-candidate
+  cancel-in-progress: false
+jobs:
+  build-and-native-check:
+    runs-on: windows-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Compile and check the integrated Windows game
+        shell: pwsh
+        run: ./hero-tournament/build-r15/build.ps1 -OutputRoot "$env:RUNNER_TEMP/hero-r15"
+      - name: Preserve candidate and actual native evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: hero-tournament-r15-candidate
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            ${{ runner.temp }}/hero-r15/hero-tournament-windows-r15.zip
+            ${{ runner.temp }}/hero-r15/release-candidate.json
+            ${{ runner.temp }}/hero-r15/build-receipt.json
+            ${{ runner.temp }}/hero-r15/engine-verification.json
+            ${{ runner.temp }}/hero-r15/deadhand-verification.json
+            ${{ runner.temp }}/hero-r15/feedback-verification.json
+            ${{ runner.temp }}/hero-r15/native-layout-verification.json
+            ${{ runner.temp }}/hero-r15/native-bag-verification.json
+            ${{ runner.temp }}/hero-r15/preparation.json
+            ${{ runner.temp }}/hero-r15/HeroTournament-Windows-r15/playtest-evidence/
