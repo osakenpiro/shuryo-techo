@@ -2,12 +2,12 @@
   {
     "path": "game/ordered-combat.js",
     "baselineSHA256": "8ff586ddc75ba01f925adbed84c05cb40c01656384b6701bfd30fa8248777f66",
-    "candidateSHA256": "4a9ab7018c5e514aa412720b6d939cf7d142e3d1669cc548b220d4f3790a83a3"
+    "candidateSHA256": "32ff8a6c6893d1079df1fd340c13d8ece16612d464529df139fc77548f73f8be"
   },
   {
     "path": "game/experience-ui.css",
     "baselineSHA256": "14cfaef92b5e473d96966c51631645535ab1e0cc03a8ccf9db9b8b345c44f27b",
-    "candidateSHA256": "abb958fad5b42ea78c222fe7413495b4a4a08e000fa78bc1c3671424261ae1fd"
+    "candidateSHA256": "1bca1951781871e0c4c31ed71f91e881d8e544135d9a0687717777c984a28ecc"
   },
   {
     "path": "game/room-ui.js",
@@ -18,5 +18,15 @@
     "path": "game/room.css",
     "baselineSHA256": "00b6275987507b120a73bbb40975e902da2c083577b1c5b4119b8f39fa8416a0",
     "candidateSHA256": "ab9bcfe524cdb22e6d5b3d127991d228860e69c0e695a9dcc0f1c33af80809c6"
+  },
+  {
+    "path": "game/adventure-core.js",
+    "baselineSHA256": "41b509a520e2b8009876b876b50789096d492914fef09af3c3b77201c6b56d7e",
+    "candidateSHA256": "f0f044cb56ab455c1f7fd5c1aa2ad0869a4135adb13f6d04eb5832a515848f24"
+  },
+  {
+    "path": "game/room-combat.js",
+    "baselineSHA256": "f5c04d734bc84b427c60b739c44dc3c768953a477cd5a318861ad9a83d559072",
+    "candidateSHA256": "8e1515d44a16b8b5fb24cedb4238e0e995690a9e332af452a830558472ed3004"
   }
 ]

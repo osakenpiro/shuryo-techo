@@ -1,11 +1,14 @@
 # Hero Tournament r12 Windows build
 
-This bounded build updates the existing Windows test release with the four
+This bounded build updates the existing Windows test release with the six
 reviewed resource-preview and whole-object inventory files. The accepted art,
-game rules, transport, save format and native launcher source remain unchanged.
+normal action costs, combat resolution, transport, save format and native launcher source remain unchanged.
+If a five-card hand has no legal plan, the shared player/CPU preparation exchanges
+the minimum one or two non-carried cards with existing basic cards from the draw
+or discard pile. No cards or resources are created; the UI explains the recovery.
 
 `prepare.py` downloads the existing public r11d archive, checks its pinned
-SHA-256 and every original manifest entry, then overlays only the four files in
+SHA-256 and every original manifest entry, then overlays only the six files in
 `overrides.json`. The original Node and WebView2 SDK binaries and licenses are
 retained. No installer, paid service or new account is required by this build.
 

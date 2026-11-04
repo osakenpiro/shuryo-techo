@@ -29,7 +29,7 @@ def prepare():
  old=OUT/'baseline-game';old.mkdir()
  for p in (stage/'game').glob('*.js'):shutil.copyfile(p,old/p.name)
  changes=json.loads((HERE/'overrides.json').read_text())
- assert {f['path'] for f in changes}=={'game/ordered-combat.js','game/experience-ui.css','game/room-ui.js','game/room.css'}
+ assert {f['path'] for f in changes}=={'game/ordered-combat.js','game/experience-ui.css','game/room-ui.js','game/room.css','game/adventure-core.js','game/room-combat.js'}
  for f in changes:
   p=stage/f['path'];candidate=HERE/'overrides'/f['path']
   assert sha(p)==f['baselineSHA256'],f['path']+' baseline drift'
@@ -44,7 +44,8 @@ ZIPをすべて展開し、HeroTournament.exe を起動してください。
 
 今回の更新：バッグの道具を全体絵で表示し、回転・選択できるように復元。
 2手の封印前に、使用後の魔力・耐久と持ち越す札を確認できます。
-カードの強さ、戦闘ルール、既存の保存形式は変更していません。
+作戦を組めない手札の時だけ、既存の基本札を最少枚繰り入れて進行停止を防ぎます。
+通常の支払い・勝敗計算と既存の保存形式は維持しています。
 
 Windows向けテスト版です。別PC・別回線の接続と人間の面白さ評価は継続確認中です。
 接続中はホストのアプリを開いたままにしてください。

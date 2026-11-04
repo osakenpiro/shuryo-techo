@@ -33,5 +33,6 @@ jobs:
             ${{ runner.temp }}/hero-r12/release-candidate.json
             ${{ runner.temp }}/hero-r12/build-receipt.json
             ${{ runner.temp }}/hero-r12/engine-verification.json
+            ${{ runner.temp }}/hero-r12/deadhand-verification.json
             ${{ runner.temp }}/hero-r12/preparation.json
             ${{ runner.temp }}/hero-r12/HeroTournament-Windows-r12/playtest-evidence/

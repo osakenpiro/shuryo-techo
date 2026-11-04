@@ -18,12 +18,16 @@ Write-Host ('Compiler sources: ' + $launcherSource + ' ; ' + $stampSource)
 if ($LASTEXITCODE -ne 0 -or !(Test-Path "$stage/HeroTournament.exe")) { throw 'Native compilation failed' }
 & "$stage/runtime/node.exe" "$PSScriptRoot/engine-check.mjs" $stage "$OutputRoot/baseline-game" "$OutputRoot/engine-verification.json"
 if ($LASTEXITCODE -ne 0) { throw 'Integrated engine regression failed' }
+& "$stage/runtime/node.exe" "$PSScriptRoot/deadhand-check.mjs" $stage "$OutputRoot/deadhand-verification.json"
+if ($LASTEXITCODE -ne 0) { throw 'Dead-hand regression failed' }
 function Run-Native([string]$Mode, [int]$TimeoutMs) {
+    Write-Host ('Native test starting: ' + $Mode)
     $process = Start-Process -FilePath "$stage/HeroTournament.exe" -ArgumentList $Mode -WorkingDirectory $stage -PassThru
     if (!$process.WaitForExit($TimeoutMs)) { $process.Kill(); throw "Native test timed out: $Mode" }
     $process.Refresh()
     $code = $process.ExitCode
     if ($null -eq $code -or $code -ne 0) { throw "Native test failed: $Mode (exit $code)" }
+    Write-Host ('Native test passed: ' + $Mode)
 }
 Run-Native '--verify-only' 60000
 # A changed runtime file must fail before the server or browser starts.
