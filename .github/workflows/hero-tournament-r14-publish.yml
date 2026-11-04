@@ -1,0 +1,43 @@
+name: Publish verified Hero Tournament r14
+on:
+  push:
+    branches: [release/hero-tournament-r14-20261104]
+    paths: [.github/workflows/hero-tournament-r14-publish.yml]
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: publish-hero-tournament-r14
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Verify exact successful Windows build and publish its checked ZIP
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh run view 41816989143 --repo osakenpiro/shuryo-techo --json conclusion,headSha > /tmp/source-run.json
+          python - <<'PY'
+          import json
+          r=json.load(open('/tmp/source-run.json'))
+          assert r['conclusion']=='success'
+          assert r['headSha']=='4e12c91bac2b770d4322d36d51253cb8b136bd36'
+          PY
+          gh run download 41816989143 --repo osakenpiro/shuryo-techo --name hero-tournament-r14-candidate --dir /tmp/verified-r14
+          python - <<'PY'
+          import pathlib,hashlib,json,zipfile
+          r=pathlib.Path('/tmp/verified-r14');p=r/'hero-tournament-windows-r14.zip'
+          assert p.stat().st_size==164587348
+          assert hashlib.sha256(p.read_bytes()).hexdigest()=='978f14fe78f9bff797804c2aa8a60f72134d988c55e2754b899b7b92e1cf42bd'
+          m=json.loads((r/'release-candidate.json').read_text())
+          assert m['sourceCommit']=='4e12c91bac2b770d4322d36d51253cb8b136bd36'
+          with zipfile.ZipFile(p) as z: assert z.testzip() is None
+          PY
+          gh release create hero-tournament-r14 /tmp/verified-r14/hero-tournament-windows-r14.zip --repo osakenpiro/shuryo-techo --prerelease --latest=false --target 4e12c91bac2b770d4322d36d51253cb8b136bd36 --title '勇者トーナメント Windowsテスト版 r14' --notes-file hero-tournament/build-r14/release-notes.md
