@@ -1,0 +1,886 @@
+{
+  "baseline": "Windows r13 2d6c41c5535e18077e845cf197014cd4c68b3bf4247073ec7a1ad9253e4b45cb",
+  "candidate": "CSS-only; not a Windows release",
+  "capture": "Linux Chromium, identical state and viewport; reward/growth restored checkpoint fixtures",
+  "geometry": [
+    {
+      "scene": "reward",
+      "viewport": [
+        1028,
+        719
+      ],
+      "before": {
+        "workspace": {
+          "top": 112,
+          "bottom": 526
+        },
+        "fields": [
+          {
+            "text": "銀針の仕立て道具",
+            "top": 521.2922973632812,
+            "bottom": 559.0059204101562,
+            "visible": false
+          },
+          {
+            "text": "耐久 6回復",
+            "top": 562.0643310546875,
+            "bottom": 592.5792236328125,
+            "visible": false
+          },
+          {
+            "text": "3マス",
+            "top": 595.6375732421875,
+            "bottom": 619.562744140625,
+            "visible": false
+          },
+          {
+            "text": "これを選ぶ ›",
+            "top": 624.6199340820312,
+            "bottom": 670.5316772460938,
+            "visible": false
+          },
+          {
+            "text": "熾火の杖",
+            "top": 535.5418701171875,
+            "bottom": 568.8021850585938,
+            "visible": false
+          },
+          {
+            "text": "基礎威力 10 · 耐久 3回",
+            "top": 576.33251953125,
+            "bottom": 602.390869140625,
+            "visible": false
+          },
+          {
+            "text": "4マス · 隣接効果あり",
+            "top": 609.921142578125,
+            "bottom": 629.38671875,
+            "visible": false
+          },
+          {
+            "text": "これを選ぶ ›",
+            "top": 638.916748046875,
+            "bottom": 680.37890625,
+            "visible": false
+          },
+          {
+            "text": "朱折りの戦斧",
+            "top": 519.033203125,
+            "bottom": 561.1885986328125,
+            "visible": false
+          },
+          {
+            "text": "基礎威力 12 · 耐久 4回",
+            "top": 559.774169921875,
+            "bottom": 594.736328125,
+            "visible": false
+          },
+          {
+            "text": "5マス",
+            "top": 593.3218994140625,
+            "bottom": 621.6993408203125,
+            "visible": false
+          },
+          {
+            "text": "これを選ぶ ›",
+            "top": 622.2821044921875,
+            "bottom": 672.62939453125,
+            "visible": false
+          }
+        ],
+        "bodyOverflow": false
+      },
+      "after": {
+        "workspace": {
+          "top": 104,
+          "bottom": 553
+        },
+        "fields": [
+          {
+            "text": "銀針の仕立て道具",
+            "top": 347.05487060546875,
+            "bottom": 375.7928466796875,
+            "visible": true
+          },
+          {
+            "text": "耐久 6回復",
+            "top": 372.8477783203125,
+            "bottom": 408.97528076171875,
+            "visible": true
+          },
+          {
+            "text": "3マス",
+            "top": 407.03009033203125,
+            "bottom": 427.3631286621094,
+            "visible": true
+          },
+          {
+            "text": "これを選ぶ ›",
+            "top": 427.4176025390625,
+            "bottom": 461.15484619140625,
+            "visible": true
+          },
+          {
+            "text": "熾火の杖",
+            "top": 349.53125,
+            "bottom": 373.328125,
+            "visible": true
+          },
+          {
+            "text": "基礎威力 10 · 耐久 3回",
+            "top": 375.328125,
+            "bottom": 406.515625,
+            "visible": true
+          },
+          {
+            "text": "4マス · 隣接効果あり",
+            "top": 409.515625,
+            "bottom": 424.90625,
+            "visible": true
+          },
+          {
+            "text": "これを選ぶ ›",
+            "top": 429.90625,
+            "bottom": 458.703125,
+            "visible": true
+          },
+          {
+            "text": "朱折りの戦斧",
+            "top": 347.0547180175781,
+            "bottom": 375.7929992675781,
+            "visible": true
+          },
+          {
+            "text": "基礎威力 12 · 耐久 4回",
+            "top": 372.84765625,
+            "bottom": 408.9754333496094,
+            "visible": true
+          },
+          {
+            "text": "5マス",
+            "top": 407.02996826171875,
+            "bottom": 427.3632507324219,
+            "visible": true
+          },
+          {
+            "text": "これを選ぶ ›",
+            "top": 427.41748046875,
+            "bottom": 461.1549987792969,
+            "visible": true
+          }
+        ],
+        "bodyOverflow": false
+      },
+      "stateUnchangedByCSS": true,
+      "choiceClick": "PASS",
+      "errors": []
+    },
+    {
+      "scene": "reward",
+      "viewport": [
+        1280,
+        870
+      ],
+      "before": {
+        "workspace": {
+          "top": 112,
+          "bottom": 677
+        },
+        "fields": [
+          {
+            "text": "銀針の仕立て道具",
+            "top": 521.2459716796875,
+            "bottom": 559.05224609375,
+            "visible": true
+          },
+          {
+            "text": "耐久 6回復",
+            "top": 562.0179443359375,
+            "bottom": 592.6255493164062,
+            "visible": true
+          },
+          {
+            "text": "3マス",
+            "top": 595.5912475585938,
+            "bottom": 619.609130859375,
+            "visible": true
+          },
+          {
+            "text": "これを選ぶ ›",
+            "top": 624.5736083984375,
+            "bottom": 670.5780029296875,
+            "visible": true
+          },
+          {
+            "text": "熾火の杖",
+            "top": 535.5185546875,
+            "bottom": 568.8255004882812,
+            "visible": true
+          },
+          {
+            "text": "基礎威力 10 · 耐久 3回",
+            "top": 576.3092041015625,
+            "bottom": 602.4141845703125,
+            "visible": true
+          },
+          {
+            "text": "4マス · 隣接効果あり",
+            "top": 609.8978271484375,
+            "bottom": 629.4100341796875,
+            "visible": true
+          },
+          {
+            "text": "これを選ぶ ›",
+            "top": 638.8934326171875,
+            "bottom": 680.4022216796875,
+            "visible": false
+          },
+          {
+            "text": "朱折りの戦斧",
+            "top": 518.9636840820312,
+            "bottom": 561.258056640625,
+            "visible": true
+          },
+          {
+            "text": "基礎威力 12 · 耐久 4回",
+            "top": 559.70458984375,
+            "bottom": 594.8057861328125,
+            "visible": true
+          },
+          {
+            "text": "5マス",
+            "top": 593.2523193359375,
+            "bottom": 621.768798828125,
+            "visible": true
+          },
+          {
+            "text": "これを選ぶ ›",
+            "top": 622.212646484375,
+            "bottom": 672.6989135742188,
+            "visible": true
+          }
+        ],
+        "bodyOverflow": false
+      },
+      "after": {
+        "workspace": {
+          "top": 104,
+          "bottom": 704
+        },
+        "fields": [
+          {
+            "text": "銀針の仕立て道具",
+            "top": 391.35333251953125,
+            "bottom": 421.4875183105469,
+            "visible": true
+          },
+          {
+            "text": "耐久 6回復",
+            "top": 417.1462707519531,
+            "bottom": 454.66998291015625,
+            "visible": true
+          },
+          {
+            "text": "3マス",
+            "top": 451.32855224609375,
+            "bottom": 473.05780029296875,
+            "visible": true
+          },
+          {
+            "text": "これを選ぶ ›",
+            "top": 471.7160949707031,
+            "bottom": 506.8495178222656,
+            "visible": true
+          },
+          {
+            "text": "熾火の杖",
+            "top": 394.53125,
+            "bottom": 418.328125,
+            "visible": true
+          },
+          {
+            "text": "基礎威力 10 · 耐久 3回",
+            "top": 420.328125,
+            "bottom": 451.515625,
+            "visible": true
+          },
+          {
+            "text": "4マス · 隣接効果あり",
+            "top": 454.515625,
+            "bottom": 469.90625,
+            "visible": true
+          },
+          {
+            "text": "これを選ぶ ›",
+            "top": 474.90625,
+            "bottom": 503.703125,
+            "visible": true
+          },
+          {
+            "text": "朱折りの戦斧",
+            "top": 391.35321044921875,
+            "bottom": 421.4876708984375,
+            "visible": true
+          },
+          {
+            "text": "基礎威力 12 · 耐久 4回",
+            "top": 417.1461181640625,
+            "bottom": 454.67010498046875,
+            "visible": true
+          },
+          {
+            "text": "5マス",
+            "top": 451.32843017578125,
+            "bottom": 473.05792236328125,
+            "visible": true
+          },
+          {
+            "text": "これを選ぶ ›",
+            "top": 471.7159423828125,
+            "bottom": 506.84967041015625,
+            "visible": true
+          }
+        ],
+        "bodyOverflow": false
+      },
+      "stateUnchangedByCSS": true,
+      "choiceClick": "PASS",
+      "errors": []
+    },
+    {
+      "scene": "growth",
+      "viewport": [
+        1028,
+        719
+      ],
+      "before": {
+        "workspace": {
+          "top": 112,
+          "bottom": 526
+        },
+        "fields": [
+          {
+            "text": "命",
+            "top": 524.9276123046875,
+            "bottom": 594.566650390625,
+            "visible": false
+          },
+          {
+            "text": "30 → 35",
+            "top": 576.9879760742188,
+            "bottom": 634.4691772460938,
+            "visible": false
+          },
+          {
+            "text": "最大HP +5 / HPも5回復",
+            "top": 616.8905029296875,
+            "bottom": 652.42529296875,
+            "visible": false
+          },
+          {
+            "text": "この力を伸ばす ›",
+            "top": 647.8150634765625,
+            "bottom": 702.3035278320312,
+            "visible": false
+          },
+          {
+            "text": "魔力",
+            "top": 546.78125,
+            "bottom": 598.96875,
+            "visible": false
+          },
+          {
+            "text": "12 → 15",
+            "top": 598.96875,
+            "bottom": 638.96875,
+            "visible": false
+          },
+          {
+            "text": "最大MP +3 / MPも3回復",
+            "top": 638.96875,
+            "bottom": 656.96875,
+            "visible": false
+          },
+          {
+            "text": "この力を伸ばす ›",
+            "top": 669.96875,
+            "bottom": 706.96875,
+            "visible": false
+          },
+          {
+            "text": "可能性",
+            "top": 525.4158935546875,
+            "bottom": 594.0783081054688,
+            "visible": false
+          },
+          {
+            "text": "30 → 36",
+            "top": 577.476318359375,
+            "bottom": 633.9808959960938,
+            "visible": false
+          },
+          {
+            "text": "バッグを1段、6マス広げる",
+            "top": 617.3788452148438,
+            "bottom": 651.93701171875,
+            "visible": false
+          },
+          {
+            "text": "この力を伸ばす ›",
+            "top": 648.3033447265625,
+            "bottom": 701.8152465820312,
+            "visible": false
+          }
+        ],
+        "bodyOverflow": false
+      },
+      "after": {
+        "workspace": {
+          "top": 104,
+          "bottom": 553
+        },
+        "fields": [
+          {
+            "text": "命",
+            "top": 361.03790283203125,
+            "bottom": 392.01361083984375,
+            "visible": true
+          },
+          {
+            "text": "30 → 35",
+            "top": 390.03350830078125,
+            "bottom": 426.1958923339844,
+            "visible": true
+          },
+          {
+            "text": "最大HP +5 / HPも5回復",
+            "top": 424.2157897949219,
+            "bottom": 461.0812072753906,
+            "visible": true
+          },
+          {
+            "text": "この力を伸ばす ›",
+            "top": 462.10064697265625,
+            "bottom": 495.872802734375,
+            "visible": true
+          },
+          {
+            "text": "魔力",
+            "top": 363.53125,
+            "bottom": 389.53125,
+            "visible": true
+          },
+          {
+            "text": "12 → 15",
+            "top": 392.53125,
+            "bottom": 423.71875,
+            "visible": true
+          },
+          {
+            "text": "最大MP +3 / MPも3回復",
+            "top": 426.71875,
+            "bottom": 458.609375,
+            "visible": true
+          },
+          {
+            "text": "この力を伸ばす ›",
+            "top": 464.609375,
+            "bottom": 493.40625,
+            "visible": true
+          },
+          {
+            "text": "可能性",
+            "top": 361.1599426269531,
+            "bottom": 391.8915710449219,
+            "visible": true
+          },
+          {
+            "text": "30 → 36",
+            "top": 390.155517578125,
+            "bottom": 426.0738830566406,
+            "visible": true
+          },
+          {
+            "text": "バッグを1段、6マス広げる",
+            "top": 424.3377990722656,
+            "bottom": 460.95916748046875,
+            "visible": true
+          },
+          {
+            "text": "この力を伸ばす ›",
+            "top": 462.22265625,
+            "bottom": 495.7507629394531,
+            "visible": true
+          }
+        ],
+        "bodyOverflow": false
+      },
+      "stateUnchangedByCSS": true,
+      "choiceClick": "PASS",
+      "errors": []
+    },
+    {
+      "scene": "growth",
+      "viewport": [
+        1280,
+        870
+      ],
+      "before": {
+        "workspace": {
+          "top": 112,
+          "bottom": 677
+        },
+        "fields": [
+          {
+            "text": "命",
+            "top": 522.1373291015625,
+            "bottom": 597.3568725585938,
+            "visible": true
+          },
+          {
+            "text": "30 → 35",
+            "top": 574.19775390625,
+            "bottom": 637.2593994140625,
+            "visible": true
+          },
+          {
+            "text": "最大HP +5 / HPも5回復",
+            "top": 614.1002807617188,
+            "bottom": 655.215576171875,
+            "visible": true
+          },
+          {
+            "text": "この力を伸ばす ›",
+            "top": 645.0247802734375,
+            "bottom": 705.09375,
+            "visible": false
+          },
+          {
+            "text": "魔力",
+            "top": 546.78125,
+            "bottom": 598.96875,
+            "visible": true
+          },
+          {
+            "text": "12 → 15",
+            "top": 598.96875,
+            "bottom": 638.96875,
+            "visible": true
+          },
+          {
+            "text": "最大MP +3 / MPも3回復",
+            "top": 638.96875,
+            "bottom": 656.96875,
+            "visible": true
+          },
+          {
+            "text": "この力を伸ばす ›",
+            "top": 669.96875,
+            "bottom": 706.96875,
+            "visible": false
+          },
+          {
+            "text": "可能性",
+            "top": 522.6256103515625,
+            "bottom": 596.8685913085938,
+            "visible": true
+          },
+          {
+            "text": "30 → 36",
+            "top": 574.68603515625,
+            "bottom": 636.7711181640625,
+            "visible": true
+          },
+          {
+            "text": "バッグを1段、6マス広げる",
+            "top": 614.588623046875,
+            "bottom": 654.727294921875,
+            "visible": true
+          },
+          {
+            "text": "この力を伸ばす ›",
+            "top": 645.5130615234375,
+            "bottom": 704.60546875,
+            "visible": false
+          }
+        ],
+        "bodyOverflow": false
+      },
+      "after": {
+        "workspace": {
+          "top": 104,
+          "bottom": 704
+        },
+        "fields": [
+          {
+            "text": "命",
+            "top": 400.3367614746094,
+            "bottom": 432.7086486816406,
+            "visible": true
+          },
+          {
+            "text": "30 → 35",
+            "top": 429.33233642578125,
+            "bottom": 466.8909606933594,
+            "visible": true
+          },
+          {
+            "text": "最大HP +5 / HPも5回復",
+            "top": 463.5146484375,
+            "bottom": 501.7762756347656,
+            "visible": true
+          },
+          {
+            "text": "この力を伸ばす ›",
+            "top": 501.3995056152344,
+            "bottom": 536.56787109375,
+            "visible": true
+          },
+          {
+            "text": "魔力",
+            "top": 403.53125,
+            "bottom": 429.53125,
+            "visible": true
+          },
+          {
+            "text": "12 → 15",
+            "top": 432.53125,
+            "bottom": 463.71875,
+            "visible": true
+          },
+          {
+            "text": "最大MP +3 / MPも3回復",
+            "top": 466.71875,
+            "bottom": 498.609375,
+            "visible": true
+          },
+          {
+            "text": "この力を伸ばす ›",
+            "top": 504.609375,
+            "bottom": 533.40625,
+            "visible": true
+          },
+          {
+            "text": "可能性",
+            "top": 400.45880126953125,
+            "bottom": 432.5866394042969,
+            "visible": true
+          },
+          {
+            "text": "30 → 36",
+            "top": 429.4543762207031,
+            "bottom": 466.7689208984375,
+            "visible": true
+          },
+          {
+            "text": "バッグを1段、6マス広げる",
+            "top": 463.63665771484375,
+            "bottom": 501.65423583984375,
+            "visible": true
+          },
+          {
+            "text": "この力を伸ばす ›",
+            "top": 501.5215148925781,
+            "bottom": 536.44580078125,
+            "visible": true
+          }
+        ],
+        "bodyOverflow": false
+      },
+      "stateUnchangedByCSS": true,
+      "choiceClick": "PASS",
+      "errors": []
+    },
+    {
+      "scene": "hand",
+      "viewport": [
+        1028,
+        719
+      ],
+      "before": {
+        "footerTop": 639,
+        "cards": [
+          {
+            "top": 569.375,
+            "bottom": 796.375,
+            "visible": false,
+            "text": "燕返しの細剣\n6ダメージ\n相手の体力を減らす\n耐久 7 / 7"
+          },
+          {
+            "top": 569.375,
+            "bottom": 796.375,
+            "visible": false,
+            "text": "① 1手目\n盾構え\n7防ぐ\n物理を防ぐ\n成功 → 次の攻撃 +4"
+          },
+          {
+            "top": 569.375,
+            "bottom": 796.375,
+            "visible": false,
+            "text": "燕返しの細剣\n6ダメージ\n相手の体力を減らす\n耐久 7 / 7"
+          },
+          {
+            "top": 569.375,
+            "bottom": 796.375,
+            "visible": false,
+            "text": "インクを継ぐ\n2魔力回復\n呪文と遠視の備え"
+          },
+          {
+            "top": 569.375,
+            "bottom": 796.375,
+            "visible": false,
+            "text": "② 2手目\n雷紋の魔導書\n13ダメージ\n相手の体力を減らす\n耐久 2 / 2\n魔力 −4"
+          }
+        ],
+        "coach": "③ 次のターンに残すカード。",
+        "overflow": false
+      },
+      "after": {
+        "footerTop": 639,
+        "cards": [
+          {
+            "top": 395.078125,
+            "bottom": 579.078125,
+            "visible": true,
+            "text": "燕返しの細剣\n6ダメージ\n相手の体力を減らす\n耐久 7 / 7"
+          },
+          {
+            "top": 395.078125,
+            "bottom": 579.078125,
+            "visible": true,
+            "text": "① 1手目\n盾構え\n7防ぐ\n物理を防ぐ\n成功 → 次の攻撃 +4"
+          },
+          {
+            "top": 395.078125,
+            "bottom": 579.078125,
+            "visible": true,
+            "text": "燕返しの細剣\n6ダメージ\n相手の体力を減らす\n耐久 7 / 7"
+          },
+          {
+            "top": 395.078125,
+            "bottom": 579.078125,
+            "visible": true,
+            "text": "インクを継ぐ\n2魔力回復\n呪文と遠視の備え"
+          },
+          {
+            "top": 395.078125,
+            "bottom": 579.078125,
+            "visible": true,
+            "text": "② 2手目\n雷紋の魔導書\n13ダメージ\n相手の体力を減らす\n耐久 2 / 2\n魔力 −4"
+          }
+        ],
+        "coach": "③ 次のターンに残すカード。",
+        "overflow": false
+      },
+      "stateUnchangedByCSS": true
+    },
+    {
+      "scene": "hand",
+      "viewport": [
+        1280,
+        870
+      ],
+      "before": {
+        "footerTop": 790,
+        "cards": [
+          {
+            "top": 569.375,
+            "bottom": 806.375,
+            "visible": false,
+            "text": "燕返しの細剣\n6ダメージ\n相手の体力を減らす\n耐久 7 / 7"
+          },
+          {
+            "top": 569.375,
+            "bottom": 806.375,
+            "visible": false,
+            "text": "① 1手目\n盾構え\n7防ぐ\n物理を防ぐ\n成功 → 次の攻撃 +4"
+          },
+          {
+            "top": 569.375,
+            "bottom": 806.375,
+            "visible": false,
+            "text": "燕返しの細剣\n6ダメージ\n相手の体力を減らす\n耐久 7 / 7"
+          },
+          {
+            "top": 569.375,
+            "bottom": 806.375,
+            "visible": false,
+            "text": "インクを継ぐ\n2魔力回復\n呪文と遠視の備え"
+          },
+          {
+            "top": 569.375,
+            "bottom": 806.375,
+            "visible": false,
+            "text": "② 2手目\n雷紋の魔導書\n13ダメージ\n相手の体力を減らす\n耐久 2 / 2\n魔力 −4"
+          }
+        ],
+        "coach": "③ 次のターンに残すカード。",
+        "overflow": false
+      },
+      "after": {
+        "footerTop": 790,
+        "cards": [
+          {
+            "top": 403.078125,
+            "bottom": 640.078125,
+            "visible": true,
+            "text": "燕返しの細剣\n6ダメージ\n相手の体力を減らす\n耐久 7 / 7"
+          },
+          {
+            "top": 403.078125,
+            "bottom": 640.078125,
+            "visible": true,
+            "text": "① 1手目\n盾構え\n7防ぐ\n物理を防ぐ\n成功 → 次の攻撃 +4"
+          },
+          {
+            "top": 403.078125,
+            "bottom": 640.078125,
+            "visible": true,
+            "text": "燕返しの細剣\n6ダメージ\n相手の体力を減らす\n耐久 7 / 7"
+          },
+          {
+            "top": 403.078125,
+            "bottom": 640.078125,
+            "visible": true,
+            "text": "インクを継ぐ\n2魔力回復\n呪文と遠視の備え"
+          },
+          {
+            "top": 403.078125,
+            "bottom": 640.078125,
+            "visible": true,
+            "text": "② 2手目\n雷紋の魔導書\n13ダメージ\n相手の体力を減らす\n耐久 2 / 2\n魔力 −4"
+          }
+        ],
+        "coach": "③ 次のターンに残すカード。",
+        "overflow": false
+      },
+      "stateUnchangedByCSS": true,
+      "sealAndReveal": "PASS"
+    }
+  ],
+  "assets": [
+    {
+      "asset": "assets/hand-before.png",
+      "sha256": "20641c6efa4de5665fe9a923f0f1ff3b26b23e5071b94c9e4b647e990e803a5d"
+    },
+    {
+      "asset": "assets/hand-after.png",
+      "sha256": "8874ec8f9136c6a8cdff5ecabb0d6941b819c57de0071808a66e35ec4b28364f"
+    },
+    {
+      "asset": "assets/reward-before.png",
+      "sha256": "eb66598bf49f3a01c34793d722b7e8883ee0e024f35a771f1ef7206447791561"
+    },
+    {
+      "asset": "assets/reward-after.png",
+      "sha256": "0237ab950ac63b1b305c23df1158b6c0230594c5283ccca069a3d5a2914214b8"
+    },
+    {
+      "asset": "assets/growth-before.png",
+      "sha256": "20d6344cadcfb97cd6648905113f9bbda9e5e49d4322f25f80348259c03b6113"
+    },
+    {
+      "asset": "assets/growth-after.png",
+      "sha256": "3718b7a1a55b27b24d7ea119c17792ec433c5ff64c718850fe1dfdc9229ed404"
+    }
+  ]
+}

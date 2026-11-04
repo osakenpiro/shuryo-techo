@@ -1,0 +1,22 @@
+[
+  {
+    "path": "game/index.html",
+    "baselineSHA256": "dc305b1fc16649011995da48d72d357b0ac2548cd25a0bc5dd6bc8393bbac048",
+    "candidateSHA256": "8050fcc7c91910d22e61f1ebad62f0d6c99c1a665e28609f6a9fba7c7c51b66d"
+  },
+  {
+    "path": "game/native-layout-review.css",
+    "baselineSHA256": null,
+    "candidateSHA256": "853ce427a0f53ca378d726ab11e803e22ee33bdcbc3e01b800eabace171dce82"
+  },
+  {
+    "path": "game/room-layout-review.css",
+    "baselineSHA256": null,
+    "candidateSHA256": "1cfc4f227957e0632aa20e6e669d1bd8369a566f392cf82b20e0f9e9fa321da9"
+  },
+  {
+    "path": "game/room.html",
+    "baselineSHA256": "9a8bfb07f1e41049b23753bc9748f45dffb4bed375e8e0b25237716d28edf07b",
+    "candidateSHA256": "5fda50c388bb20ade835b8ce3a29e463567890a24b389875b179467e53cb7234"
+  }
+]

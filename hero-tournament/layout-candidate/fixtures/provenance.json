@@ -1,0 +1,17 @@
+{
+  "sourceRun": "https://github.com/osakenpiro/shuryo-techo/actions/runs/41780840608",
+  "fixtures": [
+    {
+      "file": "reward-state.json",
+      "source": "20261104-054404-8597/reward-choice.json",
+      "selection": "detail.snapshot.state only",
+      "sha256": "c16602dfcb1c8543ee554a45c3250ccad07f138fd753575eecbd3ab87c850d7d"
+    },
+    {
+      "file": "growth-state.json",
+      "source": "20261104-054404-8597/growth-mid-2.json",
+      "selection": "detail.snapshot.state only",
+      "sha256": "550f1db1e9f03f8b00bb244b208ebab9976384cf46b308f89387e23a5f4c379b"
+    }
+  ]
+}
