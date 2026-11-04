@@ -1,0 +1,32 @@
+[
+  {
+    "path": "game/battle-feedback.css",
+    "baselineSHA256": null,
+    "candidateSHA256": "8ae6c782efee1f922b9fb3bfe5d8729ecc1be8ebbf383953ac2ff4c44667c752"
+  },
+  {
+    "path": "game/battle-feedback.js",
+    "baselineSHA256": null,
+    "candidateSHA256": "a37e748b9f03ccdd0053a4998d8ddafee2f7fc889ea6ab673cd439d787452f71"
+  },
+  {
+    "path": "game/experience-ui.js",
+    "baselineSHA256": "04c8a0129c3417ccaaa9db305bcd7dc1869cb71afa2f7189e538ff905a07665e",
+    "candidateSHA256": "b4b60b5ba8ea99d0acdd9fcd7fee633ef99fc3426decb34428e7abeb97e1aabb"
+  },
+  {
+    "path": "game/room-answer.js",
+    "baselineSHA256": "b36968172d4f62edd12ee0e863ce4522420832b8d4f30a55d2a6bf092a0f93d8",
+    "candidateSHA256": "5fe043ab9057123cd8c457af1e30fbf60a2ea3da8d9397131de7ad95d661af64"
+  },
+  {
+    "path": "game/room-test-driver.js",
+    "baselineSHA256": "222401f3c5798a470db1b6d4b963894b937c8abbbb97e400ea308f83b2caecc7",
+    "candidateSHA256": "2dda0a8f2cd97896d724ff3bf3b45a5256a9018475bf4c557e4e7c288a0da5bd"
+  },
+  {
+    "path": "game/room-ui.js",
+    "baselineSHA256": "3256dd55622aee08f7c3d3360fa1ab3d7f4e6976ee35e92cc5900552bb602a88",
+    "candidateSHA256": "479137cf7a247bf8d2275d805eb9f573e37d6dfdc8b92b3af03471ebc816a21d"
+  }
+]
