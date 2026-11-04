@@ -1,0 +1,43 @@
+name: Publish verified Hero Tournament r12
+on:
+  push:
+    branches: [release/hero-tournament-r12-20261104]
+    paths: [.github/workflows/hero-tournament-r12-publish.yml]
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: publish-hero-tournament-r12
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Verify exact successful Windows build and publish its checked ZIP
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh run view 41762412134 --repo osakenpiro/shuryo-techo --json conclusion,headSha > /tmp/source-run.json
+          python - <<'PY'
+          import json
+          r=json.load(open('/tmp/source-run.json'))
+          assert r['conclusion']=='success'
+          assert r['headSha']=='3cf530c04d6afda557e8e4241452122abc81b4dc'
+          PY
+          gh run download 41762412134 --repo osakenpiro/shuryo-techo --name hero-tournament-r12-candidate --dir /tmp/verified-r12
+          python - <<'PY'
+          import pathlib,hashlib,json,zipfile
+          r=pathlib.Path('/tmp/verified-r12');p=r/'hero-tournament-windows-r12.zip'
+          assert p.stat().st_size==164581387
+          assert hashlib.sha256(p.read_bytes()).hexdigest()=='82d44d0ff59ffe92e5e33e1dbf3dda5fc29ad939f1d9ad19a9822f9475af6986'
+          m=json.loads((r/'release-candidate.json').read_text())
+          assert m['sourceCommit']=='3cf530c04d6afda557e8e4241452122abc81b4dc'
+          with zipfile.ZipFile(p) as z: assert z.testzip() is None
+          PY
+          gh release create hero-tournament-r12 /tmp/verified-r12/hero-tournament-windows-r12.zip --repo osakenpiro/shuryo-techo --prerelease --latest=false --target 3cf530c04d6afda557e8e4241452122abc81b4dc --title '勇者トーナメント Windowsテスト版 r12' --notes-file hero-tournament/build-r12/release-notes.md
