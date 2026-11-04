@@ -1,0 +1,333 @@
+{
+  "version": "r13",
+  "capture": "actual Windows native run41780840608",
+  "date": "2026-11-04",
+  "review": "static screenshot review; proposals not implemented; sound and motion not judged from stills",
+  "files": [
+    {
+      "id": "title",
+      "title": "タイトルと入口",
+      "source": "playtest-evidence/20261104-054311-6610/learning-title-practice.png",
+      "asset": "assets/01-title.png",
+      "sha256": "aa0b0c9a4361d0460601ba33341ce96ca8e4f29b17a0377375c57cbd9920569e",
+      "question": "最初に何から始めるか。",
+      "notes": [
+        {
+          "x": 30,
+          "y": 54,
+          "text": "チュートリアル・一人練習・友だちとの対戦は、大きな入口で分かれている。",
+          "tone": "good"
+        },
+        {
+          "x": 26,
+          "y": 78,
+          "text": "本編へ進む「ゲームスタート」が小さい。練習と本編の違いを、入口でもう少し伝えたい。",
+          "tone": "issue"
+        }
+      ]
+    },
+    {
+      "id": "supplies",
+      "title": "共有箱から選ぶ",
+      "source": "playtest-evidence/20261104-054311-6610/practice-shared-box.png",
+      "asset": "assets/02-supplies.png",
+      "sha256": "d5b4ed4af0cec8c02c210ea4e30f3bf8c3bf0d635beaab497a9f499ab197408f",
+      "question": "自分の切り札を選ぶ場面。",
+      "notes": [
+        {
+          "x": 50,
+          "y": 24,
+          "text": "案内が二段あり、手順表示と合わせて上部の面積を使っている。道具を比較する領域を広げたい。",
+          "tone": "issue"
+        },
+        {
+          "x": 63,
+          "y": 84,
+          "text": "この表示位置では下段のカードが固定フッターに隠れている。スクロール前でも候補の全体像が分かるとよい。",
+          "tone": "issue"
+        }
+      ]
+    },
+    {
+      "id": "bag",
+      "title": "形のままカバンへ詰める",
+      "source": "playtest-evidence/20261104-054333-5117/one-packed-semi.png",
+      "asset": "assets/03-bag.png",
+      "sha256": "48eb77194481f06f55dfe23e4b928fdeb12de6664d67f2c94005396e9729a19d",
+      "question": "道具の絵・向き・占有範囲が一緒に読めるか。",
+      "notes": [
+        {
+          "x": 85,
+          "y": 67,
+          "text": "道具の全体絵と向きを保って、カバンへ詰める表示は戻っている。",
+          "tone": "good"
+        },
+        {
+          "x": 73,
+          "y": 48,
+          "text": "斧とパンの絵が重なって見える。占有マスの輪郭や選択中の強調で、空きと隣接を読みやすくしたい。",
+          "tone": "issue"
+        }
+      ]
+    },
+    {
+      "id": "tutorial",
+      "title": "チュートリアルと手札",
+      "source": "playtest-evidence/20261104-054311-6610/one-tutorial-pick-2.png",
+      "asset": "assets/04-tutorial.png",
+      "sha256": "c3cdbf3775b550b82b50767c355db657d37c76905b3d34cbdedb079b62f9ad9e",
+      "question": "①②を使い、③を次へ残すことが伝わるか。",
+      "notes": [
+        {
+          "x": 27,
+          "y": 27,
+          "text": "次に選ぶのが③だと、案内と空き枠が対応している。",
+          "tone": "good"
+        },
+        {
+          "x": 49,
+          "y": 85,
+          "text": "この表示位置では手札の名前より下が、通知と固定フッターに隠れている。案内を残しながらカードの効果まで一画面で見せたい。",
+          "tone": "issue"
+        }
+      ]
+    },
+    {
+      "id": "road",
+      "title": "道を選んで探索",
+      "source": "playtest-evidence/20261104-054404-8597/09-departure-crossroads.png",
+      "asset": "assets/05-road.png",
+      "sha256": "e7b27f891aa8be97c1739a6619823d9ee1252c712e9d354ec7c54e53b6b2048c",
+      "question": "看板で選んだ道と、進むボタンの対応を見る。",
+      "notes": [
+        {
+          "x": 65,
+          "y": 40,
+          "text": "看板の色が近く、選択中の道が看板だけでは判別しづらい。選んだ札の強調を足したい。",
+          "tone": "issue"
+        },
+        {
+          "x": 85,
+          "y": 79,
+          "text": "進むボタンには「煙の道」と選択内容が出ている。",
+          "tone": "good"
+        }
+      ]
+    },
+    {
+      "id": "plan",
+      "title": "本編で2手を決める",
+      "source": "playtest-evidence/20261104-054404-8597/npc-0-0-round-1-plan.png",
+      "asset": "assets/06-plan.png",
+      "sha256": "dd5a078d848b41e74cb8d29fecfd408b593bb7d22c2244f2c1ee0314e2e9f153",
+      "question": "攻撃・防御・持ち越しと消耗の予告を見る。",
+      "notes": [
+        {
+          "x": 44,
+          "y": 26,
+          "text": "魔力・耐久の使用後が、決定前に表示されている。",
+          "tone": "good"
+        },
+        {
+          "x": 51,
+          "y": 19,
+          "text": "この表示位置では、戦う人物の多くが上へ切れている。手札を比較しながら相手も見える構図を検討したい。",
+          "tone": "issue"
+        }
+      ]
+    },
+    {
+      "id": "counter",
+      "title": "防御から反撃、決着へ",
+      "source": "playtest-evidence/20261104-054404-8597/mid-match-complete.png",
+      "asset": "assets/07-counter.png",
+      "sha256": "82dea2d2b2a55d7c5575179c73d8d846098859c0d9a26dcf262477646c1c6c7d",
+      "question": "守った意味と、反撃が通った結果が伝わるか。",
+      "notes": [
+        {
+          "x": 16,
+          "y": 44,
+          "text": "1手目の「防御成功」と、次の攻撃+6が対応して読める。",
+          "tone": "good"
+        },
+        {
+          "x": 59,
+          "y": 51,
+          "text": "2手目に「反撃！」は出るが、小さめ。ここが主役だと一目で分かる強調を、実際の音・動きと合わせて見たい。",
+          "tone": "issue"
+        },
+        {
+          "x": 87,
+          "y": 30,
+          "text": "2手の解決後に「決着 — 撃破」が表示される。",
+          "tone": "good"
+        }
+      ]
+    },
+    {
+      "id": "reward",
+      "title": "戦利品を一つ選ぶ",
+      "source": "playtest-evidence/20261104-054404-8597/reward-choice.png",
+      "asset": "assets/08-reward.png",
+      "sha256": "b0e55e9aaac3540c96802c51fb13e2b853b93a02dfa2b7f94c1233c4589b2951",
+      "question": "見た目だけでなく、使い道を比較できるか。",
+      "notes": [
+        {
+          "x": 50,
+          "y": 64,
+          "text": "この表示範囲では3品の名前・効果が見えない。絵を保ちつつ、比較する情報も同時に見せたい。",
+          "tone": "issue"
+        }
+      ]
+    },
+    {
+      "id": "village",
+      "title": "村との関わり方",
+      "source": "playtest-evidence/20261104-054404-8597/village-0-1.png",
+      "asset": "assets/09-village.png",
+      "sha256": "f71f709965244175ba00ae68398eeeb82cd34a806b26e0a2cfc1057388cbd767",
+      "question": "何を渡し、何を得るかを理解して選べるか。",
+      "notes": [
+        {
+          "x": 65,
+          "y": 40,
+          "text": "見えている選択肢には、支払うものと得るものが書かれている。",
+          "tone": "good"
+        },
+        {
+          "x": 73,
+          "y": 65,
+          "text": "この表示では2案までが見え、残りの選択肢の有無が分かりにくい。選択肢全体の案内を足したい。",
+          "tone": "issue"
+        }
+      ]
+    },
+    {
+      "id": "growth",
+      "title": "勝利後の成長",
+      "source": "playtest-evidence/20261104-054404-8597/growth-mid-2.png",
+      "asset": "assets/10-growth.png",
+      "sha256": "9655831081c1b1e60198892d05abba00199e26bfaec19c1b266142a155abc210",
+      "question": "何をどれだけ伸ばせるか、比較できるか。",
+      "notes": [
+        {
+          "x": 49,
+          "y": 66,
+          "text": "成長先の名前・増加量が画面下に隠れている。3つの絵と具体的な効果を同じ画面で見たい。",
+          "tone": "issue"
+        }
+      ]
+    },
+    {
+      "id": "duel",
+      "title": "対戦で2手を封印",
+      "source": "playtest-evidence/20261104-054333-5117/two-semi-round-2-three-picks.png",
+      "asset": "assets/11-duel.png",
+      "sha256": "e60dc0b53006673b84338f45ed47a6bf6e04d1dddbd28af4ba4d151df89df575",
+      "question": "2手と持ち越し、消耗予告が整理されているか。",
+      "notes": [
+        {
+          "x": 50,
+          "y": 54,
+          "text": "①②③の順序と、③が持ち越しであることは並びで読める。",
+          "tone": "good"
+        },
+        {
+          "x": 51,
+          "y": 47,
+          "text": "魔力と複数の耐久の予告が、一行に詰まっている。重要な数値を見落とさない大きさと間隔にしたい。",
+          "tone": "issue"
+        }
+      ]
+    },
+    {
+      "id": "intermission",
+      "title": "幕間の修理と新調",
+      "source": "playtest-evidence/20261104-054333-5117/one-intermission-before.png",
+      "asset": "assets/12-intermission.png",
+      "sha256": "c56d2a69f6d81b96ee39437cdbcf0c1c0788482dd00cca3dcb79c0cf08c4c365",
+      "question": "次の試合へ向け、何を直すか決められるか。",
+      "notes": [
+        {
+          "x": 28,
+          "y": 42,
+          "text": "画面上で目立つのは再配置。修理や新調の入口は、この表示から見つけにくい。幕間でやれることを先に示したい。",
+          "tone": "issue"
+        },
+        {
+          "x": 65,
+          "y": 83,
+          "text": "前の配置通知が、道具の説明に重なっている。通知の位置や表示時間も見直したい。",
+          "tone": "issue"
+        }
+      ]
+    },
+    {
+      "id": "ranking",
+      "title": "大会の結果",
+      "source": "playtest-evidence/20261104-054333-5117/one-final-ranking.png",
+      "asset": "assets/13-ranking.png",
+      "sha256": "dc94c901e7300219b5b182dc20965254a6fb818dc026a2fd2d1e3269506f5889",
+      "question": "自分の順位と、次にできることが伝わるか。",
+      "notes": [
+        {
+          "x": 27,
+          "y": 46,
+          "text": "自分が3位であることは、見出しと行の強調で分かる。",
+          "tone": "good"
+        },
+        {
+          "x": 70,
+          "y": 95,
+          "text": "結果画面にも戦闘中の説明が残る。「もう一度遊ぶ」など、結果を受けた次の行動へ切り替えたい。",
+          "tone": "issue"
+        }
+      ]
+    },
+    {
+      "id": "ending",
+      "title": "旅の結末",
+      "source": "playtest-evidence/20261104-054404-8597/final-ending.png",
+      "asset": "assets/14-ending.png",
+      "sha256": "05795bac3f79bf5aaad242cf12e2f001f3a75724fbc5243dfefe2d747d882ae5",
+      "question": "順位と願いの結果を、旅の締めくくりとして見る。",
+      "notes": [
+        {
+          "x": 29,
+          "y": 52,
+          "text": "2位と「願う機会なし」が、一つの結末として明瞭に出ている。",
+          "tone": "good"
+        },
+        {
+          "x": 34,
+          "y": 65,
+          "text": "この旅で選んだことを要約する一行があると、順位以外にも旅の手触りを残せそう。",
+          "tone": "issue"
+        }
+      ]
+    },
+    {
+      "id": "chronicle",
+      "title": "旅を記録し、比べる",
+      "source": "playtest-evidence/20261104-054404-8597/final-saved-chronicle.png",
+      "asset": "assets/15-chronicle.png",
+      "sha256": "c23e5006c563d93581c9d5e0c83264212f285d252ca5d3b4b9ff3b4cfa203e91",
+      "question": "過去の旅と比較する入口が分かるか。",
+      "notes": [
+        {
+          "x": 49,
+          "y": 32,
+          "text": "見出しと余白が大きく、最初の記録カードが下端で切れている。記録の一覧をもっと早く見せたい。",
+          "tone": "issue"
+        },
+        {
+          "x": 49,
+          "y": 57,
+          "text": "2つの旅を選ぶ比較操作が、実際のカード一覧と一緒に見える構成にしたい。",
+          "tone": "issue"
+        }
+      ]
+    }
+  ],
+  "nativeRun": "https://github.com/osakenpiro/shuryo-techo/actions/runs/41780840608"
+}
