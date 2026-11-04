@@ -1,0 +1,237 @@
+{
+  "kind": "actual embedded Windows checkpoint replay against integrated engine",
+  "pairs": 16,
+  "rows": [
+    {
+      "before": "one-semi-round-1-three-picks.json",
+      "after": "one-semi-round-1-answer.json",
+      "mpAfter": 5,
+      "wear": [
+        {
+          "id": "D1",
+          "name": "雷紋の魔導書",
+          "before": 2,
+          "after": 1
+        },
+        {
+          "id": "D14",
+          "name": "熾火の杖",
+          "before": 3,
+          "after": 2
+        }
+      ]
+    },
+    {
+      "before": "one-semi-round-2-three-picks.json",
+      "after": "one-semi-round-2-answer.json",
+      "mpAfter": 1,
+      "wear": [
+        {
+          "id": "D8",
+          "name": "雷紋の魔導書",
+          "before": 2,
+          "after": 1
+        }
+      ]
+    },
+    {
+      "before": "one-third-round-1-three-picks.json",
+      "after": "one-third-round-1-answer.json",
+      "mpAfter": 2,
+      "wear": [
+        {
+          "id": "D14",
+          "name": "熾火の杖",
+          "before": 2,
+          "after": 1
+        }
+      ]
+    },
+    {
+      "before": "practice-final-round-1-three-picks.json",
+      "after": "practice-final-round-1-answer.json",
+      "mpAfter": 8,
+      "wear": [
+        {
+          "id": "GS1",
+          "name": "王砕きの大剣",
+          "before": 2,
+          "after": 1
+        },
+        {
+          "id": "D4",
+          "name": "雷紋の魔導書",
+          "before": 1,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "before": "practice-semi-round-1-three-picks.json",
+      "after": "practice-semi-round-1-answer.json",
+      "mpAfter": 8,
+      "wear": [
+        {
+          "id": "D4",
+          "name": "雷紋の魔導書",
+          "before": 2,
+          "after": 1
+        },
+        {
+          "id": "GS1",
+          "name": "王砕きの大剣",
+          "before": 2,
+          "after": 1
+        }
+      ]
+    },
+    {
+      "before": "one-semi-round-1-three-picks.json",
+      "after": "one-semi-round-1-answer.json",
+      "mpAfter": 12,
+      "wear": [
+        {
+          "id": "D11",
+          "name": "旅人の小刀",
+          "before": 12,
+          "after": 11
+        }
+      ]
+    },
+    {
+      "before": "one-semi-round-2-three-picks.json",
+      "after": "one-semi-round-2-answer.json",
+      "mpAfter": 12,
+      "wear": []
+    },
+    {
+      "before": "one-third-round-1-three-picks.json",
+      "after": "one-third-round-1-answer.json",
+      "mpAfter": 12,
+      "wear": [
+        {
+          "id": "D3",
+          "name": "旅人の小刀",
+          "before": 12,
+          "after": 11
+        }
+      ]
+    },
+    {
+      "before": "peer-two-final-round-1-three-picks.json",
+      "after": "peer-two-final-round-1-answer.json",
+      "mpAfter": 5,
+      "wear": [
+        {
+          "id": "D6",
+          "name": "燕返しの細剣",
+          "before": 7,
+          "after": 6
+        }
+      ]
+    },
+    {
+      "before": "peer-two-semi-round-1-three-picks.json",
+      "after": "peer-two-semi-round-1-answer.json",
+      "mpAfter": 11,
+      "wear": [
+        {
+          "id": "D9",
+          "name": "薄氷の小杖",
+          "before": 6,
+          "after": 5
+        }
+      ]
+    },
+    {
+      "before": "peer-two-semi-round-2-three-picks.json",
+      "after": "peer-two-semi-round-2-answer.json",
+      "mpAfter": 7,
+      "wear": [
+        {
+          "id": "D11",
+          "name": "雷紋の魔導書",
+          "before": 2,
+          "after": 1
+        }
+      ]
+    },
+    {
+      "before": "peer-two-semi-round-3-three-picks.json",
+      "after": "peer-two-semi-round-3-answer.json",
+      "mpAfter": 1,
+      "wear": [
+        {
+          "id": "D13",
+          "name": "熾火の杖",
+          "before": 3,
+          "after": 1
+        }
+      ]
+    },
+    {
+      "before": "two-semi-round-1-three-picks.json",
+      "after": "two-semi-round-1-answer.json",
+      "mpAfter": 10,
+      "wear": [
+        {
+          "id": "D11",
+          "name": "薄氷の小杖",
+          "before": 6,
+          "after": 5
+        }
+      ]
+    },
+    {
+      "before": "two-semi-round-2-three-picks.json",
+      "after": "two-semi-round-2-answer.json",
+      "mpAfter": 10,
+      "wear": [
+        {
+          "id": "D13",
+          "name": "護り手の槍",
+          "before": 6,
+          "after": 5
+        }
+      ]
+    },
+    {
+      "before": "two-semi-round-3-three-picks.json",
+      "after": "two-semi-round-3-answer.json",
+      "mpAfter": 10,
+      "wear": [
+        {
+          "id": "D4",
+          "name": "護り手の槍",
+          "before": 6,
+          "after": 5
+        },
+        {
+          "id": "D13",
+          "name": "護り手の槍",
+          "before": 5,
+          "after": 4
+        }
+      ]
+    },
+    {
+      "before": "two-third-round-1-three-picks.json",
+      "after": "two-third-round-1-answer.json",
+      "mpAfter": 10,
+      "wear": [
+        {
+          "id": "D8",
+          "name": "薄氷の小杖",
+          "before": 6,
+          "after": 5
+        },
+        {
+          "id": "D4",
+          "name": "護り手の槍",
+          "before": 6,
+          "after": 5
+        }
+      ]
+    }
+  ]
+}
