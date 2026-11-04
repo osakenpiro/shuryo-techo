@@ -1,0 +1,47 @@
+[
+  {
+    "path": "game/bag-occupancy.css",
+    "baselineSHA256": null,
+    "candidateSHA256": "f47d59188afed882a106fa6e506abfc86a813f6da3c3d7801f97f5d32c934c87"
+  },
+  {
+    "path": "game/bag-occupancy.js",
+    "baselineSHA256": null,
+    "candidateSHA256": "7917a19fc7c3146d20bb2fa0f0e2b293855b1b14fcc7f0ff0b1c9c5b6745bf1d"
+  },
+  {
+    "path": "game/index.html",
+    "baselineSHA256": "8050fcc7c91910d22e61f1ebad62f0d6c99c1a665e28609f6a9fba7c7c51b66d",
+    "candidateSHA256": "1ed471f6338375bf343a332711ff8a4c7afdccfc272461869dbee21dbea7c6ec"
+  },
+  {
+    "path": "game/material-ui.js",
+    "baselineSHA256": "74a35699acf8d9fc692ce4da9bcb511df69dad61fc317dacb2a8dfc96cc9d6b3",
+    "candidateSHA256": "bc05cdec39d750581f42b08fa8ff46e303eabfc656e0d58be94efa7109d3454b"
+  },
+  {
+    "path": "game/native-bag-proof.js",
+    "baselineSHA256": null,
+    "candidateSHA256": "0f4a8d71e9f8f7c6464e403b0831452f27c13469111406ac9885b1cd96ec319d"
+  },
+  {
+    "path": "game/room-test-driver.js",
+    "baselineSHA256": "2dda0a8f2cd97896d724ff3bf3b45a5256a9018475bf4c557e4e7c288a0da5bd",
+    "candidateSHA256": "872c607c6b6b92910a3096f37738492f1e604dacbe5c05af5ca07eb3ce37ff50"
+  },
+  {
+    "path": "game/room-ui.js",
+    "baselineSHA256": "479137cf7a247bf8d2275d805eb9f573e37d6dfdc8b92b3af03471ebc816a21d",
+    "candidateSHA256": "f8253fa2b429c963d5bcaaa34dae924d6954686e09b5fee20a0af1a0139f3613"
+  },
+  {
+    "path": "game/room.html",
+    "baselineSHA256": "5fda50c388bb20ade835b8ce3a29e463567890a24b389875b179467e53cb7234",
+    "candidateSHA256": "c7aece095f2e411c146028d578217321f9b1ac630947da6aece17166e096b501"
+  },
+  {
+    "path": "game/windows-playtest.js",
+    "baselineSHA256": "a518c97dbfd369b18dc6e1b554cea5970c193cd12dcd1c63f06e89ae37f7b3c9",
+    "candidateSHA256": "ee8f3b089874174fae4ae01f832c2732e54fa269b1eb9ab9801655962cefee98"
+  }
+]

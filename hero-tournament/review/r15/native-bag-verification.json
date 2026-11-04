@@ -1,0 +1,191 @@
+{
+  "pass": true,
+  "kind": "actual Windows engine-shape / SVG / logical-grid / input-transparency checks",
+  "checkpoints": [
+    {
+      "checkpoint": "20261104-132228-0530\\one-after-repair.json",
+      "kind": "room",
+      "items": 11
+    },
+    {
+      "checkpoint": "20261104-132228-0530\\one-after-upgrade.json",
+      "kind": "room",
+      "items": 11
+    },
+    {
+      "checkpoint": "20261104-132228-0530\\one-intermission-before.json",
+      "kind": "room",
+      "items": 11
+    },
+    {
+      "checkpoint": "20261104-132228-0530\\one-manual-tile-placement.json",
+      "kind": "room",
+      "items": 1
+    },
+    {
+      "checkpoint": "20261104-132228-0530\\one-packed-final.json",
+      "kind": "room",
+      "items": 11
+    },
+    {
+      "checkpoint": "20261104-132228-0530\\one-packed-semi.json",
+      "kind": "room",
+      "items": 11
+    },
+    {
+      "checkpoint": "20261104-132228-0530\\practice-after-purchase.json",
+      "kind": "room",
+      "items": 10
+    },
+    {
+      "checkpoint": "20261104-132228-0530\\practice-after-repair.json",
+      "kind": "room",
+      "items": 10
+    },
+    {
+      "checkpoint": "20261104-132228-0530\\practice-intermission-before.json",
+      "kind": "room",
+      "items": 10
+    },
+    {
+      "checkpoint": "20261104-132228-0530\\practice-manual-tile-placement.json",
+      "kind": "room",
+      "items": 1
+    },
+    {
+      "checkpoint": "20261104-132228-0530\\practice-packed-final.json",
+      "kind": "room",
+      "items": 10
+    },
+    {
+      "checkpoint": "20261104-132228-0530\\practice-packed-semi.json",
+      "kind": "room",
+      "items": 10
+    },
+    {
+      "checkpoint": "20261104-132248-7601\\one-after-repair.json",
+      "kind": "room",
+      "items": 11
+    },
+    {
+      "checkpoint": "20261104-132248-7601\\one-after-upgrade.json",
+      "kind": "room",
+      "items": 11
+    },
+    {
+      "checkpoint": "20261104-132248-7601\\one-intermission-before.json",
+      "kind": "room",
+      "items": 11
+    },
+    {
+      "checkpoint": "20261104-132248-7601\\one-manual-tile-placement.json",
+      "kind": "room",
+      "items": 1
+    },
+    {
+      "checkpoint": "20261104-132248-7601\\one-packed-final.json",
+      "kind": "room",
+      "items": 11
+    },
+    {
+      "checkpoint": "20261104-132248-7601\\one-packed-semi.json",
+      "kind": "room",
+      "items": 11
+    },
+    {
+      "checkpoint": "20261104-132248-7601\\peer-two-after-purchase.json",
+      "kind": "room",
+      "items": 10
+    },
+    {
+      "checkpoint": "20261104-132248-7601\\peer-two-after-repair.json",
+      "kind": "room",
+      "items": 10
+    },
+    {
+      "checkpoint": "20261104-132248-7601\\peer-two-intermission-before.json",
+      "kind": "room",
+      "items": 10
+    },
+    {
+      "checkpoint": "20261104-132248-7601\\peer-two-manual-tile-placement.json",
+      "kind": "room",
+      "items": 1
+    },
+    {
+      "checkpoint": "20261104-132248-7601\\peer-two-packed-final.json",
+      "kind": "room",
+      "items": 10
+    },
+    {
+      "checkpoint": "20261104-132248-7601\\peer-two-packed-semi.json",
+      "kind": "room",
+      "items": 10
+    },
+    {
+      "checkpoint": "20261104-132248-7601\\two-after-purchase.json",
+      "kind": "room",
+      "items": 12
+    },
+    {
+      "checkpoint": "20261104-132248-7601\\two-after-repair.json",
+      "kind": "room",
+      "items": 12
+    },
+    {
+      "checkpoint": "20261104-132248-7601\\two-intermission-before.json",
+      "kind": "room",
+      "items": 12
+    },
+    {
+      "checkpoint": "20261104-132248-7601\\two-manual-tile-placement.json",
+      "kind": "room",
+      "items": 12
+    },
+    {
+      "checkpoint": "20261104-132248-7601\\two-packed-final.json",
+      "kind": "room",
+      "items": 12
+    },
+    {
+      "checkpoint": "20261104-132248-7601\\two-packed-semi.json",
+      "kind": "room",
+      "items": 12
+    },
+    {
+      "checkpoint": "20261104-132322-9843\\06-tile-inventory.json",
+      "kind": "main",
+      "items": 6
+    },
+    {
+      "checkpoint": "20261104-132322-9843\\07-overall-level.json",
+      "kind": "main",
+      "items": 6
+    },
+    {
+      "checkpoint": "20261104-132322-9843\\08-restored-tiles.json",
+      "kind": "main",
+      "items": 6
+    },
+    {
+      "checkpoint": "20261104-132322-9843\\bag-after-rearrange.json",
+      "kind": "main",
+      "items": 6
+    },
+    {
+      "checkpoint": "20261104-132322-9843\\bag-before-rearrange.json",
+      "kind": "main",
+      "items": 6
+    },
+    {
+      "checkpoint": "20261104-132322-9843\\novice-weapon-arrived.json",
+      "kind": "main",
+      "items": 1
+    },
+    {
+      "checkpoint": "20261104-132322-9843\\novice-weapon-packed.json",
+      "kind": "main",
+      "items": 1
+    }
+  ]
+}

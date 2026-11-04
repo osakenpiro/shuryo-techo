@@ -1,0 +1,23 @@
+[
+  {
+    "width": 1280,
+    "images": 6,
+    "switches": "PASS",
+    "overflow": false,
+    "errors": []
+  },
+  {
+    "width": 390,
+    "images": 6,
+    "switches": "PASS",
+    "overflow": false,
+    "errors": []
+  },
+  {
+    "width": 320,
+    "images": 6,
+    "switches": "PASS",
+    "overflow": false,
+    "errors": []
+  }
+]

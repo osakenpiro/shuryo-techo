@@ -1,0 +1,43 @@
+name: Publish verified Hero Tournament r15
+on:
+  push:
+    branches: [release/hero-tournament-r15-20261104]
+    paths: [.github/workflows/hero-tournament-r15-publish.yml]
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: publish-hero-tournament-r15
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Verify exact successful Windows build and publish its checked ZIP
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh run view 41837396724 --repo osakenpiro/shuryo-techo --json conclusion,headSha > /tmp/source-run.json
+          python - <<'PY'
+          import json
+          r=json.load(open('/tmp/source-run.json'))
+          assert r['conclusion']=='success'
+          assert r['headSha']=='256d518a9d4266e3af108eda2a898a501531d26b'
+          PY
+          gh run download 41837396724 --repo osakenpiro/shuryo-techo --name hero-tournament-r15-candidate --dir /tmp/verified-r15
+          python - <<'PY'
+          import pathlib,hashlib,json,zipfile
+          r=pathlib.Path('/tmp/verified-r15');p=r/'hero-tournament-windows-r15.zip'
+          assert p.stat().st_size==164590305
+          assert hashlib.sha256(p.read_bytes()).hexdigest()=='66a9dfaebd05d42fb6c52bffbc552936e20a47049f3709c3a409805bffda8e20'
+          m=json.loads((r/'release-candidate.json').read_text())
+          assert m['sourceCommit']=='256d518a9d4266e3af108eda2a898a501531d26b'
+          with zipfile.ZipFile(p) as z: assert z.testzip() is None
+          PY
+          gh release create hero-tournament-r15 /tmp/verified-r15/hero-tournament-windows-r15.zip --repo osakenpiro/shuryo-techo --prerelease --latest=false --target 256d518a9d4266e3af108eda2a898a501531d26b --title '勇者トーナメント Windowsテスト版 r15' --notes-file hero-tournament/build-r15/release-notes.md

@@ -1,0 +1,5303 @@
+{
+  "kind": "independent Linux Chromium inventory geometry/UI checks; synthetic fixtures and normal-play separately labeled",
+  "comparisons": [
+    {
+      "build": "r14",
+      "renderer": "main",
+      "overlap": false,
+      "viewport": [
+        1028,
+        719
+      ],
+      "geometry": {
+        "board": {
+          "x": 556.59375,
+          "y": 214.578125,
+          "width": 370,
+          "height": 306.65625
+        },
+        "items": [
+          {
+            "id": "AXE",
+            "placement": {
+              "x": 0,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                3
+              ]
+            ],
+            "expected": {
+              "x": 556.59375,
+              "y": 214.578125,
+              "width": 123.33333333333333,
+              "height": 245.325
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "GAP",
+            "placement": {
+              "x": 1,
+              "y": 1,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 618.2604166666666,
+              "y": 275.909375,
+              "width": 61.666666666666664,
+              "height": 61.33125
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "BOOT",
+            "placement": {
+              "x": 2,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 679.9270833333334,
+              "y": 214.578125,
+              "width": 123.33333333333333,
+              "height": 122.6625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POTION",
+            "placement": {
+              "x": 4,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 803.2604166666666,
+              "y": 214.578125,
+              "width": 61.666666666666664,
+              "height": 122.6625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "KNIFE",
+            "placement": {
+              "x": 5,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 864.9270833333333,
+              "y": 214.578125,
+              "width": 61.666666666666664,
+              "height": 122.6625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "SHIELD",
+            "placement": {
+              "x": 2,
+              "y": 3,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 679.9270833333334,
+              "y": 398.571875,
+              "width": 123.33333333333333,
+              "height": 122.6625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "FLASK",
+            "placement": {
+              "x": 4,
+              "y": 3,
+              "rotation": 1
+            },
+            "cells": [
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 803.2604166666666,
+              "y": 398.571875,
+              "width": 123.33333333333333,
+              "height": 61.33125
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          }
+        ]
+      },
+      "idleRenderingStateUnchanged": true,
+      "errors": []
+    },
+    {
+      "build": "r14",
+      "renderer": "main",
+      "overlap": false,
+      "viewport": [
+        1280,
+        870
+      ],
+      "geometry": {
+        "board": {
+          "x": 737.28125,
+          "y": 291.578125,
+          "width": 370,
+          "height": 306.65625
+        },
+        "items": [
+          {
+            "id": "AXE",
+            "placement": {
+              "x": 0,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                3
+              ]
+            ],
+            "expected": {
+              "x": 737.28125,
+              "y": 291.578125,
+              "width": 123.33333333333333,
+              "height": 245.325
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "GAP",
+            "placement": {
+              "x": 1,
+              "y": 1,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 798.9479166666666,
+              "y": 352.909375,
+              "width": 61.666666666666664,
+              "height": 61.33125
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "BOOT",
+            "placement": {
+              "x": 2,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 860.6145833333334,
+              "y": 291.578125,
+              "width": 123.33333333333333,
+              "height": 122.6625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POTION",
+            "placement": {
+              "x": 4,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 983.9479166666666,
+              "y": 291.578125,
+              "width": 61.666666666666664,
+              "height": 122.6625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "KNIFE",
+            "placement": {
+              "x": 5,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 1045.6145833333333,
+              "y": 291.578125,
+              "width": 61.666666666666664,
+              "height": 122.6625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "SHIELD",
+            "placement": {
+              "x": 2,
+              "y": 3,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 860.6145833333334,
+              "y": 475.571875,
+              "width": 123.33333333333333,
+              "height": 122.6625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "FLASK",
+            "placement": {
+              "x": 4,
+              "y": 3,
+              "rotation": 1
+            },
+            "cells": [
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 983.9479166666666,
+              "y": 475.571875,
+              "width": 123.33333333333333,
+              "height": 61.33125
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          }
+        ]
+      },
+      "idleRenderingStateUnchanged": true,
+      "errors": [],
+      "interactions": {
+        "L-hole-neighbor-selected": "GAP",
+        "free-L-hole-placement": {
+          "x": 3,
+          "y": 0
+        },
+        "rotations": [
+          {
+            "rotation": 0,
+            "contour": null
+          },
+          {
+            "rotation": 1,
+            "contour": null
+          },
+          {
+            "rotation": 2,
+            "contour": null
+          },
+          {
+            "rotation": 3,
+            "contour": null
+          }
+        ],
+        "invalidPreview": {
+          "z": "12",
+          "background": "rgba(0, 0, 0, 0)",
+          "shadow": "rgb(241, 172, 140) 0px 0px 0px 2px inset"
+        },
+        "previewDidNotMutateState": true
+      }
+    },
+    {
+      "build": "r14",
+      "renderer": "main",
+      "overlap": true,
+      "viewport": [
+        1028,
+        719
+      ],
+      "geometry": {
+        "board": {
+          "x": 556.59375,
+          "y": 214.578125,
+          "width": 370,
+          "height": 306.65625
+        },
+        "items": [
+          {
+            "id": "AXE",
+            "placement": {
+              "x": 0,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                3
+              ]
+            ],
+            "expected": {
+              "x": 556.59375,
+              "y": 214.578125,
+              "width": 123.33333333333333,
+              "height": 245.325
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "GAP",
+            "placement": {
+              "x": 1,
+              "y": 1,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 618.2604166666666,
+              "y": 275.909375,
+              "width": 61.666666666666664,
+              "height": 61.33125
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "BOOT",
+            "placement": {
+              "x": 2,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 679.9270833333334,
+              "y": 214.578125,
+              "width": 123.33333333333333,
+              "height": 122.6625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POTION",
+            "placement": {
+              "x": 4,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 803.2604166666666,
+              "y": 214.578125,
+              "width": 61.666666666666664,
+              "height": 122.6625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "KNIFE",
+            "placement": {
+              "x": 5,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 864.9270833333333,
+              "y": 214.578125,
+              "width": 61.666666666666664,
+              "height": 122.6625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "SHIELD",
+            "placement": {
+              "x": 2,
+              "y": 3,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 679.9270833333334,
+              "y": 398.571875,
+              "width": 123.33333333333333,
+              "height": 122.6625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "FLASK",
+            "placement": {
+              "x": 4,
+              "y": 3,
+              "rotation": 1
+            },
+            "cells": [
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 803.2604166666666,
+              "y": 398.571875,
+              "width": 123.33333333333333,
+              "height": 61.33125
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POCKET-A",
+            "placement": {
+              "x": 4,
+              "y": 4,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 803.2604166666666,
+              "y": 459.903125,
+              "width": 61.666666666666664,
+              "height": 61.33125
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POCKET-B",
+            "placement": {
+              "x": 4,
+              "y": 4,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 803.2604166666666,
+              "y": 459.903125,
+              "width": 61.666666666666664,
+              "height": 61.33125
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          }
+        ]
+      },
+      "idleRenderingStateUnchanged": true,
+      "errors": []
+    },
+    {
+      "build": "r14",
+      "renderer": "main",
+      "overlap": true,
+      "viewport": [
+        1280,
+        870
+      ],
+      "geometry": {
+        "board": {
+          "x": 737.28125,
+          "y": 291.578125,
+          "width": 370,
+          "height": 306.65625
+        },
+        "items": [
+          {
+            "id": "AXE",
+            "placement": {
+              "x": 0,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                3
+              ]
+            ],
+            "expected": {
+              "x": 737.28125,
+              "y": 291.578125,
+              "width": 123.33333333333333,
+              "height": 245.325
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "GAP",
+            "placement": {
+              "x": 1,
+              "y": 1,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 798.9479166666666,
+              "y": 352.909375,
+              "width": 61.666666666666664,
+              "height": 61.33125
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "BOOT",
+            "placement": {
+              "x": 2,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 860.6145833333334,
+              "y": 291.578125,
+              "width": 123.33333333333333,
+              "height": 122.6625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POTION",
+            "placement": {
+              "x": 4,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 983.9479166666666,
+              "y": 291.578125,
+              "width": 61.666666666666664,
+              "height": 122.6625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "KNIFE",
+            "placement": {
+              "x": 5,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 1045.6145833333333,
+              "y": 291.578125,
+              "width": 61.666666666666664,
+              "height": 122.6625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "SHIELD",
+            "placement": {
+              "x": 2,
+              "y": 3,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 860.6145833333334,
+              "y": 475.571875,
+              "width": 123.33333333333333,
+              "height": 122.6625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "FLASK",
+            "placement": {
+              "x": 4,
+              "y": 3,
+              "rotation": 1
+            },
+            "cells": [
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 983.9479166666666,
+              "y": 475.571875,
+              "width": 123.33333333333333,
+              "height": 61.33125
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POCKET-A",
+            "placement": {
+              "x": 4,
+              "y": 4,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 983.9479166666666,
+              "y": 536.903125,
+              "width": 61.666666666666664,
+              "height": 61.33125
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POCKET-B",
+            "placement": {
+              "x": 4,
+              "y": 4,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 983.9479166666666,
+              "y": 536.903125,
+              "width": 61.666666666666664,
+              "height": 61.33125
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          }
+        ]
+      },
+      "idleRenderingStateUnchanged": true,
+      "errors": []
+    },
+    {
+      "build": "r14",
+      "renderer": "room",
+      "overlap": false,
+      "viewport": [
+        1028,
+        719
+      ],
+      "geometry": {
+        "board": {
+          "x": 619.171875,
+          "y": 318,
+          "width": 356,
+          "height": 295.65625
+        },
+        "items": [
+          {
+            "id": "AXE",
+            "placement": {
+              "x": 0,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                3
+              ]
+            ],
+            "expected": {
+              "x": 619.171875,
+              "y": 318,
+              "width": 118.66666666666667,
+              "height": 236.525
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "GAP",
+            "placement": {
+              "x": 1,
+              "y": 1,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 678.5052083333334,
+              "y": 377.13125,
+              "width": 59.333333333333336,
+              "height": 59.13125
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "BOOT",
+            "placement": {
+              "x": 2,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 737.8385416666666,
+              "y": 318,
+              "width": 118.66666666666667,
+              "height": 118.2625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POTION",
+            "placement": {
+              "x": 4,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 856.5052083333334,
+              "y": 318,
+              "width": 59.333333333333336,
+              "height": 118.2625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "KNIFE",
+            "placement": {
+              "x": 5,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 915.8385416666667,
+              "y": 318,
+              "width": 59.333333333333336,
+              "height": 118.2625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "SHIELD",
+            "placement": {
+              "x": 2,
+              "y": 3,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 737.8385416666666,
+              "y": 495.39375,
+              "width": 118.66666666666667,
+              "height": 118.2625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "FLASK",
+            "placement": {
+              "x": 4,
+              "y": 3,
+              "rotation": 1
+            },
+            "cells": [
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 856.5052083333334,
+              "y": 495.39375,
+              "width": 118.66666666666667,
+              "height": 59.13125
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          }
+        ]
+      },
+      "idleRenderingStateUnchanged": true,
+      "errors": []
+    },
+    {
+      "build": "r14",
+      "renderer": "room",
+      "overlap": false,
+      "viewport": [
+        1280,
+        870
+      ],
+      "geometry": {
+        "board": {
+          "x": 833.609375,
+          "y": 318,
+          "width": 356,
+          "height": 295.65625
+        },
+        "items": [
+          {
+            "id": "AXE",
+            "placement": {
+              "x": 0,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                3
+              ]
+            ],
+            "expected": {
+              "x": 833.609375,
+              "y": 318,
+              "width": 118.66666666666667,
+              "height": 236.525
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "GAP",
+            "placement": {
+              "x": 1,
+              "y": 1,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 892.9427083333334,
+              "y": 377.13125,
+              "width": 59.333333333333336,
+              "height": 59.13125
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "BOOT",
+            "placement": {
+              "x": 2,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 952.2760416666666,
+              "y": 318,
+              "width": 118.66666666666667,
+              "height": 118.2625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POTION",
+            "placement": {
+              "x": 4,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 1070.9427083333333,
+              "y": 318,
+              "width": 59.333333333333336,
+              "height": 118.2625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "KNIFE",
+            "placement": {
+              "x": 5,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 1130.2760416666667,
+              "y": 318,
+              "width": 59.333333333333336,
+              "height": 118.2625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "SHIELD",
+            "placement": {
+              "x": 2,
+              "y": 3,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 952.2760416666666,
+              "y": 495.39375,
+              "width": 118.66666666666667,
+              "height": 118.2625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "FLASK",
+            "placement": {
+              "x": 4,
+              "y": 3,
+              "rotation": 1
+            },
+            "cells": [
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 1070.9427083333333,
+              "y": 495.39375,
+              "width": 118.66666666666667,
+              "height": 59.13125
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          }
+        ]
+      },
+      "idleRenderingStateUnchanged": true,
+      "errors": [],
+      "interactions": {
+        "L-hole-neighbor-selected": "GAP",
+        "free-L-hole-placement": {
+          "x": 3,
+          "y": 0
+        },
+        "rotations": [
+          {
+            "rotation": 0,
+            "contour": null
+          },
+          {
+            "rotation": 1,
+            "contour": null
+          },
+          {
+            "rotation": 2,
+            "contour": null
+          },
+          {
+            "rotation": 3,
+            "contour": null
+          }
+        ],
+        "invalidPreview": {
+          "shadow": "rgb(207, 121, 108) 0px 0px 0px 3px inset",
+          "background": "rgba(21, 43, 53, 0.667)"
+        },
+        "previewDidNotMutateState": true,
+        "repack": "ordinary AUTO_PACK accepted"
+      }
+    },
+    {
+      "build": "r14",
+      "renderer": "room",
+      "overlap": true,
+      "viewport": [
+        1028,
+        719
+      ],
+      "geometry": {
+        "board": {
+          "x": 619.171875,
+          "y": 318,
+          "width": 356,
+          "height": 295.65625
+        },
+        "items": [
+          {
+            "id": "AXE",
+            "placement": {
+              "x": 0,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                3
+              ]
+            ],
+            "expected": {
+              "x": 619.171875,
+              "y": 318,
+              "width": 118.66666666666667,
+              "height": 236.525
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "GAP",
+            "placement": {
+              "x": 1,
+              "y": 1,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 678.5052083333334,
+              "y": 377.13125,
+              "width": 59.333333333333336,
+              "height": 59.13125
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "BOOT",
+            "placement": {
+              "x": 2,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 737.8385416666666,
+              "y": 318,
+              "width": 118.66666666666667,
+              "height": 118.2625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POTION",
+            "placement": {
+              "x": 4,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 856.5052083333334,
+              "y": 318,
+              "width": 59.333333333333336,
+              "height": 118.2625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "KNIFE",
+            "placement": {
+              "x": 5,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 915.8385416666667,
+              "y": 318,
+              "width": 59.333333333333336,
+              "height": 118.2625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "SHIELD",
+            "placement": {
+              "x": 2,
+              "y": 3,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 737.8385416666666,
+              "y": 495.39375,
+              "width": 118.66666666666667,
+              "height": 118.2625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "FLASK",
+            "placement": {
+              "x": 4,
+              "y": 3,
+              "rotation": 1
+            },
+            "cells": [
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 856.5052083333334,
+              "y": 495.39375,
+              "width": 118.66666666666667,
+              "height": 59.13125
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POCKET-A",
+            "placement": {
+              "x": 4,
+              "y": 4,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 856.5052083333334,
+              "y": 554.525,
+              "width": 59.333333333333336,
+              "height": 59.13125
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POCKET-B",
+            "placement": {
+              "x": 4,
+              "y": 4,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 856.5052083333334,
+              "y": 554.525,
+              "width": 59.333333333333336,
+              "height": 59.13125
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          }
+        ]
+      },
+      "idleRenderingStateUnchanged": true,
+      "errors": []
+    },
+    {
+      "build": "r14",
+      "renderer": "room",
+      "overlap": true,
+      "viewport": [
+        1280,
+        870
+      ],
+      "geometry": {
+        "board": {
+          "x": 833.609375,
+          "y": 318,
+          "width": 356,
+          "height": 295.65625
+        },
+        "items": [
+          {
+            "id": "AXE",
+            "placement": {
+              "x": 0,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                3
+              ]
+            ],
+            "expected": {
+              "x": 833.609375,
+              "y": 318,
+              "width": 118.66666666666667,
+              "height": 236.525
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "GAP",
+            "placement": {
+              "x": 1,
+              "y": 1,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 892.9427083333334,
+              "y": 377.13125,
+              "width": 59.333333333333336,
+              "height": 59.13125
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "BOOT",
+            "placement": {
+              "x": 2,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 952.2760416666666,
+              "y": 318,
+              "width": 118.66666666666667,
+              "height": 118.2625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POTION",
+            "placement": {
+              "x": 4,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 1070.9427083333333,
+              "y": 318,
+              "width": 59.333333333333336,
+              "height": 118.2625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "KNIFE",
+            "placement": {
+              "x": 5,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 1130.2760416666667,
+              "y": 318,
+              "width": 59.333333333333336,
+              "height": 118.2625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "SHIELD",
+            "placement": {
+              "x": 2,
+              "y": 3,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 952.2760416666666,
+              "y": 495.39375,
+              "width": 118.66666666666667,
+              "height": 118.2625
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "FLASK",
+            "placement": {
+              "x": 4,
+              "y": 3,
+              "rotation": 1
+            },
+            "cells": [
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 1070.9427083333333,
+              "y": 495.39375,
+              "width": 118.66666666666667,
+              "height": 59.13125
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POCKET-A",
+            "placement": {
+              "x": 4,
+              "y": 4,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 1070.9427083333333,
+              "y": 554.525,
+              "width": 59.333333333333336,
+              "height": 59.13125
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POCKET-B",
+            "placement": {
+              "x": 4,
+              "y": 4,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 1070.9427083333333,
+              "y": 554.525,
+              "width": 59.333333333333336,
+              "height": 59.13125
+            },
+            "contour": null,
+            "fill": false,
+            "wholeArt": true,
+            "rootPointer": "none"
+          }
+        ]
+      },
+      "idleRenderingStateUnchanged": true,
+      "errors": []
+    },
+    {
+      "build": "r15",
+      "renderer": "main",
+      "overlap": false,
+      "viewport": [
+        1028,
+        719
+      ],
+      "geometry": {
+        "board": {
+          "x": 556.59375,
+          "y": 214.578125,
+          "width": 370,
+          "height": 306.65625
+        },
+        "items": [
+          {
+            "id": "AXE",
+            "placement": {
+              "x": 0,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                3
+              ]
+            ],
+            "expected": {
+              "x": 556.59375,
+              "y": 214.578125,
+              "width": 123.33333333333333,
+              "height": 245.325
+            },
+            "contour": {
+              "x": 556.59375,
+              "y": 214.578125,
+              "width": 123.328125,
+              "height": 245.3125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 4",
+              "d": "M0 0L1 0M0 1L0 0M1 0L2 0M2 0L2 1M2 1L1 1M1 1L1 2M0 2L0 1M1 2L1 3M0 3L0 2M1 3L1 4M1 4L0 4M0 4L0 3",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "GAP",
+            "placement": {
+              "x": 1,
+              "y": 1,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 618.2604166666666,
+              "y": 275.909375,
+              "width": 61.666666666666664,
+              "height": 61.33125
+            },
+            "contour": {
+              "x": 618.25,
+              "y": 275.90625,
+              "width": 61.65625,
+              "height": 61.328125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 1",
+              "d": "M0 0L1 0M1 0L1 1M1 1L0 1M0 1L0 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "BOOT",
+            "placement": {
+              "x": 2,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 679.9270833333334,
+              "y": 214.578125,
+              "width": 123.33333333333333,
+              "height": 122.6625
+            },
+            "contour": {
+              "x": 679.921875,
+              "y": 214.578125,
+              "width": 123.328125,
+              "height": 122.65625,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 2",
+              "d": "M0 0L1 0M1 0L1 1M0 1L0 0M1 2L0 2M0 2L0 1M1 1L2 1M2 1L2 2M2 2L1 2",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POTION",
+            "placement": {
+              "x": 4,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 803.2604166666666,
+              "y": 214.578125,
+              "width": 61.666666666666664,
+              "height": 122.6625
+            },
+            "contour": {
+              "x": 803.25,
+              "y": 214.578125,
+              "width": 61.65625,
+              "height": 122.65625,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 2",
+              "d": "M0 0L1 0M1 0L1 1M0 1L0 0M1 1L1 2M1 2L0 2M0 2L0 1",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "KNIFE",
+            "placement": {
+              "x": 5,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 864.9270833333333,
+              "y": 214.578125,
+              "width": 61.666666666666664,
+              "height": 122.6625
+            },
+            "contour": {
+              "x": 864.921875,
+              "y": 214.578125,
+              "width": 61.65625,
+              "height": 122.65625,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 2",
+              "d": "M0 0L1 0M1 0L1 1M0 1L0 0M1 1L1 2M1 2L0 2M0 2L0 1",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "SHIELD",
+            "placement": {
+              "x": 2,
+              "y": 3,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 679.9270833333334,
+              "y": 398.571875,
+              "width": 123.33333333333333,
+              "height": 122.6625
+            },
+            "contour": {
+              "x": 679.921875,
+              "y": 398.5625,
+              "width": 123.328125,
+              "height": 122.65625,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 2",
+              "d": "M0 0L1 0M0 1L0 0M1 0L2 0M2 0L2 1M1 2L0 2M0 2L0 1M2 1L2 2M2 2L1 2",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "FLASK",
+            "placement": {
+              "x": 4,
+              "y": 3,
+              "rotation": 1
+            },
+            "cells": [
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 803.2604166666666,
+              "y": 398.571875,
+              "width": 123.33333333333333,
+              "height": 61.33125
+            },
+            "contour": {
+              "x": 803.25,
+              "y": 398.5625,
+              "width": 123.328125,
+              "height": 61.328125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 1",
+              "d": "M1 0L2 0M2 0L2 1M2 1L1 1M0 0L1 0M1 1L0 1M0 1L0 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          }
+        ]
+      },
+      "idleRenderingStateUnchanged": true,
+      "errors": []
+    },
+    {
+      "build": "r15",
+      "renderer": "main",
+      "overlap": false,
+      "viewport": [
+        1280,
+        870
+      ],
+      "geometry": {
+        "board": {
+          "x": 737.28125,
+          "y": 291.578125,
+          "width": 370,
+          "height": 306.65625
+        },
+        "items": [
+          {
+            "id": "AXE",
+            "placement": {
+              "x": 0,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                3
+              ]
+            ],
+            "expected": {
+              "x": 737.28125,
+              "y": 291.578125,
+              "width": 123.33333333333333,
+              "height": 245.325
+            },
+            "contour": {
+              "x": 737.28125,
+              "y": 291.578125,
+              "width": 123.328125,
+              "height": 245.3125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 4",
+              "d": "M0 0L1 0M0 1L0 0M1 0L2 0M2 0L2 1M2 1L1 1M1 1L1 2M0 2L0 1M1 2L1 3M0 3L0 2M1 3L1 4M1 4L0 4M0 4L0 3",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "GAP",
+            "placement": {
+              "x": 1,
+              "y": 1,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 798.9479166666666,
+              "y": 352.909375,
+              "width": 61.666666666666664,
+              "height": 61.33125
+            },
+            "contour": {
+              "x": 798.9375,
+              "y": 352.90625,
+              "width": 61.65625,
+              "height": 61.328125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 1",
+              "d": "M0 0L1 0M1 0L1 1M1 1L0 1M0 1L0 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "BOOT",
+            "placement": {
+              "x": 2,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 860.6145833333334,
+              "y": 291.578125,
+              "width": 123.33333333333333,
+              "height": 122.6625
+            },
+            "contour": {
+              "x": 860.609375,
+              "y": 291.578125,
+              "width": 123.328125,
+              "height": 122.65625,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 2",
+              "d": "M0 0L1 0M1 0L1 1M0 1L0 0M1 2L0 2M0 2L0 1M1 1L2 1M2 1L2 2M2 2L1 2",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POTION",
+            "placement": {
+              "x": 4,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 983.9479166666666,
+              "y": 291.578125,
+              "width": 61.666666666666664,
+              "height": 122.6625
+            },
+            "contour": {
+              "x": 983.9375,
+              "y": 291.578125,
+              "width": 61.65625,
+              "height": 122.65625,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 2",
+              "d": "M0 0L1 0M1 0L1 1M0 1L0 0M1 1L1 2M1 2L0 2M0 2L0 1",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "KNIFE",
+            "placement": {
+              "x": 5,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 1045.6145833333333,
+              "y": 291.578125,
+              "width": 61.666666666666664,
+              "height": 122.6625
+            },
+            "contour": {
+              "x": 1045.609375,
+              "y": 291.578125,
+              "width": 61.65625,
+              "height": 122.65625,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 2",
+              "d": "M0 0L1 0M1 0L1 1M0 1L0 0M1 1L1 2M1 2L0 2M0 2L0 1",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "SHIELD",
+            "placement": {
+              "x": 2,
+              "y": 3,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 860.6145833333334,
+              "y": 475.571875,
+              "width": 123.33333333333333,
+              "height": 122.6625
+            },
+            "contour": {
+              "x": 860.609375,
+              "y": 475.5625,
+              "width": 123.328125,
+              "height": 122.65625,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 2",
+              "d": "M0 0L1 0M0 1L0 0M1 0L2 0M2 0L2 1M1 2L0 2M0 2L0 1M2 1L2 2M2 2L1 2",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "FLASK",
+            "placement": {
+              "x": 4,
+              "y": 3,
+              "rotation": 1
+            },
+            "cells": [
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 983.9479166666666,
+              "y": 475.571875,
+              "width": 123.33333333333333,
+              "height": 61.33125
+            },
+            "contour": {
+              "x": 983.9375,
+              "y": 475.5625,
+              "width": 123.328125,
+              "height": 61.328125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 1",
+              "d": "M1 0L2 0M2 0L2 1M2 1L1 1M0 0L1 0M1 1L0 1M0 1L0 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          }
+        ]
+      },
+      "idleRenderingStateUnchanged": true,
+      "errors": [],
+      "interactions": {
+        "L-hole-neighbor-selected": "GAP",
+        "free-L-hole-placement": {
+          "x": 3,
+          "y": 0
+        },
+        "rotations": [
+          {
+            "rotation": 0,
+            "contour": {
+              "x": 860.609375,
+              "y": 352.90625,
+              "width": 123.328125,
+              "height": 122.65625,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 2",
+              "d": "M0 0L1 0M1 0L1 1M0 1L0 0M1 2L0 2M0 2L0 1M1 1L2 1M2 1L2 2M2 2L1 2",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            }
+          },
+          {
+            "rotation": 1,
+            "contour": {
+              "x": 860.609375,
+              "y": 352.90625,
+              "width": 123.328125,
+              "height": 122.65625,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 2",
+              "d": "M1 0L2 0M2 0L2 1M2 1L1 1M0 0L1 0M0 1L0 0M1 1L1 2M1 2L0 2M0 2L0 1",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            }
+          },
+          {
+            "rotation": 2,
+            "contour": {
+              "x": 860.609375,
+              "y": 352.90625,
+              "width": 123.328125,
+              "height": 122.65625,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 2",
+              "d": "M2 1L2 2M2 2L1 2M1 2L1 1M1 0L2 0M2 0L2 1M0 0L1 0M1 1L0 1M0 1L0 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            }
+          },
+          {
+            "rotation": 3,
+            "contour": {
+              "x": 860.609375,
+              "y": 352.90625,
+              "width": 123.328125,
+              "height": 122.65625,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 2",
+              "d": "M0 1L1 1M1 2L0 2M0 2L0 1M2 1L2 2M2 2L1 2M1 0L2 0M2 0L2 1M1 1L1 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            }
+          }
+        ],
+        "selectedStroke": {
+          "stroke": "rgb(255, 227, 156)",
+          "width": "3px"
+        },
+        "invalidPreview": {
+          "z": "12",
+          "background": "rgba(0, 0, 0, 0)",
+          "shadow": "rgb(241, 172, 140) 0px 0px 0px 2px inset"
+        },
+        "previewDidNotMutateState": true
+      }
+    },
+    {
+      "build": "r15",
+      "renderer": "main",
+      "overlap": true,
+      "viewport": [
+        1028,
+        719
+      ],
+      "geometry": {
+        "board": {
+          "x": 556.59375,
+          "y": 214.578125,
+          "width": 370,
+          "height": 306.65625
+        },
+        "items": [
+          {
+            "id": "AXE",
+            "placement": {
+              "x": 0,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                3
+              ]
+            ],
+            "expected": {
+              "x": 556.59375,
+              "y": 214.578125,
+              "width": 123.33333333333333,
+              "height": 245.325
+            },
+            "contour": {
+              "x": 556.59375,
+              "y": 214.578125,
+              "width": 123.328125,
+              "height": 245.3125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 4",
+              "d": "M0 0L1 0M0 1L0 0M1 0L2 0M2 0L2 1M2 1L1 1M1 1L1 2M0 2L0 1M1 2L1 3M0 3L0 2M1 3L1 4M1 4L0 4M0 4L0 3",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "GAP",
+            "placement": {
+              "x": 1,
+              "y": 1,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 618.2604166666666,
+              "y": 275.909375,
+              "width": 61.666666666666664,
+              "height": 61.33125
+            },
+            "contour": {
+              "x": 618.25,
+              "y": 275.90625,
+              "width": 61.65625,
+              "height": 61.328125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 1",
+              "d": "M0 0L1 0M1 0L1 1M1 1L0 1M0 1L0 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "BOOT",
+            "placement": {
+              "x": 2,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 679.9270833333334,
+              "y": 214.578125,
+              "width": 123.33333333333333,
+              "height": 122.6625
+            },
+            "contour": {
+              "x": 679.921875,
+              "y": 214.578125,
+              "width": 123.328125,
+              "height": 122.65625,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 2",
+              "d": "M0 0L1 0M1 0L1 1M0 1L0 0M1 2L0 2M0 2L0 1M1 1L2 1M2 1L2 2M2 2L1 2",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POTION",
+            "placement": {
+              "x": 4,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 803.2604166666666,
+              "y": 214.578125,
+              "width": 61.666666666666664,
+              "height": 122.6625
+            },
+            "contour": {
+              "x": 803.25,
+              "y": 214.578125,
+              "width": 61.65625,
+              "height": 122.65625,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 2",
+              "d": "M0 0L1 0M1 0L1 1M0 1L0 0M1 1L1 2M1 2L0 2M0 2L0 1",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "KNIFE",
+            "placement": {
+              "x": 5,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 864.9270833333333,
+              "y": 214.578125,
+              "width": 61.666666666666664,
+              "height": 122.6625
+            },
+            "contour": {
+              "x": 864.921875,
+              "y": 214.578125,
+              "width": 61.65625,
+              "height": 122.65625,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 2",
+              "d": "M0 0L1 0M1 0L1 1M0 1L0 0M1 1L1 2M1 2L0 2M0 2L0 1",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "SHIELD",
+            "placement": {
+              "x": 2,
+              "y": 3,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 679.9270833333334,
+              "y": 398.571875,
+              "width": 123.33333333333333,
+              "height": 122.6625
+            },
+            "contour": {
+              "x": 679.921875,
+              "y": 398.5625,
+              "width": 123.328125,
+              "height": 122.65625,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 2",
+              "d": "M0 0L1 0M0 1L0 0M1 0L2 0M2 0L2 1M1 2L0 2M0 2L0 1M2 1L2 2M2 2L1 2",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "FLASK",
+            "placement": {
+              "x": 4,
+              "y": 3,
+              "rotation": 1
+            },
+            "cells": [
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 803.2604166666666,
+              "y": 398.571875,
+              "width": 123.33333333333333,
+              "height": 61.33125
+            },
+            "contour": {
+              "x": 803.25,
+              "y": 398.5625,
+              "width": 123.328125,
+              "height": 61.328125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 1",
+              "d": "M1 0L2 0M2 0L2 1M2 1L1 1M0 0L1 0M1 1L0 1M0 1L0 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POCKET-A",
+            "placement": {
+              "x": 4,
+              "y": 4,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 803.2604166666666,
+              "y": 459.903125,
+              "width": 61.666666666666664,
+              "height": 61.33125
+            },
+            "contour": {
+              "x": 803.25,
+              "y": 459.890625,
+              "width": 61.65625,
+              "height": 61.328125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 1",
+              "d": "M0 0L1 0M1 0L1 1M1 1L0 1M0 1L0 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POCKET-B",
+            "placement": {
+              "x": 4,
+              "y": 4,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 803.2604166666666,
+              "y": 459.903125,
+              "width": 61.666666666666664,
+              "height": 61.33125
+            },
+            "contour": {
+              "x": 803.25,
+              "y": 459.890625,
+              "width": 61.65625,
+              "height": 61.328125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 1",
+              "d": "M0 0L1 0M1 0L1 1M1 1L0 1M0 1L0 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          }
+        ]
+      },
+      "idleRenderingStateUnchanged": true,
+      "errors": []
+    },
+    {
+      "build": "r15",
+      "renderer": "main",
+      "overlap": true,
+      "viewport": [
+        1280,
+        870
+      ],
+      "geometry": {
+        "board": {
+          "x": 737.28125,
+          "y": 291.578125,
+          "width": 370,
+          "height": 306.65625
+        },
+        "items": [
+          {
+            "id": "AXE",
+            "placement": {
+              "x": 0,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                3
+              ]
+            ],
+            "expected": {
+              "x": 737.28125,
+              "y": 291.578125,
+              "width": 123.33333333333333,
+              "height": 245.325
+            },
+            "contour": {
+              "x": 737.28125,
+              "y": 291.578125,
+              "width": 123.328125,
+              "height": 245.3125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 4",
+              "d": "M0 0L1 0M0 1L0 0M1 0L2 0M2 0L2 1M2 1L1 1M1 1L1 2M0 2L0 1M1 2L1 3M0 3L0 2M1 3L1 4M1 4L0 4M0 4L0 3",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "GAP",
+            "placement": {
+              "x": 1,
+              "y": 1,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 798.9479166666666,
+              "y": 352.909375,
+              "width": 61.666666666666664,
+              "height": 61.33125
+            },
+            "contour": {
+              "x": 798.9375,
+              "y": 352.90625,
+              "width": 61.65625,
+              "height": 61.328125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 1",
+              "d": "M0 0L1 0M1 0L1 1M1 1L0 1M0 1L0 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "BOOT",
+            "placement": {
+              "x": 2,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 860.6145833333334,
+              "y": 291.578125,
+              "width": 123.33333333333333,
+              "height": 122.6625
+            },
+            "contour": {
+              "x": 860.609375,
+              "y": 291.578125,
+              "width": 123.328125,
+              "height": 122.65625,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 2",
+              "d": "M0 0L1 0M1 0L1 1M0 1L0 0M1 2L0 2M0 2L0 1M1 1L2 1M2 1L2 2M2 2L1 2",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POTION",
+            "placement": {
+              "x": 4,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 983.9479166666666,
+              "y": 291.578125,
+              "width": 61.666666666666664,
+              "height": 122.6625
+            },
+            "contour": {
+              "x": 983.9375,
+              "y": 291.578125,
+              "width": 61.65625,
+              "height": 122.65625,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 2",
+              "d": "M0 0L1 0M1 0L1 1M0 1L0 0M1 1L1 2M1 2L0 2M0 2L0 1",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "KNIFE",
+            "placement": {
+              "x": 5,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 1045.6145833333333,
+              "y": 291.578125,
+              "width": 61.666666666666664,
+              "height": 122.6625
+            },
+            "contour": {
+              "x": 1045.609375,
+              "y": 291.578125,
+              "width": 61.65625,
+              "height": 122.65625,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 2",
+              "d": "M0 0L1 0M1 0L1 1M0 1L0 0M1 1L1 2M1 2L0 2M0 2L0 1",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "SHIELD",
+            "placement": {
+              "x": 2,
+              "y": 3,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 860.6145833333334,
+              "y": 475.571875,
+              "width": 123.33333333333333,
+              "height": 122.6625
+            },
+            "contour": {
+              "x": 860.609375,
+              "y": 475.5625,
+              "width": 123.328125,
+              "height": 122.65625,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 2",
+              "d": "M0 0L1 0M0 1L0 0M1 0L2 0M2 0L2 1M1 2L0 2M0 2L0 1M2 1L2 2M2 2L1 2",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "FLASK",
+            "placement": {
+              "x": 4,
+              "y": 3,
+              "rotation": 1
+            },
+            "cells": [
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 983.9479166666666,
+              "y": 475.571875,
+              "width": 123.33333333333333,
+              "height": 61.33125
+            },
+            "contour": {
+              "x": 983.9375,
+              "y": 475.5625,
+              "width": 123.328125,
+              "height": 61.328125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 1",
+              "d": "M1 0L2 0M2 0L2 1M2 1L1 1M0 0L1 0M1 1L0 1M0 1L0 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POCKET-A",
+            "placement": {
+              "x": 4,
+              "y": 4,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 983.9479166666666,
+              "y": 536.903125,
+              "width": 61.666666666666664,
+              "height": 61.33125
+            },
+            "contour": {
+              "x": 983.9375,
+              "y": 536.890625,
+              "width": 61.65625,
+              "height": 61.328125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 1",
+              "d": "M0 0L1 0M1 0L1 1M1 1L0 1M0 1L0 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POCKET-B",
+            "placement": {
+              "x": 4,
+              "y": 4,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 983.9479166666666,
+              "y": 536.903125,
+              "width": 61.666666666666664,
+              "height": 61.33125
+            },
+            "contour": {
+              "x": 983.9375,
+              "y": 536.890625,
+              "width": 61.65625,
+              "height": 61.328125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 1",
+              "d": "M0 0L1 0M1 0L1 1M1 1L0 1M0 1L0 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          }
+        ]
+      },
+      "idleRenderingStateUnchanged": true,
+      "errors": []
+    },
+    {
+      "build": "r15",
+      "renderer": "room",
+      "overlap": false,
+      "viewport": [
+        1028,
+        719
+      ],
+      "geometry": {
+        "board": {
+          "x": 619.171875,
+          "y": 318,
+          "width": 356,
+          "height": 295.65625
+        },
+        "items": [
+          {
+            "id": "AXE",
+            "placement": {
+              "x": 0,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                3
+              ]
+            ],
+            "expected": {
+              "x": 619.171875,
+              "y": 318,
+              "width": 118.66666666666667,
+              "height": 236.525
+            },
+            "contour": {
+              "x": 619.171875,
+              "y": 318,
+              "width": 118.65625,
+              "height": 236.515625,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 4",
+              "d": "M0 0L1 0M0 1L0 0M1 0L2 0M2 0L2 1M2 1L1 1M1 1L1 2M0 2L0 1M1 2L1 3M0 3L0 2M1 3L1 4M1 4L0 4M0 4L0 3",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "GAP",
+            "placement": {
+              "x": 1,
+              "y": 1,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 678.5052083333334,
+              "y": 377.13125,
+              "width": 59.333333333333336,
+              "height": 59.13125
+            },
+            "contour": {
+              "x": 678.5,
+              "y": 377.125,
+              "width": 59.328125,
+              "height": 59.125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 1",
+              "d": "M0 0L1 0M1 0L1 1M1 1L0 1M0 1L0 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "BOOT",
+            "placement": {
+              "x": 2,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 737.8385416666666,
+              "y": 318,
+              "width": 118.66666666666667,
+              "height": 118.2625
+            },
+            "contour": {
+              "x": 737.828125,
+              "y": 318,
+              "width": 118.65625,
+              "height": 118.25,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 2",
+              "d": "M0 0L1 0M1 0L1 1M0 1L0 0M1 2L0 2M0 2L0 1M1 1L2 1M2 1L2 2M2 2L1 2",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POTION",
+            "placement": {
+              "x": 4,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 856.5052083333334,
+              "y": 318,
+              "width": 59.333333333333336,
+              "height": 118.2625
+            },
+            "contour": {
+              "x": 856.5,
+              "y": 318,
+              "width": 59.328125,
+              "height": 118.25,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 2",
+              "d": "M0 0L1 0M1 0L1 1M0 1L0 0M1 1L1 2M1 2L0 2M0 2L0 1",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "KNIFE",
+            "placement": {
+              "x": 5,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 915.8385416666667,
+              "y": 318,
+              "width": 59.333333333333336,
+              "height": 118.2625
+            },
+            "contour": {
+              "x": 915.828125,
+              "y": 318,
+              "width": 59.328125,
+              "height": 118.25,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 2",
+              "d": "M0 0L1 0M1 0L1 1M0 1L0 0M1 1L1 2M1 2L0 2M0 2L0 1",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "SHIELD",
+            "placement": {
+              "x": 2,
+              "y": 3,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 737.8385416666666,
+              "y": 495.39375,
+              "width": 118.66666666666667,
+              "height": 118.2625
+            },
+            "contour": {
+              "x": 737.828125,
+              "y": 495.390625,
+              "width": 118.65625,
+              "height": 118.25,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 2",
+              "d": "M0 0L1 0M0 1L0 0M1 0L2 0M2 0L2 1M1 2L0 2M0 2L0 1M2 1L2 2M2 2L1 2",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "FLASK",
+            "placement": {
+              "x": 4,
+              "y": 3,
+              "rotation": 1
+            },
+            "cells": [
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 856.5052083333334,
+              "y": 495.39375,
+              "width": 118.66666666666667,
+              "height": 59.13125
+            },
+            "contour": {
+              "x": 856.5,
+              "y": 495.390625,
+              "width": 118.65625,
+              "height": 59.125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 1",
+              "d": "M1 0L2 0M2 0L2 1M2 1L1 1M0 0L1 0M1 1L0 1M0 1L0 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          }
+        ]
+      },
+      "idleRenderingStateUnchanged": true,
+      "errors": []
+    },
+    {
+      "build": "r15",
+      "renderer": "room",
+      "overlap": false,
+      "viewport": [
+        1280,
+        870
+      ],
+      "geometry": {
+        "board": {
+          "x": 833.609375,
+          "y": 318,
+          "width": 356,
+          "height": 295.65625
+        },
+        "items": [
+          {
+            "id": "AXE",
+            "placement": {
+              "x": 0,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                3
+              ]
+            ],
+            "expected": {
+              "x": 833.609375,
+              "y": 318,
+              "width": 118.66666666666667,
+              "height": 236.525
+            },
+            "contour": {
+              "x": 833.609375,
+              "y": 318,
+              "width": 118.65625,
+              "height": 236.515625,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 4",
+              "d": "M0 0L1 0M0 1L0 0M1 0L2 0M2 0L2 1M2 1L1 1M1 1L1 2M0 2L0 1M1 2L1 3M0 3L0 2M1 3L1 4M1 4L0 4M0 4L0 3",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "GAP",
+            "placement": {
+              "x": 1,
+              "y": 1,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 892.9427083333334,
+              "y": 377.13125,
+              "width": 59.333333333333336,
+              "height": 59.13125
+            },
+            "contour": {
+              "x": 892.9375,
+              "y": 377.125,
+              "width": 59.328125,
+              "height": 59.125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 1",
+              "d": "M0 0L1 0M1 0L1 1M1 1L0 1M0 1L0 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "BOOT",
+            "placement": {
+              "x": 2,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 952.2760416666666,
+              "y": 318,
+              "width": 118.66666666666667,
+              "height": 118.2625
+            },
+            "contour": {
+              "x": 952.265625,
+              "y": 318,
+              "width": 118.65625,
+              "height": 118.25,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 2",
+              "d": "M0 0L1 0M1 0L1 1M0 1L0 0M1 2L0 2M0 2L0 1M1 1L2 1M2 1L2 2M2 2L1 2",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POTION",
+            "placement": {
+              "x": 4,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 1070.9427083333333,
+              "y": 318,
+              "width": 59.333333333333336,
+              "height": 118.2625
+            },
+            "contour": {
+              "x": 1070.9375,
+              "y": 318,
+              "width": 59.328125,
+              "height": 118.25,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 2",
+              "d": "M0 0L1 0M1 0L1 1M0 1L0 0M1 1L1 2M1 2L0 2M0 2L0 1",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "KNIFE",
+            "placement": {
+              "x": 5,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 1130.2760416666667,
+              "y": 318,
+              "width": 59.333333333333336,
+              "height": 118.2625
+            },
+            "contour": {
+              "x": 1130.265625,
+              "y": 318,
+              "width": 59.328125,
+              "height": 118.25,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 2",
+              "d": "M0 0L1 0M1 0L1 1M0 1L0 0M1 1L1 2M1 2L0 2M0 2L0 1",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "SHIELD",
+            "placement": {
+              "x": 2,
+              "y": 3,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 952.2760416666666,
+              "y": 495.39375,
+              "width": 118.66666666666667,
+              "height": 118.2625
+            },
+            "contour": {
+              "x": 952.265625,
+              "y": 495.390625,
+              "width": 118.65625,
+              "height": 118.25,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 2",
+              "d": "M0 0L1 0M0 1L0 0M1 0L2 0M2 0L2 1M1 2L0 2M0 2L0 1M2 1L2 2M2 2L1 2",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "FLASK",
+            "placement": {
+              "x": 4,
+              "y": 3,
+              "rotation": 1
+            },
+            "cells": [
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 1070.9427083333333,
+              "y": 495.39375,
+              "width": 118.66666666666667,
+              "height": 59.13125
+            },
+            "contour": {
+              "x": 1070.9375,
+              "y": 495.390625,
+              "width": 118.65625,
+              "height": 59.125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 1",
+              "d": "M1 0L2 0M2 0L2 1M2 1L1 1M0 0L1 0M1 1L0 1M0 1L0 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          }
+        ]
+      },
+      "idleRenderingStateUnchanged": true,
+      "errors": [],
+      "interactions": {
+        "L-hole-neighbor-selected": "GAP",
+        "free-L-hole-placement": {
+          "x": 3,
+          "y": 0
+        },
+        "rotations": [
+          {
+            "rotation": 0,
+            "contour": {
+              "x": 952.265625,
+              "y": 377.125,
+              "width": 118.65625,
+              "height": 118.25,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 2",
+              "d": "M0 0L1 0M1 0L1 1M0 1L0 0M1 2L0 2M0 2L0 1M1 1L2 1M2 1L2 2M2 2L1 2",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            }
+          },
+          {
+            "rotation": 1,
+            "contour": {
+              "x": 952.265625,
+              "y": 377.125,
+              "width": 118.65625,
+              "height": 118.25,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 2",
+              "d": "M1 0L2 0M2 0L2 1M2 1L1 1M0 0L1 0M0 1L0 0M1 1L1 2M1 2L0 2M0 2L0 1",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            }
+          },
+          {
+            "rotation": 2,
+            "contour": {
+              "x": 952.265625,
+              "y": 302.125,
+              "width": 118.65625,
+              "height": 118.25,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 2",
+              "d": "M2 1L2 2M2 2L1 2M1 2L1 1M1 0L2 0M2 0L2 1M0 0L1 0M1 1L0 1M0 1L0 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            }
+          },
+          {
+            "rotation": 3,
+            "contour": {
+              "x": 952.265625,
+              "y": 302.125,
+              "width": 118.65625,
+              "height": 118.25,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 2",
+              "d": "M0 1L1 1M1 2L0 2M0 2L0 1M2 1L2 2M2 2L1 2M1 0L2 0M2 0L2 1M1 1L1 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            }
+          }
+        ],
+        "selectedStroke": {
+          "stroke": "rgb(255, 227, 156)",
+          "width": "3px"
+        },
+        "invalidPreview": {
+          "shadow": "rgb(207, 121, 108) 0px 0px 0px 3px inset",
+          "background": "rgba(21, 43, 53, 0.667)"
+        },
+        "previewDidNotMutateState": true,
+        "repack": "ordinary AUTO_PACK accepted"
+      }
+    },
+    {
+      "build": "r15",
+      "renderer": "room",
+      "overlap": true,
+      "viewport": [
+        1028,
+        719
+      ],
+      "geometry": {
+        "board": {
+          "x": 619.171875,
+          "y": 318,
+          "width": 356,
+          "height": 295.65625
+        },
+        "items": [
+          {
+            "id": "AXE",
+            "placement": {
+              "x": 0,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                3
+              ]
+            ],
+            "expected": {
+              "x": 619.171875,
+              "y": 318,
+              "width": 118.66666666666667,
+              "height": 236.525
+            },
+            "contour": {
+              "x": 619.171875,
+              "y": 318,
+              "width": 118.65625,
+              "height": 236.515625,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 4",
+              "d": "M0 0L1 0M0 1L0 0M1 0L2 0M2 0L2 1M2 1L1 1M1 1L1 2M0 2L0 1M1 2L1 3M0 3L0 2M1 3L1 4M1 4L0 4M0 4L0 3",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "GAP",
+            "placement": {
+              "x": 1,
+              "y": 1,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 678.5052083333334,
+              "y": 377.13125,
+              "width": 59.333333333333336,
+              "height": 59.13125
+            },
+            "contour": {
+              "x": 678.5,
+              "y": 377.125,
+              "width": 59.328125,
+              "height": 59.125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 1",
+              "d": "M0 0L1 0M1 0L1 1M1 1L0 1M0 1L0 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "BOOT",
+            "placement": {
+              "x": 2,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 737.8385416666666,
+              "y": 318,
+              "width": 118.66666666666667,
+              "height": 118.2625
+            },
+            "contour": {
+              "x": 737.828125,
+              "y": 318,
+              "width": 118.65625,
+              "height": 118.25,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 2",
+              "d": "M0 0L1 0M1 0L1 1M0 1L0 0M1 2L0 2M0 2L0 1M1 1L2 1M2 1L2 2M2 2L1 2",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POTION",
+            "placement": {
+              "x": 4,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 856.5052083333334,
+              "y": 318,
+              "width": 59.333333333333336,
+              "height": 118.2625
+            },
+            "contour": {
+              "x": 856.5,
+              "y": 318,
+              "width": 59.328125,
+              "height": 118.25,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 2",
+              "d": "M0 0L1 0M1 0L1 1M0 1L0 0M1 1L1 2M1 2L0 2M0 2L0 1",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "KNIFE",
+            "placement": {
+              "x": 5,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 915.8385416666667,
+              "y": 318,
+              "width": 59.333333333333336,
+              "height": 118.2625
+            },
+            "contour": {
+              "x": 915.828125,
+              "y": 318,
+              "width": 59.328125,
+              "height": 118.25,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 2",
+              "d": "M0 0L1 0M1 0L1 1M0 1L0 0M1 1L1 2M1 2L0 2M0 2L0 1",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "SHIELD",
+            "placement": {
+              "x": 2,
+              "y": 3,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 737.8385416666666,
+              "y": 495.39375,
+              "width": 118.66666666666667,
+              "height": 118.2625
+            },
+            "contour": {
+              "x": 737.828125,
+              "y": 495.390625,
+              "width": 118.65625,
+              "height": 118.25,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 2",
+              "d": "M0 0L1 0M0 1L0 0M1 0L2 0M2 0L2 1M1 2L0 2M0 2L0 1M2 1L2 2M2 2L1 2",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "FLASK",
+            "placement": {
+              "x": 4,
+              "y": 3,
+              "rotation": 1
+            },
+            "cells": [
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 856.5052083333334,
+              "y": 495.39375,
+              "width": 118.66666666666667,
+              "height": 59.13125
+            },
+            "contour": {
+              "x": 856.5,
+              "y": 495.390625,
+              "width": 118.65625,
+              "height": 59.125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 1",
+              "d": "M1 0L2 0M2 0L2 1M2 1L1 1M0 0L1 0M1 1L0 1M0 1L0 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POCKET-A",
+            "placement": {
+              "x": 4,
+              "y": 4,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 856.5052083333334,
+              "y": 554.525,
+              "width": 59.333333333333336,
+              "height": 59.13125
+            },
+            "contour": {
+              "x": 856.5,
+              "y": 554.515625,
+              "width": 59.328125,
+              "height": 59.125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 1",
+              "d": "M0 0L1 0M1 0L1 1M1 1L0 1M0 1L0 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POCKET-B",
+            "placement": {
+              "x": 4,
+              "y": 4,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 856.5052083333334,
+              "y": 554.525,
+              "width": 59.333333333333336,
+              "height": 59.13125
+            },
+            "contour": {
+              "x": 856.5,
+              "y": 554.515625,
+              "width": 59.328125,
+              "height": 59.125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 1",
+              "d": "M0 0L1 0M1 0L1 1M1 1L0 1M0 1L0 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          }
+        ]
+      },
+      "idleRenderingStateUnchanged": true,
+      "errors": []
+    },
+    {
+      "build": "r15",
+      "renderer": "room",
+      "overlap": true,
+      "viewport": [
+        1280,
+        870
+      ],
+      "geometry": {
+        "board": {
+          "x": 833.609375,
+          "y": 318,
+          "width": 356,
+          "height": 295.65625
+        },
+        "items": [
+          {
+            "id": "AXE",
+            "placement": {
+              "x": 0,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                3
+              ]
+            ],
+            "expected": {
+              "x": 833.609375,
+              "y": 318,
+              "width": 118.66666666666667,
+              "height": 236.525
+            },
+            "contour": {
+              "x": 833.609375,
+              "y": 318,
+              "width": 118.65625,
+              "height": 236.515625,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 4",
+              "d": "M0 0L1 0M0 1L0 0M1 0L2 0M2 0L2 1M2 1L1 1M1 1L1 2M0 2L0 1M1 2L1 3M0 3L0 2M1 3L1 4M1 4L0 4M0 4L0 3",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "GAP",
+            "placement": {
+              "x": 1,
+              "y": 1,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 892.9427083333334,
+              "y": 377.13125,
+              "width": 59.333333333333336,
+              "height": 59.13125
+            },
+            "contour": {
+              "x": 892.9375,
+              "y": 377.125,
+              "width": 59.328125,
+              "height": 59.125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 1",
+              "d": "M0 0L1 0M1 0L1 1M1 1L0 1M0 1L0 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "BOOT",
+            "placement": {
+              "x": 2,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 952.2760416666666,
+              "y": 318,
+              "width": 118.66666666666667,
+              "height": 118.2625
+            },
+            "contour": {
+              "x": 952.265625,
+              "y": 318,
+              "width": 118.65625,
+              "height": 118.25,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 2",
+              "d": "M0 0L1 0M1 0L1 1M0 1L0 0M1 2L0 2M0 2L0 1M1 1L2 1M2 1L2 2M2 2L1 2",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POTION",
+            "placement": {
+              "x": 4,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 1070.9427083333333,
+              "y": 318,
+              "width": 59.333333333333336,
+              "height": 118.2625
+            },
+            "contour": {
+              "x": 1070.9375,
+              "y": 318,
+              "width": 59.328125,
+              "height": 118.25,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 2",
+              "d": "M0 0L1 0M1 0L1 1M0 1L0 0M1 1L1 2M1 2L0 2M0 2L0 1",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "KNIFE",
+            "placement": {
+              "x": 5,
+              "y": 0,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 1130.2760416666667,
+              "y": 318,
+              "width": 59.333333333333336,
+              "height": 118.2625
+            },
+            "contour": {
+              "x": 1130.265625,
+              "y": 318,
+              "width": 59.328125,
+              "height": 118.25,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 2",
+              "d": "M0 0L1 0M1 0L1 1M0 1L0 0M1 1L1 2M1 2L0 2M0 2L0 1",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "SHIELD",
+            "placement": {
+              "x": 2,
+              "y": 3,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "expected": {
+              "x": 952.2760416666666,
+              "y": 495.39375,
+              "width": 118.66666666666667,
+              "height": 118.2625
+            },
+            "contour": {
+              "x": 952.265625,
+              "y": 495.390625,
+              "width": 118.65625,
+              "height": 118.25,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 2",
+              "d": "M0 0L1 0M0 1L0 0M1 0L2 0M2 0L2 1M1 2L0 2M0 2L0 1M2 1L2 2M2 2L1 2",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "FLASK",
+            "placement": {
+              "x": 4,
+              "y": 3,
+              "rotation": 1
+            },
+            "cells": [
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 1070.9427083333333,
+              "y": 495.39375,
+              "width": 118.66666666666667,
+              "height": 59.13125
+            },
+            "contour": {
+              "x": 1070.9375,
+              "y": 495.390625,
+              "width": 118.65625,
+              "height": 59.125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 2 1",
+              "d": "M1 0L2 0M2 0L2 1M2 1L1 1M0 0L1 0M1 1L0 1M0 1L0 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POCKET-A",
+            "placement": {
+              "x": 4,
+              "y": 4,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 1070.9427083333333,
+              "y": 554.525,
+              "width": 59.333333333333336,
+              "height": 59.13125
+            },
+            "contour": {
+              "x": 1070.9375,
+              "y": 554.515625,
+              "width": 59.328125,
+              "height": 59.125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 1",
+              "d": "M0 0L1 0M1 0L1 1M1 1L0 1M0 1L0 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          },
+          {
+            "id": "POCKET-B",
+            "placement": {
+              "x": 4,
+              "y": 4,
+              "rotation": 0
+            },
+            "cells": [
+              [
+                0,
+                0
+              ]
+            ],
+            "expected": {
+              "x": 1070.9427083333333,
+              "y": 554.525,
+              "width": 59.333333333333336,
+              "height": 59.13125
+            },
+            "contour": {
+              "x": 1070.9375,
+              "y": 554.515625,
+              "width": 59.328125,
+              "height": 59.125,
+              "pointerEvents": "none",
+              "z": "4",
+              "viewBox": "0 0 1 1",
+              "d": "M0 0L1 0M1 0L1 1M1 1L0 1M0 1L0 0",
+              "stroke": "rgb(213, 188, 135)",
+              "strokeWidth": "2px"
+            },
+            "fill": true,
+            "wholeArt": true,
+            "rootPointer": "none"
+          }
+        ]
+      },
+      "idleRenderingStateUnchanged": true,
+      "errors": []
+    }
+  ],
+  "normalPlay": {
+    "kind": "normal randomized stock; ordinary room UI buttons with public own-state choosePlan; not synthetic fixture or native Windows",
+    "rounds": 3,
+    "complete": true,
+    "errors": []
+  },
+  "pass": true,
+  "sourceSHA256": {
+    "r14": {
+      "bag-occupancy.js": null,
+      "bag-occupancy.css": null,
+      "material-ui.js": "74a35699acf8d9fc692ce4da9bcb511df69dad61fc317dacb2a8dfc96cc9d6b3",
+      "room-ui.js": "479137cf7a247bf8d2275d805eb9f573e37d6dfdc8b92b3af03471ebc816a21d",
+      "index.html": "8050fcc7c91910d22e61f1ebad62f0d6c99c1a665e28609f6a9fba7c7c51b66d",
+      "room.html": "5fda50c388bb20ade835b8ce3a29e463567890a24b389875b179467e53cb7234"
+    },
+    "r15": {
+      "bag-occupancy.js": "7917a19fc7c3146d20bb2fa0f0e2b293855b1b14fcc7f0ff0b1c9c5b6745bf1d",
+      "bag-occupancy.css": "f47d59188afed882a106fa6e506abfc86a813f6da3c3d7801f97f5d32c934c87",
+      "material-ui.js": "bc05cdec39d750581f42b08fa8ff46e303eabfc656e0d58be94efa7109d3454b",
+      "room-ui.js": "f8253fa2b429c963d5bcaaa34dae924d6954686e09b5fee20a0af1a0139f3613",
+      "index.html": "1ed471f6338375bf343a332711ff8a4c7afdccfc272461869dbee21dbea7c6ec",
+      "room.html": "c7aece095f2e411c146028d578217321f9b1ac630947da6aece17166e096b501"
+    }
+  },
+  "conservativeProgramInputSHA256": {
+    "r14": {
+      "adventure-core.js": "f0f044cb56ab455c1f7fd5c1aa2ad0869a4135adb13f6d04eb5832a515848f24",
+      "adventure-ui.css": "cdc4247d26af3f82609e064fbb177fa0f23ab5e9f19ef6390d982b865a5ef08a",
+      "adventure-ui.js": "e0404347bf874b6b20b297c593b689aaf85d0141abca83bdc1b9e980b9540d85",
+      "art-review.html": "97c018743921f9e628bee5fcf5642a4b6472124dd5d53fa8d7d75810f0d4f5a0",
+      "attention-core.js": "cdd603acaefc58b771eb28c6c48f25db2ef55f5e0aa8f0d09b6afb628202e6b0",
+      "attention-ui.css": "5d5280dc20d1d0e31a9c9091363b1cfb882af5246c9196e74f46fe4009368ab3",
+      "attention-ui.js": "eabf570fab4c7709b35e091241d762236863ab53a43c8569a1828c1af53171c3",
+      "battle-feedback.css": "8ae6c782efee1f922b9fb3bfe5d8729ecc1be8ebbf383953ac2ff4c44667c752",
+      "battle-feedback.js": "501597f317ecda35d69cd4a2c18c25383dbb743444a239e479281e4ad0194bee",
+      "battle-policy.js": "1c8e2c9117d87a9eaef40c177e187e75e562b65d0c5cb9a543b918f792aea977",
+      "build-core.js": "aeed0c0fc6e6fdd9ae95f820213057882017c08b9cb62e076f99a2c664a5fc2a",
+      "build-shots.html": "11809890958d76a95d84474fcefc551af3aa74843c78d418e6311979824b7ce2",
+      "design.html": "de5445765d9d3ab05a4e0a34707d4de320ceb3429db6345d39ad6f5dfbabb4a3",
+      "desktop-entry.js": "11aa64df2c5603c358c18d23f80dcfb82eba9e8251df41825aca681f384a2145",
+      "desktop.css": "cc415657f9882ee1a32a1534c0bf2b5119bd663b63df4d726ac72d0ad8d5b7ee",
+      "desktop.html": "d30c140e67e500c5c0caf844d2d42504879022bec20bedc539d2324ffbe1daa6",
+      "experience-core.js": "602a7a60bd5cebc06d09237980f1215340a34792741ef381ca41500509c5262c",
+      "experience-ui.css": "1bca1951781871e0c4c31ed71f91e881d8e544135d9a0687717777c984a28ecc",
+      "experience-ui.js": "b4b60b5ba8ea99d0acdd9fcd7fee633ef99fc3426decb34428e7abeb97e1aabb",
+      "guide/book.css": "ff02f1a5cacb62a07595cee744dcac39e9b883fb90150e34fd7d015ab7e373a7",
+      "guide/book.js": "16e254837a0d87051efe9114ade416c39db515a9fcbd2cebdcfc232a98375353",
+      "guide/manual.html": "f44587d1bef9de5e58e474b14237fffdac1e951417af9ac161f94b99090a95e5",
+      "hp-meter.js": "2d0b2a8b1f9831fbe4ff114240bc7ea41f10287c1c5bfafe01f9362e06964377",
+      "index.html": "8050fcc7c91910d22e61f1ebad62f0d6c99c1a665e28609f6a9fba7c7c51b66d",
+      "item-variants.js": "c05bbfba02bf148680abe0db228c97eff8084880e88dab55c932a29930eab1c8",
+      "journey-review.html": "ef1cf23666881b5fd73c390d49f62705ca8ee45fcc32a58a5ec41adff10c7f6c",
+      "material-core.js": "5306e52dc087f0c7233fc1237d29e41ba40649a01a230c928ce37212649459f5",
+      "material-shots.html": "92abf4053dec6a35bd4db08b6713c072a3da57526ce16747695c4152c9e74b48",
+      "material-ui.css": "e1bc599a3e158423a556b4a561ab0b42a30a84d6fdea3abf3c5c2961edc4f8a7",
+      "material-ui.js": "74a35699acf8d9fc692ce4da9bcb511df69dad61fc317dacb2a8dfc96cc9d6b3",
+      "mp-meter.js": "3563ffc6966fb0a1bff81b8a02cddef966331d99c4980d3bbbd6dc4d472b99f4",
+      "mp-shape.js": "305eaa47777e977050bcfd5e8121dc154ae11353b27260f89f3049337f4df10f",
+      "native-frame.css": "8d43a58e41b772a5d82b96a467f2ff9cc80c5ee3cddf98f30ec18dca01e2c511",
+      "native-frame.js": "9be681022efd4b863d2ecc3e5bc5c2cd97ed146773b21f9082117faa3ab8dd2e",
+      "native-layout-review.css": "853ce427a0f53ca378d726ab11e803e22ee33bdcbc3e01b800eabace171dce82",
+      "online-protocol.js": "f9dda391014c75644ae33c1d4388dd546d0345aba650ac4c53037f5c0bad8ed3",
+      "online-rooms.js": "f4ffe12cb252cc66c9cefa2dc3a7d25e0d641699cd580e97de294e591b4678b9",
+      "ordered-combat.js": "32ff8a6c6893d1079df1fd340c13d8ece16612d464529df139fc77548f73f8be",
+      "practice-guide.css": "0be65686baa4a15dd8071abf67c976c428fdd168ee655e1987275c7e988bdb3f",
+      "practice-guide.js": "b4b076a3617bd644b4c93a9d0945fbf12a58c6a07a81071afe25cccf30c2f375",
+      "preparation-core.js": "0cbed9e817ff6a547d0bfee262880b89beaddace4a2b764875b9455a29ba8253",
+      "preparation-flow.css": "661302cab92ec0d2c25035371f7aa9fa5528ac98ea023cbfe2217c7147f56e73",
+      "preparation-shots.html": "1f3d78b17bde9417158aa65f5d41e06cc214115231f2467d63225246ae08873e",
+      "resource-rules.js": "a6e5cfbb50a1202b8d730d897f944912d750d56057b0e5d5f8655f9df6d50fd8",
+      "road-stage.js": "a7b9ab8cbb3b8cb3e3792a6cbd9f1e3fef529017de1c2b4d50b09671b3d07101",
+      "room-answer.js": "5fe043ab9057123cd8c457af1e30fbf60a2ea3da8d9397131de7ad95d661af64",
+      "room-combat.js": "8e1515d44a16b8b5fb24cedb4238e0e995690a9e332af452a830558472ed3004",
+      "room-engine.js": "f22607d4fcdbc40a93c84523139b1c06e1ae1b9e362d3199c65b3d2425ea6768",
+      "room-http.js": "5f93e375bdcd014757eeee91711809c10c55aefa906c3f0e3789811ed73d0b43",
+      "room-layout-review.css": "1cfc4f227957e0632aa20e6e669d1bd8369a566f392cf82b20e0f9e9fa321da9",
+      "room-test-driver.js": "2dda0a8f2cd97896d724ff3bf3b45a5256a9018475bf4c557e4e7c288a0da5bd",
+      "room-ui.js": "479137cf7a247bf8d2275d805eb9f573e37d6dfdc8b92b3af03471ebc816a21d",
+      "room.css": "ab9bcfe524cdb22e6d5b3d127991d228860e69c0e695a9dcc0f1c33af80809c6",
+      "room.html": "5fda50c388bb20ade835b8ce3a29e463567890a24b389875b179467e53cb7234",
+      "screenshots.html": "819d09e7d1f239549e64dc98a480bfb326480764d2c1095eda51e9be5a2a22f8",
+      "shared-shots.html": "59c60e92b3088dc50745a575ecb9e009af46ec07f320853513e2d5e92df818e0",
+      "stage3d-shots.html": "dfdeb133b908e74f2c2f8d295d048d700802e23d1b006fd3f8d25f01b87f1227",
+      "stage3d-ui.css": "c774a1e1db5db86a24c08dc4c009c6e90f5aa297952678780fce501bf4c55a98",
+      "status-preview.css": "10c392d319658b4309e3d1c7e686e1cc0aaa2dbcfd09b9a1899b6dcb435a3e17",
+      "status-preview.js": "21465c1f9e69023a04cf12fe91b631fa11c589531527696dcad1ec232a3deaff",
+      "status-shots.html": "a21bc2d45494dc5a3d6c0e94fee9fea77ba0b29ceed292b7ecf6c8a09d05fdf8",
+      "status-window-v1.html": "ea6886a8d8fd1efe8a6fdca99b221d05ab966c58e685c01e0a18d56010e93c16",
+      "supplies-shots.html": "72e6c0209a270f431e3135b6ab4664f1c7a95494d63e60f04cdfd494740bc936",
+      "supplies-ui.css": "3b4c1ab50534e588102514da1ae49040e776d4d2628cac49bd7d9c6787325986",
+      "supply-core.js": "ec5582fd6c5ea51e9d79bc0e1f17fe1830fb4fef5d5b4906aa7724b36a701489",
+      "supply-table.js": "6c1cab9f5a46bdd458852b114f1116fc979a84088634cf1245753f2abb0d3231",
+      "vendor/OrbitControls.js": "9964a025acc4a482ed8acc7650993696daea6de3ffb1769ce32a060cd2d47e06",
+      "vendor/peerjs-1.5.5.min.js": "7604d8c31bec4f134b0d15c2d80b1d095ea18af005354f439f14291fcd7b4168",
+      "vendor/three.module.js": "2cc2ca1a3afe24ce57e77261f44d842dc8dde5e50285b43b8eb74e0bfeb6cf71",
+      "windows-internet-peer-playtest.js": "4bd15d43f450fe16707c8adceb90256993bf45f9a7f719c5429e3a84486c5655",
+      "windows-internet-playtest.js": "77e92fea90cc24037b4e0ceb894d75f3963807cc13caa305375a2e23ccccc60a",
+      "windows-learning-playtest.js": "718f23c1464495693b31872310f735017a23dc495d652b752db3612e1dba6232",
+      "windows-peer-playtest.js": "c4144592c8e2eb49f53909bf3b55477753abcbb183cfef67403b5440de919cf9",
+      "windows-playtest.js": "a518c97dbfd369b18dc6e1b554cea5970c193cd12dcd1c63f06e89ae37f7b3c9",
+      "windows-room-playtest.js": "089aafc7d3653c8d9767f6d677ded29ab76ef2fe107edb2643e8aa81d58f2ee5"
+    },
+    "r15": {
+      "adventure-core.js": "f0f044cb56ab455c1f7fd5c1aa2ad0869a4135adb13f6d04eb5832a515848f24",
+      "adventure-ui.css": "cdc4247d26af3f82609e064fbb177fa0f23ab5e9f19ef6390d982b865a5ef08a",
+      "adventure-ui.js": "e0404347bf874b6b20b297c593b689aaf85d0141abca83bdc1b9e980b9540d85",
+      "art-review.html": "97c018743921f9e628bee5fcf5642a4b6472124dd5d53fa8d7d75810f0d4f5a0",
+      "attention-core.js": "cdd603acaefc58b771eb28c6c48f25db2ef55f5e0aa8f0d09b6afb628202e6b0",
+      "attention-ui.css": "5d5280dc20d1d0e31a9c9091363b1cfb882af5246c9196e74f46fe4009368ab3",
+      "attention-ui.js": "eabf570fab4c7709b35e091241d762236863ab53a43c8569a1828c1af53171c3",
+      "bag-occupancy.css": "f47d59188afed882a106fa6e506abfc86a813f6da3c3d7801f97f5d32c934c87",
+      "bag-occupancy.js": "7917a19fc7c3146d20bb2fa0f0e2b293855b1b14fcc7f0ff0b1c9c5b6745bf1d",
+      "battle-feedback.css": "8ae6c782efee1f922b9fb3bfe5d8729ecc1be8ebbf383953ac2ff4c44667c752",
+      "battle-feedback.js": "501597f317ecda35d69cd4a2c18c25383dbb743444a239e479281e4ad0194bee",
+      "battle-policy.js": "1c8e2c9117d87a9eaef40c177e187e75e562b65d0c5cb9a543b918f792aea977",
+      "build-core.js": "aeed0c0fc6e6fdd9ae95f820213057882017c08b9cb62e076f99a2c664a5fc2a",
+      "build-shots.html": "11809890958d76a95d84474fcefc551af3aa74843c78d418e6311979824b7ce2",
+      "design.html": "de5445765d9d3ab05a4e0a34707d4de320ceb3429db6345d39ad6f5dfbabb4a3",
+      "desktop-entry.js": "11aa64df2c5603c358c18d23f80dcfb82eba9e8251df41825aca681f384a2145",
+      "desktop.css": "cc415657f9882ee1a32a1534c0bf2b5119bd663b63df4d726ac72d0ad8d5b7ee",
+      "desktop.html": "d30c140e67e500c5c0caf844d2d42504879022bec20bedc539d2324ffbe1daa6",
+      "experience-core.js": "602a7a60bd5cebc06d09237980f1215340a34792741ef381ca41500509c5262c",
+      "experience-ui.css": "1bca1951781871e0c4c31ed71f91e881d8e544135d9a0687717777c984a28ecc",
+      "experience-ui.js": "b4b60b5ba8ea99d0acdd9fcd7fee633ef99fc3426decb34428e7abeb97e1aabb",
+      "guide/book.css": "ff02f1a5cacb62a07595cee744dcac39e9b883fb90150e34fd7d015ab7e373a7",
+      "guide/book.js": "16e254837a0d87051efe9114ade416c39db515a9fcbd2cebdcfc232a98375353",
+      "guide/manual.html": "f44587d1bef9de5e58e474b14237fffdac1e951417af9ac161f94b99090a95e5",
+      "hp-meter.js": "2d0b2a8b1f9831fbe4ff114240bc7ea41f10287c1c5bfafe01f9362e06964377",
+      "index.html": "1ed471f6338375bf343a332711ff8a4c7afdccfc272461869dbee21dbea7c6ec",
+      "item-variants.js": "c05bbfba02bf148680abe0db228c97eff8084880e88dab55c932a29930eab1c8",
+      "journey-review.html": "ef1cf23666881b5fd73c390d49f62705ca8ee45fcc32a58a5ec41adff10c7f6c",
+      "material-core.js": "5306e52dc087f0c7233fc1237d29e41ba40649a01a230c928ce37212649459f5",
+      "material-shots.html": "92abf4053dec6a35bd4db08b6713c072a3da57526ce16747695c4152c9e74b48",
+      "material-ui.css": "e1bc599a3e158423a556b4a561ab0b42a30a84d6fdea3abf3c5c2961edc4f8a7",
+      "material-ui.js": "bc05cdec39d750581f42b08fa8ff46e303eabfc656e0d58be94efa7109d3454b",
+      "mp-meter.js": "3563ffc6966fb0a1bff81b8a02cddef966331d99c4980d3bbbd6dc4d472b99f4",
+      "mp-shape.js": "305eaa47777e977050bcfd5e8121dc154ae11353b27260f89f3049337f4df10f",
+      "native-bag-proof.js": "0f4a8d71e9f8f7c6464e403b0831452f27c13469111406ac9885b1cd96ec319d",
+      "native-frame.css": "8d43a58e41b772a5d82b96a467f2ff9cc80c5ee3cddf98f30ec18dca01e2c511",
+      "native-frame.js": "9be681022efd4b863d2ecc3e5bc5c2cd97ed146773b21f9082117faa3ab8dd2e",
+      "native-layout-review.css": "853ce427a0f53ca378d726ab11e803e22ee33bdcbc3e01b800eabace171dce82",
+      "online-protocol.js": "f9dda391014c75644ae33c1d4388dd546d0345aba650ac4c53037f5c0bad8ed3",
+      "online-rooms.js": "f4ffe12cb252cc66c9cefa2dc3a7d25e0d641699cd580e97de294e591b4678b9",
+      "ordered-combat.js": "32ff8a6c6893d1079df1fd340c13d8ece16612d464529df139fc77548f73f8be",
+      "practice-guide.css": "0be65686baa4a15dd8071abf67c976c428fdd168ee655e1987275c7e988bdb3f",
+      "practice-guide.js": "b4b076a3617bd644b4c93a9d0945fbf12a58c6a07a81071afe25cccf30c2f375",
+      "preparation-core.js": "0cbed9e817ff6a547d0bfee262880b89beaddace4a2b764875b9455a29ba8253",
+      "preparation-flow.css": "661302cab92ec0d2c25035371f7aa9fa5528ac98ea023cbfe2217c7147f56e73",
+      "preparation-shots.html": "1f3d78b17bde9417158aa65f5d41e06cc214115231f2467d63225246ae08873e",
+      "resource-rules.js": "a6e5cfbb50a1202b8d730d897f944912d750d56057b0e5d5f8655f9df6d50fd8",
+      "road-stage.js": "a7b9ab8cbb3b8cb3e3792a6cbd9f1e3fef529017de1c2b4d50b09671b3d07101",
+      "room-answer.js": "5fe043ab9057123cd8c457af1e30fbf60a2ea3da8d9397131de7ad95d661af64",
+      "room-combat.js": "8e1515d44a16b8b5fb24cedb4238e0e995690a9e332af452a830558472ed3004",
+      "room-engine.js": "f22607d4fcdbc40a93c84523139b1c06e1ae1b9e362d3199c65b3d2425ea6768",
+      "room-http.js": "5f93e375bdcd014757eeee91711809c10c55aefa906c3f0e3789811ed73d0b43",
+      "room-layout-review.css": "1cfc4f227957e0632aa20e6e669d1bd8369a566f392cf82b20e0f9e9fa321da9",
+      "room-test-driver.js": "872c607c6b6b92910a3096f37738492f1e604dacbe5c05af5ca07eb3ce37ff50",
+      "room-ui.js": "f8253fa2b429c963d5bcaaa34dae924d6954686e09b5fee20a0af1a0139f3613",
+      "room.css": "ab9bcfe524cdb22e6d5b3d127991d228860e69c0e695a9dcc0f1c33af80809c6",
+      "room.html": "c7aece095f2e411c146028d578217321f9b1ac630947da6aece17166e096b501",
+      "screenshots.html": "819d09e7d1f239549e64dc98a480bfb326480764d2c1095eda51e9be5a2a22f8",
+      "shared-shots.html": "59c60e92b3088dc50745a575ecb9e009af46ec07f320853513e2d5e92df818e0",
+      "stage3d-shots.html": "dfdeb133b908e74f2c2f8d295d048d700802e23d1b006fd3f8d25f01b87f1227",
+      "stage3d-ui.css": "c774a1e1db5db86a24c08dc4c009c6e90f5aa297952678780fce501bf4c55a98",
+      "status-preview.css": "10c392d319658b4309e3d1c7e686e1cc0aaa2dbcfd09b9a1899b6dcb435a3e17",
+      "status-preview.js": "21465c1f9e69023a04cf12fe91b631fa11c589531527696dcad1ec232a3deaff",
+      "status-shots.html": "a21bc2d45494dc5a3d6c0e94fee9fea77ba0b29ceed292b7ecf6c8a09d05fdf8",
+      "status-window-v1.html": "ea6886a8d8fd1efe8a6fdca99b221d05ab966c58e685c01e0a18d56010e93c16",
+      "supplies-shots.html": "72e6c0209a270f431e3135b6ab4664f1c7a95494d63e60f04cdfd494740bc936",
+      "supplies-ui.css": "3b4c1ab50534e588102514da1ae49040e776d4d2628cac49bd7d9c6787325986",
+      "supply-core.js": "ec5582fd6c5ea51e9d79bc0e1f17fe1830fb4fef5d5b4906aa7724b36a701489",
+      "supply-table.js": "6c1cab9f5a46bdd458852b114f1116fc979a84088634cf1245753f2abb0d3231",
+      "vendor/OrbitControls.js": "9964a025acc4a482ed8acc7650993696daea6de3ffb1769ce32a060cd2d47e06",
+      "vendor/peerjs-1.5.5.min.js": "7604d8c31bec4f134b0d15c2d80b1d095ea18af005354f439f14291fcd7b4168",
+      "vendor/three.module.js": "2cc2ca1a3afe24ce57e77261f44d842dc8dde5e50285b43b8eb74e0bfeb6cf71",
+      "windows-internet-peer-playtest.js": "4bd15d43f450fe16707c8adceb90256993bf45f9a7f719c5429e3a84486c5655",
+      "windows-internet-playtest.js": "77e92fea90cc24037b4e0ceb894d75f3963807cc13caa305375a2e23ccccc60a",
+      "windows-learning-playtest.js": "718f23c1464495693b31872310f735017a23dc495d652b752db3612e1dba6232",
+      "windows-peer-playtest.js": "c4144592c8e2eb49f53909bf3b55477753abcbb183cfef67403b5440de919cf9",
+      "windows-playtest.js": "ee8f3b089874174fae4ae01f832c2732e54fa269b1eb9ab9801655962cefee98",
+      "windows-room-playtest.js": "089aafc7d3653c8d9767f6d677ded29ab76ef2fe107edb2643e8aa81d58f2ee5"
+    }
+  },
+  "programInputSnapshotScope": "Conservative program source snapshot; includes unexecuted code. No claim every file executed. Native-only QA additions were not loaded by this browser harness.",
+  "changedProgramInputs": [
+    "bag-occupancy.css",
+    "bag-occupancy.js",
+    "index.html",
+    "material-ui.js",
+    "native-bag-proof.js",
+    "room-test-driver.js",
+    "room-ui.js",
+    "room.html",
+    "windows-playtest.js"
+  ],
+  "serverShutdownVerified": true,
+  "carryForward": "Valid for identical UI6 and unchanged transitive renderer/engine inputs. New Windows QA-only code is outside this browser execution evidence."
+}
